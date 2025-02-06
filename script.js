@@ -99,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const criticalText = document.querySelector('.text-item h3');
     const textCover = document.createElement('div');
     textCover.className = 'text-cover';
-    textCover.style.backgroundImage = "url('./Licitra.png')";
+    textCover.style.backgroundImage = "url(Licitra.png)";
     document.body.appendChild(textCover);
 
     criticalText.addEventListener('mousemove', (e) => {
