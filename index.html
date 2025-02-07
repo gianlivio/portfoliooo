@@ -7,7 +7,16 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="custom-cursor"></div>
+    
+    <div class="custom-cursor">
+        <svg viewBox="0 0 50 50">
+            <path class="cursor-arrow" 
+                  d="M12,38 L38,12 M38,12 L38,25 M38,12 L25,12" 
+                  stroke-linecap="round" 
+                  stroke-linejoin="round">
+            </path>
+        </svg>
+    </div>
     
     <nav>
         <div class="nav-left">
@@ -29,7 +38,7 @@
             <div class="project-list">
                 <a href="#" class="big-link" data-page="developer">WEB DEVELOPER /</a>
                 <a href="#" class="big-link" data-page="writer">SCRITTORE /</a>
-                <a href="#" class="big-link" data-page="projects">PROGETTI /</a>
+                <a href="#" class="big-link" data-page="music">MUSICA /</a>
                 <a href="#" class="big-link" data-page="cv">CV</a>
             </div>
         </div>
@@ -128,6 +137,72 @@
             </div>
         </div>
     </main>
+
+    <!-- Music section -->
+    <div class="page" id="music">
+        <h1>MUSICA</h1>
+        
+        <!-- Malacarne Section -->
+        <div class="music-project">
+            <h2>MALACARNE (2014-2018)</h2>
+            <div class="music-description">
+                <p>Progetto Noise/Industrial/Experimental</p>
+                <div class="music-links">
+                    <a href="https://soundcloud.com/m4lacarn3" target="_blank" class="platform-link">
+                        <span class="platform-icon">♫</span>
+                        <span>SoundCloud</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Juan Lee Section -->
+        <div class="music-project">
+            <h2>JUAN LEE</h2>
+            <div class="music-description">
+                <h3>SEMEIOSIS</h3>
+                <p>Album Concettuale</p>
+                
+                <!-- Video Section -->
+                <div class="video-section">
+                    <h4>SIGNIFIATION - Music Video</h4>
+                    <div class="video-thumbnail">
+                        <a href="https://www.youtube.com/watch?v=YjlkHyGLe0w" target="_blank" class="video-link">
+                            <img src="/api/placeholder/640/360" alt="Signifiation Video Thumbnail" />
+                            <div class="play-overlay">▶</div>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Streaming Platforms -->
+                <div class="streaming-platforms">
+                    <h4>ASCOLTA SU</h4>
+                    <div class="platform-grid">
+                        <a href="https://soundcloud.com/juan-lee-360195240" target="_blank" class="platform-link">
+                            <span class="platform-icon">♫</span>
+                            <span>SoundCloud</span>
+                        </a>
+                        <a href="https://open.spotify.com/intl-it/album/4dVNDDcyVXrPC5KGf53sIZ" target="_blank" class="platform-link">
+                            <span class="platform-icon">♫</span>
+                            <span>Spotify</span>
+                        </a>
+                        <a href="https://music.apple.com/id/album/semeiosis/1567964226" target="_blank" class="platform-link">
+                            <span class="platform-icon">♫</span>
+                            <span>Apple Music</span>
+                        </a>
+                        <a href="https://www.deezer.com/en/album/230726902" target="_blank" class="platform-link">
+                            <span class="platform-icon">♫</span>
+                            <span>Deezer</span>
+                        </a>
+                        <a href="https://www.qobuz.com/us-en/album/semeiosis-juan-lee/dcz274g49ixdc" target="_blank" class="platform-link">
+                            <span class="platform-icon">♫</span>
+                            <span>Qobuz</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <footer>
         <a href="https://github.com/gianlivio" target="_blank">GITHUB</a>

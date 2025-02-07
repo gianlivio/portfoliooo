@@ -6,10 +6,106 @@ document.addEventListener('DOMContentLoaded', () => {
     const bookCover = document.createElement('div');
     bookCover.className = 'book-cover';
     document.body.appendChild(bookCover);
-    
+
+
+    const homeLinks = document.querySelectorAll('.big-link');
+    const sectionImages = {
+        'developer': ['fizzbuzz', 'discord', 'train', 'dropbox', 'pizza'],
+        'music': ['malacarne', 'semeiosis'],
+        'writer': ['a', 'Licitra'] 
+    };
+
+    homeLinks.forEach(link => {
+        const section = link.getAttribute('data-page');
+        if (sectionImages[section]) {
+            let currentImageIndex = 0;
+            let intervalId = null;
+            
+            // Creiamo un div per l'immagine hover
+            const hoverImage = document.createElement('div');
+            hoverImage.className = 'project-hover-image';
+            document.body.appendChild(hoverImage);
+
+            link.addEventListener('mouseenter', (e) => {
+                hoverImage.style.opacity = '1';
+                intervalId = setInterval(() => {
+                    currentImageIndex = (currentImageIndex + 1) % sectionImages[section].length;
+                    hoverImage.className = `project-hover-image ${sectionImages[section][currentImageIndex]}`;
+                    hoverImage.classList.add('flicker');
+                }, 400); // Cambia immagine ogni 400ms
+            });
+
+            link.addEventListener('mousemove', (e) => {
+                hoverImage.style.left = e.clientX + 'px';
+                hoverImage.style.top = e.clientY + 'px';
+            });
+
+            link.addEventListener('mouseleave', () => {
+                hoverImage.style.opacity = '0';
+                hoverImage.classList.remove('flicker');
+                if (intervalId) {
+                    clearInterval(intervalId);
+                    intervalId = null;
+                }
+                currentImageIndex = 0;
+            });
+        }
+    });
+
+    const styleSheet = document.styleSheets[0];
+    styleSheet.insertRule(`
+        .project-hover-image.a {
+            background-image: url('a.png');
+        }
+    `, styleSheet.cssRules.length);
+    styleSheet.insertRule(`
+        .project-hover-image.Licitra {
+            background-image: url('Licitra.png');
+        }
+    `, styleSheet.cssRules.length);
+
+    homeLinks.forEach(link => {
+        const section = link.getAttribute('data-page');
+        if (sectionImages[section]) {
+            let currentImageIndex = 0;
+            let intervalId = null;
+            
+            const hoverImage = document.createElement('div');
+            hoverImage.className = 'project-hover-image';
+            document.body.appendChild(hoverImage);
+
+            link.addEventListener('mouseenter', (e) => {
+                hoverImage.style.opacity = '1';
+                intervalId = setInterval(() => {
+                    currentImageIndex = (currentImageIndex + 1) % sectionImages[section].length;
+                    hoverImage.className = `project-hover-image ${sectionImages[section][currentImageIndex]}`;
+                    hoverImage.classList.add('flicker');
+                }, 400);
+            });
+
+            link.addEventListener('mousemove', (e) => {
+                hoverImage.style.left = e.clientX + 'px';
+                hoverImage.style.top = e.clientY + 'px';
+            });
+
+            link.addEventListener('mouseleave', () => {
+                hoverImage.style.opacity = '0';
+                hoverImage.classList.remove('flicker');
+                if (intervalId) {
+                    clearInterval(intervalId);
+                    intervalId = null;
+                }
+                currentImageIndex = 0;
+            });
+        }
+    });
+
+
     document.addEventListener('mousemove', (e) => {
         cursor.style.left = e.clientX + 'px';
         cursor.style.top = e.clientY + 'px';
+
+
     });
     
     if (bookTitle) {
@@ -65,13 +161,15 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('mouseleave', () => cursor.style.opacity = '0');
     document.addEventListener('mouseenter', () => cursor.style.opacity = '1');
  
-    const projectCards = document.querySelectorAll('.project-card h3');
+    const projectCards = document.querySelectorAll('.project-card h3, .music-project h2');
     const projectImages = {
         'FizzBuzz Game': 'fizzbuzz',
         'Discord Clone': 'discord',
         'Train Ticket Form': 'train',
         'Dropbox Clone': 'dropbox',
-        'Antico Stradello': 'pizza'
+        'Antico Stradello': 'pizza',
+        'MALACARNE (2014-2018)': 'malacarne',  
+        'JUAN LEE': 'semeiosis'
     };
  
     projectCards.forEach(card => {
@@ -79,7 +177,8 @@ document.addEventListener('DOMContentLoaded', () => {
         hoverImage.className = `project-hover-image ${projectImages[card.textContent]}`;
         document.body.appendChild(hoverImage);
     
-        const projectArea = card.closest('.project-card');
+        // Modifichiamo questa parte per gestire entrambi i tipi di container
+        const projectArea = card.closest('.project-card') || card.closest('.music-project');
         
         projectArea.addEventListener('mousemove', (e) => {
             hoverImage.style.left = e.clientX + 'px';
@@ -95,6 +194,7 @@ document.addEventListener('DOMContentLoaded', () => {
             cursor.style.opacity = '1';
         });
     });
+
 
     const criticalText = document.querySelector('.text-item h3');
     const textCover = document.createElement('div');
