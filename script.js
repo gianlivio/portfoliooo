@@ -142,10 +142,23 @@ document.addEventListener('DOMContentLoaded', () => {
             targetPage.classList.add('active');
             setTimeout(() => targetPage.classList.add('visible'), 100);
             
-            if (pageId !== 'home') {
-                document.body.classList.add('colored-bg');
+          
+            const colors = {
+                'home': 'white',
+                'developer': '#FF4400',  
+                'writer': '#000000',     
+                'music': '#7CB518',      
+                'about': '#00A6FB',    
+                'cv': '#FFD23F'         
+            };
+            
+            document.body.style.backgroundColor = colors[pageId] || 'white';
+            
+            
+            if (pageId === 'writer') {
+                document.body.classList.add('light-text');
             } else {
-                document.body.classList.remove('colored-bg');
+                document.body.classList.remove('light-text');
             }
         }
     }
@@ -168,7 +181,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'Train Ticket Form': 'train',
         'Dropbox Clone': 'dropbox',
         'Antico Stradello': 'pizza',
-        'MALACARNE (2014-2018)': 'malacarne',  
+        'MALACARNE(TMC Crew)': 'malacarne',  
         'JUAN LEE': 'semeiosis'
     };
  
