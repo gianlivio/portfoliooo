@@ -99,7 +99,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const criticalText = document.querySelector('.text-item h3');
     const textCover = document.createElement('div');
     textCover.className = 'text-cover';
+<<<<<<< HEAD
     textCover.style.backgroundImage = "url('./img/licitra.png')";
+=======
+    textCover.style.backgroundImage = "url(Licitra.png)";
+>>>>>>> b6319b8c311a52fac17d353d6dadc3d51374d60c
     document.body.appendChild(textCover);
 
     criticalText.addEventListener('mousemove', (e) => {
@@ -116,5 +120,41 @@ document.addEventListener('DOMContentLoaded', () => {
     cursor.style.opacity = '1';
     });
 
+<<<<<<< HEAD
 
 });
+=======
+// Funzione per verificare se è un dispositivo mobile
+const isMobile = () => window.matchMedia("(max-width: 480px)").matches;
+
+if (isMobile()) {
+    // Rimuovi effetti hover
+    document.body.style.cursor = 'auto';
+    cursor.style.display = 'none';
+
+    // Aggiungi interazione tap
+    const addTapInteraction = (element, hoverElement) => {
+        let isShowing = false;
+        element.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (!isShowing) {
+                hoverElement.style.opacity = '1';
+                hoverElement.classList.add('flicker');
+                isShowing = true;
+                setTimeout(() => {
+                    hoverElement.style.opacity = '0';
+                    hoverElement.classList.remove('flicker');
+                    isShowing = false;
+                }, 2000);
+            }
+        });
+    };
+
+    // Applica a tutti gli elementi interattivi
+    projectCards.forEach(card => {
+        const hoverImage = document.querySelector(`.project-hover-image.${projectImages[card.textContent]}`);
+        addTapInteraction(card, hoverImage);
+    });
+}
+});
+>>>>>>> b6319b8c311a52fac17d353d6dadc3d51374d60c

@@ -221,11 +221,19 @@ h2 {
     animation: flicker 0.4s infinite;
 }
 
+<<<<<<< HEAD
 .project-hover-image.fizzbuzz { background-image: url('./img/pig.png'); }
 .project-hover-image.discord { background-image: url('./img/discord.png'); }
 .project-hover-image.train { background-image: url('./img/treno.png'); }
 .project-hover-image.dropbox { background-image: url('./img/dropbox.png'); }
 .project-hover-image.pizza { background-image: url('./img/pizza.png'); }
+=======
+.project-hover-image.fizzbuzz { background-image: url('pig.png'); }
+.project-hover-image.discord { background-image: url('discord.png'); }
+.project-hover-image.train { background-image: url('treno.png'); }
+.project-hover-image.dropbox { background-image: url('dropbox.png'); }
+.project-hover-image.pizza { background-image: url('pizza.png'); }
+>>>>>>> b6319b8c311a52fac17d353d6dadc3d51374d60c
 
 .text-cover {
     position: fixed;
