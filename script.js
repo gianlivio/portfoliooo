@@ -176,7 +176,7 @@ document.addEventListener('DOMContentLoaded', () => {
  
     const projectCards = document.querySelectorAll('.project-card h3, .music-project h2');
     const projectImages = {
-        'FizzBuzz Game': 'fizzbuzz',
+        'Neon Snake': 'fizzbuzz',
         'Discord Clone': 'discord',
         'Train Ticket Form': 'train',
         'Dropbox Clone': 'dropbox',
