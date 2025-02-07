@@ -146,16 +146,17 @@ document.addEventListener('DOMContentLoaded', () => {
             const colors = {
                 'home': 'white',
                 'developer': '#FF4400',  
-                'writer': '#000000',     
+                'writer': '#FF007F',     
                 'music': '#7CB518',      
                 'about': '#00A6FB',    
-                'cv': '#FFD23F'         
+                'cv': '#FFD23F',
+                'contact': '#000000'          
             };
             
             document.body.style.backgroundColor = colors[pageId] || 'white';
             
             
-            if (pageId === 'writer') {
+            if (pageId === 'contact') {
                 document.body.classList.add('light-text');
             } else {
                 document.body.classList.remove('light-text');

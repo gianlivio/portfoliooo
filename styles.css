@@ -340,8 +340,8 @@ h2 {
 
 .aspect {
     padding: 1.5rem;
-    background: rgba(255,68,0,0.03);
-    border-left: 3px solid #FF4400;
+    background: rgba(68, 68, 68, 0.03);
+    border-left: 3px solid #444444;
     transition: all 0.3s ease;
 }
 
@@ -353,7 +353,7 @@ h2 {
 .aspect h3 {
     font-size: 1.3rem;
     margin-bottom: 0.8rem;
-    color: #FF4400;
+    color: #444444;
 }
 
 .aspect p {
@@ -416,7 +416,7 @@ h2 {
     top: 0;
     height: 100%;
     width: 2px;
-    background: rgba(0,0,0,0.1);
+    background: #444444;
 }
 
 .timeline-item {
@@ -433,7 +433,7 @@ h2 {
     width: 12px;
     height: 12px;
     border-radius: 50%;
-    background: #FF4400;
+    background: #00ff6a;
     transition: all 0.3s ease;
 }
 
@@ -443,7 +443,7 @@ h2 {
 
 .time {
     font-size: 0.9rem;
-    color: #FF4400;
+    color: #00ff6a;
     margin-bottom: 0.5rem;
     font-weight: 500;
 }
