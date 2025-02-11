@@ -282,6 +282,7 @@ h2 {
 .project-hover-image.train { background-image: url('treno.png'); }
 .project-hover-image.dropbox { background-image: url('dropbox.png'); }
 .project-hover-image.pizza { background-image: url('pizza.png'); }
+.project-hover-image.flappy { background-image: url('flappy.jpg'); }
 .project-hover-image.malacarne {
     background-image: url('malacarne.png');
     background-size: contain;

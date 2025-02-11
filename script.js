@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const homeLinks = document.querySelectorAll('.big-link');
     const sectionImages = {
-        'developer': ['fizzbuzz', 'discord', 'train', 'dropbox', 'pizza'],
+        'developer': ['fizzbuzz', 'discord', 'train', 'dropbox', 'pizza', 'flappy'],
         'music': ['malacarne', 'semeiosis'],
         'writer': ['a', 'Licitra'] 
     };
@@ -182,6 +182,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'Train Ticket Form': 'train',
         'Dropbox Clone': 'dropbox',
         'Antico Stradello': 'pizza',
+        'Flappy Bird': 'flappy',
         'MALACARNE(TMC Crew)': 'malacarne',  
         'JUAN LEE': 'semeiosis'
     };
