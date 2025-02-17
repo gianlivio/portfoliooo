@@ -20,27 +20,30 @@ document.addEventListener('DOMContentLoaded', () => {
         if (sectionImages[section]) {
             let currentImageIndex = 0;
             let intervalId = null;
+            let isTouching = false; // Aggiungiamo questa variabile per tracciare lo stato del touch
             
-            // Creiamo un div per l'immagine hover
             const hoverImage = document.createElement('div');
             hoverImage.className = 'project-hover-image';
             document.body.appendChild(hoverImage);
-
-            link.addEventListener('mouseenter', (e) => {
+    
+            // Gestore touch start
+            link.addEventListener('touchstart', (e) => {
+                isTouching = true;
+                const touch = e.touches[0];
                 hoverImage.style.opacity = '1';
+                hoverImage.style.left = `${touch.clientX}px`;
+                hoverImage.style.top = `${touch.clientY}px`;
+                
                 intervalId = setInterval(() => {
                     currentImageIndex = (currentImageIndex + 1) % sectionImages[section].length;
                     hoverImage.className = `project-hover-image ${sectionImages[section][currentImageIndex]}`;
                     hoverImage.classList.add('flicker');
-                }, 400); // Cambia immagine ogni 400ms
+                }, 400);
             });
-
-            link.addEventListener('mousemove', (e) => {
-                hoverImage.style.left = e.clientX + 'px';
-                hoverImage.style.top = e.clientY + 'px';
-            });
-
-            link.addEventListener('mouseleave', () => {
+    
+            // Gestore touch end
+            link.addEventListener('touchend', () => {
+                isTouching = false;
                 hoverImage.style.opacity = '0';
                 hoverImage.classList.remove('flicker');
                 if (intervalId) {
@@ -49,6 +52,54 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 currentImageIndex = 0;
             });
+    
+            // Gestore touch cancel
+            link.addEventListener('touchcancel', () => {
+                isTouching = false;
+                hoverImage.style.opacity = '0';
+                hoverImage.classList.remove('flicker');
+                if (intervalId) {
+                    clearInterval(intervalId);
+                    intervalId = null;
+                }
+                currentImageIndex = 0;
+            });
+    
+            // Gestore touch move
+            link.addEventListener('touchmove', (e) => {
+                if (isTouching) {
+                    const touch = e.touches[0];
+                    hoverImage.style.left = `${touch.clientX}px`;
+                    hoverImage.style.top = `${touch.clientY}px`;
+                }
+            });
+    
+            // Manteniamo gli eventi mouse solo per desktop
+            if (!('ontouchstart' in window)) {
+                link.addEventListener('mouseenter', (e) => {
+                    hoverImage.style.opacity = '1';
+                    intervalId = setInterval(() => {
+                        currentImageIndex = (currentImageIndex + 1) % sectionImages[section].length;
+                        hoverImage.className = `project-hover-image ${sectionImages[section][currentImageIndex]}`;
+                        hoverImage.classList.add('flicker');
+                    }, 400);
+                });
+    
+                link.addEventListener('mousemove', (e) => {
+                    hoverImage.style.left = e.clientX + 'px';
+                    hoverImage.style.top = e.clientY + 'px';
+                });
+    
+                link.addEventListener('mouseleave', () => {
+                    hoverImage.style.opacity = '0';
+                    hoverImage.classList.remove('flicker');
+                    if (intervalId) {
+                        clearInterval(intervalId);
+                        intervalId = null;
+                    }
+                    currentImageIndex = 0;
+                });
+            }
         }
     });
 
