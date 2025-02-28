@@ -649,6 +649,17 @@ h2 {
     }
 }
 
+
+
+
+/* puntoluce project */
+.project-hover-image.puntoluce {
+    background-image: url('puntoluce.png');
+}
+
+
+
+/* progetti web dev */
  
  .project-card {
     padding: 2rem;

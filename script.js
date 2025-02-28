@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const sectionImages = {
         'developer': ['fizzbuzz', 'discord', 'train', 'dropbox', 'pizza', 'flappy'],
         'music': ['malacarne', 'semeiosis'],
-        'writer': ['a', 'Licitra'] 
+        'writer': ['a', 'Licitra', 'c', 'd'] 
     };
 
     homeLinks.forEach(link => {
@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (sectionImages[section]) {
             let currentImageIndex = 0;
             let intervalId = null;
-            let isTouching = false; // Aggiungiamo questa variabile per tracciare lo stato del touch
+            let isTouching = false; 
             
             const hoverImage = document.createElement('div');
             hoverImage.className = 'project-hover-image';
@@ -104,6 +104,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const styleSheet = document.styleSheets[0];
+    styleSheet.insertRule(`
+        .project-hover-image.c {
+            background-image: url('c.png');
+        }
+    `, styleSheet.cssRules.length);
+    styleSheet.insertRule(`
+        .project-hover-image.d {
+            background-image: url('d.png');
+        }
+    `, styleSheet.cssRules.length);
     styleSheet.insertRule(`
         .project-hover-image.a {
             background-image: url('a.png');
@@ -235,7 +245,8 @@ document.addEventListener('DOMContentLoaded', () => {
         'Antico Stradello': 'pizza',
         'Flappy Bird': 'flappy',
         'MALACARNE(TMC Crew)': 'malacarne',  
-        'JUAN LEE': 'semeiosis'
+        'JUAN LEE': 'semeiosis',
+          'PuntoLuce': 'puntoluce'
     };
  
     projectCards.forEach(card => {
