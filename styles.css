@@ -227,6 +227,21 @@ h2 {
 }
 
 
+@media (max-width: 480px) {
+    .book-section img {
+        width: 50px; /* Riduci la larghezza */
+        height: auto; /* Mantieni le proporzioni */
+    }
+
+    .book-section {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+    }
+}
+
+
 /* Aggiunta di stili per la sezione writer */
 .explore-button {
     display: inline-block;
