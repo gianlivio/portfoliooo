@@ -205,17 +205,176 @@ h2 {
     background-size: cover;
 }
 
+/* 🔥 Manteniamo l'animazione originale per gli altri elementi */
 @keyframes flicker {
     0% { opacity: 1; }
     25% { opacity: 0; }
     50% { opacity: 1; }
     75% { opacity: 0; }
     100% { opacity: 1; }
- }
- 
- .book-cover.flicker {
+}
+
+/* ✅ Ora solo il libro alterna tra due immagini */
+@keyframes alternateCover {
+    0% { background-image: url('a.png'); }
+    50% { background-image: url('c.png'); }
+    100% { background-image: url('d.png'); }
+}
+
+/* 🎯 Applica l'animazione giusta agli elementi giusti */
+.book-cover.flicker {
+    animation: alternateCover 0.2s infinite alternate;
+}
+
+
+/* Aggiunta di stili per la sezione writer */
+.explore-button {
+    display: inline-block;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    padding: 0.8rem 1.5rem;
+    background: #FF4400;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.explore-button:hover {
+    background: #cc3600;
+    transform: translateY(-3px);
+}
+
+/* Croissant World */
+#croissant-world {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1000;
+    visibility: hidden;
+    opacity: 0;
+}
+
+#croissant-world.active {
+    visibility: visible;
+    opacity: 1;
+}
+
+.croissant-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -1;
+}
+
+/* Floating books */
+.floating-book {
+    width: 200px;
+    height: 300px;
+    background-size: cover;
+    position: absolute;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    opacity: 0.9;
+    animation: float 4s infinite alternate ease-in-out;
+    cursor: pointer;
+}
+
+.book-1 {
+    top: 20%;
+    left: 10%;
+    background-image: url('a.png');
+    animation-delay: 0s;
+}
+
+.book-2 {
+    top: 50%;
+    left: 40%;
+    background-image: url('b.png');
+    animation-delay: 1s;
+}
+
+.book-3 {
+    top: 30%;
+    right: 10%;
+    background-image: url('e.png');
+    animation-delay: 2s;
+}
+
+.book-4 {
+    bottom: 20%;
+    left: 25%;
+    background-image: url('a.png'); /* Placeholder for the 4th book */
+    filter: grayscale(100%) brightness(0.7);
+    animation-delay: 1.5s;
+}
+
+.book-4:after {
+    content: "Coming Soon";
+    position: absolute;
+    top: -20px;
+    right: -20px;
+    background: #FF4400;
+    color: white;
+    padding: 5px 10px;
+    transform: rotate(15deg);
+    font-size: 0.8rem;
+}
+
+.floating-book:hover {
+    transform: scale(1.1);
+}
+
+.book-1:hover {
+    background-image: url('f.png');
+}
+
+.book-2:hover {
+    background-image: url('c.png');
+}
+
+.book-3:hover {
+    background-image: url('d.png');
+}
+
+@keyframes float {
+    0% {
+        transform: translateY(0px) rotate(0deg);
+    }
+    50% {
+        transform: translateY(-15px) rotate(2deg);
+    }
+    100% {
+        transform: translateY(0px) rotate(-1deg);
+    }
+}
+
+.exit-button {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 10px 20px;
+    border: 1px solid white;
+    cursor: pointer;
+    z-index: 1001;
+}
+
+.exit-button:hover {
+    background: rgba(255, 68, 0, 0.8);
+}
+
+.project-hover-image.flicker,
+.text-cover.flicker {
     animation: flicker 0.4s infinite;
- }
+}
+
 
 .page-transition {
     opacity: 0;
@@ -240,6 +399,257 @@ h2 {
     50% { opacity: 0.7; filter: grayscale(100%); }
     100% { opacity: 1; filter: grayscale(0); }
  }
+
+
+/* Enhanced styling for the Publications section */
+.book-section {
+    position: relative;
+    padding: 3rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 4rem;
+    overflow: hidden;
+    transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05);
+}
+
+.book-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, transparent, rgba(255, 68, 0, 0.05), transparent);
+    transform: translateX(-100%);
+    transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: -1;
+}
+
+.book-section:hover::before {
+    transform: translateX(100%);
+}
+
+.book-section h2 {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 2rem;
+    transition: color 0.3s ease;
+}
+
+.book-section h2::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: #FF4400;
+    transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.book-section:hover h2::after {
+    width: 100%;
+}
+
+.book-description {
+    font-size: 1.8rem;
+    font-style: italic;
+    line-height: 1.5;
+    margin-bottom: 2.5rem;
+    color: rgba(255, 255, 255, 0.8);
+    transition: transform 0.5s ease, opacity 0.5s ease;
+}
+
+.book-section:hover .book-description {
+    transform: translateY(-5px);
+    opacity: 1;
+}
+
+/* Explore Collection Button - Luminous particles effect */
+.explore-button {
+    position: relative;
+    display: inline-block;
+    padding: 1rem 2rem;
+    background: #FF4400;
+    color: white;
+    border: none;
+    font-size: 1.1rem;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    cursor: pointer;
+    overflow: hidden;
+    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 1;
+    box-shadow: 0 5px 15px rgba(255, 68, 0, 0.2);
+    margin-right: 1.5rem;
+}
+
+.explore-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, #FF4400, #FF9500);
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    z-index: -1;
+}
+
+.explore-button::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 5px;
+    height: 5px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+    transform: scale(0);
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: -1;
+}
+
+.explore-button:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 15px 25px rgba(255, 68, 0, 0.3);
+    color: white;
+}
+
+.explore-button:hover::before {
+    opacity: 1;
+}
+
+.explore-button:hover::after {
+    transform: scale(30);
+    opacity: 0;
+}
+
+.explore-button:active {
+    transform: translateY(1px) scale(0.98);
+}
+
+/* Luminous particles */
+.explore-button .particle {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 2;
+}
+
+/* Amazon Button - Neon pulsating effect */
+.amazon-link {
+    position: relative;
+    display: inline-block;
+    padding: 0.9rem 1.8rem;
+    color: #FF4400;
+    background: transparent;
+    border: 2px solid #FF4400;
+    overflow: hidden;
+    text-decoration: none;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    text-shadow: 0 0 0 #FF4400;
+    box-shadow: 0 0 0 rgba(255, 68, 0, 0.5);
+}
+
+.amazon-link::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 0;
+    background: rgba(255, 68, 0, 0.1);
+    transition: height 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: -1;
+}
+
+.amazon-link:hover {
+    color: white;
+    border-color: transparent;
+    background: #FF4400;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+    box-shadow: 0 0 20px rgba(255, 68, 0, 0.8), 0 0 30px rgba(255, 68, 0, 0.6), 0 0 40px rgba(255, 68, 0, 0.4);
+    transform: translateY(-3px);
+}
+
+.amazon-link:hover::before {
+    height: 100%;
+}
+
+.amazon-link:active {
+    transform: translateY(1px);
+    box-shadow: 0 0 15px rgba(255, 68, 0, 0.7);
+}
+
+/* Critical Texts Section */
+.critical-texts {
+    padding: 2.5rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: all 0.5s ease;
+}
+
+.critical-texts:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.text-item {
+    position: relative;
+    margin-top: 2rem;
+    padding: 2rem;
+    border-left: 3px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    overflow: hidden;
+}
+
+.text-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 100%;
+    background: linear-gradient(90deg, rgba(255, 68, 0, 0.05), transparent);
+    transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: -1;
+}
+
+.text-item:hover {
+    transform: translateY(-3px);
+    border-left-color: #FF4400;
+}
+
+.text-item:hover::before {
+    width: 100%;
+}
+
+/* Mobile Support */
+@media (max-width: 768px) {
+    .book-section {
+        padding: 2rem;
+    }
+    
+    .book-description {
+        font-size: 1.4rem;
+    }
+    
+    .explore-button, .amazon-link {
+        display: block;
+        width: 100%;
+        margin: 1rem 0;
+        text-align: center;
+    }
+}
+
+ 
  .project-card {
     padding: 2rem;
     border: 1px solid rgba(0,0,0,0.1);
