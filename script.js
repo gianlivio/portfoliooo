@@ -954,23 +954,15 @@ function initializeInteractiveCV() {
     const downloadButton = document.querySelector('.cv-download-button');
     if (downloadButton) {
         downloadButton.addEventListener('click', function(e) {
-            e.preventDefault();
+            // Manteniamo il link predefinito funzionante (non serve preventDefault)
             
             // Crea un effetto di clic
             this.style.transform = 'translateY(3px)';
             setTimeout(() => {
                 this.style.transform = 'translateY(-5px)';
             }, 200);
-            
-            // Qui puoi aggiungere la logica per il download effettivo del CV
-            // Per esempio:
-            // window.location.href = 'path/to/your/cv.pdf';
-            
-            // Oppure mostra un messaggio
-            alert('CV download functionality will be implemented soon!');
         });
     }
-    
     // Effetto di evidenziazione al passaggio del mouse sui job highlights
     const jobHighlights = document.querySelectorAll('.job-highlights li');
     jobHighlights.forEach(item => {
