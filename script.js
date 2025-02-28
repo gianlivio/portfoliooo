@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const homeLinks = document.querySelectorAll('.big-link');
     const sectionImages = {
-        'developer': ['fizzbuzz', 'discord', 'train', 'dropbox', 'pizza', 'flappy'],
+        'developer': ['fizzbuzz', 'discord', 'train', 'dropbox', 'pizza', 'flappy', 'puntoluce'],
         'music': ['malacarne', 'semeiosis'],
         'writer': ['a', 'Licitra', 'c', 'd'] 
     };
@@ -105,6 +105,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const styleSheet = document.styleSheets[0];
     styleSheet.insertRule(`
+        .project-hover-image.a {
+            background-image: url('a.png');
+        }
+    `, styleSheet.cssRules.length);
+    styleSheet.insertRule(`
+        .project-hover-image.Licitra {
+            background-image: url('Licitra.png');
+        }
+    `, styleSheet.cssRules.length);
+    styleSheet.insertRule(`
         .project-hover-image.c {
             background-image: url('c.png');
         }
@@ -115,13 +125,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     `, styleSheet.cssRules.length);
     styleSheet.insertRule(`
-        .project-hover-image.a {
-            background-image: url('a.png');
-        }
-    `, styleSheet.cssRules.length);
-    styleSheet.insertRule(`
-        .project-hover-image.Licitra {
-            background-image: url('Licitra.png');
+        .project-hover-image.puntoluce {
+            background-image: url('puntoluce.png');
         }
     `, styleSheet.cssRules.length);
 
