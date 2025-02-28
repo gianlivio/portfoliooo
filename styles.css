@@ -888,124 +888,672 @@ h2 {
 }
 
 /* CV Styles */
-.cv-intro {
-    margin-bottom: 4rem;
+/* CV Section Restyling - Add this to your CSS file */
+
+/* Main CV Container */
+.cv-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 0;
 }
 
-.cv-quote {
-    font-size: 2rem;
-    line-height: 1.4;
-    font-style: italic;
-    color: rgba(0,0,0,0.8);
+/* CV Header Styling */
+.cv-header {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 4rem;
+    position: relative;
+}
+
+.cv-title-block {
+    position: relative;
+    z-index: 1;
+}
+
+.cv-title {
+    font-size: 5rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    margin-bottom: 1rem;
+    position: relative;
+    display: inline-block;
+}
+
+.cv-title::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 0;
+    width: 50%;
+    height: 4px;
+    background: linear-gradient(to right, #FF4400, transparent);
+}
+
+.cv-subtitle {
+    font-size: 1.8rem;
+    font-weight: 400;
+    color: rgba(0, 0, 0, 0.7);
+    margin-bottom: 2rem;
+}
+
+.personal-philosophy {
+    margin-top: 2rem;
+    padding-left: 2rem;
+    border-left: 4px solid #FF4400;
     max-width: 800px;
 }
 
-.cv-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 3rem;
+.philosophy-quote {
+    font-size: 1.8rem;
+    line-height: 1.4;
+    font-style: italic;
+    color: rgba(0, 0, 0, 0.8);
+    margin: 0;
+    position: relative;
 }
 
-.cv-section {
-    margin-bottom: 4rem;
+.philosophy-quote::before {
+    content: '"';
+    position: absolute;
+    left: -1.5rem;
+    top: -1rem;
+    font-size: 5rem;
+    color: rgba(255, 68, 0, 0.1);
+    font-family: Georgia, serif;
 }
 
-.cv-section.primary {
-    grid-column: span 2;
+/* Section Titles */
+.section-title {
+    font-size: 2.5rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    margin-bottom: 2.5rem;
+    position: relative;
+    display: inline-block;
 }
 
-.experience-item {
-    margin-bottom: 3rem;
+.section-title::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(to right, #FF4400, transparent);
+}
+
+/* Skills Graph Section */
+.skill-graph-container {
+    margin-bottom: 5rem;
+}
+
+.skill-graph {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
     padding: 2rem;
-    background: rgba(255,255,255,0.1);
-    border: 1px solid rgba(0,0,0,0.1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
     transition: all 0.3s ease;
 }
 
-.experience-item:hover {
+.skill-graph:hover {
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
     transform: translateY(-5px);
 }
 
-.experience-item.featured {
-    border-left: 4px solid #FF4400;
+.skill-legend {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
 }
 
-.experience-item h3 {
+.skill-level {
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+    color: rgba(0, 0, 0, 0.6);
+}
+
+.skill-level::before {
+    content: '';
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    margin-right: 0.5rem;
+    border-radius: 50%;
+}
+
+.skill-level.advanced::before {
+    background-color: #FF4400;
+}
+
+.skill-level.intermediate::before {
+    background-color: #00A6FB;
+}
+
+.skill-level.basic::before {
+    background-color: #7CB518;
+}
+
+.skill-categories {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2.5rem;
+}
+
+.skill-category h3 {
+    font-size: 1.3rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+    display: inline-block;
+}
+
+.skill-category h3::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 30px;
+    height: 2px;
+    background-color: #FF4400;
+}
+
+.skill-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+}
+
+.skill-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.skill-name {
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.skill-bar {
+    height: 10px;
+    background-color: rgba(0, 0, 0, 0.05);
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.skill-progress {
+    height: 100%;
+    border-radius: 5px;
+    position: relative;
+    width: 0;
+    transition: width 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.skill-progress.advanced {
+    background: linear-gradient(to right, #FF4400, #FF9500);
+}
+
+.skill-progress.intermediate {
+    background: linear-gradient(to right, #00A6FB, #4CC9F0);
+}
+
+.skill-progress.basic {
+    background: linear-gradient(to right, #7CB518, #BFD200);
+}
+
+.skill-progress::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 20px;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.3);
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(500%); }
+}
+
+/* Experience Timeline Section */
+.experience-timeline-container {
+    margin-bottom: 5rem;
+}
+
+.experience-timeline {
+    position: relative;
+}
+
+.timeline-controls {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.timeline-control {
+    padding: 0.7rem 1.5rem;
+    background: transparent;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+.timeline-control:hover {
+    background: rgba(255, 68, 0, 0.05);
+    transform: translateY(-2px);
+}
+
+.timeline-control[data-year="2024"] {
+    background: #FF4400;
+    color: white;
+    border-color: #FF4400;
+    box-shadow: 0 5px 15px rgba(255, 68, 0, 0.2);
+}
+
+.timeline-content {
+    position: relative;
+    min-height: 400px;
+}
+
+.timeline-panel {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    opacity: 0;
+    transform: translateY(20px);
+    pointer-events: none;
+    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.timeline-panel.active {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.job-header {
+    margin-bottom: 1rem;
+}
+
+.job-title {
     font-size: 1.8rem;
+    font-weight: 600;
     margin-bottom: 0.5rem;
 }
 
-.company {
+.job-company {
     font-size: 1.2rem;
     color: #FF4400;
     margin-bottom: 0.5rem;
 }
 
-.period {
+.job-period {
     font-size: 0.9rem;
-    color: rgba(0,0,0,0.6);
-    margin-bottom: 1rem;
+    color: rgba(0, 0, 0, 0.6);
 }
 
-.achievements {
-    margin-top: 1.5rem;
+.job-description {
+    padding: 2rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    border-left: 4px solid #FF4400;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.03);
+    transition: all 0.3s ease;
 }
 
-.achievements h4 {
+.job-description:hover {
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08);
+    transform: translateY(-5px);
+    background: rgba(255, 68, 0, 0.03);
+}
+
+.job-highlights h4 {
     font-size: 1rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     margin-bottom: 1rem;
+    color: rgba(0, 0, 0, 0.7);
 }
 
-.achievements ul {
+.job-highlights ul {
     list-style: none;
     padding: 0;
+    margin-bottom: 1.5rem;
 }
 
-.achievements li {
-    margin-bottom: 0.5rem;
+.job-highlights li {
+    margin-bottom: 0.8rem;
     padding-left: 1.5rem;
     position: relative;
 }
 
-.achievements li::before {
-    content: '→';
+.job-highlights li::before {
+    content: '';
     position: absolute;
     left: 0;
-    color: #FF4400;
+    top: 10px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: #FF4400;
 }
 
-.tech-stack {
+.job-description p {
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+}
+
+.job-tech {
     display: flex;
     flex-wrap: wrap;
     gap: 0.8rem;
-    margin: 1rem 0 2rem;
+    margin-top: 1.5rem;
 }
 
-.tech-stack span {
-    padding: 0.5rem 1rem;
-    background: rgba(0,0,0,0.05);
-    border-radius: 2px;
-    font-size: 0.9rem;
+.tech-tag {
+    padding: 0.4rem 0.8rem;
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 20px;
+    font-size: 0.85rem;
+    transition: all 0.3s ease;
 }
 
-.tech-stack span.advanced {
-    background: rgba(255,68,0,0.1);
-    color: #FF4400;
+.tech-tag:hover {
+    background: rgba(255, 68, 0, 0.1);
+    transform: translateY(-3px);
 }
 
-.philosophy-note {
-    font-style: italic;
-    margin-top: 1rem;
-    color: rgba(0,0,0,0.8);
+.job-divider {
+    height: 1px;
+    background: linear-gradient(to right, rgba(0, 0, 0, 0.1), transparent);
+    margin: 2rem 0;
 }
 
-.approach-note {
-    margin-top: 2rem;
+/* Education & Approach Section */
+.education-approach-container {
+    margin-bottom: 5rem;
+}
+
+.education-approach-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+}
+
+.education-block, .approach-block {
     padding: 2rem;
-    background: rgba(255,68,0,0.05);
-    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.03);
+    transition: all 0.3s ease;
+}
+
+.education-block:hover, .approach-block:hover {
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08);
+    transform: translateY(-5px);
+}
+
+.education-item {
+    margin-bottom: 2.5rem;
+}
+
+.education-item:last-child {
+    margin-bottom: 0;
+}
+
+.education-degree {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.education-institution {
+    font-size: 1.1rem;
+    color: rgba(0, 0, 0, 0.7);
+    margin-bottom: 0.5rem;
+}
+
+.education-grade, .education-period {
+    font-size: 0.9rem;
+    color: rgba(0, 0, 0, 0.6);
+    margin-bottom: 1rem;
+}
+
+.education-note {
+    font-style: italic;
+    color: rgba(0, 0, 0, 0.7);
+    line-height: 1.6;
+}
+
+.approach-block h3 {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+    display: inline-block;
+}
+
+.approach-block h3::after {
+    content: '';
+    position: absolute;
+    bottom: -7px;
+    left: 0;
+    width: 50%;
+    height: 2px;
+    background: linear-gradient(to right, #FF4400, transparent);
+}
+
+.approach-content p {
+    line-height: 1.6;
+    margin-bottom: 2rem;
+}
+
+.approach-highlights {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+}
+
+.approach-highlight {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.highlight-icon {
+    font-size: 1.5rem;
+    background-color: rgba(255, 68, 0, 0.1);
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.approach-highlight:hover .highlight-icon {
+    transform: scale(1.2);
+    background-color: rgba(255, 68, 0, 0.2);
+}
+
+.highlight-text {
+    flex: 1;
+    padding-top: 0.5rem;
+}
+
+/* Download CV Button */
+.cv-download-section {
+    display: flex;
+    justify-content: center;
+    margin-top: 4rem;
+}
+
+.cv-download-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 2rem;
+    background: #FF4400;
+    color: white;
+    text-decoration: none;
+    border-radius: 30px;
+    font-size: 1.1rem;
+    font-weight: 500;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 10px 20px rgba(255, 68, 0, 0.2);
+}
+
+.cv-download-button:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(255, 68, 0, 0.3);
+    background: #ff5a1a;
+}
+
+.download-icon {
+    font-size: 1.5rem;
+    transition: transform 0.3s ease;
+}
+
+.cv-download-button:hover .download-icon {
+    transform: translateY(3px);
+}
+
+/* Animation when viewing the page */
+@keyframes slideInFromBottom {
+    0% {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Completamento della regola precedente */
+.cv-container > * {
+    animation: slideInFromBottom 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    opacity: 0;
+}
+
+.cv-container > *:nth-child(1) { animation-delay: 0.1s; }
+.cv-container > *:nth-child(2) { animation-delay: 0.3s; }
+.cv-container > *:nth-child(3) { animation-delay: 0.5s; }
+.cv-container > *:nth-child(4) { animation-delay: 0.7s; }
+.cv-container > *:nth-child(5) { animation-delay: 0.9s; }
+
+/* Animazioni per le barre delle competenze */
+.skill-graph.in-view .skill-progress {
+    width: var(--progress-width, 0%);
+}
+
+/* Effetto di accentuazione quando si passa con il mouse sopra al CV */
+.cv-container:hover .section-title::after {
+    animation: gradientShift 3s infinite alternate;
+}
+
+@keyframes gradientShift {
+    0% { background: linear-gradient(to right, #FF4400, transparent); }
+    50% { background: linear-gradient(to right, #00A6FB, transparent); }
+    100% { background: linear-gradient(to right, #7CB518, transparent); }
+}
+
+/* Effetto per i pulsanti della timeline */
+.timeline-control:active {
+    transform: scale(0.95);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .cv-title {
+        font-size: 4rem;
+    }
+    
+    .philosophy-quote {
+        font-size: 1.5rem;
+    }
+    
+    .section-title {
+        font-size: 2.2rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .education-approach-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+    
+    .cv-title {
+        font-size: 3rem;
+    }
+    
+    .cv-subtitle {
+        font-size: 1.5rem;
+    }
+    
+    .philosophy-quote {
+        font-size: 1.3rem;
+    }
+    
+    .personal-philosophy {
+        padding-left: 1.5rem;
+    }
+    
+    .section-title {
+        font-size: 2rem;
+    }
+    
+    .job-title {
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .cv-title {
+        font-size: 2.5rem;
+    }
+    
+    .cv-subtitle {
+        font-size: 1.2rem;
+    }
+    
+    .philosophy-quote {
+        font-size: 1.1rem;
+    }
+    
+    .timeline-control {
+        padding: 0.5rem 1rem;
+        font-size: 1rem;
+    }
+    
+    .job-title {
+        font-size: 1.3rem;
+    }
+    
+    .job-description {
+        padding: 1.5rem;
+    }
+    
+    .education-degree {
+        font-size: 1.3rem;
+    }
+    
+    .cv-download-button {
+        padding: 0.8rem 1.5rem;
+        font-size: 1rem;
+    }
 }
 
 /* Contact */
@@ -1317,3 +1865,303 @@ body.colored-bg {
        gap: 1rem;
        font-size: 0.9rem;
    }
+
+/* Aggiungi questi stili al tuo file CSS */
+
+/* Effetto 3D per le schede progetto */
+.card-3d {
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    transform-style: preserve-3d;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+}
+
+.card-3d:hover {
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+}
+
+.card-glare {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.card-3d h3 {
+    transform: translateZ(20px);
+    position: relative;
+    z-index: 1;
+}
+
+.card-3d p {
+    transform: translateZ(10px);
+    position: relative;
+    z-index: 1;
+}
+
+.card-3d .tech-stack {
+    transform: translateZ(15px);
+    position: relative;
+    z-index: 1;
+}
+
+.card-3d .project-link {
+    transform: translateZ(25px);
+    position: relative;
+    z-index: 1;
+}
+
+/* Timeline futuristica */
+.timeline-futuristic {
+    position: relative;
+    padding-left: 3rem;
+    margin-top: 2rem;
+    opacity: 0.5;
+    transition: opacity 0.5s ease;
+}
+
+.timeline-futuristic.in-view {
+    opacity: 1;
+}
+
+.timeline-futuristic::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 2px;
+    background: linear-gradient(to bottom, #00ff6a, #00a6fb);
+    transform-origin: top;
+    transform: scaleY(0);
+    animation: lineGrow 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes lineGrow {
+    from { transform: scaleY(0); }
+    to { transform: scaleY(1); }
+}
+
+.timeline-item-futuristic {
+    position: relative;
+    margin-bottom: 3.5rem;
+    padding-left: 2rem;
+    opacity: 0;
+    transform: translateX(-20px);
+    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.timeline-item-futuristic.animate-in {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.timeline-item-futuristic::before {
+    content: '';
+    position: absolute;
+    left: -10px;
+    top: 0;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #00ff6a;
+    box-shadow: 0 0 15px rgba(0, 255, 106, 0.8);
+    z-index: 10;
+    transform: scale(0);
+    animation: pulseIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation-delay: inherit;
+}
+
+@keyframes pulseIn {
+    0% { transform: scale(0); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+.timeline-connector {
+    position: absolute;
+    left: -40px;
+    top: 10px;
+    width: 40px;
+    height: 2px;
+    background: linear-gradient(to right, #00ff6a, transparent);
+    transform-origin: left;
+    transform: scaleX(0);
+    animation: connectGrow 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation-delay: calc(inherit + 0.3s);
+}
+
+@keyframes connectGrow {
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
+}
+
+.timeline-item-futuristic .time {
+    position: relative;
+    color: #00ff6a;
+    font-weight: 700;
+    transition: all 0.3s ease;
+}
+
+.timeline-pulse {
+    position: absolute;
+    top: 50%;
+    right: -20px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #00ff6a;
+    transform: translateY(-50%);
+}
+
+.timeline-pulse::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 50%;
+    background: inherit;
+    animation: pulsate 2s infinite;
+}
+
+@keyframes pulsate {
+    0% { transform: scale(1); opacity: 1; }
+    100% { transform: scale(3); opacity: 0; }
+}
+
+.timeline-item-futuristic .event {
+    background: rgba(0, 0, 0, 0.05);
+    padding: 1.5rem;
+    border-radius: 8px;
+    border-left: 3px solid #00ff6a;
+    transition: all 0.3s ease;
+    transform: translateZ(0);
+}
+
+.timeline-item-futuristic.active .event {
+    background: rgba(0, 255, 106, 0.05);
+    transform: translateX(10px);
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+}
+
+.timeline-item-futuristic .event h3 {
+    transition: all 0.3s ease;
+}
+
+.timeline-item-futuristic.active .event h3 {
+    color: #00ff6a;
+    transform: translateX(5px);
+}
+
+/* Stile del cursore personalizzato */
+.custom-cursor {
+    mix-blend-mode: difference;
+}
+
+.custom-cursor.hover .cursor-arrow {
+    stroke: #00ff6a;
+}
+
+/* Media queries per responsive */
+@media (max-width: 768px) {
+    .timeline-futuristic {
+        padding-left: 2rem;
+    }
+    
+    .timeline-item-futuristic {
+        padding-left: 1rem;
+    }
+    
+    .timeline-connector {
+        width: 20px;
+        left: -20px;
+    }
+}
+
+/* Effetto glitch per i titoli principali */
+h1, h2 {
+    position: relative;
+    overflow: hidden;
+}
+
+h1::before, h2::before {
+    content: attr(data-text);
+    position: absolute;
+    left: -2px;
+    text-shadow: 1px 0 #00a6fb;
+    top: 0;
+    width: 100%;
+    clip: rect(0, 0, 0, 0);
+    animation: glitch-anim-1 2s infinite linear alternate-reverse;
+}
+
+h1::after, h2::after {
+    content: attr(data-text);
+    position: absolute;
+    left: 2px;
+    text-shadow: -1px 0 #FF4400;
+    top: 0;
+    width: 100%;
+    clip: rect(0, 0, 0, 0);
+    animation: glitch-anim-2 3s infinite linear alternate-reverse;
+}
+
+@keyframes glitch-anim-1 {
+    0% {
+        clip: rect(30px, 9999px, 10px, 0);
+    }
+    20% {
+        clip: rect(20px, 9999px, 40px, 0);
+    }
+    40% {
+        clip: rect(60px, 9999px, 20px, 0);
+    }
+    60% {
+        clip: rect(10px, 9999px, 30px, 0);
+    }
+    80% {
+        clip: rect(50px, 9999px, 60px, 0);
+    }
+    100% {
+        clip: rect(40px, 9999px, 50px, 0);
+    }
+}
+
+@keyframes glitch-anim-2 {
+    0% {
+        clip: rect(20px, 9999px, 50px, 0);
+    }
+    25% {
+        clip: rect(40px, 9999px, 10px, 0);
+    }
+    50% {
+        clip: rect(10px, 9999px, 30px, 0);
+    }
+    75% {
+        clip: rect(50px, 9999px, 60px, 0);
+    }
+    100% {
+        clip: rect(30px, 9999px, 20px, 0);
+    }
+}
+
+/* Aggiungi un effetto di rumore sul background quando si cambia pagina */
+body::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    opacity: 0;
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAACXBIWXMAAAsTAAALEwEAmpwYAAAFEmlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNS42LWMxNDIgNzkuMTYwOTI0LCAyMDE3LzA3LzEzLTAxOjA2OjM5ICAgICAgICAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOmRjPSJodHRwOi8vcHVybC5vcmcvZGMvZWxlbWVudHMvMS4xLyIgeG1sbnM6cGhvdG9zaG9wPSJodHRwOi8vbnMuYWRvYmUuY29tL3Bob3Rvc2hvcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RFdnQ9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZUV2ZW50IyIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ0MgKFdpbmRvd3MpIiB4bXA6Q3JlYXRlRGF0ZT0iMjAyMC0wNC0yN1QyMTozNzowNiswMjowMCIgeG1wOk1vZGlmeURhdGU9IjIwMjAtMDQtMjdUMjE6Mzg6MzkrMDI6MDAiIHhtcDpNZXRhZGF0YURhdGU9IjIwMjAtMDQtMjdUMjE6Mzg6MzkrMDI6MDAiIGRjOmZvcm1hdD0iaW1hZ2UvcG5nIiBwaG90b3Nob3A6Q29sb3JNb2RlPSIzIiBwaG90b3Nob3A6SUNDUHJvZmlsZT0ic1JHQiBJRUM2MTk2Ni0yLjEiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6NTA3NDZiNTEtZDg5Yi0yMTRkLThkZjItYjEzOWRhZGE5ZDYzIiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOjUwNzQ2YjUxLWQ4OWItMjE0ZC04ZGYyLWIxMzlkYWRhOWQ2MyIgeG1wTU06T3JpZ2luYWxEb2N1bWVudElEPSJ4bXAuZGlkOjUwNzQ2YjUxLWQ4OWItMjE0ZC04ZGYyLWIxMzlkYWRhOWQ2MyI+IDx4bXBNTTpIaXN0b3J5PiA8cmRmOlNlcT4gPHJkZjpsaSBzdEV2dDphY3Rpb249ImNyZWF0ZWQiIHN0RXZ0Omluc3RhbmNlSUQ9InhtcC5paWQ6NTA3NDZiNTEtZDg5Yi0yMTRkLThkZjItYjEzOWRhZGE5ZDYzIiBzdEV2dDp3aGVuPSIyMDIwLTA0LTI3VDIxOjM3OjA2KzAyOjAwIiBzdEV2dDpzb2Z0d2FyZUFnZW50PSJBZG9iZSBQaG90b3Nob3AgQ0MgKFdpbmRvd3MpIi8+IDwvcmRmOlNlcT4gPC94bXBNTTpIaXN0b3J5PiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PpgGxgMAAAuDSURBVGiB7ZlprF1FFcd/a2bO2Xvv93rvt
+
+   

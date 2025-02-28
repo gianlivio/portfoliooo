@@ -337,148 +337,321 @@
         </div>
 
         <!-- CV Page -->
-        <div class="page" id="cv">
-            <h1>CURRICULUM</h1>
             
-            <div class="cv-intro">
-                <p class="cv-quote">
-                    "Problem solver with a humanistic soul. Bringing together technical expertise 
-                    and human understanding to create meaningful digital solutions."
-                </p>
-            </div>
-        
-            <div class="cv-grid">
-                <!-- Professional Journey -->
-                <div class="cv-section primary">
-                    <h2>PROFESSIONAL JOURNEY</h2>
+        <div class="page" id="cv">
+            <div class="cv-container">
+                <!-- Header Section -->
+                <header class="cv-header">
+                    <div class="cv-title-block">
+                        <h1 class="cv-title" data-text="CURRICULUM">CURRICULUM</h1>
+                        <div class="cv-subtitle">Full Stack Developer with Semiotic Background</div>
+                    </div>
                     
-                    <div class="experience-item featured">
-                        <h3>Front-end Developer</h3>
-                        <p class="company">PuntoLuce - EDIF</p>
-                        <p class="period">2024 - Present</p>
-                        <div class="achievements">
-                            <h4>Key Achievements</h4>
-                            <ul>
-                                <li>Developed cutting-edge website layouts implementing modern design principles</li>
-                                <li>Implemented comprehensive event tracking using Google Tag Manager</li>
-                                <li>Built custom API integrations enhancing site functionality</li>
-                            </ul>
-                        </div>
+                    <div class="personal-philosophy">
+                        <blockquote class="philosophy-quote">
+                            "Problem solver with a humanistic soul. Bringing together technical expertise 
+                            and human understanding to create meaningful digital solutions."
+                        </blockquote>
                     </div>
-        
-                    <div class="experience-item">
-                        <h3>Web Content Manager</h3>
-                        <p class="company">CopyStudio</p>
-                        <p class="period">2023</p>
-                        <p class="description">
-                            Strategic content development focused on user engagement and SEO optimization
-                        </p>
-                    </div>
+                </header>
 
-
-                    <div class="experience-item">
-                        <h3>SEO Copywriter & Web Developer</h3>
-                        <p class="company">Hetaweb</p>
-                        <p class="period">2022-2023</p>
-                        <div class="achievements">
-                            <ul>
-                                <li>Maintained and optimized WordPress websites through backend development</li>
-                                <li>Created SEO-optimized content to enhance search engine rankings</li>
-                                <li>Conducted competitor analysis to support digital strategy development</li>
-                            </ul>
+                <!-- Interactive Skill Graph -->
+                <div class="skill-graph-container">
+                    <h2 class="section-title" data-text="TECHNICAL EXPERTISE">TECHNICAL EXPERTISE</h2>
+                    <div class="skill-graph">
+                        <div class="skill-legend">
+                            <span class="skill-level advanced">Advanced</span>
+                            <span class="skill-level intermediate">Intermediate</span>
+                            <span class="skill-level basic">Basic</span>
                         </div>
-                    </div>
-
-                    <div class="experience-item">
-                        <h3>Junior Web Developer Trainee</h3>
-                        <p class="company">Boolean S.R.L.</p>
-                        <p class="period">2024</p>
-                        <div class="achievements">
-                            <ul>
-                                <li>Developed WhatsApp layout using Vue.js with real-time messaging features</li>
-                                <li>Created custom API with Laravel for contacts and user operations</li>
-                                <li>Built property management dashboard integrating Laravel and Vue.js</li>
-                                <li>Developed travel planning app with user authentication and route management</li>
-                            </ul>
+                        <div class="skill-categories">
+                            <div class="skill-category" id="development-skills">
+                                <h3>Development</h3>
+                                <div class="skill-bars">
+                                    <div class="skill-item">
+                                        <div class="skill-name">Laravel</div>
+                                        <div class="skill-bar">
+                                            <div class="skill-progress advanced" style="width: 90%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="skill-item">
+                                        <div class="skill-name">Vue.js</div>
+                                        <div class="skill-bar">
+                                            <div class="skill-progress advanced" style="width: 85%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="skill-item">
+                                        <div class="skill-name">API Integration</div>
+                                        <div class="skill-bar">
+                                            <div class="skill-progress advanced" style="width: 80%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="skill-item">
+                                        <div class="skill-name">JavaScript</div>
+                                        <div class="skill-bar">
+                                            <div class="skill-progress intermediate" style="width: 75%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="skill-item">
+                                        <div class="skill-name">PHP</div>
+                                        <div class="skill-bar">
+                                            <div class="skill-progress intermediate" style="width: 70%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="skill-item">
+                                        <div class="skill-name">MySQL</div>
+                                        <div class="skill-bar">
+                                            <div class="skill-progress intermediate" style="width: 65%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="skill-category" id="frontend-skills">
+                                <h3>Frontend</h3>
+                                <div class="skill-bars">
+                                    <div class="skill-item">
+                                        <div class="skill-name">HTML5</div>
+                                        <div class="skill-bar">
+                                            <div class="skill-progress advanced" style="width: 90%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="skill-item">
+                                        <div class="skill-name">CSS3/SASS</div>
+                                        <div class="skill-bar">
+                                            <div class="skill-progress advanced" style="width: 85%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="skill-item">
+                                        <div class="skill-name">Bootstrap</div>
+                                        <div class="skill-bar">
+                                            <div class="skill-progress intermediate" style="width: 70%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="skill-item">
+                                        <div class="skill-name">Responsive Design</div>
+                                        <div class="skill-bar">
+                                            <div class="skill-progress advanced" style="width: 85%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="skill-category" id="tools-skills">
+                                <h3>Tools & Methods</h3>
+                                <div class="skill-bars">
+                                    <div class="skill-item">
+                                        <div class="skill-name">Git</div>
+                                        <div class="skill-bar">
+                                            <div class="skill-progress intermediate" style="width: 75%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="skill-item">
+                                        <div class="skill-name">Google Tag Manager</div>
+                                        <div class="skill-bar">
+                                            <div class="skill-progress intermediate" style="width: 65%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="skill-item">
+                                        <div class="skill-name">REST APIs</div>
+                                        <div class="skill-bar">
+                                            <div class="skill-progress advanced" style="width: 80%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="skill-item">
+                                        <div class="skill-name">SEO</div>
+                                        <div class="skill-bar">
+                                            <div class="skill-progress intermediate" style="width: 70%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-        
-                    <div class="experience-item">
-                        <h3>Educator</h3>
-                        <p class="company">OpenGroup</p>
-                        <p class="period">2021-2022</p>
-                        <p class="description">
-                            Worked with unaccompanied migrant minors, facilitating their integration 
-                            through education and cultural mediation
-                        </p>
                     </div>
                 </div>
-        
-                <!-- Technical Expertise -->
-                <div class="cv-section technical">
-                    <h2>TECHNICAL EXPERTISE</h2>
+
+                <!-- Interactive Experience Timeline -->
+                <div class="experience-timeline-container">
+                    <h2 class="section-title" data-text="PROFESSIONAL JOURNEY">PROFESSIONAL JOURNEY</h2>
                     
-                    <div class="expertise-group">
-                        <h3>Development</h3>
-                        <div class="tech-stack">
-                            <span class="advanced">Laravel</span>
-                            <span class="advanced">Vue.js</span>
-                            <span class="advanced">API Integration</span>
-                            <span>JavaScript</span>
-                            <span>PHP</span>
-                            <span>MySQL</span>
+                    <div class="experience-timeline">
+                        <div class="timeline-controls">
+                            <button class="timeline-control" data-year="2024">2024</button>
+                            <button class="timeline-control" data-year="2023">2023</button>
+                            <button class="timeline-control" data-year="2022">2022</button>
+                            <button class="timeline-control" data-year="2021">2021</button>
                         </div>
-                    </div>
-        
-                    <div class="expertise-group">
-                        <h3>Frontend</h3>
-                        <div class="tech-stack">
-                            <span>HTML5</span>
-                            <span>CSS3/SASS</span>
-                            <span>Bootstrap</span>
-                            <span>Responsive Design</span>
-                        </div>
-                    </div>
-        
-                    <div class="expertise-group">
-                        <h3>Tools & Methods</h3>
-                        <div class="tech-stack">
-                            <span>Git</span>
-                            <span>GTM</span>
-                            <span>REST APIs</span>
-                            <span>SEO</span>
+                        
+                        <div class="timeline-content">
+                            <!-- 2024 Experience -->
+                            <div class="timeline-panel active" data-year="2024">
+                                <div class="job-header">
+                                    <div class="job-title">Front-end Developer</div>
+                                    <div class="job-company">PuntoLuce - EDIF</div>
+                                    <div class="job-period">2024 - Present</div>
+                                </div>
+                                <div class="job-description">
+                                    <div class="job-highlights">
+                                        <h4>Key Achievements</h4>
+                                        <ul>
+                                            <li>Developed cutting-edge website layouts implementing modern design principles</li>
+                                            <li>Implemented comprehensive event tracking using Google Tag Manager</li>
+                                            <li>Built custom API integrations enhancing site functionality</li>
+                                        </ul>
+                                    </div>
+                                    <div class="job-tech">
+                                        <div class="tech-tag">HTML5</div>
+                                        <div class="tech-tag">CSS3</div>
+                                        <div class="tech-tag">JavaScript</div>
+                                        <div class="tech-tag">API Integration</div>
+                                        <div class="tech-tag">GTM</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 2023 Experience -->
+                            <div class="timeline-panel" data-year="2023">
+                                <div class="job-header">
+                                    <div class="job-title">Web Content Manager</div>
+                                    <div class="job-company">CopyStudio</div>
+                                    <div class="job-period">2023</div>
+                                </div>
+                                <div class="job-description">
+                                    <p>Strategic content development focused on user engagement and SEO optimization</p>
+                                    <div class="job-tech">
+                                        <div class="tech-tag">Content Strategy</div>
+                                        <div class="tech-tag">SEO</div>
+                                        <div class="tech-tag">UX Writing</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="job-divider"></div>
+                                
+                                <div class="job-header">
+                                    <div class="job-title">Junior Web Developer Trainee</div>
+                                    <div class="job-company">Boolean S.R.L.</div>
+                                    <div class="job-period">2023-2024</div>
+                                </div>
+                                <div class="job-description">
+                                    <div class="job-highlights">
+                                        <h4>Key Projects</h4>
+                                        <ul>
+                                            <li>Developed WhatsApp layout using Vue.js with real-time messaging features</li>
+                                            <li>Created custom API with Laravel for contacts and user operations</li>
+                                            <li>Built property management dashboard integrating Laravel and Vue.js</li>
+                                            <li>Developed travel planning app with user authentication and route management</li>
+                                        </ul>
+                                    </div>
+                                    <div class="job-tech">
+                                        <div class="tech-tag">Vue.js</div>
+                                        <div class="tech-tag">Laravel</div>
+                                        <div class="tech-tag">PHP</div>
+                                        <div class="tech-tag">MySQL</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 2022 Experience -->
+                            <div class="timeline-panel" data-year="2022">
+                                <div class="job-header">
+                                    <div class="job-title">SEO Copywriter & Web Developer</div>
+                                    <div class="job-company">Hetaweb</div>
+                                    <div class="job-period">2022-2023</div>
+                                </div>
+                                <div class="job-description">
+                                    <div class="job-highlights">
+                                        <ul>
+                                            <li>Maintained and optimized WordPress websites through backend development</li>
+                                            <li>Created SEO-optimized content to enhance search engine rankings</li>
+                                            <li>Conducted competitor analysis to support digital strategy development</li>
+                                        </ul>
+                                    </div>
+                                    <div class="job-tech">
+                                        <div class="tech-tag">WordPress</div>
+                                        <div class="tech-tag">PHP</div>
+                                        <div class="tech-tag">SEO</div>
+                                        <div class="tech-tag">Content Creation</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 2021 Experience -->
+                            <div class="timeline-panel" data-year="2021">
+                                <div class="job-header">
+                                    <div class="job-title">Educator</div>
+                                    <div class="job-company">OpenGroup</div>
+                                    <div class="job-period">2021-2022</div>
+                                </div>
+                                <div class="job-description">
+                                    <p>Worked with unaccompanied migrant minors, facilitating their integration through education and cultural mediation</p>
+                                    <div class="job-tech">
+                                        <div class="tech-tag">Education</div>
+                                        <div class="tech-tag">Cultural Mediation</div>
+                                        <div class="tech-tag">Communication</div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-        
-                <!-- Education & Philosophy -->
-                <div class="cv-section philosophy">
-                    <h2>EDUCATION & APPROACH</h2>
+                
+                <!-- Education & Approach Section -->
+                <div class="education-approach-container">
+                    <h2 class="section-title" data-text="EDUCATION & APPROACH">EDUCATION & APPROACH</h2>
                     
-                    <div class="education-item featured">
-                        <h3>Master's in Semiotics</h3>
-                        <p class="institution">University of Bologna - Umberto Eco's School</p>
-                        <p class="grade">Grade: 108/110</p>
-                        <p class="philosophy-note">
-                            Unique perspective on meaning-making and communication, enriching 
-                            every aspect of digital development and user interaction
-                        </p>
+                    <div class="education-approach-grid">
+                        <div class="education-block">
+                            <div class="education-item">
+                                <div class="education-degree">Master's in Semiotics</div>
+                                <div class="education-institution">University of Bologna - Umberto Eco's School</div>
+                                <div class="education-grade">Grade: 108/110</div>
+                                <p class="education-note">
+                                    Unique perspective on meaning-making and communication, enriching 
+                                    every aspect of digital development and user interaction
+                                </p>
+                            </div>
+                            
+                            <div class="education-item">
+                                <div class="education-degree">Full Stack Development</div>
+                                <div class="education-institution">Boolean</div>
+                                <div class="education-period">2023</div>
+                            </div>
+                        </div>
+                        
+                        <div class="approach-block">
+                            <h3>Professional Philosophy</h3>
+                            <div class="approach-content">
+                                <p>
+                                    Combining technical excellence with human understanding. Leading teams 
+                                    with empathy and precision, ensuring both technical quality and 
+                                    team wellbeing.
+                                </p>
+                                
+                                <div class="approach-highlights">
+                                    <div class="approach-highlight">
+                                        <div class="highlight-icon">💡</div>
+                                        <div class="highlight-text">Bringing semiotic analysis to digital problems</div>
+                                    </div>
+                                    <div class="approach-highlight">
+                                        <div class="highlight-icon">🔄</div>
+                                        <div class="highlight-text">Bridging technical and humanistic perspectives</div>
+                                    </div>
+                                    <div class="approach-highlight">
+                                        <div class="highlight-icon">🚀</div>
+                                        <div class="highlight-text">Continuous learning and adaptation</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-        
-                    <div class="education-item">
-                        <h3>Full Stack Development</h3>
-                        <p class="institution">Boolean</p>
-                        <p class="period">2023</p>
-                    </div>
-        
-                    <div class="approach-note">
-                        <h3>Professional Philosophy</h3>
-                        <p>
-                            Combining technical excellence with human understanding. Leading teams 
-                            with empathy and precision, ensuring both technical quality and 
-                            team wellbeing.
-                        </p>
-                    </div>
+                </div>
+                
+                <!-- Download CV Section -->
+                <div class="cv-download-section">
+                    <a href="#" class="cv-download-button">
+                        <span class="download-icon">↓</span>
+                        <span class="download-text">Download Full CV</span>
+                    </a>
                 </div>
             </div>
         </div>

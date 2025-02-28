@@ -546,3 +546,514 @@ function enhanceWriterSection() {
         }, 800);
     }
 }
+
+
+
+// Aggiungi questo codice alla fine del tuo file script.js
+
+// Sistema di particelle interattivo per la homepage
+function createInteractiveParticles() {
+    // Assicurati di essere nella home page
+    const homePage = document.getElementById('home');
+    if (!homePage) return;
+    
+    // Crea il canvas per le particelle
+    const particleCanvas = document.createElement('canvas');
+    particleCanvas.id = 'particle-canvas';
+    particleCanvas.style.position = 'fixed';
+    particleCanvas.style.top = '0';
+    particleCanvas.style.left = '0';
+    particleCanvas.style.width = '100%';
+    particleCanvas.style.height = '100%';
+    particleCanvas.style.pointerEvents = 'none';
+    particleCanvas.style.zIndex = '1';
+    
+    // Inserisci il canvas all'inizio del body
+    document.body.insertBefore(particleCanvas, document.body.firstChild);
+    
+    // Configura il canvas
+    const ctx = particleCanvas.getContext('2d');
+    let width = window.innerWidth;
+    let height = window.innerHeight;
+    
+    // Ridimensiona il canvas per il retina display
+    particleCanvas.width = width * window.devicePixelRatio;
+    particleCanvas.height = height * window.devicePixelRatio;
+    ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+    
+    // Array delle particelle
+    let particles = [];
+    
+    // Posizione del mouse
+    let mouseX = width / 2;
+    let mouseY = height / 2;
+    
+    // Classe per le particelle
+    class Particle {
+        constructor() {
+            this.x = Math.random() * width;
+            this.y = Math.random() * height;
+            this.size = Math.random() * 2 + 1;
+            this.baseX = this.x;
+            this.baseY = this.y;
+            this.density = Math.random() * 30 + 1;
+            this.color = this.getRandomColor();
+            this.distance = 100;
+        }
+        
+        getRandomColor() {
+            const colors = [
+                'rgba(255, 68, 0, 0.7)',   // Il tuo arancione principale
+                'rgba(255, 149, 0, 0.7)',  // Arancione chiaro
+                'rgba(255, 210, 63, 0.7)', // Giallo
+                'rgba(0, 166, 251, 0.7)',  // Blu
+                'rgba(124, 181, 24, 0.7)'  // Verde
+            ];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+        
+        draw() {
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.fillStyle = this.color;
+            ctx.fill();
+        }
+        
+        update() {
+            // Calcola la distanza dal mouse
+            const dx = mouseX - this.x;
+            const dy = mouseY - this.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            // Forza di respulsione in base alla distanza
+            const forceDirectionX = dx / distance;
+            const forceDirectionY = dy / distance;
+            
+            // Distanza massima per l'effetto
+            const maxDistance = 200;
+            const force = (maxDistance - distance) / maxDistance;
+            
+            // Applica la forza solo se entro la distanza massima
+            if (distance < maxDistance) {
+                this.x -= forceDirectionX * force * this.density;
+                this.y -= forceDirectionY * force * this.density;
+            } else {
+                // Ritorna lentamente alla posizione originale
+                if (this.x !== this.baseX) {
+                    const dx = this.x - this.baseX;
+                    this.x -= dx / 20;
+                }
+                if (this.y !== this.baseY) {
+                    const dy = this.y - this.baseY;
+                    this.y -= dy / 20;
+                }
+            }
+            
+            // Disegna la particella
+            this.draw();
+        }
+    }
+    
+    // Inizializza le particelle
+    function init() {
+        particles = [];
+        for (let i = 0; i < 150; i++) {
+            particles.push(new Particle());
+        }
+    }
+    
+    // Anima le particelle
+    function animate() {
+        ctx.clearRect(0, 0, width, height);
+        
+        for (let i = 0; i < particles.length; i++) {
+            particles[i].update();
+        }
+        
+        // Connetti le particelle vicine con linee
+        connectParticles();
+        
+        requestAnimationFrame(animate);
+    }
+    
+    // Connette le particelle vicine con linee
+    function connectParticles() {
+        for (let i = 0; i < particles.length; i++) {
+            for (let j = i; j < particles.length; j++) {
+                const dx = particles[i].x - particles[j].x;
+                const dy = particles[i].y - particles[j].y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance < 100) {
+                    // Opacità in base alla distanza
+                    const opacity = 1 - (distance / 100);
+                    
+                    ctx.beginPath();
+                    ctx.strokeStyle = `rgba(255, 68, 0, ${opacity * 0.2})`;
+                    ctx.lineWidth = 0.5;
+                    ctx.moveTo(particles[i].x, particles[i].y);
+                    ctx.lineTo(particles[j].x, particles[j].y);
+                    ctx.stroke();
+                }
+            }
+        }
+    }
+    
+    // Aggiorna la posizione del mouse
+    window.addEventListener('mousemove', function(e) {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+    });
+    
+    // Gestisci il ridimensionamento della finestra
+    window.addEventListener('resize', function() {
+        width = window.innerWidth;
+        height = window.innerHeight;
+        particleCanvas.width = width * window.devicePixelRatio;
+        particleCanvas.height = height * window.devicePixelRatio;
+        ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+        init();
+    });
+    
+    // Inizializza e avvia l'animazione
+    init();
+    animate();
+}
+
+// Crea l'effetto parallasse 3D per il portfolio
+function create3DPortfolioEffect() {
+    const projectCards = document.querySelectorAll('.project-card');
+    if (!projectCards.length) return;
+    
+    projectCards.forEach(card => {
+        // Aggiungi classe per l'effetto 3D
+        card.classList.add('card-3d');
+        
+        // Crea un overlay per l'effetto glare
+        const glareEffect = document.createElement('div');
+        glareEffect.className = 'card-glare';
+        card.appendChild(glareEffect);
+        
+        // Aggiungi l'effetto di inclinazione 3D al passaggio del mouse
+        card.addEventListener('mousemove', function(e) {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            // Calcola la rotazione in base alla posizione del mouse
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            const rotateY = ((x - centerX) / centerX) * 10;
+            const rotateX = ((centerY - y) / centerY) * 10;
+            
+            // Applica la trasformazione 3D
+            card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.05, 1.05, 1.05)`;
+            
+            // Posiziona l'effetto glare in base alla posizione del mouse
+            const glareX = (x / rect.width) * 100;
+            const glareY = (y / rect.height) * 100;
+            glareEffect.style.background = `radial-gradient(circle at ${glareX}% ${glareY}%, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0) 80%)`;
+        });
+        
+        // Resetta l'effetto quando il mouse esce
+        card.addEventListener('mouseleave', function() {
+            card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)';
+            glareEffect.style.background = 'none';
+        });
+        
+        // Aggiungi comportamento touch per dispositivi mobili
+        card.addEventListener('touchmove', function(e) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const rect = card.getBoundingClientRect();
+            const x = touch.clientX - rect.left;
+            const y = touch.clientY - rect.top;
+            
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            const rotateY = ((x - centerX) / centerX) * 10;
+            const rotateX = ((centerY - y) / centerY) * 10;
+            
+            card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.05, 1.05, 1.05)`;
+        });
+        
+        card.addEventListener('touchend', function() {
+            card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)';
+        });
+    });
+}
+
+// Crea l'effetto futuristico per la timeline nella sezione About
+function createFuturisticTimeline() {
+    const timeline = document.querySelector('.timeline');
+    if (!timeline) return;
+    
+    // Aggiungi classe per styling
+    timeline.classList.add('timeline-futuristic');
+    
+    // Ottieni tutti gli elementi della timeline
+    const timelineItems = timeline.querySelectorAll('.timeline-item');
+    
+    timelineItems.forEach((item, index) => {
+        // Aggiungi classe per animazioni
+        item.classList.add('timeline-item-futuristic');
+        
+        // Aggiungi delay crescente per effetto a cascata
+        item.style.animationDelay = `${index * 0.2}s`;
+        
+        // Aggiungi elementi decorativi
+        const connector = document.createElement('div');
+        connector.className = 'timeline-connector';
+        item.appendChild(connector);
+        
+        const pulse = document.createElement('div');
+        pulse.className = 'timeline-pulse';
+        item.querySelector('.time').appendChild(pulse);
+        
+        // Rendi interattivo ogni elemento
+        item.addEventListener('mouseenter', function() {
+            this.classList.add('active');
+        });
+        
+        item.addEventListener('mouseleave', function() {
+            this.classList.remove('active');
+        });
+    });
+    
+    // Aggiungi scroll animations
+    window.addEventListener('scroll', function() {
+        const timelineRect = timeline.getBoundingClientRect();
+        if (timelineRect.top < window.innerHeight && timelineRect.bottom > 0) {
+            timeline.classList.add('in-view');
+            
+            timelineItems.forEach((item, index) => {
+                setTimeout(() => {
+                    item.classList.add('animate-in');
+                }, index * 200);
+            });
+        }
+    });
+}
+
+// Avvia tutte le animazioni quando il documento è pronto
+document.addEventListener('DOMContentLoaded', function() {
+    createInteractiveParticles();
+    create3DPortfolioEffect();
+    createFuturisticTimeline();
+});
+
+
+// Aggiungi questo al tuo file script.js
+
+// Funzione per attivare le funzionalità interattive del CV
+function initializeInteractiveCV() {
+    // Verifica che siamo nella pagina CV
+    const cvPage = document.getElementById('cv');
+    if (!cvPage) return;
+    
+    // Aggiungi gli attributi data-text ai titoli per l'effetto glitch
+    const titles = cvPage.querySelectorAll('h1, h2');
+    titles.forEach(title => {
+        title.setAttribute('data-text', title.textContent);
+    });
+    
+    // Animazione per le barre delle competenze
+    const skillGraph = document.querySelector('.skill-graph');
+    if (skillGraph) {
+        // Quando la sezione diventa visibile, avvia l'animazione
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    skillGraph.classList.add('in-view');
+                    
+                    // Imposta la larghezza di ogni barra in base al valore specificato
+                    const progressBars = skillGraph.querySelectorAll('.skill-progress');
+                    progressBars.forEach(bar => {
+                        const width = bar.style.width;
+                        bar.style.setProperty('--progress-width', width);
+                    });
+                    
+                    // Interrompi l'osservazione una volta attivata
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.3 });
+        
+        observer.observe(skillGraph);
+    }
+    
+    // Gestione dei controlli della timeline
+    const timelineControls = document.querySelectorAll('.timeline-control');
+    const timelinePanels = document.querySelectorAll('.timeline-panel');
+    
+    timelineControls.forEach(control => {
+        control.addEventListener('click', function() {
+            // Rimuovi la classe active da tutti i controlli
+            timelineControls.forEach(btn => {
+                btn.style.background = 'transparent';
+                btn.style.color = 'black';
+                btn.style.borderColor = 'rgba(0, 0, 0, 0.1)';
+                btn.style.boxShadow = 'none';
+            });
+            
+            // Aggiungi stile active al controllo cliccato
+            this.style.background = '#FF4400';
+            this.style.color = 'white';
+            this.style.borderColor = '#FF4400';
+            this.style.boxShadow = '0 5px 15px rgba(255, 68, 0, 0.2)';
+            
+            // Nascondi tutti i pannelli
+            timelinePanels.forEach(panel => {
+                panel.classList.remove('active');
+            });
+            
+            // Mostra il pannello corrispondente
+            const year = this.getAttribute('data-year');
+            const targetPanel = document.querySelector(`.timeline-panel[data-year="${year}"]`);
+            if (targetPanel) {
+                targetPanel.classList.add('active');
+            }
+        });
+    });
+    
+    // Effetto hover 3D sui blocchi di educazione e approccio
+    const educationBlock = document.querySelector('.education-block');
+    const approachBlock = document.querySelector('.approach-block');
+    
+    [educationBlock, approachBlock].forEach(block => {
+        if (!block) return;
+        
+        block.addEventListener('mousemove', function(e) {
+            const rect = block.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            // Calcola la rotazione in base alla posizione del mouse
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            const rotateY = ((x - centerX) / centerX) * 5;
+            const rotateX = ((centerY - y) / centerY) * 5;
+            
+            // Applica la trasformazione 3D
+            block.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+            
+            // Effetto ombra dinamica
+            block.style.boxShadow = `
+                ${-rotateY / 2}px ${rotateX / 2}px 20px rgba(0, 0, 0, 0.1),
+                0 10px 20px rgba(0, 0, 0, 0.03)
+            `;
+        });
+        
+        block.addEventListener('mouseleave', function() {
+            block.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)';
+            block.style.boxShadow = '0 10px 20px rgba(0, 0, 0, 0.03)';
+        });
+    });
+    
+    // Animazione al click sul pulsante di download
+    const downloadButton = document.querySelector('.cv-download-button');
+    if (downloadButton) {
+        downloadButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Crea un effetto di clic
+            this.style.transform = 'translateY(3px)';
+            setTimeout(() => {
+                this.style.transform = 'translateY(-5px)';
+            }, 200);
+            
+            // Qui puoi aggiungere la logica per il download effettivo del CV
+            // Per esempio:
+            // window.location.href = 'path/to/your/cv.pdf';
+            
+            // Oppure mostra un messaggio
+            alert('CV download functionality will be implemented soon!');
+        });
+    }
+    
+    // Effetto di evidenziazione al passaggio del mouse sui job highlights
+    const jobHighlights = document.querySelectorAll('.job-highlights li');
+    jobHighlights.forEach(item => {
+        item.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateX(5px)';
+            this.style.color = '#FF4400';
+            this.style.transition = 'all 0.3s ease';
+        });
+        
+        item.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateX(0)';
+            this.style.color = '';
+        });
+    });
+    
+    // Effetto particellare sui tech tag
+    const techTags = document.querySelectorAll('.tech-tag');
+    techTags.forEach(tag => {
+        tag.addEventListener('mouseenter', function() {
+            createParticles(this);
+        });
+    });
+    
+    function createParticles(element) {
+        // Crea 5 particelle
+        for (let i = 0; i < 5; i++) {
+            const particle = document.createElement('span');
+            particle.className = 'tag-particle';
+            
+            // Stile della particella
+            particle.style.position = 'absolute';
+            particle.style.width = '5px';
+            particle.style.height = '5px';
+            particle.style.background = '#FF4400';
+            particle.style.borderRadius = '50%';
+            particle.style.pointerEvents = 'none';
+            
+            // Posizione iniziale (centro dell'elemento)
+            const rect = element.getBoundingClientRect();
+            const x = rect.width / 2;
+            const y = rect.height / 2;
+            
+            // Aggiungi al tag
+            element.style.position = 'relative';
+            element.style.overflow = 'visible';
+            element.appendChild(particle);
+            
+            // Animazione
+            const angle = Math.random() * Math.PI * 2;
+            const speed = Math.random() * 30 + 10;
+            const moveX = Math.cos(angle) * speed;
+            const moveY = Math.sin(angle) * speed;
+            
+            // GSAP animation o vanilla JS animation
+            particle.animate([
+                { 
+                    transform: `translate(${x}px, ${y}px) scale(1)`,
+                    opacity: 1
+                },
+                { 
+                    transform: `translate(${x + moveX}px, ${y + moveY}px) scale(0)`,
+                    opacity: 0
+                }
+            ], {
+                duration: 1000,
+                easing: 'cubic-bezier(0.16, 1, 0.3, 1)'
+            }).onfinish = function() {
+                particle.remove();
+            };
+        }
+    }
+}
+
+// Esegui l'inizializzazione quando il documento è pronto
+document.addEventListener('DOMContentLoaded', function() {
+    initializeInteractiveCV();
+    
+    // Gestisci anche il cambiamento di pagina se utilizzi una SPA
+    const navLinks = document.querySelectorAll('[data-page]');
+    navLinks.forEach(link => {
+        link.addEventListener('click', function() {
+            // Verifica dopo un breve ritardo se siamo nella pagina CV
+            setTimeout(initializeInteractiveCV, 100);
+        });
+    });
+});
