@@ -1049,3 +1049,335 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
+
+
+
+// Aggiungi questo al tuo file script.js
+
+// Funzione per inizializzare la sezione About interattiva
+function initializeInteractiveAbout() {
+    // Verifica che siamo nella pagina About
+    const aboutPage = document.getElementById('about');
+    if (!aboutPage) return;
+    
+    // Aggiungi attributi data-text ai titoli per l'effetto glitch
+    const titles = aboutPage.querySelectorAll('h1, h2');
+    titles.forEach(title => {
+        if (!title.getAttribute('data-text')) {
+            title.setAttribute('data-text', title.textContent);
+        }
+    });
+    
+    // Inizializza la visualizzazione della filosofia
+    initPhilosophyVisualizer();
+    
+    // Inizializza l'effetto matrix
+    initMatrixEffect();
+    
+    // Gestisci l'interazione con i nodi della filosofia
+    setupNodeInteractions();
+}
+
+// Funzione per inizializzare il visualizzatore di filosofia
+function initPhilosophyVisualizer() {
+    const centralNode = document.getElementById('central-node');
+    if (!centralNode) return;
+    
+    // Crea connessioni tra i nodi
+    updateConnections();
+    
+    // Aggiungi animazione al nodo centrale
+    centralNode.addEventListener('mouseover', function() {
+        // Effetto pulse sul nodo centrale
+        this.style.transform = 'translate(-50%, -50%) scale(1.1)';
+        this.style.boxShadow = '0 0 30px rgba(255, 68, 0, 0.3)';
+        
+        // Attiva tutti i nodi orbitanti
+        const orbitingNodes = document.querySelectorAll('.orbiting-node');
+        orbitingNodes.forEach(node => {
+            node.style.boxShadow = '0 10px 25px rgba(255, 68, 0, 0.2)';
+        });
+        
+        // Intensifica le connessioni
+        const connections = document.querySelectorAll('.connection');
+        connections.forEach(conn => {
+            conn.style.stroke = 'rgba(255, 68, 0, 0.4)';
+            conn.style.strokeWidth = '3';
+        });
+    });
+    
+    centralNode.addEventListener('mouseout', function() {
+        this.style.transform = 'translate(-50%, -50%)';
+        this.style.boxShadow = '0 10px 25px rgba(0, 0, 0, 0.08)';
+        
+        // Ripristina i nodi orbitanti
+        const orbitingNodes = document.querySelectorAll('.orbiting-node');
+        orbitingNodes.forEach(node => {
+            node.style.boxShadow = '0 10px 25px rgba(0, 0, 0, 0.08)';
+        });
+        
+        // Ripristina le connessioni
+        const connections = document.querySelectorAll('.connection');
+        connections.forEach(conn => {
+            conn.style.stroke = 'rgba(255, 68, 0, 0.2)';
+            conn.style.strokeWidth = '2';
+        });
+    });
+    
+    // Aggiungi movimento orbitale ai nodi
+    animateOrbitingNodes();
+}
+
+// Funzione per aggiornare le connessioni SVG tra i nodi
+function updateConnections() {
+    const centralNode = document.getElementById('central-node');
+    const node1 = document.getElementById('node-1');
+    const node2 = document.getElementById('node-2');
+    const node3 = document.getElementById('node-3');
+    const node4 = document.getElementById('node-4');
+    
+    if (!centralNode || !node1 || !node2 || !node3 || !node4) return;
+    
+    // Ottieni le posizioni dei nodi
+    const centralRect = centralNode.getBoundingClientRect();
+    const centralX = centralRect.left + centralRect.width / 2;
+    const centralY = centralRect.top + centralRect.height / 2;
+    
+    // Ottieni le posizioni relative al contenitore
+    const container = document.querySelector('.node-container');
+    const containerRect = container.getBoundingClientRect();
+    
+    // Calcola le coordinate relative
+    const getCenterX = (element) => {
+        const rect = element.getBoundingClientRect();
+        return rect.left + rect.width / 2 - containerRect.left;
+    };
+    
+    const getCenterY = (element) => {
+        const rect = element.getBoundingClientRect();
+        return rect.top + rect.height / 2 - containerRect.top;
+    };
+    
+    // Aggiorna i percorsi SVG
+    updatePath('connection-1', getCenterX(centralNode), getCenterY(centralNode), getCenterX(node1), getCenterY(node1));
+    updatePath('connection-2', getCenterX(centralNode), getCenterY(centralNode), getCenterX(node2), getCenterY(node2));
+    updatePath('connection-3', getCenterX(centralNode), getCenterY(centralNode), getCenterX(node3), getCenterY(node3));
+    updatePath('connection-4', getCenterX(centralNode), getCenterY(centralNode), getCenterX(node4), getCenterY(node4));
+}
+
+// Funzione per aggiornare un singolo percorso SVG
+function updatePath(id, x1, y1, x2, y2) {
+    const path = document.getElementById(id);
+    if (!path) return;
+    
+    // Crea un percorso curvo
+    const dx = x2 - x1;
+    const dy = y2 - y1;
+    const ctrl1x = x1 + dx / 4;
+    const ctrl1y = y1 + dy / 2;
+    const ctrl2x = x1 + dx * 3 / 4;
+    const ctrl2y = y1 + dy / 2;
+    
+    path.setAttribute('d', `M${x1},${y1} C${ctrl1x},${ctrl1y} ${ctrl2x},${ctrl2y} ${x2},${y2}`);
+}
+
+// Funzione per animare i nodi orbitanti
+function animateOrbitingNodes() {
+    const centralNode = document.getElementById('central-node');
+    if (!centralNode) return;
+    
+    const centralRect = centralNode.getBoundingClientRect();
+    const centralX = centralRect.left + centralRect.width / 2;
+    const centralY = centralRect.top + centralRect.height / 2;
+    
+    const orbitingNodes = document.querySelectorAll('.orbiting-node');
+    
+    // Assegna una posizione orbitale casuale a ciascun nodo
+    orbitingNodes.forEach((node, index) => {
+        const orbit = parseInt(node.getAttribute('data-orbit')) || 1;
+        const angle = (index * Math.PI / 2) + (Math.random() * 0.2);
+        const radius = 150 + (orbit * 20);
+        const speed = 0.0001 + (Math.random() * 0.0001);
+        
+        // Assegna attributi personalizzati per l'animazione
+        node.setAttribute('data-angle', angle);
+        node.setAttribute('data-radius', radius);
+        node.setAttribute('data-speed', speed);
+    });
+    
+    // Avvia l'animazione
+    let lastTime = 0;
+    function animateNodes(timestamp) {
+        if (!lastTime) lastTime = timestamp;
+        const deltaTime = timestamp - lastTime;
+        lastTime = timestamp;
+        
+        orbitingNodes.forEach(node => {
+            let angle = parseFloat(node.getAttribute('data-angle'));
+            const radius = parseFloat(node.getAttribute('data-radius'));
+            const speed = parseFloat(node.getAttribute('data-speed'));
+            
+            // Aggiorna l'angolo in base al tempo trascorso
+            angle += speed * deltaTime;
+            node.setAttribute('data-angle', angle);
+            
+            // Calcola la nuova posizione
+            const x = Math.cos(angle) * radius;
+            const y = Math.sin(angle) * radius;
+            
+            // Applica la nuova posizione
+            const nodeRect = node.getBoundingClientRect();
+            const containerRect = document.querySelector('.philosophy-canvas').getBoundingClientRect();
+            
+            const centerX = containerRect.width / 2;
+            const centerY = containerRect.height / 2;
+            
+            node.style.left = `${centerX + x - nodeRect.width / 2}px`;
+            node.style.top = `${centerY + y - nodeRect.height / 2}px`;
+        });
+        
+        // Aggiorna le connessioni SVG
+        updateConnections();
+        
+        // Continua l'animazione
+        if (document.querySelector('.philosophy-canvas')) {
+            requestAnimationFrame(animateNodes);
+        }
+    }
+    
+    requestAnimationFrame(animateNodes);
+}
+
+// Funzione per gestire l'interazione con i nodi
+function setupNodeInteractions() {
+    const nodes = document.querySelectorAll('.philosophy-node');
+    
+    nodes.forEach(node => {
+        // Aggiungi effetto hover avanzato
+        node.addEventListener('mouseenter', function() {
+            // Evidenzia questo nodo
+            this.style.zIndex = 20;
+            
+            // Crea effetto ripple
+            const ripple = document.createElement('div');
+            ripple.className = 'node-ripple';
+            ripple.style.position = 'absolute';
+            ripple.style.top = '50%';
+            ripple.style.left = '50%';
+            ripple.style.transform = 'translate(-50%, -50%)';
+            ripple.style.width = '10px';
+            ripple.style.height = '10px';
+            ripple.style.borderRadius = '50%';
+            ripple.style.background = 'rgba(255, 68, 0, 0.2)';
+            ripple.style.pointerEvents = 'none';
+            
+            this.appendChild(ripple);
+            
+            // Anima il ripple
+            ripple.animate([
+                { width: '10px', height: '10px', opacity: 1 },
+                { width: '100px', height: '100px', opacity: 0 }
+            ], {
+                duration: 1000,
+                easing: 'cubic-bezier(0.16, 1, 0.3, 1)'
+            }).onfinish = () => ripple.remove();
+        });
+        
+        node.addEventListener('mouseleave', function() {
+            // Ripristina z-index
+            setTimeout(() => {
+                this.style.zIndex = this.classList.contains('central-node') ? 10 : 1;
+            }, 300);
+        });
+    });
+}
+
+// Funzione per inizializzare l'effetto Matrix
+function initMatrixEffect() {
+    const canvas = document.getElementById('matrix-canvas');
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    
+    // Imposta le dimensioni del canvas
+    const resizeCanvas = () => {
+        const container = canvas.parentElement;
+        canvas.width = container.offsetWidth;
+        canvas.height = container.offsetHeight;
+    };
+    
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+    
+    // Caratteri per l'effetto matrix
+    const chars = '01';
+    const fontSize = 14;
+    const columns = Math.ceil(canvas.width / fontSize);
+    
+    // Array per tenere traccia della posizione Y di ciascuna colonna
+    const drops = Array(columns).fill(1);
+    
+    // Codice per disegnare l'effetto matrix
+    function drawMatrix() {
+        // Trasparenza dello sfondo per creare l'effetto trail
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        // Colore e font dei caratteri
+        ctx.fillStyle = 'rgba(255, 68, 0, 0.3)';
+        ctx.font = `${fontSize}px monospace`;
+        
+        // Loop per ogni goccia
+        for (let i = 0; i < drops.length; i++) {
+            // Carattere casuale
+            const char = chars.charAt(Math.floor(Math.random() * chars.length));
+            
+            // Disegna il carattere
+            ctx.fillText(char, i * fontSize, drops[i] * fontSize);
+            
+            // Incrementa Y, e resetta casualmente
+            if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                drops[i] = 0;
+            }
+            
+            // Incrementa con probabilità casuale
+            if (Math.random() > 0.5) {
+                drops[i]++;
+            }
+        }
+    }
+    
+    // Avvia l'animazione
+    let matrixInterval = setInterval(drawMatrix, 80);
+    
+    // Fermati quando la pagina non è più visibile
+    document.addEventListener('visibilitychange', function() {
+        if (document.hidden) {
+            clearInterval(matrixInterval);
+        } else {
+            matrixInterval = setInterval(drawMatrix, 80);
+        }
+    });
+}
+
+// Esegui l'inizializzazione quando il documento è pronto
+document.addEventListener('DOMContentLoaded', function() {
+    initializeInteractiveAbout();
+    
+    // Gestisci anche il cambiamento di pagina
+    const navLinks = document.querySelectorAll('[data-page]');
+    navLinks.forEach(link => {
+        link.addEventListener('click', function() {
+            // Verifica dopo un breve ritardo se siamo nella pagina About
+            setTimeout(initializeInteractiveAbout, 100);
+        });
+    });
+    
+    // Assicurati che la finestra di ridimensionamento aggiorni le connessioni
+    window.addEventListener('resize', function() {
+        if (document.getElementById('about').classList.contains('active')) {
+            updateConnections();
+        }
+    });
+});

@@ -731,7 +731,10 @@ h2 {
 
 .text-cover.flicker {
     animation: flicker 0.4s infinite;
-}.about-grid {
+}
+
+
+.about-grid {
     display: grid;
     grid-template-columns: 1.5fr 1fr;
     gap: 4rem;
@@ -1555,6 +1558,592 @@ h2 {
         font-size: 1rem;
     }
 }
+
+
+/* About */
+/* CSS per la sezione About redesign - Aggiungi alla fine del tuo file CSS */
+
+/* Container principale */
+.about-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem 0;
+}
+
+/* Hero section */
+.about-hero {
+    position: relative;
+    margin-bottom: 6rem;
+}
+
+.about-title {
+    font-size: 5rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    margin-bottom: 1rem;
+    position: relative;
+    display: inline-block;
+}
+
+.about-title::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 0;
+    width: 60px;
+    height: 4px;
+    background: #FF4400;
+    transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.about-title:hover::after {
+    width: 100%;
+}
+
+.about-subtitle {
+    font-size: 1.8rem;
+    font-weight: 400;
+    color: rgba(0, 0, 0, 0.7);
+    margin-bottom: 3rem;
+    transform: translateY(0);
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.about-title:hover + .about-subtitle {
+    transform: translateY(5px);
+}
+
+/* Introduzione con layout a colonne */
+.about-intro {
+    display: grid;
+    grid-template-columns: 3fr 2fr;
+    gap: 4rem;
+    align-items: center;
+}
+
+.intro-text {
+    font-size: 1.5rem;
+    line-height: 1.6;
+    color: rgba(0, 0, 0, 0.8);
+}
+
+.intro-text p {
+    margin-bottom: 1.5rem;
+}
+
+.highlight {
+    color: #FF4400;
+    position: relative;
+    white-space: nowrap;
+}
+
+.highlight::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: #FF4400;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.highlight:hover::after {
+    transform: scaleX(1);
+}
+
+/* Ritratto stilizzato */
+.portrait-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.portrait-link {
+    display: block;
+    cursor: pointer;
+    position: relative;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.portrait-link:hover {
+    transform: scale(1.05);
+}
+
+.portrait-link:active {
+    transform: scale(0.95);
+}
+
+
+.portrait-frame {
+    width: 240px;
+    height: 240px;
+    border-radius: 50%;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(45deg, #FF4400, #FF9500);
+    box-shadow: 0 15px 35px rgba(255, 68, 0, 0.2);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.portrait-frame:hover {
+    transform: scale(1.05);
+    box-shadow: 0 20px 45px rgba(255, 68, 0, 0.3);
+}
+
+.portrait-placeholder {
+    font-size: 8rem;
+    font-weight: 700;
+    color: white;
+    text-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    transform: translateY(5px);
+}
+
+.portrait-glitch-effect {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, #FF4400, #FF9500);
+    opacity: 0;
+    mix-blend-mode: overlay;
+    pointer-events: none;
+}
+
+.portrait-frame:hover .portrait-glitch-effect {
+    animation: glitchEffect 0.8s infinite;
+}
+
+@keyframes glitchEffect {
+    0% {
+        opacity: 0;
+        transform: translateX(0);
+    }
+    25% {
+        opacity: 0.5;
+        transform: translateX(-10px);
+    }
+    50% {
+        opacity: 0;
+        transform: translateX(10px);
+    }
+    75% {
+        opacity: 0.5;
+        transform: translateX(-5px);
+    }
+    100% {
+        opacity: 0;
+        transform: translateX(0);
+    }
+}
+
+/* Visualizzatore della filosofia di lavoro */
+.philosophy-visualizer {
+    margin-bottom: 6rem;
+}
+
+.section-title {
+    font-size: 2.5rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    margin-bottom: 2.5rem;
+    position: relative;
+    display: inline-block;
+}
+
+.section-title::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 0;
+    width: 50px;
+    height: 3px;
+    background: #FF4400;
+    transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.section-title:hover::after {
+    width: 100%;
+}
+
+.philosophy-canvas {
+    position: relative;
+    height: 500px;
+    background: rgba(0, 0, 0, 0.02);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.node-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.philosophy-node {
+    position: absolute;
+    padding: 1rem;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    cursor: pointer;
+}
+
+.central-node {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: linear-gradient(45deg, #FF4400, #FF9500);
+    color: white;
+    font-weight: 600;
+    z-index: 10;
+    padding: 1.5rem 2rem;
+}
+
+.orbiting-node {
+    width: 130px;
+    text-align: center;
+    font-size: 0.9rem;
+    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.orbiting-node:hover {
+    transform: scale(1.1);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+    z-index: 5;
+}
+
+.node-label {
+    font-weight: 500;
+}
+
+.node-description {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 220px;
+    padding: 1rem;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(10px);
+    transition: all 0.3s ease;
+    z-index: 20;
+}
+
+.orbiting-node:hover .node-description {
+    opacity: 1;
+    transform: translateY(-120%);
+}
+
+.node-description h3 {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+    color: #FF4400;
+}
+
+.node-description p {
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: rgba(0, 0, 0, 0.7);
+}
+
+.node-connections {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.connection {
+    fill: none;
+    stroke: rgba(255, 68, 0, 0.2);
+    stroke-width: 2;
+    stroke-dasharray: 10, 5;
+    animation: flowDash 20s linear infinite;
+}
+
+@keyframes flowDash {
+    to {
+        stroke-dashoffset: -1000;
+    }
+}
+
+.interaction-hint {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: rgba(0, 0, 0, 0.5);
+    font-size: 0.9rem;
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
+}
+
+.interaction-hint .hint-icon {
+    font-size: 1.2rem;
+    margin-bottom: 5px;
+    animation: bounceUpDown 2s ease-in-out infinite;
+}
+
+@keyframes bounceUpDown {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+}
+
+.philosophy-canvas:hover .interaction-hint {
+    opacity: 0;
+}
+
+/* Sezione passioni con effetto Matrix */
+.passion-section {
+    margin-bottom: 6rem;
+}
+
+.passion-matrix {
+    position: relative;
+    padding: 3rem;
+    border-radius: 10px;
+    overflow: hidden;
+    min-height: 400px;
+}
+
+.matrix-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+}
+
+#matrix-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.passion-content {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    z-index: 2;
+}
+
+.passion-item {
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 10px;
+    padding: 2rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: flex-start;
+    gap: 1.5rem;
+}
+
+.passion-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+    background: white;
+}
+
+.passion-icon {
+    width: 60px;
+    height: 60px;
+    background: #FF4400;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2rem;
+    color: white;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+}
+
+.passion-item:hover .passion-icon {
+    transform: scale(1.1) rotate(10deg);
+}
+
+.passion-text h3 {
+    font-size: 1.2rem;
+    margin-bottom: 0.8rem;
+}
+
+.passion-text p {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: rgba(0, 0, 0, 0.7);
+}
+
+/* Sezione di connessione al CV */
+.connect-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    margin-top: 4rem;
+    margin-bottom: 4rem;
+}
+
+.connect-text {
+    font-size: 1.5rem;
+    margin-bottom: 2rem;
+    opacity: 0.8;
+}
+
+.connect-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 2rem;
+    background: #FF4400;
+    color: white;
+    text-decoration: none;
+    border-radius: 30px;
+    font-size: 1.1rem;
+    font-weight: 500;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 10px 20px rgba(255, 68, 0, 0.2);
+}
+
+.connect-button:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(255, 68, 0, 0.3);
+    background: #ff5a1a;
+}
+
+.connect-button .button-arrow {
+    transition: transform 0.3s ease;
+}
+
+.connect-button:hover .button-arrow {
+    transform: translateX(5px);
+}
+
+/* Posizionamento iniziale dei nodi */
+#node-1 {
+    top: 30%;
+    left: 25%;
+}
+
+#node-2 {
+    top: 20%;
+    left: 70%;
+}
+
+#node-3 {
+    top: 70%;
+    left: 25%;
+}
+
+#node-4 {
+    top: 70%;
+    left: 70%;
+}
+
+/* Animazione di ingresso */
+@keyframes fadeInSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.about-container > * {
+    animation: fadeInSlideUp 0.8s forwards;
+    opacity: 0;
+}
+
+.about-container > *:nth-child(1) { animation-delay: 0.1s; }
+.about-container > *:nth-child(2) { animation-delay: 0.3s; }
+.about-container > *:nth-child(3) { animation-delay: 0.5s; }
+.about-container > *:nth-child(4) { animation-delay: 0.7s; }
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .about-intro {
+        gap: 3rem;
+    }
+    
+    .intro-text {
+        font-size: 1.3rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .about-intro {
+        grid-template-columns: 1fr;
+        gap: 3rem;
+    }
+    
+    .portrait-container {
+        order: -1;
+    }
+    
+    .passion-content {
+        grid-template-columns: 1fr;
+    }
+    
+    .about-title {
+        font-size: 3.5rem;
+    }
+    
+    .about-subtitle {
+        font-size: 1.5rem;
+    }
+    
+    .section-title {
+        font-size: 2rem;
+    }
+    
+    .connect-text {
+        font-size: 1.3rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .about-title {
+        font-size: 3rem;
+    }
+    
+    .intro-text {
+        font-size: 1.1rem;
+    }
+    
+    .philosophy-canvas {
+        height: 400px;
+    }
+    
+    .passion-item {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 1rem;
+    }
+}
+
 
 /* Contact */
 .contact-grid {

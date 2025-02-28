@@ -37,119 +37,151 @@
         <!-- Home Page -->
         <div class="page active" id="home">
             <div class="project-list">
-                <a href="#" class="big-link" data-page="developer">CREATIVE DEVELOPER /</a>
+                <a href="#" class="big-link" data-page="developer">WEB DEVELOPER /</a>
                 <a href="#" class="big-link" data-page="writer">WRITER /</a>
-                <a href="#" class="big-link" data-page="music">SOUND ARTIST /</a>
+                <a href="#" class="big-link" data-page="music">SOUND MASTER /</a>
                 <a href="#" class="big-link" data-page="cv">CV</a>
             </div>
         </div>
 
 
         <!-- About -->
+       
         <div class="page" id="about">
-            <h1>ABOUT</h1>
-            <div class="about-grid">
-                <div class="about-text">
-                    <p class="lead-text">
-                        A Full Stack Developer with a unique blend of technical expertise and humanistic insight. 
-                        My background in Semiotics and Digital Communication shapes my approach to creating 
-                        web solutions that resonate both functionally and meaningfully.
-                    </p>
+            <div class="about-container">
+                <!-- Intestazione interattiva -->
+                <div class="about-hero">
+                    <h1 class="about-title" data-text="ABOUT">ABOUT</h1>
+                    <div class="about-subtitle">Creative Developer with Semiotic Insight</div>
                     
-                    <div class="about-section">
-                        <h2>PHILOSOPHY & APPROACH</h2>
-                        <p class="philosophy-text">
-                            In Umberto Eco's school of Semiotics, I learned to decode the layers of meaning that shape human interaction. 
-                            Today, I apply this understanding to bridge the gap between technical solutions and human needs, 
-                            creating digital experiences that speak to both logic and emotion.
-                        </p>
-                        <div class="key-aspects">
-                            <div class="aspect">
-                                <h3>Problem Solving</h3>
-                                <p>Approaching challenges with analytical precision and creative insight</p>
-                            </div>
-                            <div class="aspect">
-                                <h3>Human-Centric</h3>
-                                <p>Balancing technical excellence with genuine understanding of user needs</p>
-                            </div>
-                            <div class="aspect">
-                                <h3>Cross-Disciplinary</h3>
-                                <p>Merging development expertise with communication theory</p>
-                            </div>
+                    <!-- Introduzione interattiva -->
+                    <div class="about-intro">
+                        <div class="intro-text">
+                            <p>I bridge the gap between technical solutions and human understanding, creating digital experiences that communicate on multiple levels.</p>
+                            <p>My background in <span class="highlight">Umberto Eco's Semiotics</span> shapes how I approach every development challenge – decoding the layers of meaning that shape user interactions.</p>
+                        </div>
+                        
+                        <div class="portrait-container">
+                            <a href="#" class="portrait-link" data-page="home">
+                                <div class="portrait-frame">
+                                    <div class="portrait-placeholder">G</div>
+                                    <div class="portrait-glitch-effect"></div>
+                                </div>
+                            </a>
                         </div>
                     </div>
-        
-                    <div class="expertise-section">
-                        <h2>TECHNICAL EXPERTISE</h2>
-                        <div class="skills-grid">
-                            <div class="skill-category">
-                                <h3>Frontend Crafting</h3>
-                                <div class="skill-items">
-                                    <span class="skill-advanced">Vue.js</span>
-                                    <span>JavaScript</span>
-                                    <span>HTML5/CSS3</span>
-                                    <span>SASS</span>
-                                    <span>Bootstrap</span>
+                </div>
+                
+                <!-- Filosofia di lavoro visualizzata in modo creativo -->
+                <div class="philosophy-visualizer">
+                    <h2 class="section-title" data-text="MY APPROACH">MY APPROACH</h2>
+                    
+                    <div class="philosophy-canvas">
+                        <div class="node-container">
+                            <!-- Nodo centrale -->
+                            <div class="philosophy-node central-node" id="central-node">
+                                <span class="node-label">Creative Development</span>
+                            </div>
+                            
+                            <!-- Nodi orbitanti -->
+                            <div class="philosophy-node orbiting-node" data-orbit="1" id="node-1">
+                                <span class="node-label">Problem Solving</span>
+                                <div class="node-description">
+                                    <h3>Analytical & Creative</h3>
+                                    <p>Approaching challenges with precision and insight, finding solutions at the intersection of logic and creativity.</p>
                                 </div>
                             </div>
-                            <div class="skill-category">
-                                <h3>Backend Architecture</h3>
-                                <div class="skill-items">
-                                    <span class="skill-advanced">Laravel</span>
-                                    <span>PHP</span>
-                                    <span>MySQL</span>
-                                    <span>REST APIs</span>
+                            
+                            <div class="philosophy-node orbiting-node" data-orbit="2" id="node-2">
+                                <span class="node-label">Human-Centric</span>
+                                <div class="node-description">
+                                    <h3>User-Focused Design</h3>
+                                    <p>Balancing technical excellence with genuine understanding of user needs and expectations.</p>
                                 </div>
                             </div>
-                            <div class="skill-category">
-                                <h3>Digital Strategy</h3>
-                                <div class="skill-items">
-                                    <span>Git</span>
-                                    <span>SEO</span>
-                                    <span>UX Writing</span>
-                                    <span>Analytics</span>
+                            
+                            <div class="philosophy-node orbiting-node" data-orbit="3" id="node-3">
+                                <span class="node-label">Cross-Disciplinary</span>
+                                <div class="node-description">
+                                    <h3>Bridging Worlds</h3>
+                                    <p>Merging development expertise with communication theory to create richer digital experiences.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="philosophy-node orbiting-node" data-orbit="4" id="node-4">
+                                <span class="node-label">Meaning-Oriented</span>
+                                <div class="node-description">
+                                    <h3>Semiotic Approach</h3>
+                                    <p>Applying semiotic principles to create interfaces and systems that communicate clearly and effectively.</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Connessioni tra i nodi -->
+                            <svg class="node-connections" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                                <path id="connection-1" class="connection" />
+                                <path id="connection-2" class="connection" />
+                                <path id="connection-3" class="connection" />
+                                <path id="connection-4" class="connection" />
+                            </svg>
+                        </div>
+                        
+                        <div class="interaction-hint">
+                            <span class="hint-icon">↑</span>
+                            <span class="hint-text">Interact with the nodes</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Sezione "Cosa mi appassiona" - presentata con effetto Matrix -->
+                <div class="passion-section">
+                    <h2 class="section-title" data-text="WHAT DRIVES ME">WHAT DRIVES ME</h2>
+                    
+                    <div class="passion-matrix">
+                        <div class="matrix-background">
+                            <canvas id="matrix-canvas"></canvas>
+                        </div>
+                        
+                        <div class="passion-content">
+                            <div class="passion-item">
+                                <div class="passion-icon">
+                                    <span class="icon-symbol">≡</span>
+                                </div>
+                                <div class="passion-text">
+                                    <h3>Clean, Meaningful Code</h3>
+                                    <p>Finding elegance in simplicity and clarity. Writing code that other developers can understand and build upon.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="passion-item">
+                                <div class="passion-icon">
+                                    <span class="icon-symbol">∞</span>
+                                </div>
+                                <div class="passion-text">
+                                    <h3>Digital Communication</h3>
+                                    <p>Creating interfaces and experiences that speak clearly to users on multiple cognitive levels.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="passion-item">
+                                <div class="passion-icon">
+                                    <span class="icon-symbol">⟁</span>
+                                </div>
+                                <div class="passion-text">
+                                    <h3>Continuous Evolution</h3>
+                                    <p>Embracing new technologies and methodologies, constantly refining my skills and approach.</p>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
                 
-                <div class="journey-section">
-                    <h2>PROFESSIONAL JOURNEY</h2>
-                    <div class="timeline">
-                        <div class="timeline-item">
-                            <div class="time">2024</div>
-                            <div class="event">
-                                <h3>Creative Developer</h3>
-                                <p>PuntoLuce - EDIF</p>
-                                <span class="focus">Frontend Innovation & API Integration</span>
-                            </div>
-                        </div>
-                        <div class="timeline-item">
-                            <div class="time">2023</div>
-                            <div class="event">
-                                <h3>Full Stack Development</h3>
-                                <p>Boolean Careers</p>
-                                <span class="focus">Modern Web Technologies</span>
-                            </div>
-                        </div>
-                        <div class="timeline-item">
-                            <div class="time">2022</div>
-                            <div class="event">
-                                <h3>Digital Content Strategy</h3>
-                                <p>Dante Alighieri Academy</p>
-                                <span class="focus">Content & UX Writing</span>
-                            </div>
-                        </div>
-                        <div class="timeline-item">
-                            <div class="time">2020</div>
-                            <div class="event">
-                                <h3>Semiotics</h3>
-                                <p>University of Bologna</p>
-                                <span class="focus">Communication Theory & Analysis</span>
-                            </div>
-                        </div>
-                    </div>
+                <!-- Sezione di connessione -->
+                <div class="connect-section">
+                    <p class="connect-text">Interested in my professional journey and skills?</p>
+                    <a href="#" class="connect-button" data-page="cv">
+                        <span class="button-text">Explore my CV</span>
+                        <span class="button-arrow">→</span>
+                    </a>
                 </div>
             </div>
         </div>
