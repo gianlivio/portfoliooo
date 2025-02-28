@@ -2448,6 +2448,8 @@ body.colored-bg {
        font-size: 1.8rem;
    }
 
+   
+
    footer {
        bottom: 1rem;
        right: 1rem;
@@ -2455,9 +2457,7 @@ body.colored-bg {
        font-size: 0.9rem;
    }
 
-}
 
-/* Aggiungi questi stili al tuo file CSS */
 
 /* Effetto 3D per le schede progetto */
 .card-3d {
@@ -2658,6 +2658,8 @@ body.colored-bg {
 
 .custom-cursor.hover .cursor-arrow {
     stroke: #00ff6a;
+}
+
 }
 
 /* Media queries per responsive */
