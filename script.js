@@ -529,8 +529,4 @@ function enhanceWriterSection() {
             criticalTexts.style.transform = 'translateY(0)';
         }, 800);
     }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 6377401f55d7b6bd356e048a6fb8d1d571b823a1
