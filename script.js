@@ -1,4 +1,4 @@
-// Aggiungi questo codice nel tuo script.js
+
 
 document.addEventListener('DOMContentLoaded', () => {
     // Funzione per gestire la terminazione automatica degli hover
@@ -328,11 +328,11 @@ document.addEventListener('DOMContentLoaded', () => {
           
             const colors = {
                 'home': 'white',
-                'developer': '#FF4400',  
-                'writer': '#FF007F',     
-                'music': '#7CB518',      
-                'about': '#00A6FB',    
-                'cv': '#FFD23F',
+                'developer': '#ff4400c4',  
+                'writer': '#ff007f63',     
+                'music': '#1850b591',      
+                'about': '#00a6fb57',    
+                'cv': '#00ffc47d',
                 'contact': '#000000'          
             };
             

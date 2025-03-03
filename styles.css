@@ -14,6 +14,7 @@ body {
     transition: background-color 0.8s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+
 .custom-cursor {
     position: fixed;
     width: 50px;
@@ -41,7 +42,7 @@ body {
 .project-hover-image, 
 .book-cover, 
 .text-cover {
-    transform: translate(-50%, -50%); /* Applica lo stesso effetto a tutti gli elementi che seguono il mouse */
+    transform: translate(-50%, -50%); 
 }
 
 
