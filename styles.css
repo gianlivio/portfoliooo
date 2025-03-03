@@ -22,6 +22,7 @@ body {
     z-index: 9999; 
     opacity: 1;
     transition: opacity 0.2s ease-in-out;
+    transform: translate(-50%, -50%);
 }
 
 .custom-cursor svg {
@@ -35,6 +36,12 @@ body {
     stroke-width: 4;
     fill: none;
     transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.project-hover-image, 
+.book-cover, 
+.text-cover {
+    transform: translate(-50%, -50%); /* Applica lo stesso effetto a tutti gli elementi che seguono il mouse */
 }
 
 
@@ -154,7 +161,8 @@ nav {
 
 .tech-stack {
     display: flex;
-    gap: 1rem;
+    flex-wrap: wrap; /* Aggiunge il wrap per far andare a capo gli elementi */
+    gap: 0.5rem; /* Riduce lo spazio tra gli elementi */
     margin-top: 1rem;
 }
 
@@ -682,6 +690,8 @@ h2 {
     background: rgba(255,255,255,0.1);
     backdrop-filter: blur(5px);
     transition: all 0.3s ease;
+    word-break: break-word; 
+    overflow: hidden;
 }
 
 .project-card:hover {

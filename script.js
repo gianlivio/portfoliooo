@@ -1,3 +1,120 @@
+// Aggiungi questo codice nel tuo script.js
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Funzione per gestire la terminazione automatica degli hover
+    function setupAutoHoverEnd() {
+        // Elementi che possono avere effetti hover persistenti
+        const hoverElements = document.querySelectorAll('.project-card, .social-item, .big-link, .book-section h2, .nav-link, .timeline-item, .skill-item');
+        
+        // Timer per tenere traccia di ogni elemento con hover attivo
+        const hoverTimers = new Map();
+        
+        // Durata dell'hover prima della terminazione automatica (3 secondi)
+        const hoverDuration = 3000;
+        
+        hoverElements.forEach(element => {
+            // Quando il mouse entra nell'elemento
+            element.addEventListener('mouseenter', () => {
+                // Aggiungi una classe di hover
+                element.classList.add('hover-active');
+                
+                // Imposta un timer per rimuovere l'hover dopo 3 secondi
+                const timerId = setTimeout(() => {
+                    element.classList.remove('hover-active');
+                    // Rimuovi anche eventuali stili inline aggiunti da script
+                    element.style.transform = '';
+                    
+                    // Gestisci anche le immagini hover associate
+                    const hoverImages = document.querySelectorAll('.project-hover-image, .book-cover, .text-cover');
+                    hoverImages.forEach(img => {
+                        img.style.opacity = '0';
+                        if (img.classList.contains('flicker')) {
+                            img.classList.remove('flicker');
+                        }
+                    });
+                    
+                    // Rimuovi il timer dalla mappa
+                    hoverTimers.delete(element);
+                }, hoverDuration);
+                
+                // Salva il riferimento al timer
+                hoverTimers.set(element, timerId);
+            });
+            
+            // Quando il mouse esce dall'elemento, cancella il timer
+            element.addEventListener('mouseleave', () => {
+                element.classList.remove('hover-active');
+                
+                // Cancella il timer se esiste
+                if (hoverTimers.has(element)) {
+                    clearTimeout(hoverTimers.get(element));
+                    hoverTimers.delete(element);
+                }
+            });
+        });
+        
+        // Gestisci il caso di immagini hover che potrebbero rimanere visualizzate
+        const hoverImages = document.querySelectorAll('.project-hover-image, .book-cover, .text-cover');
+        hoverImages.forEach(img => {
+            // Timer per ogni immagine hover
+            let imgTimer = null;
+            
+            // Quando l'immagine viene mostrata
+            const observer = new MutationObserver((mutations) => {
+                mutations.forEach(mutation => {
+                    if (mutation.attributeName === 'style' && 
+                        img.style.opacity !== '0' && 
+                        img.style.opacity !== '') {
+                        
+                        // Cancella eventuali timer precedenti
+                        if (imgTimer) clearTimeout(imgTimer);
+                        
+                        // Imposta un nuovo timer
+                        imgTimer = setTimeout(() => {
+                            img.style.opacity = '0';
+                            if (img.classList.contains('flicker')) {
+                                img.classList.remove('flicker');
+                            }
+                        }, hoverDuration);
+                    }
+                });
+            });
+            
+            // Inizia a osservare le modifiche all'attributo style
+            observer.observe(img, { attributes: true });
+        });
+        
+        // Rimuovi tutti gli effetti hover quando cambi pagina
+        const pageLinks = document.querySelectorAll('[data-page]');
+        pageLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                // Rimuovi tutti gli hover attivi
+                document.querySelectorAll('.hover-active').forEach(el => {
+                    el.classList.remove('hover-active');
+                    el.style.transform = '';
+                });
+                
+                // Nascondi tutte le immagini hover
+                document.querySelectorAll('.project-hover-image, .book-cover, .text-cover').forEach(img => {
+                    img.style.opacity = '0';
+                    if (img.classList.contains('flicker')) {
+                        img.classList.remove('flicker');
+                    }
+                });
+                
+                // Cancella tutti i timer
+                hoverTimers.forEach((timerId, element) => {
+                    clearTimeout(timerId);
+                });
+                hoverTimers.clear();
+            });
+        });
+    }
+    
+    // Avvia la gestione degli hover
+    setupAutoHoverEnd();
+});
+
 document.addEventListener('DOMContentLoaded', () => {
     const cursor = document.querySelector('.custom-cursor');
     const interactiveElements = document.querySelectorAll('a, .nav-link');
@@ -339,7 +456,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-// Add this code at the end of your existing script.js
+
 
 // Particle effect for the Explore button
 document.addEventListener('DOMContentLoaded', function() {
