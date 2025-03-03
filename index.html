@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gianlivio Iemolo</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/i18next@21.6.14/dist/umd/i18next.min.js"></script>
+    <script src="translations.js"></script>
+    <script src="i18n-script.js"></script>
 </head>
 <body>
     
@@ -29,6 +32,26 @@
         </div>
         <div class="nav-right">
             <span>CREATIVE WEB DEVELOPER</span>
+            <div class="language-selector">
+                <button id="language-toggle" class="current-language">
+                    <span class="flag-icon flag-icon-us"></span>
+                    EN
+                </button>
+                <div class="language-dropdown">
+                    <button class="language-option" data-lang="en">
+                        <span class="flag-icon flag-icon-us"></span>
+                        English
+                    </button>
+                    <button class="language-option" data-lang="it">
+                        <span class="flag-icon flag-icon-it"></span>
+                        Italiano
+                    </button>
+                    <button class="language-option" data-lang="es">
+                        <span class="flag-icon flag-icon-es"></span>
+                        Español
+                    </button>
+                </div>
+            </div>
         </div>
         
     </nav>

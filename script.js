@@ -1501,5 +1501,1040 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 
-
-
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. Definizione completa delle traduzioni
+    const translations = {
+      en: {
+        navigation: {
+          about: 'ABOUT',
+          contact: 'CONTACT',
+          webDev: 'WEB DEVELOPER /',
+          writer: 'WRITER /',
+          soundMaster: 'SOUND MASTER /',
+          cv: 'CV',
+          creativeWebDeveloper: 'CREATIVE WEB DEVELOPER'
+        },
+        home: {
+          links: [
+            'WEB DEVELOPER /',
+            'WRITER /',
+            'SOUND MASTER /',
+            'CV'
+          ]
+        },
+        about: {
+          title: 'ABOUT',
+          subtitle: 'Creative Developer with Semiotic Insight',
+          intro: [
+            'I bridge the gap between technical solutions and human understanding, creating digital experiences that communicate on multiple levels.',
+            "My background in Umberto Eco's Semiotics shapes how I approach every development challenge – decoding the layers of meaning that shape user interactions."
+          ],
+          approachTitle: 'MY APPROACH',
+          approachHint: 'Interact with the nodes',
+          nodes: {
+            central: 'Creative Development',
+            node1: {
+              label: 'Problem Solving',
+              title: 'Analytical & Creative',
+              text: 'Approaching challenges with precision and insight, finding solutions at the intersection of logic and creativity.'
+            },
+            node2: {
+              label: 'Human-Centric',
+              title: 'User-Focused Design',
+              text: 'Balancing technical excellence with genuine understanding of user needs and expectations.'
+            },
+            node3: {
+              label: 'Cross-Disciplinary',
+              title: 'Bridging Worlds',
+              text: 'Merging development expertise with communication theory to create richer digital experiences.'
+            },
+            node4: {
+              label: 'Meaning-Oriented',
+              title: 'Semiotic Approach',
+              text: 'Applying semiotic principles to create interfaces and systems that communicate clearly and effectively.'
+            }
+          },
+          whatDrivesMe: 'WHAT DRIVES ME',
+          passions: {
+            codeTitle: 'Clean, Meaningful Code',
+            codeDesc: 'Finding elegance in simplicity and clarity. Writing code that other developers can understand and build upon.',
+            commTitle: 'Digital Communication',
+            commDesc: 'Creating interfaces and experiences that speak clearly to users on multiple cognitive levels.',
+            evolveTitle: 'Continuous Evolution',
+            evolveDesc: 'Embracing new technologies and methodologies, constantly refining my skills and approach.'
+          },
+          connectLead: 'Interested in my professional journey and skills?',
+          connectBtn: 'Explore my CV'
+        },
+        contact: {
+          title: 'CONTACT',
+          lead: "Let's create something meaningful together.",
+          locationLabel: 'Location',
+          locationValue: '40128, Bologna, Italy',
+          emailLabel: 'Email',
+          phoneLabel: 'Phone',
+          connect: 'CONNECT',
+          social: {
+            github: 'GitHub',
+            linkedin: 'LinkedIn',
+            soundcloud: 'SoundCloud'
+          }
+        },
+        developer: {
+          title: 'WEB DEVELOPMENT',
+          descriptionLine1: 'FRONTEND / BACKEND / UI-UX / API DEVELOPMENT',
+          descriptionLine2: 'MODERN FRAMEWORKS / CUSTOM SOLUTIONS',
+          projects: [
+            {
+              name: 'PuntoLuce',
+              desc: 'New e-commerce website built with Open2b',
+              linkText: 'View Project'
+            },
+            {
+              name: 'Neon Snake',
+              desc: 'Interactive game implementation',
+              linkText: 'View Project'
+            },
+            {
+              name: 'Flappy Bird',
+              desc: 'Recreation of the classic mobile game',
+              linkText: 'View Project'
+            },
+            {
+              name: 'Discord Clone',
+              desc: 'Recreation of the Discord interface',
+              linkText: 'View Project'
+            },
+            {
+              name: 'Train Ticket Form',
+              desc: 'Interactive ticket booking form',
+              linkText: 'View Project'
+            },
+            {
+              name: 'Dropbox Clone',
+              desc: 'Clone of the Dropbox interface',
+              linkText: 'View Project'
+            },
+            {
+              name: 'Antico Stradello',
+              desc: 'Website for a historic pizzeria',
+              linkText: 'View Project'
+            }
+          ]
+        },
+        writer: {
+          title: 'PUBLICATIONS',
+          croissantTitle: 'Sottilissimi Strati di un Enorme Croissant',
+          croissantDesc:
+            'To those who seek to see beyond the immediate. To the dreamers who inhabit the spaces between words.',
+          exploreBtn: 'EXPLORE COLLECTION',
+          buyAmazon: 'BUY ON AMAZON',
+          criticalTexts: 'CRITICAL TEXTS',
+          licitraTitle: 'Hell ends in Hell - Nanni Licitra',
+          licitraDesc: 'Ragusa Foto Festival Award 2021',
+          backBtn: 'BACK TO PUBLICATIONS'
+        },
+        cv: {
+          title: 'CURRICULUM',
+          subtitle: 'Full Stack Developer with Semiotic Background',
+          quote:
+            '"Problem solver with a humanistic soul. Bringing together technical expertise and human understanding to create meaningful digital solutions."',
+          techExpertise: 'TECHNICAL EXPERTISE',
+          skillLevels: {
+            advanced: 'Advanced',
+            intermediate: 'Intermediate',
+            basic: 'Basic'
+          },
+          profJourney: 'PROFESSIONAL JOURNEY',
+          educationApproach: 'EDUCATION & APPROACH',
+          mastersDegree: "Master's in Semiotics",
+          mastersInstitution: "University of Bologna - Umberto Eco's School",
+          mastersGrade: 'Grade: 108/110',
+          mastersNote: 'Unique perspective on meaning-making and communication, enriching every aspect of digital development and user interaction',
+          fullstack: 'Full Stack Development',
+          fullstackWhere: 'Boolean',
+          fullstackYear: '2023',
+          profPhilosophy: 'Professional Philosophy',
+          profPhilosophyText:
+            'Combining technical excellence with human understanding. Leading teams with empathy and precision, ensuring both technical quality and team wellbeing.',
+          approachBullets: [
+            'Bringing semiotic analysis to digital problems',
+            'Bridging technical and humanistic perspectives',
+            'Continuous learning and adaptation'
+          ],
+          downloadBtn: 'Download Full CV'
+        },
+        music: {
+          title: 'MUSIC',
+          malacarneTitle: 'MALACARNE(TMC Crew)',
+          malacarneDesc: 'Tekno/Acid/HeavyMental',
+          malacarneSoundcloud: 'SoundCloud',
+          juanleeTitle: 'JUAN LEE',
+          juanleeAlbum: 'SEMEIOSIS',
+          juanleeAlbumDesc: 'Conceptual Album exploring sound and meaning',
+          signification: 'SIGNIFIATION - Music Video',
+          listenOn: 'LISTEN ON',
+          platforms: {
+            soundcloud: 'SoundCloud',
+            spotify: 'Spotify',
+            apple: 'Apple Music',
+            deezer: 'Deezer',
+            qobuz: 'Qobuz'
+          }
+        },
+        footer: {
+          github: 'GITHUB',
+          linkedin: 'LINKEDIN',
+          email: 'EMAIL'
+        }
+      },
+  
+      /* -----------------------------------------------------------
+         ITALIANO
+      ----------------------------------------------------------- */
+      it: {
+        navigation: {
+          about: 'CHI SONO',
+          contact: 'CONTATTI',
+          webDev: 'SVILUPPATORE WEB /',
+          writer: 'SCRITTORE /',
+          soundMaster: 'MAESTRO DEL SUONO /',
+          cv: 'CV',
+          creativeWebDeveloper: 'SVILUPPATORE WEB CREATIVO'
+        },
+        home: {
+          links: [
+            'SVILUPPATORE WEB /',
+            'SCRITTORE /',
+            'MAESTRO DEL SUONO /',
+            'CV'
+          ]
+        },
+        about: {
+          title: 'CHI SONO',
+          subtitle: 'Sviluppatore Creativo con Competenze Semiotiche',
+          intro: [
+            'Colmo il divario tra soluzioni tecniche e comprensione umana, creando esperienze digitali che comunicano a più livelli.',
+            'La mia formazione nella Semiotica di Umberto Eco plasma il mio approccio a ogni sfida di sviluppo – decodificando gli strati di significato che determinano le interazioni degli utenti.'
+          ],
+          approachTitle: 'IL MIO APPROCCIO',
+          approachHint: 'Interagisci con i nodi',
+          nodes: {
+            central: 'Sviluppo Creativo',
+            node1: {
+              label: 'Problem Solving',
+              title: 'Analitico & Creativo',
+              text: 'Affronto le sfide con precisione e intuizione, trovando soluzioni all’incrocio tra logica e creatività.'
+            },
+            node2: {
+              label: 'Centrato sull’Umano',
+              title: 'Design Focalizzato sull’Utente',
+              text: 'Equilibrare l’eccellenza tecnica con la comprensione autentica di bisogni ed aspettative dell’utente.'
+            },
+            node3: {
+              label: 'Cross-Disciplinare',
+              title: 'Connessione di Mondi',
+              text: 'Fondere competenze di sviluppo con la teoria della comunicazione per creare esperienze digitali più ricche.'
+            },
+            node4: {
+              label: 'Orientato al Significato',
+              title: 'Approccio Semiotico',
+              text: 'Applicare principi semiotici per realizzare interfacce e sistemi che comunicano in modo chiaro ed efficace.'
+            }
+          },
+          whatDrivesMe: 'COSA MI GUIDA',
+          passions: {
+            codeTitle: 'Codice Pulito e Significativo',
+            codeDesc: 'Ricercare l’eleganza nella semplicità e nella chiarezza. Scrivere codice che altri sviluppatori possano comprendere e migliorare.',
+            commTitle: 'Comunicazione Digitale',
+            commDesc: 'Creare interfacce ed esperienze che parlino chiaramente agli utenti su più livelli cognitivi.',
+            evolveTitle: 'Evoluzione Continua',
+            evolveDesc: 'Abbracciare nuove tecnologie e metodologie, perfezionando costantemente competenze e approccio.'
+          },
+          connectLead: 'Interessato al mio percorso professionale e alle mie competenze?',
+          connectBtn: 'Scopri il mio CV'
+        },
+        contact: {
+          title: 'CONTATTI',
+          lead: 'Creiamo qualcosa di significativo insieme.',
+          locationLabel: 'Posizione',
+          locationValue: '40128, Bologna, Italia',
+          emailLabel: 'Email',
+          phoneLabel: 'Telefono',
+          connect: 'CONNETTI',
+          social: {
+            github: 'GitHub',
+            linkedin: 'LinkedIn',
+            soundcloud: 'SoundCloud'
+          }
+        },
+        developer: {
+          title: 'SVILUPPO WEB',
+          descriptionLine1: 'FRONTEND / BACKEND / UI-UX / SVILUPPO API',
+          descriptionLine2: 'FRAMEWORK MODERNI / SOLUZIONI PERSONALIZZATE',
+          projects: [
+            {
+              name: 'PuntoLuce',
+              desc: 'Nuovo sito e-commerce realizzato con Open2b',
+              linkText: 'Vedi Progetto'
+            },
+            {
+              name: 'Neon Snake',
+              desc: 'Implementazione di un gioco interattivo',
+              linkText: 'Vedi Progetto'
+            },
+            {
+              name: 'Flappy Bird',
+              desc: 'Ricreazione del classico gioco mobile',
+              linkText: 'Vedi Progetto'
+            },
+            {
+              name: 'Discord Clone',
+              desc: "Ricostruzione dell'interfaccia di Discord",
+              linkText: 'Vedi Progetto'
+            },
+            {
+              name: 'Train Ticket Form',
+              desc: 'Form interattivo per la prenotazione di biglietti',
+              linkText: 'Vedi Progetto'
+            },
+            {
+              name: 'Dropbox Clone',
+              desc: "Clone dell'interfaccia di Dropbox",
+              linkText: 'Vedi Progetto'
+            },
+            {
+              name: 'Antico Stradello',
+              desc: 'Sito web per una pizzeria storica',
+              linkText: 'Vedi Progetto'
+            }
+          ]
+        },
+        writer: {
+          title: 'PUBBLICAZIONI',
+          croissantTitle: 'Sottilissimi Strati di un Enorme Croissant',
+          croissantDesc:
+            "A chi cerca di vedere oltre l’immediato. Ai sognatori che abitano gli spazi tra le parole.",
+          exploreBtn: 'ESPLORA LA COLLEZIONE',
+          buyAmazon: 'ACQUISTA SU AMAZON',
+          criticalTexts: 'TESTI CRITICI',
+          licitraTitle: 'Hell ends in Hell - Nanni Licitra',
+          licitraDesc: 'Ragusa Foto Festival Award 2021',
+          backBtn: 'TORNA ALLE PUBBLICAZIONI'
+        },
+        cv: {
+          title: 'CURRICULUM',
+          subtitle: 'Full Stack Developer con Background Semiotico',
+          quote:
+            '"Problem solver con un’anima umanistica. Unisco competenze tecniche e comprensione umana per creare soluzioni digitali significative."',
+          techExpertise: 'COMPETENZE TECNICHE',
+          skillLevels: {
+            advanced: 'Avanzato',
+            intermediate: 'Intermedio',
+            basic: 'Base'
+          },
+          profJourney: 'PERCORSO PROFESSIONALE',
+          educationApproach: 'FORMAZIONE & APPROCCIO',
+          mastersDegree: 'Laurea Magistrale in Semiotica',
+          mastersInstitution: "Università di Bologna - Scuola di Umberto Eco",
+          mastersGrade: 'Voto: 108/110',
+          mastersNote:
+            'Prospettiva unica sulla costruzione del significato e della comunicazione, arricchendo ogni aspetto dello sviluppo digitale e dell’interazione utente',
+          fullstack: 'Sviluppo Full Stack',
+          fullstackWhere: 'Boolean',
+          fullstackYear: '2023',
+          profPhilosophy: 'Filosofia Professionale',
+          profPhilosophyText:
+            'Unire l’eccellenza tecnica alla comprensione umana. Guidare i team con empatia e precisione, garantendo qualità tecnica e benessere del gruppo.',
+          approachBullets: [
+            'Applicare l’analisi semiotica ai problemi digitali',
+            'Colmare il divario tra prospettive tecniche e umanistiche',
+            'Apprendimento continuo e adattamento costante'
+          ],
+          downloadBtn: 'Scarica il CV Completo'
+        },
+        music: {
+          title: 'MUSICA',
+          malacarneTitle: 'MALACARNE(TMC Crew)',
+          malacarneDesc: 'Tekno/Acid/HeavyMental',
+          malacarneSoundcloud: 'SoundCloud',
+          juanleeTitle: 'JUAN LEE',
+          juanleeAlbum: 'SEMEIOSIS',
+          juanleeAlbumDesc: 'Album Concettuale che esplora suono e significato',
+          signification: 'SIGNIFIATION - Videoclip',
+          listenOn: 'ASCOLTA SU',
+          platforms: {
+            soundcloud: 'SoundCloud',
+            spotify: 'Spotify',
+            apple: 'Apple Music',
+            deezer: 'Deezer',
+            qobuz: 'Qobuz'
+          }
+        },
+        footer: {
+          github: 'GITHUB',
+          linkedin: 'LINKEDIN',
+          email: 'EMAIL'
+        }
+      },
+  
+      /* -----------------------------------------------------------
+         ESPAÑOL
+      ----------------------------------------------------------- */
+      es: {
+        navigation: {
+          about: 'SOBRE MÍ',
+          contact: 'CONTACTO',
+          webDev: 'DESARROLLADOR WEB /',
+          writer: 'ESCRITOR /',
+          soundMaster: 'MAESTRO DEL SONIDO /',
+          cv: 'CV',
+          creativeWebDeveloper: 'DESARROLLADOR WEB CREATIVO'
+        },
+        home: {
+          links: [
+            'DESARROLLADOR WEB /',
+            'ESCRITOR /',
+            'MAESTRO DEL SONIDO /',
+            'CV'
+          ]
+        },
+        about: {
+          title: 'SOBRE MÍ',
+          subtitle: 'Desarrollador Creativo con Perspectiva Semiótica',
+          intro: [
+            'Construyo puentes entre soluciones técnicas y comprensión humana, creando experiencias digitales que se comunican en múltiples niveles.',
+            'Mi formación en la Semiótica de Umberto Eco define mi enfoque en cada desafío de desarrollo – decodificando las capas de significado que dan forma a las interacciones de los usuarios.'
+          ],
+          approachTitle: 'MI ENFOQUE',
+          approachHint: 'Interactúa con los nodos',
+          nodes: {
+            central: 'Desarrollo Creativo',
+            node1: {
+              label: 'Resolución de Problemas',
+              title: 'Analítico & Creativo',
+              text: 'Abordo los desafíos con precisión e intuición, encontrando soluciones donde convergen la lógica y la creatividad.'
+            },
+            node2: {
+              label: 'Centrado en el Usuario',
+              title: 'Diseño Enfocado en el Usuario',
+              text: 'Equilibrar la excelencia técnica con la comprensión genuina de las necesidades y expectativas de los usuarios.'
+            },
+            node3: {
+              label: 'Multidisciplinario',
+              title: 'Uniendo Mundos',
+              text: 'Combinar la experiencia en desarrollo con la teoría de la comunicación para crear experiencias digitales más ricas.'
+            },
+            node4: {
+              label: 'Orientado al Significado',
+              title: 'Enfoque Semiótico',
+              text: 'Aplicar principios semióticos para crear interfaces y sistemas que comuniquen de forma clara y efectiva.'
+            }
+          },
+          whatDrivesMe: 'QUÉ ME IMPULSA',
+          passions: {
+            codeTitle: 'Código Limpio y Significativo',
+            codeDesc: 'Encontrar la elegancia en la simplicidad y claridad. Escribir código que otros desarrolladores puedan comprender y mejorar.',
+            commTitle: 'Comunicación Digital',
+            commDesc: 'Creando interfaces y experiencias que se comuniquen claramente con los usuarios en múltiples niveles cognitivos.',
+            evolveTitle: 'Evolución Constante',
+            evolveDesc: 'Adoptar nuevas tecnologías y metodologías, refinando continuamente mis habilidades y mi enfoque.'
+          },
+          connectLead: '¿Interesado en mi trayectoria profesional y habilidades?',
+          connectBtn: 'Explora mi CV'
+        },
+        contact: {
+          title: 'CONTACTO',
+          lead: 'Creemos algo significativo juntos.',
+          locationLabel: 'Ubicación',
+          locationValue: '40128, Bolonia, Italia',
+          emailLabel: 'Correo Electrónico',
+          phoneLabel: 'Teléfono',
+          connect: 'CONECTAR',
+          social: {
+            github: 'GitHub',
+            linkedin: 'LinkedIn',
+            soundcloud: 'SoundCloud'
+          }
+        },
+        developer: {
+          title: 'DESARROLLO WEB',
+          descriptionLine1: 'FRONTEND / BACKEND / UI-UX / DESARROLLO DE APIS',
+          descriptionLine2: 'FRAMEWORKS MODERNOS / SOLUCIONES PERSONALIZADAS',
+          projects: [
+            {
+              name: 'PuntoLuce',
+              desc: 'Nuevo sitio de comercio electrónico construido con Open2b',
+              linkText: 'Ver Proyecto'
+            },
+            {
+              name: 'Neon Snake',
+              desc: 'Implementación de un juego interactivo',
+              linkText: 'Ver Proyecto'
+            },
+            {
+              name: 'Flappy Bird',
+              desc: 'Recreación del clásico juego móvil',
+              linkText: 'Ver Proyecto'
+            },
+            {
+              name: 'Discord Clone',
+              desc: 'Recreación de la interfaz de Discord',
+              linkText: 'Ver Proyecto'
+            },
+            {
+              name: 'Train Ticket Form',
+              desc: 'Formulario interactivo para reservar boletos',
+              linkText: 'Ver Proyecto'
+            },
+            {
+              name: 'Dropbox Clone',
+              desc: 'Clon de la interfaz de Dropbox',
+              linkText: 'Ver Proyecto'
+            },
+            {
+              name: 'Antico Stradello',
+              desc: 'Sitio web para una pizzería histórica',
+              linkText: 'Ver Proyecto'
+            }
+          ]
+        },
+        writer: {
+          title: 'PUBLICACIONES',
+          croissantTitle: 'Sottilissimi Strati di un Enorme Croissant',
+          croissantDesc:
+            'Para quienes buscan ver más allá de lo inmediato. Para los soñadores que habitan los espacios entre palabras.',
+          exploreBtn: 'EXPLORAR COLECCIÓN',
+          buyAmazon: 'COMPRAR EN AMAZON',
+          criticalTexts: 'TEXTOS CRÍTICOS',
+          licitraTitle: 'Hell ends in Hell - Nanni Licitra',
+          licitraDesc: 'Ragusa Foto Festival Award 2021',
+          backBtn: 'VOLVER A PUBLICACIONES'
+        },
+        cv: {
+          title: 'CURRÍCULUM',
+          subtitle: 'Desarrollador Full Stack con Base Semiótica',
+          quote:
+            '"Resolutor de problemas con un alma humanista. Fusionando conocimientos técnicos y comprensión humana para crear soluciones digitales significativas."',
+          techExpertise: 'EXPERTICIA TÉCNICA',
+          skillLevels: {
+            advanced: 'Avanzado',
+            intermediate: 'Intermedio',
+            basic: 'Básico'
+          },
+          profJourney: 'TRAYECTORIA PROFESIONAL',
+          educationApproach: 'EDUCACIÓN & ENFOQUE',
+          mastersDegree: 'Máster en Semiótica',
+          mastersInstitution: 'Universidad de Bolonia - Escuela de Umberto Eco',
+          mastersGrade: 'Nota: 108/110',
+          mastersNote:
+            'Perspectiva única sobre la creación de significado y la comunicación, enriqueciendo cada aspecto del desarrollo digital y la interacción con el usuario',
+          fullstack: 'Desarrollo Full Stack',
+          fullstackWhere: 'Boolean',
+          fullstackYear: '2023',
+          profPhilosophy: 'Filosofía Profesional',
+          profPhilosophyText:
+            'Combinando la excelencia técnica con la comprensión humana. Liderando equipos con empatía y precisión, asegurando calidad técnica y bienestar del equipo.',
+          approachBullets: [
+            'Aplicar el análisis semiótico a problemas digitales',
+            'Conectar perspectivas técnicas y humanísticas',
+            'Aprendizaje continuo y adaptación constante'
+          ],
+          downloadBtn: 'Descargar CV Completo'
+        },
+        music: {
+          title: 'MÚSICA',
+          malacarneTitle: 'MALACARNE(TMC Crew)',
+          malacarneDesc: 'Tekno/Acid/HeavyMental',
+          malacarneSoundcloud: 'SoundCloud',
+          juanleeTitle: 'JUAN LEE',
+          juanleeAlbum: 'SEMEIOSIS',
+          juanleeAlbumDesc: 'Álbum conceptual que explora el sonido y el significado',
+          signification: 'SIGNIFIATION - Videoclip',
+          listenOn: 'ESCUCHAR EN',
+          platforms: {
+            soundcloud: 'SoundCloud',
+            spotify: 'Spotify',
+            apple: 'Apple Music',
+            deezer: 'Deezer',
+            qobuz: 'Qobuz'
+          }
+        },
+        footer: {
+          github: 'GITHUB',
+          linkedin: 'LINKEDIN',
+          email: 'EMAIL'
+        }
+      }
+    };
+  
+    // 2. Funzione per tradurre la pagina
+    function translatePage(lang) {
+      /*
+        --------------- NAVBAR ---------------
+      */
+      // nav-center: about, contact
+      const navLinks = document.querySelectorAll('.nav-link');
+      if (navLinks.length >= 2) {
+        navLinks[0].textContent = translations[lang].navigation.about;
+        navLinks[1].textContent = translations[lang].navigation.contact;
+      }
+  
+      // nav-right: "CREATIVE WEB DEVELOPER"
+      const navRightSpan = document.querySelector('.nav-right > span');
+      if (navRightSpan) {
+        navRightSpan.textContent = translations[lang].navigation.creativeWebDeveloper;
+      }
+  
+      /*
+        --------------- HOME PAGE ---------------
+      */
+      // .big-link => 4 link
+      const homeLinks = document.querySelectorAll('.big-link');
+      homeLinks.forEach((link, index) => {
+        link.textContent = translations[lang].home.links[index];
+      });
+  
+      /*
+        --------------- ABOUT PAGE ---------------
+      */
+      // Title
+      const aboutTitle = document.querySelector('.about-title');
+      if (aboutTitle) {
+        aboutTitle.textContent = translations[lang].about.title;
+        aboutTitle.setAttribute('data-text', translations[lang].about.title); // Effetto glitch
+      }
+  
+      // Subtitle
+      const aboutSubtitle = document.querySelector('.about-subtitle');
+      if (aboutSubtitle) {
+        aboutSubtitle.textContent = translations[lang].about.subtitle;
+      }
+  
+      // Intro paragraphs
+      const aboutIntros = document.querySelectorAll('.about-intro p');
+      if (aboutIntros.length >= 2) {
+        aboutIntros[0].textContent = translations[lang].about.intro[0];
+        aboutIntros[1].textContent = translations[lang].about.intro[1];
+      }
+  
+      // "MY APPROACH" (h2.section-title in .philosophy-visualizer)
+      const approachTitle = document.querySelector('.philosophy-visualizer .section-title');
+      if (approachTitle) {
+        approachTitle.textContent = translations[lang].about.approachTitle;
+        approachTitle.setAttribute('data-text', translations[lang].about.approachTitle);
+      }
+  
+      // "Interact with the nodes"
+      const approachHint = document.querySelector('.interaction-hint .hint-text');
+      if (approachHint) {
+        approachHint.textContent = translations[lang].about.approachHint;
+      }
+  
+      // Nodi
+      const centralNode = document.getElementById('central-node');
+      if (centralNode) {
+        centralNode.querySelector('.node-label').textContent = translations[lang].about.nodes.central;
+      }
+      const node1 = document.getElementById('node-1');
+      if (node1) {
+        node1.querySelector('.node-label').textContent = translations[lang].about.nodes.node1.label;
+        node1.querySelector('h3').textContent = translations[lang].about.nodes.node1.title;
+        node1.querySelector('p').textContent = translations[lang].about.nodes.node1.text;
+      }
+      const node2 = document.getElementById('node-2');
+      if (node2) {
+        node2.querySelector('.node-label').textContent = translations[lang].about.nodes.node2.label;
+        node2.querySelector('h3').textContent = translations[lang].about.nodes.node2.title;
+        node2.querySelector('p').textContent = translations[lang].about.nodes.node2.text;
+      }
+      const node3 = document.getElementById('node-3');
+      if (node3) {
+        node3.querySelector('.node-label').textContent = translations[lang].about.nodes.node3.label;
+        node3.querySelector('h3').textContent = translations[lang].about.nodes.node3.title;
+        node3.querySelector('p').textContent = translations[lang].about.nodes.node3.text;
+      }
+      const node4 = document.getElementById('node-4');
+      if (node4) {
+        node4.querySelector('.node-label').textContent = translations[lang].about.nodes.node4.label;
+        node4.querySelector('h3').textContent = translations[lang].about.nodes.node4.title;
+        node4.querySelector('p').textContent = translations[lang].about.nodes.node4.text;
+      }
+  
+      // "WHAT DRIVES ME"
+      const whatDrivesMe = document.querySelector('.passion-section .section-title');
+      if (whatDrivesMe) {
+        whatDrivesMe.textContent = translations[lang].about.whatDrivesMe;
+        whatDrivesMe.setAttribute('data-text', translations[lang].about.whatDrivesMe);
+      }
+  
+      // Passion items
+      const passionItems = document.querySelectorAll('.passion-item');
+      if (passionItems.length >= 3) {
+        // 1) Code
+        passionItems[0].querySelector('h3').textContent = translations[lang].about.passions.codeTitle;
+        passionItems[0].querySelector('p').textContent = translations[lang].about.passions.codeDesc;
+        // 2) Communication
+        passionItems[1].querySelector('h3').textContent = translations[lang].about.passions.commTitle;
+        passionItems[1].querySelector('p').textContent = translations[lang].about.passions.commDesc;
+        // 3) Evolution
+        passionItems[2].querySelector('h3').textContent = translations[lang].about.passions.evolveTitle;
+        passionItems[2].querySelector('p').textContent = translations[lang].about.passions.evolveDesc;
+      }
+  
+      // "Interested in my professional journey..."
+      const connectText = document.querySelector('.connect-text');
+      if (connectText) {
+        connectText.textContent = translations[lang].about.connectLead;
+      }
+  
+      // "Explore my CV"
+      const connectBtn = document.querySelector('.connect-button .button-text');
+      if (connectBtn) {
+        connectBtn.textContent = translations[lang].about.connectBtn;
+      }
+  
+      /*
+        --------------- CONTACT PAGE ---------------
+      */
+      // Title
+      const contactTitle = document.querySelector('#contact h1');
+      if (contactTitle) {
+        contactTitle.textContent = translations[lang].contact.title;
+      }
+  
+      // Lead
+      const contactLead = document.querySelector('.contact-lead');
+      if (contactLead) {
+        contactLead.textContent = translations[lang].contact.lead;
+      }
+  
+      // Location label
+      const infoItems = document.querySelectorAll('.info-item');
+      // .info-item => 0: location, 1: email, 2: phone
+      if (infoItems.length >= 3) {
+        const locationLabel = infoItems[0].querySelector('h3');
+        if (locationLabel) locationLabel.textContent = translations[lang].contact.locationLabel;
+        const locationP = infoItems[0].querySelector('p');
+        if (locationP) locationP.textContent = translations[lang].contact.locationValue;
+  
+        const emailLabel = infoItems[1].querySelector('h3');
+        if (emailLabel) emailLabel.textContent = translations[lang].contact.emailLabel;
+  
+        const phoneLabel = infoItems[2].querySelector('h3');
+        if (phoneLabel) phoneLabel.textContent = translations[lang].contact.phoneLabel;
+      }
+  
+      // CONNECT
+      const connectTitle = document.querySelector('.social-links h2');
+      if (connectTitle) {
+        connectTitle.textContent = translations[lang].contact.connect;
+      }
+  
+      // Social items
+      // GitHub, LinkedIn, SoundCloud
+      const socialItems = document.querySelectorAll('.social-item');
+      if (socialItems.length >= 3) {
+        socialItems[0].querySelector('.social-title').textContent = translations[lang].contact.social.github;
+        socialItems[1].querySelector('.social-title').textContent = translations[lang].contact.social.linkedin;
+        socialItems[2].querySelector('.social-title').textContent = translations[lang].contact.social.soundcloud;
+      }
+  
+      /*
+        --------------- DEVELOPER PAGE ---------------
+      */
+      // Title
+      const devTitle = document.querySelector('#developer h1');
+      if (devTitle) {
+        devTitle.textContent = translations[lang].developer.title;
+      }
+  
+      // Description (due righe)
+      const devDesc = document.querySelector('#developer .description');
+      if (devDesc) {
+        devDesc.innerHTML =
+          translations[lang].developer.descriptionLine1 + '<br>' +
+          translations[lang].developer.descriptionLine2;
+      }
+  
+      // Projects
+      const projectCards = document.querySelectorAll('#developer .project-card');
+      // Abbiamo 7 progetti
+      translations[lang].developer.projects.forEach((proj, i) => {
+        if (projectCards[i]) {
+          const h3 = projectCards[i].querySelector('h3');
+          const p = projectCards[i].querySelector('p');
+          const link = projectCards[i].querySelector('.project-link');
+          if (h3) h3.textContent = proj.name;
+          if (p) p.textContent = proj.desc;
+          if (link) link.textContent = proj.linkText;
+        }
+      });
+  
+      /*
+        --------------- WRITER PAGE ---------------
+      */
+      const writerTitle = document.querySelector('#writer h1');
+      if (writerTitle) {
+        writerTitle.textContent = translations[lang].writer.title;
+      }
+  
+      // Book section: Croissant Title, Desc, Explore BTN, Amazon
+      const bookSection = document.querySelector('.book-section');
+      if (bookSection) {
+        const h2 = bookSection.querySelector('h2');
+        const desc = bookSection.querySelector('.book-description');
+        const explore = bookSection.querySelector('#explore-croissant');
+        const amazon = bookSection.querySelector('.amazon-link');
+  
+        if (h2) h2.textContent = translations[lang].writer.croissantTitle;
+        if (desc) desc.textContent = translations[lang].writer.croissantDesc;
+        if (explore) explore.textContent = translations[lang].writer.exploreBtn;
+        if (amazon) amazon.textContent = translations[lang].writer.buyAmazon;
+      }
+  
+      // Critical Texts
+      const criticalTextsTitle = document.querySelector('.critical-texts h2');
+      if (criticalTextsTitle) {
+        criticalTextsTitle.textContent = translations[lang].writer.criticalTexts;
+      }
+  
+      // Nanni Licitra
+      const textItem = document.querySelector('.text-item h3');
+      if (textItem) {
+        textItem.textContent = translations[lang].writer.licitraTitle;
+      }
+      const textItemP = document.querySelector('.text-item p');
+      if (textItemP) {
+        textItemP.textContent = translations[lang].writer.licitraDesc;
+      }
+  
+      /*
+        --------------- CROISSANT WORLD PAGE ---------------
+      */
+      const exitBtn = document.getElementById('exit-croissant');
+      if (exitBtn) {
+        exitBtn.textContent = translations[lang].writer.backBtn;
+      }
+  
+      /*
+        --------------- CV PAGE ---------------
+      */
+      const cvTitle = document.querySelector('#cv .cv-title');
+      if (cvTitle) {
+        cvTitle.textContent = translations[lang].cv.title;
+        cvTitle.setAttribute('data-text', translations[lang].cv.title);
+      }
+  
+      const cvSubtitle = document.querySelector('.cv-subtitle');
+      if (cvSubtitle) {
+        cvSubtitle.textContent = translations[lang].cv.subtitle;
+      }
+  
+      const cvQuote = document.querySelector('.philosophy-quote');
+      if (cvQuote) {
+        cvQuote.textContent = translations[lang].cv.quote;
+      }
+  
+      // TECHNICAL EXPERTISE
+      const techExpTitle = document.querySelector('.skill-graph-container .section-title');
+      if (techExpTitle) {
+        techExpTitle.textContent = translations[lang].cv.techExpertise;
+        techExpTitle.setAttribute('data-text', translations[lang].cv.techExpertise);
+      }
+  
+      // Livelli skill
+      const skillLegend = document.querySelectorAll('.skill-level');
+      // 0: advanced, 1: intermediate, 2: basic
+      if (skillLegend.length >= 3) {
+        skillLegend[0].textContent = translations[lang].cv.skillLevels.advanced;
+        skillLegend[1].textContent = translations[lang].cv.skillLevels.intermediate;
+        skillLegend[2].textContent = translations[lang].cv.skillLevels.basic;
+      }
+  
+      // PROFESSIONAL JOURNEY
+      const profJourney = document.querySelector('.experience-timeline-container .section-title');
+      if (profJourney) {
+        profJourney.textContent = translations[lang].cv.profJourney;
+        profJourney.setAttribute('data-text', translations[lang].cv.profJourney);
+      }
+  
+      // EDUCATION & APPROACH
+      const eduApproach = document.querySelector('.education-approach-container .section-title');
+      if (eduApproach) {
+        eduApproach.textContent = translations[lang].cv.educationApproach;
+        eduApproach.setAttribute('data-text', translations[lang].cv.educationApproach);
+      }
+  
+      // Master's
+      const mastersDegree = document.querySelector('.education-item .education-degree');
+      const mastersInstitution = document.querySelector('.education-item .education-institution');
+      const mastersGrade = document.querySelector('.education-item .education-grade');
+      const mastersNote = document.querySelector('.education-item .education-note');
+  
+      if (mastersDegree) mastersDegree.textContent = translations[lang].cv.mastersDegree;
+      if (mastersInstitution) mastersInstitution.textContent = translations[lang].cv.mastersInstitution;
+      if (mastersGrade) mastersGrade.textContent = translations[lang].cv.mastersGrade;
+      if (mastersNote) mastersNote.textContent = translations[lang].cv.mastersNote;
+  
+      // Fullstack
+      const secondEduItem = document.querySelectorAll('.education-item')[1];
+      if (secondEduItem) {
+        const deg = secondEduItem.querySelector('.education-degree');
+        const inst = secondEduItem.querySelector('.education-institution');
+        const period = secondEduItem.querySelector('.education-period');
+        if (deg) deg.textContent = translations[lang].cv.fullstack;
+        if (inst) inst.textContent = translations[lang].cv.fullstackWhere;
+        if (period) period.textContent = translations[lang].cv.fullstackYear;
+      }
+  
+      // Professional Philosophy
+      const profPhilosTitle = document.querySelector('.approach-block h3');
+      const profPhilosText = document.querySelector('.approach-block .approach-content p');
+      if (profPhilosTitle) {
+        profPhilosTitle.textContent = translations[lang].cv.profPhilosophy;
+      }
+      if (profPhilosText) {
+        profPhilosText.textContent = translations[lang].cv.profPhilosophyText;
+      }
+  
+      // Approaches (bullet points)
+      const approachHighlights = document.querySelectorAll('.approach-highlight .highlight-text');
+      translations[lang].cv.approachBullets.forEach((bullet, idx) => {
+        if (approachHighlights[idx]) {
+          approachHighlights[idx].textContent = bullet;
+        }
+      });
+  
+      // Download CV
+      const downloadCvBtn = document.querySelector('.cv-download-button .download-text');
+      if (downloadCvBtn) {
+        downloadCvBtn.textContent = translations[lang].cv.downloadBtn;
+      }
+  
+      /*
+        --------------- MUSIC PAGE ---------------
+      */
+      const musicTitle = document.querySelector('#music h1');
+      if (musicTitle) {
+        musicTitle.textContent = translations[lang].music.title;
+      }
+  
+      // MALACARNE
+      const musicProjects = document.querySelectorAll('.music-project');
+      // 1) Malacarne  2) Juan Lee
+      if (musicProjects.length >= 1) {
+        const malacarneH2 = musicProjects[0].querySelector('h2');
+        if (malacarneH2) {
+          malacarneH2.textContent = translations[lang].music.malacarneTitle;
+        }
+        const malacarneP = musicProjects[0].querySelector('.music-description p');
+        if (malacarneP) {
+          malacarneP.textContent = translations[lang].music.malacarneDesc;
+        }
+        const malacarneLink = musicProjects[0].querySelector('.platform-link span:last-child');
+        if (malacarneLink) {
+          malacarneLink.textContent = translations[lang].music.malacarneSoundcloud;
+        }
+      }
+  
+      if (musicProjects.length >= 2) {
+        const juanLeeH2 = musicProjects[1].querySelector('h2');
+        if (juanLeeH2) {
+          juanLeeH2.textContent = translations[lang].music.juanleeTitle;
+        }
+        const juanLeeH3 = musicProjects[1].querySelector('h3');
+        if (juanLeeH3) {
+          juanLeeH3.textContent = translations[lang].music.juanleeAlbum;
+        }
+        const juanLeeP = musicProjects[1].querySelectorAll('.music-description p')[1];
+        // p: [0] = "SEMEIOSIS" (nell'h3), [1] = "Conceptual Album exploring..."
+        if (juanLeeP) {
+          juanLeeP.textContent = translations[lang].music.juanleeAlbumDesc;
+        }
+  
+        // SIGNIFIATION
+        const significationH4 = musicProjects[1].querySelector('.video-section h4');
+        if (significationH4) {
+          significationH4.textContent = translations[lang].music.signification;
+        }
+  
+        // "LISTEN ON"
+        const listenOnH4 = musicProjects[1].querySelector('.streaming-platforms h4');
+        if (listenOnH4) {
+          listenOnH4.textContent = translations[lang].music.listenOn;
+        }
+  
+        // Platform links: SoundCloud, Spotify, Apple, Deezer, Qobuz
+        const platformGrid = musicProjects[1].querySelectorAll('.platform-grid .platform-link');
+        if (platformGrid.length >= 5) {
+          platformGrid[0].querySelector('span:last-child').textContent = translations[lang].music.platforms.soundcloud;
+          platformGrid[1].querySelector('span:last-child').textContent = translations[lang].music.platforms.spotify;
+          platformGrid[2].querySelector('span:last-child').textContent = translations[lang].music.platforms.apple;
+          platformGrid[3].querySelector('span:last-child').textContent = translations[lang].music.platforms.deezer;
+          platformGrid[4].querySelector('span:last-child').textContent = translations[lang].music.platforms.qobuz;
+        }
+      }
+  
+      /*
+        --------------- FOOTER ---------------
+      */
+      const footerLinks = document.querySelectorAll('footer a');
+      if (footerLinks.length >= 3) {
+        footerLinks[0].textContent = translations[lang].footer.github;   // GITHUB
+        footerLinks[1].textContent = translations[lang].footer.linkedin; // LINKEDIN
+        footerLinks[2].textContent = translations[lang].footer.email;    // EMAIL
+      }
+    }
+  
+    // 3. Gestore del selettore lingua (uguale al tuo)
+    function setupLanguageSelector() {
+      const languageToggle = document.getElementById('language-toggle');
+      const languageDropdown = document.querySelector('.language-dropdown');
+      const languageOptions = document.querySelectorAll('.language-option');
+  
+      // Imposta lingua iniziale da localStorage o default
+      const currentLang = localStorage.getItem('site-language') || 'en';
+      // Aggiorna bottone
+      languageToggle.innerHTML = `
+        <span class="flag-icon flag-icon-${currentLang === 'en' ? 'us' : currentLang}"></span>
+        ${currentLang.toUpperCase()}
+      `;
+      // Traduci all’avvio
+      translatePage(currentLang);
+  
+      // Toggle dropdown
+      languageToggle.addEventListener('click', () => {
+        languageDropdown.classList.toggle('show');
+      });
+  
+      // Clic su opzione lingua
+      languageOptions.forEach(option => {
+        option.addEventListener('click', () => {
+          const selectedLang = option.getAttribute('data-lang');
+          localStorage.setItem('site-language', selectedLang);
+  
+          // Aggiorna pulsante
+          languageToggle.innerHTML = `
+            <span class="flag-icon flag-icon-${selectedLang === 'en' ? 'us' : selectedLang}"></span>
+            ${selectedLang.toUpperCase()}
+          `;
+          languageDropdown.classList.remove('show');
+  
+          // Traduci
+          translatePage(selectedLang);
+        });
+      });
+  
+      // Chiudi dropdown cliccando fuori
+      window.addEventListener('click', (e) => {
+        if (!languageToggle.contains(e.target) && !languageDropdown.contains(e.target)) {
+          languageDropdown.classList.remove('show');
+        }
+      });
+    }
+  
+    // 4. Inizializza
+    setupLanguageSelector();
+  });
+  

@@ -2786,3 +2786,122 @@ body::after {
     )
 }
 
+
+
+/* Stili per il Selettore Lingua */
+.language-selector {
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin-left: 15px;
+}
+
+.current-language {
+    background: none;
+    border: none;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-weight: bold;
+    color: #333;
+    transition: color 0.3s ease;
+    padding: 5px 10px;
+    border-radius: 4px;
+}
+
+.current-language:hover {
+    background-color: rgba(0,0,0,0.05);
+    color: #666;
+}
+
+.current-language .flag-icon {
+    margin-right: 8px;
+    width: 24px;
+    height: 18px;
+    border-radius: 2px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.language-dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background-color: white;
+    border: 1px solid rgba(0,0,0,0.1);
+    border-radius: 4px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    min-width: 150px;
+    z-index: 1000;
+    overflow: hidden;
+    margin-top: 5px;
+}
+
+.language-dropdown.show {
+    display: block;
+    animation: dropdownFadeIn 0.3s ease;
+}
+
+@keyframes dropdownFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.language-option {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 10px 15px;
+    background: none;
+    border: none;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.language-option:hover {
+    background-color: rgba(0,0,0,0.05);
+}
+
+.language-option .flag-icon {
+    margin-right: 10px;
+    width: 24px;
+    height: 18px;
+    border-radius: 2px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.language-option:not(:last-child) {
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .language-selector {
+        margin-left: 10px;
+    }
+
+    .current-language {
+        padding: 3px 8px;
+    }
+
+    .current-language .flag-icon,
+    .language-option .flag-icon {
+        width: 20px;
+        height: 16px;
+    }
+
+    .language-dropdown {
+        min-width: 120px;
+    }
+
+    .language-option {
+        padding: 8px 12px;
+    }
+}
