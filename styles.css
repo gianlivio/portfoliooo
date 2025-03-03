@@ -1188,27 +1188,27 @@ h2 {
 
 .timeline-content {
     position: relative;
-    min-height: 400px;
+    min-height: auto; /* Invece di un valore fisso */
+    height: auto;
+    overflow: visible;
+    margin-bottom: 50px;
 }
 
 .timeline-panel {
-    position: absolute;
-    top: 0;
-    left: 0;
+    position: relative; /* Cambia da absolute a relative */
     width: 100%;
     opacity: 0;
+    visibility: hidden;
     transform: translateY(20px);
-    pointer-events: none;
     transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
+    display: none;
 }
 
 .timeline-panel.active {
     opacity: 1;
+    visibility: visible;
     transform: translateY(0);
-    pointer-events: auto;
+    display: block;
 }
 
 .job-header {
