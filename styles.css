@@ -574,15 +574,15 @@ h2 {
     position: relative;
     display: inline-block;
     padding: 0.9rem 1.8rem;
-    color: #FF4400;
+    color: #04ffea;
     background: transparent;
-    border: 2px solid #FF4400;
+    border: 2px solid #b6fd11;
     overflow: hidden;
     text-decoration: none;
     font-weight: 500;
     letter-spacing: 0.05em;
     transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-    text-shadow: 0 0 0 #FF4400;
+    text-shadow: 0 0 0 #35f305;
     box-shadow: 0 0 0 rgba(255, 68, 0, 0.5);
 }
 
@@ -601,9 +601,9 @@ h2 {
 .amazon-link:hover {
     color: white;
     border-color: transparent;
-    background: #FF4400;
+    background: #00d9ff;
     text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
-    box-shadow: 0 0 20px rgba(255, 68, 0, 0.8), 0 0 30px rgba(255, 68, 0, 0.6), 0 0 40px rgba(255, 68, 0, 0.4);
+    box-shadow: 0 0 20px rgba(13, 209, 150, 0.8), 0 0 30px rgba(33, 168, 15, 0.6), 0 0 40px rgba(21, 218, 119, 0.4);
     transform: translateY(-3px);
 }
 
@@ -2886,8 +2886,13 @@ body::after {
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
+    .nav-right {
+        margin-left: auto; /* Spinge il selettore lingua a destra */
+    }
+
     .language-selector {
-        margin-left: 10px;
+        margin-left: auto; /* Allinea a destra */
+        order: 2; /* Posiziona il selettore lingua per ultimo nella nav-right */
     }
 
     .current-language {
