@@ -1,5 +1,3 @@
-
-
 document.addEventListener('DOMContentLoaded', () => {
     // Funzione per gestire la terminazione automatica degli hover
     function setupAutoHoverEnd() {
@@ -325,18 +323,18 @@ document.addEventListener('DOMContentLoaded', () => {
             targetPage.classList.add('active');
             setTimeout(() => targetPage.classList.add('visible'), 100);
             
-          
             const colors = {
-                'home': 'white',
-                'developer': '#ff4400c4',  
-                'writer': '#ff007f63',     
-                'music': '#1850b591',      
-                'about': '#00a6fb57',    
-                'cv': '#00ffc47d',
-                'contact': '#000000'          
-            };
-            
-            document.body.style.backgroundColor = colors[pageId] || 'white';
+              'home': '#f5f7fa',
+              'developer': 'linear-gradient(140deg, #fb923c 0%, #ea580c 100%)',
+              'writer': 'linear-gradient(140deg, #f9a8d4 0%, #ec4899 100%)',
+              'music': 'linear-gradient(140deg, #2563eb 0%, #60a5fa 100%)',
+              'about': 'linear-gradient(140deg, #e0f2fe 0%, #7dd3fc 100%)',
+              'cv': 'linear-gradient(140deg, #7c3aed 0%, #a855f7 100%)',
+              'contact': 'linear-gradient(140deg, #1a202c 0%, #2d3748 100%)'
+          };
+          document.body.style.background = colors[pageId] || 'white';
+          document.body.style.backgroundAttachment = 'fixed';
+          document.body.style.backgroundSize = 'cover';
             
             
             if (pageId === 'contact') {
@@ -1700,7 +1698,7 @@ document.addEventListener('DOMContentLoaded', () => {
           writer: 'SCRITTORE /',
           soundMaster: 'MAESTRO DEL SUONO /',
           cv: 'CV',
-          creativeWebDeveloper: 'SVILUPPATORE WEB CREATIVO'
+         
         },
         home: {
           links: [
@@ -2537,4 +2535,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // 4. Inizializza
     setupLanguageSelector();
   });
+  
+
   
