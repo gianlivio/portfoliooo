@@ -1510,7 +1510,7 @@ document.addEventListener('DOMContentLoaded', () => {
           writer: 'WRITER /',
           soundMaster: 'SOUND MASTER /',
           cv: 'CV',
-          creativeWebDeveloper: 'CREATIVE WEB DEVELOPER'
+        
         },
         home: {
           links: [
@@ -1887,7 +1887,7 @@ document.addEventListener('DOMContentLoaded', () => {
           writer: 'ESCRITOR /',
           soundMaster: 'MAESTRO DEL SONIDO /',
           cv: 'CV',
-          creativeWebDeveloper: 'DESARROLLADOR WEB CREATIVO'
+         
         },
         home: {
           links: [
