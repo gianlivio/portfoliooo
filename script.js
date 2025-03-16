@@ -251,7 +251,9 @@ document.addEventListener('DOMContentLoaded', () => {
         'Flappy Bird': 'flappy',
         'MALACARNE(TMC Crew)': 'malacarne',  
         'JUAN LEE': 'semeiosis',
-          'PuntoLuce': 'puntoluce'
+        'PuntoLuce': 'puntoluce',
+        'Studio Dentistico': 'dentista',
+        'Studio Psicologi': 'psicologi'
     };
  
     projectCards.forEach(card => {

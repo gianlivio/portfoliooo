@@ -719,6 +719,14 @@ h2 {
 .project-hover-image.dropbox { background-image: url('dropbox.png'); }
 .project-hover-image.pizza { background-image: url('pizza.png'); }
 .project-hover-image.flappy { background-image: url('flappy.jpg'); }
+.project-hover-image.dentista {
+    background-image: url('dente.jpg');
+}
+
+.project-hover-image.psicologi {
+    background-image: url('cervello.jpg');
+}
+
 .project-hover-image.malacarne {
     background-image: url('malacarne.png');
     background-size: contain;
