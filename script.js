@@ -368,7 +368,8 @@ document.addEventListener('DOMContentLoaded', () => {
         'JUAN LEE': 'semeiosis',
         'PuntoLuce': 'puntoluce',
         'Studio Dentistico': 'dentista',
-        'Studio Psicologi': 'psicologi'
+        'Studio Psicologi': 'psicologi',
+        'Gestione via Noce': 'casacampagna',   
     };
  
     projectCards.forEach(card => {

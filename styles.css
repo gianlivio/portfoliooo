@@ -678,6 +678,13 @@ h2 {
 }
 
 
+.project-hover-image.casacampagna {
+    background-image: url('casacampagna.jpg');
+    /* Se serve l’adattamento: background-size, no-repeat, ecc. */
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
 
 
 /* puntoluce project */
