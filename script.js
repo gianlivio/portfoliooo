@@ -2490,54 +2490,73 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // 3. Gestore del selettore lingua (uguale al tuo)
-  function setupLanguageSelector() {
-    const languageToggle = document.getElementById('language-toggle');
-    const languageDropdown = document.querySelector('.language-dropdown');
-    const languageOptions = document.querySelectorAll('.language-option');
+// Funzione per configurare il selettore di lingua
+function setupLanguageSelector() {
+  const languageToggle = document.getElementById('language-toggle');
+  const languageDropdown = document.querySelector('.language-dropdown');
+  const languageOptions = document.querySelectorAll('.language-option');
 
-    // Imposta lingua iniziale da localStorage o default
-    const currentLang = localStorage.getItem('site-language') || 'en';
-    // Aggiorna bottone
-    languageToggle.innerHTML = `
-      <span class="flag-icon flag-icon-${currentLang === 'en' ? 'us' : currentLang}"></span>
-      ${currentLang.toUpperCase()}
-    `;
-    // Traduci all’avvio
-    translatePage(currentLang);
+  // Imposta lingua iniziale da localStorage o default
+  const currentLang = localStorage.getItem('site-language') || 'en';
+  
+  // Aggiorna bottone con la lingua corrente
+  updateLanguageButton(currentLang);
+  
+  // Traduci all'avvio
+  translatePage(currentLang);
 
-    // Toggle dropdown
+  // Toggle dropdown
+  if (languageToggle) {
     languageToggle.addEventListener('click', () => {
       languageDropdown.classList.toggle('show');
     });
+  }
 
-    // Clic su opzione lingua
-    languageOptions.forEach(option => {
-      option.addEventListener('click', () => {
-        const selectedLang = option.getAttribute('data-lang');
-        localStorage.setItem('site-language', selectedLang);
+  // Clic su opzione lingua
+  languageOptions.forEach(option => {
+    option.addEventListener('click', () => {
+      const selectedLang = option.getAttribute('data-lang');
+      localStorage.setItem('site-language', selectedLang);
 
-        // Aggiorna pulsante
-        languageToggle.innerHTML = `
-          <span class="flag-icon flag-icon-${selectedLang === 'en' ? 'us' : selectedLang}"></span>
-          ${selectedLang.toUpperCase()}
-        `;
-        languageDropdown.classList.remove('show');
+      // Aggiorna pulsante
+      updateLanguageButton(selectedLang);
+      languageDropdown.classList.remove('show');
 
-        // Traduci
-        translatePage(selectedLang);
-      });
+      // Traduci
+      translatePage(selectedLang);
     });
+  });
 
-    // Chiudi dropdown cliccando fuori
-    window.addEventListener('click', (e) => {
+  // Chiudi dropdown cliccando fuori
+  window.addEventListener('click', (e) => {
+    if (languageToggle && languageDropdown) {
       if (!languageToggle.contains(e.target) && !languageDropdown.contains(e.target)) {
         languageDropdown.classList.remove('show');
       }
-    });
-  }
+    }
+  });
+}
 
-  // 4. Inizializza
-  setupLanguageSelector();
+// Funzione per aggiornare il testo e l'icona del pulsante
+function updateLanguageButton(lang) {
+  const languageToggle = document.getElementById('language-toggle');
+  if (languageToggle) {
+    // Mappa del codice lingua alla classe icona
+    const flagMap = {
+      'en': 'us',
+      'it': 'it',
+      'es': 'es'
+    };
+    
+    languageToggle.innerHTML = `
+      <span class="flag-icon flag-icon-${flagMap[lang] || 'us'}"></span>
+      ${lang.toUpperCase()}
+    `;
+  }
+}
+
+// Inizializza il selettore di lingua quando il documento è pronto
+document.addEventListener('DOMContentLoaded', setupLanguageSelector);
 });
 
 
