@@ -2817,13 +2817,12 @@ body::after {
 
 /* Stili per il Selettore Lingua */
 
-/* Stili per il Selettore Lingua - Aggiungi o modifica questi nella tua sezione CSS */
+
 .language-selector {
     position: relative;
     display: flex;
     align-items: center;
     margin-left: 15px;
-    z-index: 1000;
 }
 
 .current-language {
@@ -2831,21 +2830,23 @@ body::after {
     border: none;
     display: flex;
     align-items: center;
-    cursor: pointer !important;
-    z-index: 1001;
+    cursor: pointer;
     font-weight: bold;
-    color: inherit; /* Usa lo stesso colore del testo dell'header */
+    color: #333;
     transition: color 0.3s ease;
     padding: 5px 10px;
     border-radius: 4px;
 }
 
 .current-language:hover {
-    background-color: rgba(255, 68, 0, 0.1);
+    background-color: rgba(0,0,0,0.05);
+    color: #666;
 }
 
 .current-language .flag-icon {
     margin-right: 8px;
+    width: 24px;
+    height: 18px;
     border-radius: 2px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
@@ -2891,16 +2892,18 @@ body::after {
     text-align: left;
     cursor: pointer;
     transition: all 0.3s ease;
-    color: #333; /* Colore testo fisso per le opzioni */
 }
 
 .language-option:hover {
-    background-color: rgba(255, 68, 0, 0.1);
+    background-color: rgba(0,0,0,0.05);
 }
 
 .language-option .flag-icon {
     margin-right: 10px;
+    width: 24px;
+    height: 18px;
     border-radius: 2px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
 .language-option:not(:last-child) {
@@ -2909,12 +2912,23 @@ body::after {
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
+    .nav-right {
+        margin-left: auto; /* Spinge il selettore lingua a destra */
+    }
+
     .language-selector {
-        margin-left: auto;
+        margin-left: auto; /* Allinea a destra */
+        order: 2; /* Posiziona il selettore lingua per ultimo nella nav-right */
     }
 
     .current-language {
         padding: 3px 8px;
+    }
+
+    .current-language .flag-icon,
+    .language-option .flag-icon {
+        width: 20px;
+        height: 16px;
     }
 
     .language-dropdown {
@@ -2924,4 +2938,20 @@ body::after {
     .language-option {
         padding: 8px 12px;
     }
+    body {
+        overflow-x: hidden;
+      }
+      .projects-grid {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scroll-behavior: smooth;
+      }
 }
+
+
+@media (hover: none) {
+    .project-card:hover {
+      transform: none;
+    }
+  }
+  
