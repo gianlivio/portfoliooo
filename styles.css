@@ -2823,6 +2823,7 @@ body::after {
     display: flex;
     align-items: center;
     margin-left: 15px;
+    z-index: 1000;
 }
 
 .current-language {
@@ -2830,7 +2831,8 @@ body::after {
     border: none;
     display: flex;
     align-items: center;
-    cursor: pointer;
+    cursor: pointer !important;
+    z-index: 1001;
     font-weight: bold;
     color: inherit; /* Usa lo stesso colore del testo dell'header */
     transition: color 0.3s ease;
