@@ -2006,7 +2006,7 @@ document.addEventListener('DOMContentLoaded', () => {
         projects: [
           {
             name: 'PuntoLuce',
-            desc: 'Nuevo sitio de comercio electrónico construido con Open2b',
+            desc: 'Nueva Web Page de comercio electrónico construido con Open2b',
             linkText: 'Ver Proyecto'
           },
           {
@@ -2016,12 +2016,12 @@ document.addEventListener('DOMContentLoaded', () => {
           },
           {
             name: 'Studio Psicologi',
-            desc: 'Sitio completo para un estudio de psicología en Bolonia',
+            desc: 'Web Page completa para un estudio de psicología en Bolonia',
             linkText: 'Ver Proyecto'
           },
           {
             name: 'Agenzia Immobiliare Bologna',
-            desc: 'Sitio moderno para una agencia inmobiliaria en Bolonia',
+            desc: 'Web Page moderna para una agencia inmobiliaria en Bolonia',
             linkText: 'Ver Proyecto'
           },
           {
@@ -2056,7 +2056,7 @@ document.addEventListener('DOMContentLoaded', () => {
           },
           {
             name: 'Antico Stradello',
-            desc: 'Sitio web para una pizzería histórica',
+            desc: 'Web Page para una pizzería histórica',
             linkText: 'Ver Proyecto'
           }
         ]
@@ -2617,7 +2617,7 @@ function updateLanguageButton(lang) {
 }
 
 // Inizializza il selettore di lingua quando il documento è pronto
-document.addEventListener('DOMContentLoaded', setupLanguageSelector);
+setupLanguageSelector();
 });
 
 
