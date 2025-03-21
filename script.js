@@ -2558,5 +2558,76 @@ function updateLanguageButton(lang) {
 // Inizializza il selettore di lingua quando il documento è pronto
 document.addEventListener('DOMContentLoaded', setupLanguageSelector);
 });
+// Aggiungi questo alla fine del tuo file script.js o come script separato
+document.addEventListener('DOMContentLoaded', function() {
+  // Funzione per configurare il selettore di lingua
+  function setupLanguageSelector() {
+    const languageToggle = document.getElementById('language-toggle');
+    const languageDropdown = document.querySelector('.language-dropdown');
+    const languageOptions = document.querySelectorAll('.language-option');
 
+    // Imposta lingua iniziale da localStorage o default
+    const currentLang = localStorage.getItem('site-language') || 'en';
+    
+    // Aggiorna bottone con la lingua corrente
+    updateLanguageButton(currentLang);
+    
+    // Traduci all'avvio
+    translatePage(currentLang);
+
+    // Toggle dropdown
+    if (languageToggle) {
+      languageToggle.addEventListener('click', (e) => {
+        e.preventDefault();
+        languageDropdown.classList.toggle('show');
+      });
+    }
+
+    // Clic su opzione lingua
+    languageOptions.forEach(option => {
+      option.addEventListener('click', (e) => {
+        e.preventDefault();
+        const selectedLang = option.getAttribute('data-lang');
+        localStorage.setItem('site-language', selectedLang);
+
+        // Aggiorna pulsante
+        updateLanguageButton(selectedLang);
+        languageDropdown.classList.remove('show');
+
+        // Traduci
+        translatePage(selectedLang);
+      });
+    });
+
+    // Chiudi dropdown cliccando fuori
+    window.addEventListener('click', (e) => {
+      if (languageToggle && languageDropdown) {
+        if (!languageToggle.contains(e.target) && !languageDropdown.contains(e.target)) {
+          languageDropdown.classList.remove('show');
+        }
+      }
+    });
+  }
+
+  // Funzione per aggiornare il testo e l'icona del pulsante
+  function updateLanguageButton(lang) {
+    const languageToggle = document.getElementById('language-toggle');
+    if (languageToggle) {
+      // Mappa del codice lingua alla classe icona
+      const flagMap = {
+        'en': 'us',
+        'it': 'it',
+        'es': 'es'
+      };
+      
+      languageToggle.innerHTML = `
+        <span class="flag-icon flag-icon-${flagMap[lang] || 'us'}"></span>
+        ${lang.toUpperCase()}
+      `;
+    }
+  }
+
+  // Inizializza il selettore di lingua quando il documento è pronto
+  setupLanguageSelector();
+});
 
