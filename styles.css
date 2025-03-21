@@ -678,20 +678,6 @@ h2 {
 }
 
 
-.project-hover-image.casacampagna {
-    background-image: url('casacampagna.jpg');
-    /* Se serve l’adattamento: background-size, no-repeat, ecc. */
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
-}
-
-
-/* puntoluce project */
-.project-hover-image.puntoluce {
-    background-image: url('puntoluce.png');
-}
-
 
 
 /* progetti web dev */
@@ -744,6 +730,29 @@ h2 {
 .project-hover-image.dentista {
     background-image: url('dente.jpg');
 }
+
+.project-hover-image.casacampagna {
+    background-image: url('casacampagna.jpg');
+    /* Se serve l’adattamento: background-size, no-repeat, ecc. */
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+
+/* puntoluce project */
+.project-hover-image.puntoluce {
+    background-image: url('puntoluce.png');
+}
+
+.project-hover-image.bologna {
+    background-image: url('bologna.jpg');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+  }
+  
+
 
 .project-hover-image.psicologi {
     background-image: url('cervello.jpg');
@@ -2927,4 +2936,20 @@ body::after {
     .language-option {
         padding: 8px 12px;
     }
+    body {
+        overflow-x: hidden;
+      }
+      .projects-grid {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scroll-behavior: smooth;
+      }
 }
+
+
+@media (hover: none) {
+    .project-card:hover {
+      transform: none;
+    }
+  }
+  
