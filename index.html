@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gianlivio Iemolo</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.5.0/css/flag-icon.min.css">
+</head>
+<body>
+    
+    <div class="custom-cursor">
+        <svg viewBox="0 0 50 50">
+            <path class="cursor-arrow" 
+                  d="M12,38 L38,12 M38,12 L38,25 M38,12 L25,12" 
+                  stroke-linecap="round" 
+                  stroke-linejoin="round">
+            </path>
+        </svg>
+    </div>
+    
+    <nav>
+        <div class="nav-left">
+            <a href="#" class="logo" data-page="home">GIANLIVIO IEMOLO</a>
+        </div>
+        <div class="nav-center">
+            <span class="nav-link" data-page="about">ABOUT</span>
+
+            <span class="nav-link" data-page="contact">CONTACT</span>
+        </div>
+        <div class="nav-right">
+            <span>CREATIVE WEB DEVELOPER</span>
+            
+            <!-- Aggiungi il selettore di lingua qui -->
+            <div class="language-selector">
+                <button id="language-toggle" class="current-language">
+                    <span class="flag-icon flag-icon-us"></span>
+                    EN
+                </button>
+                <div class="language-dropdown">
+                    <button class="language-option" data-lang="en">
+                        <span class="flag-icon flag-icon-us"></span>
+                        English
+                    </button>
+                    <button class="language-option" data-lang="it">
+                        <span class="flag-icon flag-icon-it"></span>
+                        Italiano
+                    </button>
+                    <button class="language-option" data-lang="es">
+                        <span class="flag-icon flag-icon-es"></span>
+                        Español
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Aggiungi questi link per le icone delle bandiere nel tag <head> -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.5.0/css/flag-icon.min.css">
+    </nav>
+
+    <main id="content">
+        <!-- Home Page -->
+        <div class="page active" id="home">
+            <div class="project-list">
+                <a href="#" class="big-link" data-page="developer">WEB DEVELOPER /</a>
+                <a href="#" class="big-link" data-page="writer">WRITER /</a>
+                <a href="#" class="big-link" data-page="music">SOUND MASTER /</a>
+                <a href="#" class="big-link" data-page="cv">CV</a>
+            </div>
+        </div>
+
+
+        <!-- About -->
+       
+        <div class="page" id="about">
+            <div class="about-container">
+                <!-- Intestazione interattiva -->
+                <div class="about-hero">
+                    <h1 class="about-title" data-text="ABOUT">ABOUT</h1>
+                    <div class="about-subtitle">Creative Developer with Semiotic Insight</div>
+                    
+                    <!-- Introduzione interattiva -->
+                    <div class="about-intro">
+                        <div class="intro-text">
+                            <p>I bridge the gap between technical solutions and human understanding, creating digital experiences that communicate on multiple levels.</p>
+                            <p>My background in <span class="highlight">Umberto Eco's Semiotics</span> shapes how I approach every development challenge – decoding the layers of meaning that shape user interactions.</p>
+                        </div>
+                        
+                        <div class="portrait-container">
+                            <a href="#" class="portrait-link" data-page="home">
+                                <div class="portrait-frame">
+                                    <div class="portrait-placeholder">G</div>
+                                    <div class="portrait-glitch-effect"></div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Filosofia di lavoro visualizzata in modo creativo -->
+                <div class="philosophy-visualizer">
+                    <h2 class="section-title" data-text="MY APPROACH">MY APPROACH</h2>
+                    
+                    <div class="philosophy-canvas">
+                        <div class="node-container">
+                            <!-- Nodo centrale -->
+                            <div class="philosophy-node central-node" id="central-node">
+                                <span class="node-label">Creative Development</span>
+                            </div>
+                            
+                            <!-- Nodi orbitanti -->
+                            <div class="philosophy-node orbiting-node" data-orbit="1" id="node-1">
+                                <span class="node-label">Problem Solving</span>
+                                <div class="node-description">
+                                    <h3>Analytical & Creative</h3>
+                                    <p>Approaching challenges with precision and insight, finding solutions at the intersection of logic and creativity.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="philosophy-node orbiting-node" data-orbit="2" id="node-2">
+                                <span class="node-label">Human-Centric</span>
+                                <div class="node-description">
+                                    <h3>User-Focused Design</h3>
+                                    <p>Balancing technical excellence with genuine understanding of user needs and expectations.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="philosophy-node orbiting-node" data-orbit="3" id="node-3">
+                                <span class="node-label">Cross-Disciplinary</span>
+                                <div class="node-description">
+                                    <h3>Bridging Worlds</h3>
+                                    <p>Merging development expertise with communication theory to create richer digital experiences.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="philosophy-node orbiting-node" data-orbit="4" id="node-4">
+                                <span class="node-label">Meaning-Oriented</span>
+                                <div class="node-description">
+                                    <h3>Semiotic Approach</h3>
+                                    <p>Applying semiotic principles to create interfaces and systems that communicate clearly and effectively.</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Connessioni tra i nodi -->
+                            <svg class="node-connections" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                                <path id="connection-1" class="connection" />
+                                <path id="connection-2" class="connection" />
+                                <path id="connection-3" class="connection" />
+                                <path id="connection-4" class="connection" />
+                            </svg>
+                        </div>
+                        
+                        <div class="interaction-hint">
+                            <span class="hint-icon">↑</span>
+                            <span class="hint-text">Interact with the nodes</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Sezione "Cosa mi appassiona" - presentata con effetto Matrix -->
+                <div class="passion-section">
+                    <h2 class="section-title" data-text="WHAT DRIVES ME">WHAT DRIVES ME</h2>
+                    
+                    <div class="passion-matrix">
+                        <div class="matrix-background">
+                            <canvas id="matrix-canvas"></canvas>
+                        </div>
+                        
+                        <div class="passion-content">
+                            <div class="passion-item">
+                                <div class="passion-icon">
+                                    <span class="icon-symbol">≡</span>
+                                </div>
+                                <div class="passion-text">
+                                    <h3>Clean, Meaningful Code</h3>
+                                    <p>Finding elegance in simplicity and clarity. Writing code that other developers can understand and build upon.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="passion-item">
+                                <div class="passion-icon">
+                                    <span class="icon-symbol">∞</span>
+                                </div>
+                                <div class="passion-text">
+                                    <h3>Digital Communication</h3>
+                                    <p>Creating interfaces and experiences that speak clearly to users on multiple cognitive levels.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="passion-item">
+                                <div class="passion-icon">
+                                    <span class="icon-symbol">⟁</span>
+                                </div>
+                                <div class="passion-text">
+                                    <h3>Continuous Evolution</h3>
+                                    <p>Embracing new technologies and methodologies, constantly refining my skills and approach.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Sezione di connessione -->
+                <div class="connect-section">
+                    <p class="connect-text">Interested in my professional journey and skills?</p>
+                    <a href="#" class="connect-button" data-page="cv">
+                        <span class="button-text">Explore my CV</span>
+                        <span class="button-arrow">→</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact -->
+        <div class="page" id="contact">
+            <h1>CONTACT</h1>
+            
+            <div class="contact-grid">
+                <!-- Info Principale -->
+                <div class="contact-main">
+                    <p class="contact-lead">
+                        Let's create something meaningful together.
+                    </p>
+                    
+                    <div class="contact-info">
+                        <div class="info-item">
+                            <h3>Location</h3>
+                            <p>40128, Bologna, Italy</p>
+                        </div>
+                        
+                        <div class="info-item">
+                            <h3>Email</h3>
+                            <a href="mailto:gianlivioiemolo@gmail.com">gianlivioiemolo@gmail.com</a>
+                        </div>
+                        
+                        <div class="info-item">
+                            <h3>Phone</h3>
+                            <a href="tel:+393319462396">+39 331 9462396</a>
+                        </div>
+                    </div>
+                </div>
+        
+                <!-- Social Links -->
+                <div class="social-links">
+                    <h2>CONNECT</h2>
+                    <div class="social-grid">
+                        <a href="https://github.com/gianlivio" target="_blank" class="social-item">
+                            <span class="social-title">GitHub</span>
+                            <span class="social-handle">@gianlivio</span>
+                        </a>
+                        
+                        <a href="https://linkedin.com/in/gianlivio-iemolo" target="_blank" class="social-item">
+                            <span class="social-title">LinkedIn</span>
+                            <span class="social-handle">in/gianlivio-iemolo</span>
+                        </a>
+                        
+                        <a href="https://soundcloud.com/juan-lee-360195240" target="_blank" class="social-item">
+                            <span class="social-title">SoundCloud</span>
+                            <span class="social-handle">@juan-lee</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Developer Page -->
+        <div class="page" id="developer">
+            <h1>WEB DEVELOPMENT</h1>
+            <div class="description">
+                FRONTEND / BACKEND / UI-UX / API DEVELOPMENT
+                MODERN FRAMEWORKS / CUSTOM SOLUTIONS
+            </div>
+            <div class="projects-grid">
+                <div class="project-card">
+                    <h3>PuntoLuce</h3>
+                    <p>New e-commerce website built with Open2b</p>
+                    <div class="tech-stack">
+                        <span>HTML</span>
+                        <span>CSS</span>
+                        <span>JavaScript</span>
+                        <span>Open2b</span>
+                    </div>
+                    <a href="https://shop.puntoluce.net/open2b/design/Slide-definitiva/~/" target="_blank" class="project-link" data-hover="puntoluce.png">
+                        View Project
+                    </a>
+                </div>
+                
+                <div class="project-card">
+                    <h3>Studio Dentistico</h3>
+                    <p>Landing page moderna per un ambulatorio dentistico</p>
+                    <div class="tech-stack">
+                        <span>HTML</span>
+                        <span>CSS</span>
+                        <span>JavaScript</span>
+                    </div>
+                    <a href="https://gianlivio.github.io/progetto-studio-dentistico/" target="_blank" class="project-link">View Project</a>
+                </div>
+                
+                <div class="project-card">
+                    <h3>Studio Psicologi</h3>
+                    <p>Sito completo per uno studio di psicologia a Bologna</p>
+                    <div class="tech-stack">
+                        <span>HTML</span>
+                        <span>CSS</span>
+                        <span>JavaScript</span>
+                    </div>
+                    <a href="https://gianlivio.github.io/progetto-studio-psicologi/" target="_blank" class="project-link">View Project</a>
+                </div>
+
+                <div class="project-card">
+                    <h3>Agenzia Immobiliare Bologna</h3>
+                    <p>Sito moderno per un'agenzia immobiliare a Bologna.</p>
+                    <div class="tech-stack">
+                      <span>HTML</span>
+                      <span>CSS</span>
+                      <span>JavaScript</span>
+                    </div>
+                    <a href="https://gianlivio.github.io/agenzia-musei/" target="_blank" class="project-link" data-hover="bologna">
+                      View Project
+                    </a>
+                </div>
+                  
+                
+                <div class="project-card">
+                    <h3>Gestione via Noce</h3>
+                    <p>Stanze in affitto e gestione contratti</p>
+                    <div class="tech-stack">
+                      <span>HTML</span>
+                      <span>CSS</span>
+                      <span>JavaScript</span>
+                      <!-- Aggiungi altre se serve -->
+                    </div>
+                    <a href="https://gianlivio.github.io/progetto-gestione-via-noce/" 
+                       target="_blank" 
+                       class="project-link">
+                      View Project
+                    </a>
+                  </div>
+                  
+                
+                <div class="project-card">
+                    <h3>Flappy Bird</h3>
+                    <p>Ricreazione del classico gioco mobile</p>
+                    <div class="tech-stack">
+                        <span>JavaScript</span>
+                        <span>HTML Canvas</span>
+                        <span>CSS</span>
+                    </div>
+                    <a href="https://gianlivio.github.io/Flappy-Bird/" target="_blank" class="project-link">View Project</a>
+                </div>
+                
+                <div class="project-card">
+                    <h3>Discord Clone</h3>
+                    <p>Recreation of the Discord interface</p>
+                    <div class="tech-stack">
+                        <span>HTML</span>
+                        <span>CSS</span>
+                    </div>
+                    <a href="https://gianlivio.github.io/htmlcss-discord/" target="_blank" class="project-link">View Project</a>
+                </div>
+             
+                <div class="project-card">
+                    <h3>Train Ticket Form</h3>
+                    <p>Interactive ticket booking form</p>
+                    <div class="tech-stack">
+                        <span>JavaScript</span>
+                        <span>HTML</span>
+                        <span>CSS</span>
+                    </div>
+                    <a href="https://gianlivio.github.io/js-biglietto-treno-form/" target="_blank" class="project-link">View Project</a>
+                </div>
+             
+                <div class="project-card">
+                    <h3>Dropbox Clone</h3>
+                    <p>Clone of the Dropbox interface</p>
+                    <div class="tech-stack">
+                        <span>HTML</span>
+                        <span>CSS</span>
+                    </div>
+                    <a href="https://gianlivio.github.io/htmlcss-dropbox/" target="_blank" class="project-link">View Project</a>
+                </div>
+
+                <div class="project-card">
+                    <h3>Neon Snake</h3>
+                    <p>Interactive game implementation</p>
+                    <div class="tech-stack">
+                        <span>JavaScript</span>
+                        <span>HTML</span>
+                        <span>CSS</span>
+                    </div>
+                    <a href="https://gianlivio.github.io/neon-snake-game/" target="_blank" class="project-link">View Project</a>
+                </div>
+             
+                <div class="project-card">
+                    <h3>Antico Stradello</h3>
+                    <p>Website for a historic pizzeria</p>
+                    <div class="tech-stack">
+                        <span>HTML</span>
+                        <span>CSS</span>
+                        <span>JavaScript</span>
+                    </div>
+                    <a href="https://gianlivio.github.io/antico-stradello/" target="_blank" class="project-link">View Project</a>
+                </div>
+             </div>
+        </div>
+
+        <!-- Writer Page -->
+
+        <div class="page" id="writer">
+            <h1>PUBLICATIONS</h1>
+            <div class="book-section">
+                <h2>Sottilissimi Strati di un Enorme Croissant</h2>
+                <p class="book-description">
+                    To those who seek to see beyond the immediate.
+                    To the dreamers who inhabit the spaces between words.
+                </p>
+                <button id="explore-croissant" class="explore-button">EXPLORE COLLECTION</button>
+                <a href="https://www.amazon.it/s?i=stripbooks&rh=p_27%3AGianlivio%2BIemolo&ref=dp_byline_sr_book_1" class="amazon-link">BUY ON AMAZON</a>
+            </div>
+
+            <div class="critical-texts">
+                <h2>CRITICAL TEXTS</h2>
+                <div class="text-item">
+                    <h3>Hell ends in Hell - Nanni Licitra</h3>
+                    <p>Ragusa Foto Festival Award 2021</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Croissant World Page (hidden by default) -->
+        <div class="page" id="croissant-world">
+            <video autoplay loop muted playsinline class="croissant-bg">
+                <source src="sfondolibri.mp4" type="video/mp4">
+                Your browser does not support background videos.
+            </video>
+
+            <!-- Floating books -->
+            <div class="floating-book book-1" data-hover="a.png" data-hover-alt="f.png"></div>
+            <div class="floating-book book-2" data-hover="b.png" data-hover-alt="c.png"></div>
+            <div class="floating-book book-3" data-hover="e.png" data-hover-alt="d.png"></div>
+            <div class="floating-book book-4 coming-soon"></div>
+
+            <!-- Exit button -->
+            <button id="exit-croissant" class="exit-button">BACK TO PUBLICATIONS</button>
+        </div>
+
+        <!-- CV Page -->
+            
+        <div class="page" id="cv">
+            <div class="cv-container">
+                <!-- Header Section -->
+                <header class="cv-header">
+                    <div class="cv-title-block">
+                        <h1 class="cv-title" data-text="CURRICULUM">CURRICULUM</h1>
+                        <div class="cv-subtitle">Full Stack Developer with Semiotic Background</div>
+                    </div>
+                    
+                    <div class="personal-philosophy">
+                        <blockquote class="philosophy-quote">
+                            "Problem solver with a humanistic soul. Bringing together technical expertise 
+                            and human understanding to create meaningful digital solutions."
+                        </blockquote>
+                    </div>
+                </header>
+
+                <!-- Interactive Skill Graph -->
+                <div class="skill-graph-container">
+                    <h2 class="section-title" data-text="TECHNICAL EXPERTISE">TECHNICAL EXPERTISE</h2>
+                    <div class="skill-graph">
+                        <div class="skill-legend">
+                            <span class="skill-level advanced">Advanced</span>
+                            <span class="skill-level intermediate">Intermediate</span>
+                            <span class="skill-level basic">Basic</span>
+                        </div>
+                        <div class="skill-categories">
+                            <div class="skill-category" id="development-skills">
+                                <h3>Development</h3>
+                                <div class="skill-bars">
+                                    <div class="skill-item">
+                                        <div class="skill-name">Laravel</div>
+                                        <div class="skill-bar">
+                                            <div class="skill-progress advanced" style="width: 90%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="skill-item">
+                                        <div class="skill-name">Vue.js</div>
+                                        <div class="skill-bar">
+                                            <div class="skill-progress advanced" style="width: 85%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="skill-item">
+                                        <div class="skill-name">API Integration</div>
+                                        <div class="skill-bar">
+                                            <div class="skill-progress advanced" style="width: 80%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="skill-item">
+                                        <div class="skill-name">JavaScript</div>
+                                        <div class="skill-bar">
+                                            <div class="skill-progress intermediate" style="width: 75%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="skill-item">
+                                        <div class="skill-name">PHP</div>
+                                        <div class="skill-bar">
+                                            <div class="skill-progress intermediate" style="width: 70%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="skill-item">
+                                        <div class="skill-name">MySQL</div>
+                                        <div class="skill-bar">
+                                            <div class="skill-progress intermediate" style="width: 65%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="skill-category" id="frontend-skills">
+                                <h3>Frontend</h3>
+                                <div class="skill-bars">
+                                    <div class="skill-item">
+                                        <div class="skill-name">HTML5</div>
+                                        <div class="skill-bar">
+                                            <div class="skill-progress advanced" style="width: 90%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="skill-item">
+                                        <div class="skill-name">CSS3/SASS</div>
+                                        <div class="skill-bar">
+                                            <div class="skill-progress advanced" style="width: 85%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="skill-item">
+                                        <div class="skill-name">Bootstrap</div>
+                                        <div class="skill-bar">
+                                            <div class="skill-progress intermediate" style="width: 70%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="skill-item">
+                                        <div class="skill-name">Responsive Design</div>
+                                        <div class="skill-bar">
+                                            <div class="skill-progress advanced" style="width: 85%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="skill-category" id="tools-skills">
+                                <h3>Tools & Methods</h3>
+                                <div class="skill-bars">
+                                    <div class="skill-item">
+                                        <div class="skill-name">Git</div>
+                                        <div class="skill-bar">
+                                            <div class="skill-progress intermediate" style="width: 75%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="skill-item">
+                                        <div class="skill-name">Google Tag Manager</div>
+                                        <div class="skill-bar">
+                                            <div class="skill-progress intermediate" style="width: 65%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="skill-item">
+                                        <div class="skill-name">REST APIs</div>
+                                        <div class="skill-bar">
+                                            <div class="skill-progress advanced" style="width: 80%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="skill-item">
+                                        <div class="skill-name">SEO</div>
+                                        <div class="skill-bar">
+                                            <div class="skill-progress intermediate" style="width: 70%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Interactive Experience Timeline -->
+                <div class="experience-timeline-container">
+                    <h2 class="section-title" data-text="PROFESSIONAL JOURNEY">PROFESSIONAL JOURNEY</h2>
+                    
+                    <div class="experience-timeline">
+                        <div class="timeline-controls">
+                            <button class="timeline-control" data-year="2024">2024</button>
+                            <button class="timeline-control" data-year="2023">2023</button>
+                            <button class="timeline-control" data-year="2022">2022</button>
+                            <button class="timeline-control" data-year="2021">2021</button>
+                        </div>
+                        
+                        <div class="timeline-content">
+                            <!-- 2024 Experience -->
+                            <div class="timeline-panel active" data-year="2024">
+                                <div class="job-header">
+                                    <div class="job-title">Front-end Developer</div>
+                                    <div class="job-company">PuntoLuce - EDIF</div>
+                                    <div class="job-period">2024 - Present</div>
+                                </div>
+                                <div class="job-description">
+                                    <div class="job-highlights">
+                                        <h4>Key Achievements</h4>
+                                        <ul>
+                                            <li>Developed cutting-edge website layouts implementing modern design principles</li>
+                                            <li>Implemented comprehensive event tracking using Google Tag Manager</li>
+                                            <li>Built custom API integrations enhancing site functionality</li>
+                                        </ul>
+                                    </div>
+                                    <div class="job-tech">
+                                        <div class="tech-tag">HTML5</div>
+                                        <div class="tech-tag">CSS3</div>
+                                        <div class="tech-tag">JavaScript</div>
+                                        <div class="tech-tag">API Integration</div>
+                                        <div class="tech-tag">GTM</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 2023 Experience -->
+                            <div class="timeline-panel" data-year="2023">
+                                <div class="job-header">
+                                    <div class="job-title">Web Content Manager</div>
+                                    <div class="job-company">CopyStudio</div>
+                                    <div class="job-period">2023</div>
+                                </div>
+                                <div class="job-description">
+                                    <p>Strategic content development focused on user engagement and SEO optimization</p>
+                                    <div class="job-tech">
+                                        <div class="tech-tag">Content Strategy</div>
+                                        <div class="tech-tag">SEO</div>
+                                        <div class="tech-tag">UX Writing</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="job-divider"></div>
+                                
+                                <div class="job-header">
+                                    <div class="job-title">Junior Web Developer Trainee</div>
+                                    <div class="job-company">Boolean S.R.L.</div>
+                                    <div class="job-period">2023-2024</div>
+                                </div>
+                                <div class="job-description">
+                                    <div class="job-highlights">
+                                        <h4>Key Projects</h4>
+                                        <ul>
+                                            <li>Developed WhatsApp layout using Vue.js with real-time messaging features</li>
+                                            <li>Created custom API with Laravel for contacts and user operations</li>
+                                            <li>Built property management dashboard integrating Laravel and Vue.js</li>
+                                            <li>Developed travel planning app with user authentication and route management</li>
+                                        </ul>
+                                    </div>
+                                    <div class="job-tech">
+                                        <div class="tech-tag">Vue.js</div>
+                                        <div class="tech-tag">Laravel</div>
+                                        <div class="tech-tag">PHP</div>
+                                        <div class="tech-tag">MySQL</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 2022 Experience -->
+                            <div class="timeline-panel" data-year="2022">
+                                <div class="job-header">
+                                    <div class="job-title">SEO Copywriter & Web Developer</div>
+                                    <div class="job-company">Hetaweb</div>
+                                    <div class="job-period">2022-2023</div>
+                                </div>
+                                <div class="job-description">
+                                    <div class="job-highlights">
+                                        <ul>
+                                            <li>Maintained and optimized WordPress websites through backend development</li>
+                                            <li>Created SEO-optimized content to enhance search engine rankings</li>
+                                            <li>Conducted competitor analysis to support digital strategy development</li>
+                                        </ul>
+                                    </div>
+                                    <div class="job-tech">
+                                        <div class="tech-tag">WordPress</div>
+                                        <div class="tech-tag">PHP</div>
+                                        <div class="tech-tag">SEO</div>
+                                        <div class="tech-tag">Content Creation</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 2021 Experience -->
+                            <div class="timeline-panel" data-year="2021">
+                                <div class="job-header">
+                                    <div class="job-title">Educator</div>
+                                    <div class="job-company">OpenGroup</div>
+                                    <div class="job-period">2021-2022</div>
+                                </div>
+                                <div class="job-description">
+                                    <p>Worked with unaccompanied migrant minors, facilitating their integration through education and cultural mediation</p>
+                                    <div class="job-tech">
+                                        <div class="tech-tag">Education</div>
+                                        <div class="tech-tag">Cultural Mediation</div>
+                                        <div class="tech-tag">Communication</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Education & Approach Section -->
+                <div class="education-approach-container">
+                    <h2 class="section-title" data-text="EDUCATION & APPROACH">EDUCATION & APPROACH</h2>
+                    
+                    <div class="education-approach-grid">
+                        <div class="education-block">
+                            <div class="education-item">
+                                <div class="education-degree">Master's in Semiotics</div>
+                                <div class="education-institution">University of Bologna - Umberto Eco's School</div>
+                                <div class="education-grade">Grade: 108/110</div>
+                                <p class="education-note">
+                                    Unique perspective on meaning-making and communication, enriching 
+                                    every aspect of digital development and user interaction
+                                </p>
+                            </div>
+                            
+                            <div class="education-item">
+                                <div class="education-degree">Full Stack Development</div>
+                                <div class="education-institution">Boolean</div>
+                                <div class="education-period">2023</div>
+                            </div>
+                        </div>
+                        
+                        <div class="approach-block">
+                            <h3>Professional Philosophy</h3>
+                            <div class="approach-content">
+                                <p>
+                                    Combining technical excellence with human understanding. Leading teams 
+                                    with empathy and precision, ensuring both technical quality and 
+                                    team wellbeing.
+                                </p>
+                                
+                                <div class="approach-highlights">
+                                    <div class="approach-highlight">
+                                        <div class="highlight-icon">💡</div>
+                                        <div class="highlight-text">Bringing semiotic analysis to digital problems</div>
+                                    </div>
+                                    <div class="approach-highlight">
+                                        <div class="highlight-icon">🔄</div>
+                                        <div class="highlight-text">Bridging technical and humanistic perspectives</div>
+                                    </div>
+                                    <div class="approach-highlight">
+                                        <div class="highlight-icon">🚀</div>
+                                        <div class="highlight-text">Continuous learning and adaptation</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Download CV Section -->
+                <div class="cv-download-section">
+                    <a href="gianlivio-iemolo-cv.pdf" download class="cv-download-button">
+                        <span class="download-icon">↓</span>
+                        <span class="download-text">Download Full CV</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Music section -->
+    <div class="page" id="music">
+        <h1>MUSICA</h1>
+        
+        <!-- Malacarne Section -->
+        <div class="music-project">
+            <h2>MALACARNE(TMC Crew)</h2>
+            <div class="music-description">
+                <p>Tekno/Acid/HeavyMental</p>
+                <div class="music-links">
+                    <a href="https://soundcloud.com/m4lacarn3" target="_blank" class="platform-link">
+                        <span class="platform-icon">♫</span>
+                        <span>SoundCloud</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Juan Lee Section -->
+        <div class="music-project">
+            <h2>JUAN LEE</h2>
+            <div class="music-description">
+                <h3>SEMEIOSIS</h3>
+                <p>Conceptual Album exploring sound and meaning</p>
+                
+                <!-- Video Section -->
+                <div class="video-section">
+                    <h4>SIGNIFIATION - Music Video</h4>
+                    <div class="video-thumbnail">
+                        <a href="https://www.youtube.com/watch?v=YjlkHyGLe0w" target="_blank" class="video-link">
+                            <img src="https://img.youtube.com/vi/YjlkHyGLe0w/maxresdefault.jpg" alt="Signifiation Video Thumbnail" />
+                            <div class="play-overlay">▶</div>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Streaming Platforms -->
+                <div class="streaming-platforms">
+                    <h4>ASCOLTA SU</h4>
+                    <div class="platform-grid">
+                        <a href="https://soundcloud.com/juan-lee-360195240" target="_blank" class="platform-link">
+                            <span class="platform-icon">♫</span>
+                            <span>SoundCloud</span>
+                        </a>
+                        <a href="https://open.spotify.com/intl-it/album/4dVNDDcyVXrPC5KGf53sIZ" target="_blank" class="platform-link">
+                            <span class="platform-icon">♫</span>
+                            <span>Spotify</span>
+                        </a>
+                        <a href="https://music.apple.com/id/album/semeiosis/1567964226" target="_blank" class="platform-link">
+                            <span class="platform-icon">♫</span>
+                            <span>Apple Music</span>
+                        </a>
+                        <a href="https://www.deezer.com/en/album/230726902" target="_blank" class="platform-link">
+                            <span class="platform-icon">♫</span>
+                            <span>Deezer</span>
+                        </a>
+                        <a href="https://www.qobuz.com/us-en/album/semeiosis-juan-lee/dcz274g49ixdc" target="_blank" class="platform-link">
+                            <span class="platform-icon">♫</span>
+                            <span>Qobuz</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <a href="https://github.com/gianlivio" target="_blank">GITHUB</a>
+        <a href="https://linkedin.com/in/gianlivio-iemolo" target="_blank">LINKEDIN</a>
+        <a href="mailto:gianlivioiemolo@gmail.com">EMAIL</a>
+    </footer>
+
+
+    
+    <script src="script.js"></script> 
+</body>
+</html>
