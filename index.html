@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.5.0/css/flag-icon.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <meta name="description" content="Portfolio di Gianlivio Iemolo, sviluppatore web full-stack con background in semiotica">
+    <meta name="description" content="Portfolio di Gianlivio Iemolo, architetto digitale con background in semiotica">
 </head>
 <body>
     <!-- Cursore personalizzato -->
@@ -28,12 +28,12 @@
         </div>
         <div class="nav-center">
             <span class="nav-link" data-page="progetti">PROGETTI</span>
-            <span class="nav-link" data-page="about">ABOUT</span>
+            <span class="nav-link" data-page="about">CHI SONO</span>
             <span class="nav-link" data-page="cv">CV</span>
             <span class="nav-link" data-page="contact">CONTATTI</span>
         </div>
         <div class="nav-right">
-            <span>WEB DEVELOPER</span>
+            <span>ARCHITETTO DIGITALE</span>
             
             <!-- Selettore lingua -->
             <div class="language-selector">
@@ -63,8 +63,31 @@
         <!-- Home Page -->
         <div class="page active" id="home">
             <div class="hero-section">
-                <h1 class="hero-title">SVILUPPATORE <span class="highlight">FULL STACK</span></h1>
-                <p class="hero-subtitle">Dal codice dei segni al codice delle funzioni</p>
+                <div class="text-reveal-container">
+                    <h1 class="hero-title">
+                        <span class="title-line">ARCHITETTO DIGITALE</span>
+                        <span class="title-line highlight">DELLO SPAZIO</span>
+                    </h1>
+                    <p class="hero-subtitle">
+                        Dal codice dei segni al codice delle funzioni:<br>
+                        dove semiotica e sviluppo web si incontrano per creare significato
+                    </p>
+                </div>
+                
+                <div class="hero-descriptor">
+                    <div class="descriptor-item">
+                        <span class="descriptor-icon">⚡</span>
+                        <span>Pensare Prima di Codificare</span>
+                    </div>
+                    <div class="descriptor-item">
+                        <span class="descriptor-icon">🎯</span>
+                        <span>Design Centrato sull'Umano</span>
+                    </div>
+                    <div class="descriptor-item">
+                        <span class="descriptor-icon">🚀</span>
+                        <span>Innovazione Significativa</span>
+                    </div>
+                </div>
                 
                 <div class="cta-container">
                     <a href="#" class="cta-button primary" data-page="progetti">
@@ -170,184 +193,479 @@
 
         <!-- Pagina Progetti -->
         <div class="page" id="progetti">
-            <h1>PROGETTI WEB</h1>
-            <div class="description">
-                FRONTEND / BACKEND / UI-UX / API DEVELOPMENT<br>
-                MODERN FRAMEWORKS / CUSTOM SOLUTIONS
+            <div class="projects-intro">
+                <h1 class="glitch" data-text="PORTFOLIO PROGETTI">PORTFOLIO PROGETTI</h1>
+                <div class="description">
+                    <span class="typing-text">FRONTEND · UX/UI · ACCESSIBILITÀ · INTEGRAZIONE API</span>
+                    <p class="subtitle">Ogni progetto è uno spazio semiotico dove il significato prende forma</p>
+                </div>
             </div>
             
-            <!-- Filtri progetti -->
-            <div class="project-filters">
-                <button class="filter-btn active" data-filter="all">Tutti</button>
-                <button class="filter-btn" data-filter="ecommerce">E-commerce</button>
-                <button class="filter-btn" data-filter="landing">Landing Page</button>
-                <button class="filter-btn" data-filter="app">Web App</button>
-                <button class="filter-btn" data-filter="clone">UI Clone</button>
+            <div class="filter-container">
+                <div class="project-filters">
+                    <button class="filter-btn active" data-filter="all">
+                        <span>Tutti</span>
+                        <span class="filter-count"></span>
+                    </button>
+                    <button class="filter-btn" data-filter="ecommerce">
+                        <span>E-commerce</span>
+                        <span class="filter-count"></span>
+                    </button>
+                    <button class="filter-btn" data-filter="landing">
+                        <span>Landing Page</span>
+                        <span class="filter-count"></span>
+                    </button>
+                    <button class="filter-btn" data-filter="app">
+                        <span>Web App</span>
+                        <span class="filter-count"></span>
+                    </button>
+                    <button class="filter-btn" data-filter="clone">
+                        <span>UI Clone</span>
+                        <span class="filter-count"></span>
+                    </button>
+                </div>
+                <div class="filter-info">
+                    <span class="active-filter">Mostrando: Tutti i progetti</span>
+                </div>
             </div>
             
-            <div class="projects-grid">
+            <div class="projects-grid" data-masonry="true">
                 <!-- PuntoLuce -->
                 <div class="project-card" data-category="ecommerce">
-                    <div class="project-image" style="background-image: url('puntoluce.png')"></div>
-                    <h3>PuntoLuce</h3>
-                    <p>E-commerce sviluppato con Open2b</p>
-                    <div class="tech-stack">
-                        <span>HTML</span>
-                        <span>CSS</span>
-                        <span>JavaScript</span>
-                        <span>Open2b</span>
+                    <div class="project-image-wrapper">
+                        <div class="project-image" style="background-image: url('puntoluce.png')">
+                            <div class="project-overlay">
+                                <div class="overlay-content">
+                                    <h3>PuntoLuce</h3>
+                                    <p>E-commerce sviluppato con Open2b</p>
+                                    <a href="#" class="quick-view" data-project="puntoluce">
+                                        <i class="fas fa-eye"></i>
+                                        <span>Quick View</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <a href="https://shop.puntoluce.net/open2b/design/Slide-definitiva/~/" target="_blank" class="project-link">
-                        Visita il sito
-                    </a>
+                    <div class="project-content">
+                        <div class="project-header">
+                            <h3>PuntoLuce</h3>
+                            <span class="project-category">E-commerce</span>
+                        </div>
+                        <p>E-commerce moderno con funzionalità avanzate</p>
+                        <div class="tech-stack">
+                            <span class="tech-tag html">HTML</span>
+                            <span class="tech-tag css">CSS</span>
+                            <span class="tech-tag js">JavaScript</span>
+                            <span class="tech-tag">Open2b</span>
+                        </div>
+                        <div class="project-actions">
+                            <a href="https://shop.puntoluce.net/open2b/design/Slide-definitiva/~/" target="_blank" class="project-link live">
+                                <i class="fas fa-external-link-alt"></i>
+                                <span>Visita il sito</span>
+                            </a>
+                            <a href="#" class="project-link details" data-project="puntoluce">
+                                <i class="fas fa-info-circle"></i>
+                                <span>Dettagli</span>
+                            </a>
+                        </div>
+                    </div>
                 </div>
                 
                 <!-- Studio Dentistico -->
                 <div class="project-card" data-category="landing">
-                    <div class="project-image" style="background-image: url('dente.jpg')"></div>
-                    <h3>Studio Dentistico</h3>
-                    <p>Landing page moderna per un ambulatorio dentistico</p>
-                    <div class="tech-stack">
-                        <span>HTML</span>
-                        <span>CSS</span>
-                        <span>JavaScript</span>
+                    <div class="project-image-wrapper">
+                        <div class="project-image" style="background-image: url('dente.jpg')">
+                            <div class="project-overlay">
+                                <div class="overlay-content">
+                                    <h3>Studio Dentistico</h3>
+                                    <p>Landing page moderna per un ambulatorio dentistico</p>
+                                    <a href="#" class="quick-view" data-project="dentista">
+                                        <i class="fas fa-eye"></i>
+                                        <span>Quick View</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <a href="https://gianlivio.github.io/progetto-studio-dentistico/" target="_blank" class="project-link">
-                        Visita il sito
-                    </a>
+                    <div class="project-content">
+                        <div class="project-header">
+                            <h3>Studio Dentistico</h3>
+                            <span class="project-category">Landing Page</span>
+                        </div>
+                        <p>Landing page moderna per un ambulatorio dentistico</p>
+                        <div class="tech-stack">
+                            <span class="tech-tag html">HTML</span>
+                            <span class="tech-tag css">CSS</span>
+                            <span class="tech-tag js">JavaScript</span>
+                        </div>
+                        <div class="project-actions">
+                            <a href="https://gianlivio.github.io/progetto-studio-dentistico/" target="_blank" class="project-link live">
+                                <i class="fas fa-external-link-alt"></i>
+                                <span>Visita il sito</span>
+                            </a>
+                            <a href="#" class="project-link details" data-project="dentista">
+                                <i class="fas fa-info-circle"></i>
+                                <span>Dettagli</span>
+                            </a>
+                        </div>
+                    </div>
                 </div>
                 
                 <!-- Studio Psicologi -->
                 <div class="project-card" data-category="landing">
-                    <div class="project-image" style="background-image: url('cervello.jpg')"></div>
-                    <h3>Studio Psicologi</h3>
-                    <p>Sito completo per uno studio di psicologia a Bologna</p>
-                    <div class="tech-stack">
-                        <span>HTML</span>
-                        <span>CSS</span>
-                        <span>JavaScript</span>
+                    <div class="project-image-wrapper">
+                        <div class="project-image" style="background-image: url('cervello.jpg')">
+                            <div class="project-overlay">
+                                <div class="overlay-content">
+                                    <h3>Studio Psicologi</h3>
+                                    <p>Sito completo per uno studio di psicologia a Bologna</p>
+                                    <a href="#" class="quick-view" data-project="psicologi">
+                                        <i class="fas fa-eye"></i>
+                                        <span>Quick View</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <a href="https://gianlivio.github.io/progetto-studio-psicologi/" target="_blank" class="project-link">
-                        Visita il sito
-                    </a>
+                    <div class="project-content">
+                        <div class="project-header">
+                            <h3>Studio Psicologi</h3>
+                            <span class="project-category">Landing Page</span>
+                        </div>
+                        <p>Sito completo per uno studio di psicologia a Bologna</p>
+                        <div class="tech-stack">
+                            <span class="tech-tag html">HTML</span>
+                            <span class="tech-tag css">CSS</span>
+                            <span class="tech-tag js">JavaScript</span>
+                        </div>
+                        <div class="project-actions">
+                            <a href="https://gianlivio.github.io/progetto-studio-psicologi/" target="_blank" class="project-link live">
+                                <i class="fas fa-external-link-alt"></i>
+                                <span>Visita il sito</span>
+                            </a>
+                            <a href="#" class="project-link details" data-project="psicologi">
+                                <i class="fas fa-info-circle"></i>
+                                <span>Dettagli</span>
+                            </a>
+                        </div>
+                    </div>
                 </div>
                 
                 <!-- Agenzia Immobiliare -->
                 <div class="project-card" data-category="landing">
-                    <div class="project-image" style="background-image: url('bologna.jpg')"></div>
-                    <h3>Agenzia Immobiliare Bologna</h3>
-                    <p>Sito moderno per un'agenzia immobiliare a Bologna</p>
-                    <div class="tech-stack">
-                        <span>HTML</span>
-                        <span>CSS</span>
-                        <span>JavaScript</span>
+                    <div class="project-image-wrapper">
+                        <div class="project-image" style="background-image: url('bologna.jpg')">
+                            <div class="project-overlay">
+                                <div class="overlay-content">
+                                    <h3>Agenzia Immobiliare Bologna</h3>
+                                    <p>Sito moderno per un'agenzia immobiliare a Bologna</p>
+                                    <a href="#" class="quick-view" data-project="agenzia">
+                                        <i class="fas fa-eye"></i>
+                                        <span>Quick View</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <a href="https://gianlivio.github.io/agenzia-musei/" target="_blank" class="project-link">
-                        Visita il sito
-                    </a>
+                    <div class="project-content">
+                        <div class="project-header">
+                            <h3>Agenzia Immobiliare Bologna</h3>
+                            <span class="project-category">Landing Page</span>
+                        </div>
+                        <p>Sito moderno per un'agenzia immobiliare a Bologna</p>
+                        <div class="tech-stack">
+                            <span class="tech-tag html">HTML</span>
+                            <span class="tech-tag css">CSS</span>
+                            <span class="tech-tag js">JavaScript</span>
+                        </div>
+                        <div class="project-actions">
+                            <a href="https://gianlivio.github.io/agenzia-musei/" target="_blank" class="project-link live">
+                                <i class="fas fa-external-link-alt"></i>
+                                <span>Visita il sito</span>
+                            </a>
+                            <a href="#" class="project-link details" data-project="agenzia">
+                                <i class="fas fa-info-circle"></i>
+                                <span>Dettagli</span>
+                            </a>
+                        </div>
+                    </div>
                 </div>
                 
                 <!-- Gestione via Noce -->
                 <div class="project-card" data-category="app">
-                    <div class="project-image" style="background-image: url('casacampagna.jpg')"></div>
-                    <h3>Gestione via Noce</h3>
-                    <p>Piattaforma per l'affitto di stanze e gestione contratti</p>
-                    <div class="tech-stack">
-                        <span>HTML</span>
-                        <span>CSS</span>
-                        <span>JavaScript</span>
+                    <div class="project-image-wrapper">
+                        <div class="project-image" style="background-image: url('casacampagna.jpg')">
+                            <div class="project-overlay">
+                                <div class="overlay-content">
+                                    <h3>Gestione via Noce</h3>
+                                    <p>Piattaforma per l'affitto di stanze e gestione contratti</p>
+                                    <a href="#" class="quick-view" data-project="vianoce">
+                                        <i class="fas fa-eye"></i>
+                                        <span>Quick View</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <a href="https://gianlivio.github.io/progetto-gestione-via-noce/" target="_blank" class="project-link">
-                        Visita il sito
-                    </a>
+                    <div class="project-content">
+                        <div class="project-header">
+                            <h3>Gestione via Noce</h3>
+                            <span class="project-category">Web App</span>
+                        </div>
+                        <p>Piattaforma per l'affitto di stanze e gestione contratti</p>
+                        <div class="tech-stack">
+                            <span class="tech-tag html">HTML</span>
+                            <span class="tech-tag css">CSS</span>
+                            <span class="tech-tag js">JavaScript</span>
+                        </div>
+                        <div class="project-actions">
+                            <a href="https://gianlivio.github.io/progetto-gestione-via-noce/" target="_blank" class="project-link live">
+                                <i class="fas fa-external-link-alt"></i>
+                                <span>Visita il sito</span>
+                            </a>
+                            <a href="#" class="project-link details" data-project="vianoce">
+                                <i class="fas fa-info-circle"></i>
+                                <span>Dettagli</span>
+                            </a>
+                        </div>
+                    </div>
                 </div>
                 
                 <!-- Flappy Bird -->
                 <div class="project-card" data-category="app">
-                    <div class="project-image" style="background-image: url('flappy.jpg')"></div>
-                    <h3>Flappy Bird</h3>
-                    <p>Ricreazione del classico gioco mobile</p>
-                    <div class="tech-stack">
-                        <span>JavaScript</span>
-                        <span>HTML Canvas</span>
-                        <span>CSS</span>
+                    <div class="project-image-wrapper">
+                        <div class="project-image" style="background-image: url('flappy.jpg')">
+                            <div class="project-overlay">
+                                <div class="overlay-content">
+                                    <h3>Flappy Bird</h3>
+                                    <p>Ricreazione del classico gioco mobile</p>
+                                    <a href="#" class="quick-view" data-project="flappy">
+                                        <i class="fas fa-eye"></i>
+                                        <span>Quick View</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <a href="https://gianlivio.github.io/Flappy-Bird/" target="_blank" class="project-link">
-                        Visita il sito
-                    </a>
+                    <div class="project-content">
+                        <div class="project-header">
+                            <h3>Flappy Bird</h3>
+                            <span class="project-category">Web App</span>
+                        </div>
+                        <p>Ricreazione del classico gioco mobile</p>
+                        <div class="tech-stack">
+                            <span class="tech-tag js">JavaScript</span>
+                            <span class="tech-tag">HTML Canvas</span>
+                            <span class="tech-tag css">CSS</span>
+                        </div>
+                        <div class="project-actions">
+                            <a href="https://gianlivio.github.io/Flappy-Bird/" target="_blank" class="project-link live">
+                                <i class="fas fa-external-link-alt"></i>
+                                <span>Visita il sito</span>
+                            </a>
+                            <a href="#" class="project-link details" data-project="flappy">
+                                <i class="fas fa-info-circle"></i>
+                                <span>Dettagli</span>
+                            </a>
+                        </div>
+                    </div>
                 </div>
                 
                 <!-- Discord Clone -->
                 <div class="project-card" data-category="clone">
-                    <div class="project-image" style="background-image: url('discord.png')"></div>
-                    <h3>Discord Clone</h3>
-                    <p>Ricostruzione dell'interfaccia Discord</p>
-                    <div class="tech-stack">
-                        <span>HTML</span>
-                        <span>CSS</span>
+                    <div class="project-image-wrapper">
+                        <div class="project-image" style="background-image: url('discord.png')">
+                            <div class="project-overlay">
+                                <div class="overlay-content">
+                                    <h3>Discord Clone</h3>
+                                    <p>Ricostruzione dell'interfaccia Discord</p>
+                                    <a href="#" class="quick-view" data-project="discord">
+                                        <i class="fas fa-eye"></i>
+                                        <span>Quick View</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <a href="https://gianlivio.github.io/htmlcss-discord/" target="_blank" class="project-link">
-                        Visita il sito
-                    </a>
+                    <div class="project-content">
+                        <div class="project-header">
+                            <h3>Discord Clone</h3>
+                            <span class="project-category">UI Clone</span>
+                        </div>
+                        <p>Ricostruzione dell'interfaccia Discord</p>
+                        <div class="tech-stack">
+                            <span class="tech-tag html">HTML</span>
+                            <span class="tech-tag css">CSS</span>
+                        </div>
+                        <div class="project-actions">
+                            <a href="https://gianlivio.github.io/htmlcss-discord/" target="_blank" class="project-link live">
+                                <i class="fas fa-external-link-alt"></i>
+                                <span>Visita il sito</span>
+                            </a>
+                            <a href="#" class="project-link details" data-project="discord">
+                                <i class="fas fa-info-circle"></i>
+                                <span>Dettagli</span>
+                            </a>
+                        </div>
+                    </div>
                 </div>
                 
                 <!-- Train Ticket -->
                 <div class="project-card" data-category="app">
-                    <div class="project-image" style="background-image: url('treno.png')"></div>
-                    <h3>Train Ticket Form</h3>
-                    <p>Form interattivo per la prenotazione di biglietti</p>
-                    <div class="tech-stack">
-                        <span>JavaScript</span>
-                        <span>HTML</span>
-                        <span>CSS</span>
+                    <div class="project-image-wrapper">
+                        <div class="project-image" style="background-image: url('treno.png')">
+                            <div class="project-overlay">
+                                <div class="overlay-content">
+                                    <h3>Train Ticket Form</h3>
+                                    <p>Form interattivo per la prenotazione di biglietti</p>
+                                    <a href="#" class="quick-view" data-project="treno">
+                                        <i class="fas fa-eye"></i>
+                                        <span>Quick View</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <a href="https://gianlivio.github.io/js-biglietto-treno-form/" target="_blank" class="project-link">
-                        Visita il sito
-                    </a>
+                    <div class="project-content">
+                        <div class="project-header">
+                            <h3>Train Ticket Form</h3>
+                            <span class="project-category">Web App</span>
+                        </div>
+                        <p>Form interattivo per la prenotazione di biglietti</p>
+                        <div class="tech-stack">
+                            <span class="tech-tag js">JavaScript</span>
+                            <span class="tech-tag html">HTML</span>
+                            <span class="tech-tag css">CSS</span>
+                        </div>
+                        <div class="project-actions">
+                            <a href="https://gianlivio.github.io/js-biglietto-treno-form/" target="_blank" class="project-link live">
+                                <i class="fas fa-external-link-alt"></i>
+                                <span>Visita il sito</span>
+                            </a>
+                            <a href="#" class="project-link details" data-project="treno">
+                                <i class="fas fa-info-circle"></i>
+                                <span>Dettagli</span>
+                            </a>
+                        </div>
+                    </div>
                 </div>
                 
                 <!-- Dropbox Clone -->
                 <div class="project-card" data-category="clone">
-                    <div class="project-image" style="background-image: url('dropbox.png')"></div>
-                    <h3>Dropbox Clone</h3>
-                    <p>Clone dell'interfaccia Dropbox</p>
-                    <div class="tech-stack">
-                        <span>HTML</span>
-                        <span>CSS</span>
+                    <div class="project-image-wrapper">
+                        <div class="project-image" style="background-image: url('dropbox.png')">
+                            <div class="project-overlay">
+                                <div class="overlay-content">
+                                    <h3>Dropbox Clone</h3>
+                                    <p>Clone dell'interfaccia Dropbox</p>
+                                    <a href="#" class="quick-view" data-project="dropbox">
+                                        <i class="fas fa-eye"></i>
+                                        <span>Quick View</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <a href="https://gianlivio.github.io/htmlcss-dropbox/" target="_blank" class="project-link">
-                        Visita il sito
-                    </a>
+                    <div class="project-content">
+                        <div class="project-header">
+                            <h3>Dropbox Clone</h3>
+                            <span class="project-category">UI Clone</span>
+                        </div>
+                        <p>Clone dell'interfaccia Dropbox</p>
+                        <div class="tech-stack">
+                            <span class="tech-tag html">HTML</span>
+                            <span class="tech-tag css">CSS</span>
+                        </div>
+                        <div class="project-actions">
+                            <a href="https://gianlivio.github.io/htmlcss-dropbox/" target="_blank" class="project-link live">
+                                <i class="fas fa-external-link-alt"></i>
+                                <span>Visita il sito</span>
+                            </a>
+                            <a href="#" class="project-link details" data-project="dropbox">
+                                <i class="fas fa-info-circle"></i>
+                                <span>Dettagli</span>
+                            </a>
+                        </div>
+                    </div>
                 </div>
                 
                 <!-- Neon Snake -->
                 <div class="project-card" data-category="app">
-                    <div class="project-image" style="background-image: url('pig.png')"></div>
-                    <h3>Neon Snake</h3>
-                    <p>Implementazione interattiva di un gioco</p>
-                    <div class="tech-stack">
-                        <span>JavaScript</span>
-                        <span>HTML</span>
-                        <span>CSS</span>
+                    <div class="project-image-wrapper">
+                        <div class="project-image" style="background-image: url('pig.png')">
+                            <div class="project-overlay">
+                                <div class="overlay-content">
+                                    <h3>Neon Snake</h3>
+                                    <p>Implementazione interattiva di un gioco</p>
+                                    <a href="#" class="quick-view" data-project="snake">
+                                        <i class="fas fa-eye"></i>
+                                        <span>Quick View</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <a href="https://gianlivio.github.io/neon-snake-game/" target="_blank" class="project-link">
-                        Visita il sito
-                    </a>
+                    <div class="project-content">
+                        <div class="project-header">
+                            <h3>Neon Snake</h3>
+                            <span class="project-category">Web App</span>
+                        </div>
+                        <p>Implementazione interattiva di un gioco</p>
+                        <div class="tech-stack">
+                            <span class="tech-tag js">JavaScript</span>
+                            <span class="tech-tag html">HTML</span>
+                            <span class="tech-tag css">CSS</span>
+                        </div>
+                        <div class="project-actions">
+                            <a href="https://gianlivio.github.io/neon-snake-game/" target="_blank" class="project-link live">
+                                <i class="fas fa-external-link-alt"></i>
+                                <span>Visita il sito</span>
+                            </a>
+                            <a href="#" class="project-link details" data-project="snake">
+                                <i class="fas fa-info-circle"></i>
+                                <span>Dettagli</span>
+                            </a>
+                        </div>
+                    </div>
                 </div>
-                
                 <!-- Antico Stradello -->
                 <div class="project-card" data-category="landing">
-                    <div class="project-image" style="background-image: url('pizza.png')"></div>
-                    <h3>Antico Stradello</h3>
-                    <p>Sito web per una pizzeria storica</p>
-                    <div class="tech-stack">
-                        <span>HTML</span>
-                        <span>CSS</span>
-                        <span>JavaScript</span>
+                    <div class="project-image-wrapper">
+                        <div class="project-image" style="background-image: url('pizza.png')">
+                            <div class="project-overlay">
+                                <div class="overlay-content">
+                                    <h3>Antico Stradello</h3>
+                                    <p>Sito web per una pizzeria storica</p>
+                                    <a href="#" class="quick-view" data-project="stradello">
+                                        <i class="fas fa-eye"></i>
+                                        <span>Quick View</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <a href="https://gianlivio.github.io/antico-stradello/" target="_blank" class="project-link">
-                        Visita il sito
-                    </a>
+                    <div class="project-content">
+                        <div class="project-header">
+                            <h3>Antico Stradello</h3>
+                            <span class="project-category">Landing Page</span>
+                        </div>
+                        <p>Sito web per una pizzeria storica</p>
+                        <div class="tech-stack">
+                            <span class="tech-tag html">HTML</span>
+                            <span class="tech-tag css">CSS</span>
+                            <span class="tech-tag js">JavaScript</span>
+                        </div>
+                        <div class="project-actions">
+                            <a href="https://gianlivio.github.io/antico-stradello/" target="_blank" class="project-link live">
+                                <i class="fas fa-external-link-alt"></i>
+                                <span>Visita il sito</span>
+                            </a>
+                            <a href="#" class="project-link details" data-project="stradello">
+                                <i class="fas fa-info-circle"></i>
+                                <span>Dettagli</span>
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -361,23 +679,9 @@
                     
                     <div class="about-intro">
                         <div class="intro-text">
-                            <p class="intro-text">
-                                Benvenuti nel mio mondo digitale. Sono Gianlivio, uno sviluppatore che crede 
-                                nella potenza del codice come strumento di espressione e comunicazione profonda.
-                            </p>
-                            <p>
-                                La mia formazione in <span class="highlight">Semiotica e Etnosemiotica</span> 
-                                non è solo un background accademico, ma il fondamento del mio approccio allo sviluppo web. 
-                                Come gli oggetti nello spazio fisico guidano le azioni dei fruitori - una scala invita a salire, 
-                                un manubrio a essere afferrato - così gli elementi digitali devono comunicare il loro scopo 
-                                attraverso un linguaggio visivo e interattivo chiaro e significativo.
-                            </p>
-                            <p>
-                                Sviluppo soluzioni digitali che non si limitano a funzionare, ma comunicano. 
-                                Ogni interfaccia è uno spazio semiotico dove forma e funzione dialogano, 
-                                dove l'ergonomia digitale e la prossemica virtuale guidano l'esperienza dell'utente 
-                                verso la scoperta naturale del significato.
-                            </p>
+                            <p>Benvenuti nel mio mondo digitale. Sono Gianlivio, uno sviluppatore che crede nella potenza del codice come strumento di espressione e comunicazione profonda.</p>
+                            <p>La mia formazione in <span class="highlight">Semiotica e Etnosemiotica</span> non è solo un background accademico, ma il fondamento del mio approccio allo sviluppo web. Come gli oggetti nello spazio fisico guidano le azioni dei fruitori - una scala invita a salire, un manubrio a essere afferrato - così gli elementi digitali devono comunicare il loro scopo attraverso un linguaggio visivo e interattivo chiaro e significativo.</p>
+                            <p>Sviluppo soluzioni digitali che non si limitano a funzionare, ma comunicano. Ogni interfaccia è uno spazio semiotico dove forma e funzione dialogano, dove l'ergonomia digitale e la prossemica virtuale guidano l'esperienza dell'utente verso la scoperta naturale del significato.</p>
                         </div>
                         
                         <div class="portrait-container">
@@ -398,39 +702,39 @@
                         <div class="node-container">
                             <!-- Nodo centrale -->
                             <div class="philosophy-node central-node" id="central-node">
-                                <span class="node-label">Sviluppo Creativo</span>
+                                <span class="node-label">Architetto dello Spazio Digitale</span>
                             </div>
                             
                             <!-- Nodi orbitanti -->
                             <div class="philosophy-node orbiting-node" data-orbit="1" id="node-1">
-                                <span class="node-label">Problem Solving</span>
+                                <span class="node-label">Domande Giuste</span>
                                 <div class="node-description">
-                                    <h3>Analitico & Creativo</h3>
-                                    <p>Affronto le sfide con precisione e intuizione, trovando soluzioni all'incrocio tra logica e creatività.</p>
+                                    <h3>Analitico & Critico</h3>
+                                    <p>Porre le domande giuste prima di cercare soluzioni. Capire prima di agire.</p>
                                 </div>
                             </div>
                             
                             <div class="philosophy-node orbiting-node" data-orbit="2" id="node-2">
-                                <span class="node-label">Human-Centric</span>
+                                <span class="node-label">Spazio Comunicativo</span>
                                 <div class="node-description">
-                                    <h3>Design Centrato sull'Utente</h3>
-                                    <p>Equilibrio tra eccellenza tecnica e comprensione autentica dei bisogni e delle aspettative dell'utente.</p>
+                                    <h3>Design Semiotico</h3>
+                                    <p>Ogni elemento digitale comunica un significato attraverso forma e posizione.</p>
                                 </div>
                             </div>
                             
                             <div class="philosophy-node orbiting-node" data-orbit="3" id="node-3">
-                                <span class="node-label">Cross-Disciplinare</span>
+                                <span class="node-label">Semiotica Applicata</span>
                                 <div class="node-description">
-                                    <h3>Collegamento di Mondi</h3>
-                                    <p>Unisco competenze di sviluppo con teoria della comunicazione per creare esperienze digitali più ricche.</p>
+                                    <h3>Teorie & Pratica</h3>
+                                    <p>Dalle teorie dello spazio di Greimas all'ergonomia digitale.</p>
                                 </div>
                             </div>
                             
                             <div class="philosophy-node orbiting-node" data-orbit="4" id="node-4">
-                                <span class="node-label">Orientato al Significato</span>
+                                <span class="node-label">Innovazione Significativa</span>
                                 <div class="node-description">
-                                    <h3>Approccio Semiotico</h3>
-                                    <p>Applico principi semiotici per creare interfacce e sistemi che comunicano in modo chiaro ed efficace.</p>
+                                    <h3>Equilibrio & Sostenibilità</h3>
+                                    <p>Innovare quando serve, costruire per durare, migliorare l'esperienza.</p>
                                 </div>
                             </div>
                             
@@ -461,31 +765,31 @@
                         <div class="passion-content">
                             <div class="passion-item">
                                 <div class="passion-icon">
+                                    <i class="fas fa-search"></i>
+                                </div>
+                                <div class="passion-text">
+                                    <h3>Ricerca del Significato</h3>
+                                    <p>Ogni progetto è un'analisi semiotica: comprendo i comportamenti, decodifico i pattern, creo esperienze che risuonano con l'utente a livello profondo.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="passion-item">
+                                <div class="passion-icon">
                                     <i class="fas fa-code"></i>
                                 </div>
                                 <div class="passion-text">
-                                    <h3>Codice Pulito e Significativo</h3>
-                                    <p>Cerco l'eleganza nella semplicità e nella chiarezza. Scrivo codice che altri sviluppatori possano comprendere e migliorare.</p>
+                                    <h3>Codice Leggibile, Umano</h3>
+                                    <p>Scrivo codice che comunica: chiaro, accessibile, manutenibile. La qualità tecnica è etica professionale.</p>
                                 </div>
                             </div>
                             
                             <div class="passion-item">
                                 <div class="passion-icon">
-                                    <i class="fas fa-laptop-code"></i>
+                                    <i class="fas fa-handshake"></i>
                                 </div>
                                 <div class="passion-text">
-                                    <h3>Comunicazione Digitale</h3>
-                                    <p>Creo interfacce ed esperienze che parlano chiaramente agli utenti su più livelli cognitivi.</p>
-                                </div>
-                            </div>
-                            
-                            <div class="passion-item">
-                                <div class="passion-icon">
-                                    <i class="fas fa-rocket"></i>
-                                </div>
-                                <div class="passion-text">
-                                    <h3>Evoluzione Continua</h3>
-                                    <p>Abbraccio nuove tecnologie e metodologie, perfezionando costantemente le mie competenze e il mio approccio.</p>
+                                    <h3>Progetti con Impatto</h3>
+                                    <p>Vero entusiasmo per progetti che risolvono problemi reali. La tecnologia al servizio delle persone, non fine a sé stessa.</p>
                                 </div>
                             </div>
                         </div>
@@ -513,8 +817,9 @@
                     
                     <div class="personal-philosophy">
                         <blockquote class="philosophy-quote">
-                            "Problem solver con un'anima umanistica. Unisco competenze tecniche e comprensione umana 
-                            per creare soluzioni digitali significative."
+                            "L'onestà nella comunicazione e la cura del dettaglio guidano ogni mio progetto. 
+                            Come uno spazio fisico ben progettato guida naturalmente i movimenti, 
+                            così un'interfaccia digitale ben realizzata guida intuitivamente l'esperienza."
                         </blockquote>
                     </div>
                 </header>
@@ -770,8 +1075,9 @@
                                 <div class="education-institution">Università di Bologna - Scuola di Umberto Eco</div>
                                 <div class="education-grade">Voto: 108/110</div>
                                 <p class="education-note">
-                                    Prospettiva unica sulla costruzione del significato e della comunicazione, arricchendo 
-                                    ogni aspetto dello sviluppo digitale e dell'interazione utente
+                                    Tesi sperimentale in etnosemiotica e teorie dello spazio. Ricerca sui meccanismi 
+                                    attraverso cui gli spazi e gli oggetti guidano le azioni degli utenti: 
+                                    dalla prossemica alla cinesica, dall'ergonomia fisica all'ergonomia digitale.
                                 </p>
                             </div>
                             
@@ -786,23 +1092,24 @@
                             <h3>Filosofia Professionale</h3>
                             <div class="approach-content">
                                 <p>
-                                    Unire l'eccellenza tecnica alla comprensione umana. Guidare i team 
-                                    con empatia e precisione, garantendo qualità tecnica e 
-                                    benessere del gruppo.
+                                    Il mio approccio unisce analisi semiotica e sviluppo web per creare interfacce 
+                                    che comunicano naturalmente il loro scopo. Come un'affordance fisica suggerisce 
+                                    intuitivamente l'interazione, così ogni elemento digitale deve esprimere 
+                                    chiaramente la sua funzione attraverso la forma.
                                 </p>
                                 
                                 <div class="approach-highlights">
                                     <div class="approach-highlight">
-                                        <div class="highlight-icon"><i class="fas fa-lightbulb"></i></div>
-                                        <div class="highlight-text">Applicare l'analisi semiotica ai problemi digitali</div>
+                                        <div class="highlight-icon"><i class="fas fa-question-circle"></i></div>
+                                        <div class="highlight-text">Porre domande giuste prima di cercare soluzioni</div>
                                     </div>
                                     <div class="approach-highlight">
                                         <div class="highlight-icon"><i class="fas fa-sync-alt"></i></div>
-                                        <div class="highlight-text">Colmare il divario tra prospettive tecniche e umanistiche</div>
+                                        <div class="highlight-text">Applicare teorie spaziali all'esperienza digitale</div>
                                     </div>
                                     <div class="approach-highlight">
-                                        <div class="highlight-icon"><i class="fas fa-rocket"></i></div>
-                                        <div class="highlight-text">Apprendimento continuo e adattamento costante</div>
+                                        <div class="highlight-icon"><i class="fas fa-heart"></i></div>
+                                        <div class="highlight-text">Creare soluzioni che mettono le persone al centro</div>
                                     </div>
                                 </div>
                             </div>
@@ -829,7 +1136,8 @@
                 <!-- Info principale -->
                 <div class="contact-main">
                     <p class="contact-lead">
-                        Creiamo qualcosa di significativo insieme.
+                        Creiamo uno spazio digitale che comunica.<br>
+                        Dove forma e funzione dialogano per generare significato.
                     </p>
                     
                     <div class="contact-info">
@@ -906,7 +1214,7 @@
     <footer>
         <div class="footer-content">
             <div class="footer-left">
-                <p>&copy; 2025 Gianlivio Iemolo - Web Developer</p>
+                <p>&copy; 2025 Gianlivio Iemolo - Architetto Digitale</p>
             </div>
             <div class="footer-right">
                 <a href="https://github.com/gianlivio" target="_blank"><i class="fab fa-github"></i> GITHUB</a>
