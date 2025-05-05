@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'progetti': 'PROJECTS',
         'about': 'ABOUT',
         'cv': 'CV',
-        'contatti': 'CONTACT',
+        'contacts': 'CONTACT',
         'webDev': 'DIGITAL ARCHITECT'
       },
       'home': {
@@ -147,7 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'progetti': 'PROGETTI',
         'about': 'CHI SONO',
         'cv': 'CV',
-        'contatti': 'CONTATTI',
+        'contacts': 'CONTATTI',
         'webDev': 'ARCHITETTO DIGITALE'
       },
       'home': {
@@ -979,20 +979,22 @@ function updateFilterCounts() {
   function initMatrixEffect() {
     const canvas = document.getElementById('matrix-canvas');
     if (!canvas) return;
-  
+
     const ctx = canvas.getContext('2d');
-  
+
     // Imposta dimensioni
     function resizeCanvas() {
         const container = canvas.parentElement;
         if (container) {
             canvas.width = container.offsetWidth;
-            canvas.height = container.offsetHeight;
+            // Limita l'altezza a 300px
+            canvas.height = Math.min(container.offsetHeight, 300);
         }
     }
-  
+
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
+
   
     // Caratteri per effetto matrix
     const chars = '01';
@@ -1088,7 +1090,7 @@ function updateFilterCounts() {
   function translatePage(lang) {
     const t = translations[lang] || translations['it'];
     
-    // Navigazione
+    // Navigazione (Correggi qui)
     document.querySelectorAll('.nav-link').forEach(link => {
         const page = link.getAttribute('data-page');
         if (page && t.nav[page]) {
