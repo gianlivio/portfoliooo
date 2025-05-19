@@ -1023,7 +1023,13 @@ function translatePage(lang) {
                   'point1': 'Applying semiotic analysis to digital problems',
                   'point2': 'Bridging the gap between technical and humanistic perspectives',
                   'point3': 'Continuous learning and constant adaptation'
-              }
+              },
+              'keyResults': 'Key Results',
+        'keyResultsList': [
+            'Development of cutting-edge website layouts implementing modern design principles',
+            'Implementation of comprehensive event tracking using Google Tag Manager',
+            'Creation of custom API integrations to enhance site functionality'
+        ]
           },
           'contact': {
               'title': 'CONTACT',
@@ -1133,7 +1139,13 @@ function translatePage(lang) {
                   'point1': 'Applicare l\'analisi semiotica ai problemi digitali',
                   'point2': 'Colmare il divario tra prospettive tecniche e umanistiche',
                   'point3': 'Apprendimento continuo e adattamento costante'
-              }
+              },
+              'keyResults': 'Risultati Chiave',
+        'keyResultsList': [
+            'Sviluppo di layout di siti web all\'avanguardia implementando moderni principi di design',
+            'Implementazione di un monitoraggio completo degli eventi utilizzando Google Tag Manager',
+            'Creazione di integrazioni API personalizzate per migliorare la funzionalità del sito'
+        ]
           },
           'contact': {
               'title': 'CONTATTI',
@@ -1243,7 +1255,13 @@ function translatePage(lang) {
                   'point1': 'Aplicar el análisis semiótico a los problemas digitales',
                   'point2': 'Cerrar la brecha entre perspectivas técnicas y humanísticas',
                   'point3': 'Aprendizaje continuo y adaptación constante'
-              }
+              },
+               'keyResults': 'Resultados Clave',
+        'keyResultsList': [
+            'Desarrollo de diseños de sitios web de vanguardia implementando principios modernos de diseño',
+            'Implementación de seguimiento completo de eventos utilizando Google Tag Manager',
+            'Creación de integraciones API personalizadas para mejorar la funcionalidad del sitio'
+        ]
           },
           'contact': {
               'title': 'CONTACTO',
@@ -1528,6 +1546,20 @@ function translatePage(lang) {
       approachHighlights[1].textContent = t.cv.professionalPhilosophy.point2;
       approachHighlights[2].textContent = t.cv.professionalPhilosophy.point3;
   }
+
+    const jobHighlightsTitle = document.querySelector('.timeline-panel[data-year="2024"] .job-highlights h4');
+    if (jobHighlightsTitle) {
+        jobHighlightsTitle.textContent = t.cv.keyResults;
+    }
+
+    const jobHighlightsList = document.querySelectorAll('.timeline-panel[data-year="2024"] .job-highlights ul li');
+    if (jobHighlightsList && jobHighlightsList.length) {
+        jobHighlightsList.forEach((item, index) => {
+            if (t.cv.keyResultsList && t.cv.keyResultsList[index]) {
+                item.textContent = t.cv.keyResultsList[index];
+            }
+        });
+    }
 
   const downloadBtn = document.querySelector('.cv-download-button .download-text');
   if (downloadBtn) {
