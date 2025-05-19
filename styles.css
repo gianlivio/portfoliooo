@@ -20,6 +20,11 @@ body {
     overflow-x: hidden;
     padding: 2rem;
     transition: background 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    background-attachment: fixed;
 }
 
 a {
@@ -30,7 +35,7 @@ button {
     cursor: none;
 }
 
-/* Cursor personalizzato */
+/* Cursore personalizzato */
 .custom-cursor {
     position: fixed;
     width: 50px;
@@ -66,6 +71,21 @@ button {
     stroke-dasharray: 100;
     stroke-dashoffset: 200;
     animation: arrowDash 1.5s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+
+/* Effetto scia sul cursore personalizzato */
+.custom-cursor::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 40px;
+    height: 40px;
+    background: radial-gradient(circle, rgba(255, 68, 0, 0.15), transparent 70%);
+    border-radius: 50%;
+    opacity: 0.6;
+    z-index: -1;
 }
 
 @keyframes cursorPulse {
@@ -138,6 +158,11 @@ nav {
 }
 
 /* Struttura delle pagine */
+main#content {
+    flex: 1;
+    position: relative;
+}
+
 .page {
     position: absolute;
     width: 100%;
@@ -146,12 +171,18 @@ nav {
     visibility: hidden;
     transition: opacity 0.5s, visibility 0.5s;
     padding: 0 2rem;
+    top: 0;
+    height: auto;
+    pointer-events: none;
 }
 
 .page.active {
     opacity: 1;
     visibility: visible;
     position: relative;
+    height: auto;
+    display: block;
+    pointer-events: all;
 }
 
 /* Titoli generali */
@@ -208,6 +239,21 @@ h3 {
     flex-direction: column;
     justify-content: center;
     margin-bottom: 4rem;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Effetto parallasse leggero per la Hero Section */
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at top right, rgba(255, 68, 0, 0.03), transparent 60%);
+    transform: translateZ(0);
+    pointer-events: none;
 }
 
 .hero-title {
@@ -251,6 +297,42 @@ h3 {
     border-radius: 6px;
     text-decoration: none;
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative; 
+    overflow: hidden;
+}
+
+/* Microinterazioni sui bottoni */
+.cta-button::after, .form-submit::after, .cv-download-button::after, .timeline-control::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 5px;
+    height: 5px;
+    background: rgba(255, 255, 255, 0.5);
+    opacity: 0;
+    border-radius: 100%;
+    transform: scale(1, 1) translate(-50%);
+    transform-origin: 50% 50%;
+}
+
+.cta-button:hover::after, .form-submit:hover::after, .cv-download-button:hover::after, .timeline-control:hover::after {
+    animation: ripple 1s ease-out;
+}
+
+@keyframes ripple {
+    0% {
+        transform: scale(0, 0);
+        opacity: 0.5;
+    }
+    20% {
+        transform: scale(25, 25);
+        opacity: 0.3;
+    }
+    100% {
+        opacity: 0;
+        transform: scale(40, 40);
+    }
 }
 
 .cta-button.primary {
@@ -274,6 +356,36 @@ h3 {
     background: #1a1a1a;
     color: white;
     transform: translateY(-5px);
+}
+
+/* Effetto luce sui bottoni principali */
+.cta-button.primary, .form-submit, .cv-download-button {
+    position: relative;
+    overflow: hidden;
+}
+
+.cta-button.primary::before, .form-submit::before, .cv-download-button::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        to bottom right,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0) 40%,
+        rgba(255, 255, 255, 0.4) 50%,
+        rgba(255, 255, 255, 0) 60%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    transform: rotate(-45deg);
+    transition: transform 0.7s ease-in-out;
+    pointer-events: none;
+}
+
+.cta-button.primary:hover::before, .form-submit:hover::before, .cv-download-button:hover::before {
+    transform: rotate(-45deg) translate(50%, 50%);
 }
 
 .arrow-icon {
@@ -310,7 +422,7 @@ h3 {
     border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
     padding-bottom: 1.5rem;
     opacity: 0;
     transform: translateY(30px);
@@ -332,9 +444,13 @@ h3 {
     }
 }
 
-.featured-card:hover {
+/* Ombre dinamiche su hover per le card */
+.featured-card:hover, .project-card:hover, .passion-item:hover {
     transform: translateY(-10px);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+    box-shadow: 
+        0 20px 40px rgba(0, 0, 0, 0.12),
+        0 1px 3px rgba(255, 68, 0, 0.1),
+        0 0 80px rgba(255, 68, 0, 0.05);
 }
 
 .project-image {
@@ -533,7 +649,7 @@ h3 {
     border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
     opacity: 0;
     transform: translateY(30px);
     animation: cardFadeIn 0.8s forwards;
@@ -924,17 +1040,25 @@ h3 {
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
     transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
     cursor: pointer;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .central-node {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background: linear-gradient(45deg, #FF4400, #FF9500);
+    background: linear-gradient(45deg, rgba(255, 68, 0, 0.9), rgba(255, 149, 0, 0.9));
     color: white;
     font-weight: 600;
     z-index: 10;
     padding: 1.5rem 2rem;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 
+        0 10px 20px rgba(255, 68, 0, 0.2),
+        0 0 30px rgba(255, 68, 0, 0.1);
 }
 
 .orbiting-node {
@@ -945,9 +1069,12 @@ h3 {
 }
 
 .orbiting-node:hover {
-    transform: scale(1.1);
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
-    z-index: 5;
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 
+        0 10px 30px rgba(0, 0, 0, 0.1),
+        0 0 20px rgba(255, 68, 0, 0.1);
+    transform: scale(1.15) translateZ(0);
+    z-index: 10;
 }
 
 .node-label {
@@ -1816,6 +1943,9 @@ footer {
     margin-top: 6rem;
     padding: 2rem;
     border-top: 1px solid rgba(0,0,0,0.1);
+    position: relative;
+    width: 100%;
+    z-index: 10;
 }
 
 .footer-content {
@@ -1981,8 +2111,7 @@ h1[data-text]::before, h2[data-text]::before {
 
 h1[data-text].glitch-active::before, h2[data-text].glitch-active::before {
     opacity: 1;
-    animation: glitch-anim-1 2s infinite linear alternate-reverse;
-}
+    animation: glitch-anim-1 2s infinite
 
 h1[data-text]::after, h2[data-text]::after {
     content: attr(data-text);
@@ -2037,6 +2166,26 @@ h1[data-text].glitch-active::after, h2[data-text].glitch-active::after {
     100% {
         clip: rect(30px, 9999px, 20px, 0);
     }
+}
+
+/* Scrollbar personalizzata */
+::-webkit-scrollbar {
+    width: 8px;
+    background: rgba(0, 0, 0, 0.02);
+}
+
+::-webkit-scrollbar-thumb {
+    background: #FF4400;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #e63c00;
+}
+
+/* Animazioni di scroll fluide */
+html {
+    scroll-behavior: smooth;
 }
 
 /* RESPONSIVE */
