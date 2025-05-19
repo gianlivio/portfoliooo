@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gianlivio Iemolo | Architetto Digitale</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.5.0/css/flag-icon.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta name="description" content="Portfolio di Gianlivio Iemolo, sviluppatore web full-stack con background in semiotica">
+</head>
+<body>
+    <!-- Cursore personalizzato -->
+    <div class="custom-cursor">
+        <svg viewBox="0 0 50 50">
+            <path class="cursor-arrow" 
+                  d="M12,38 L38,12 M38,12 L38,25 M38,12 L25,12" 
+                  stroke-linecap="round" 
+                  stroke-linejoin="round">
+            </path>
+        </svg>
+    </div>
+    
+    <!-- Navigazione -->
+    <nav>
+        <div class="nav-left">
+            <a href="#" class="logo" data-page="home">GIANLIVIO IEMOLO</a>
+        </div>
+        <div class="nav-center">
+            <span class="nav-link" data-page="progetti">PROGETTI</span>
+            <span class="nav-link" data-page="about">ABOUT</span>
+            <span class="nav-link" data-page="cv">CV</span>
+            <span class="nav-link" data-page="contact">CONTATTI</span>
+        </div>
+        <div class="nav-right">
+            <span>WEB DEVELOPER</span>
+            
+            <!-- Selettore lingua -->
+            <div class="language-selector">
+                <button id="language-toggle" class="current-language">
+                    <span class="flag-icon flag-icon-it"></span>
+                    IT
+                </button>
+                <div class="language-dropdown">
+                    <button class="language-option" data-lang="en">
+                        <span class="flag-icon flag-icon-us"></span>
+                        English
+                    </button>
+                    <button class="language-option" data-lang="it">
+                        <span class="flag-icon flag-icon-it"></span>
+                        Italiano
+                    </button>
+                    <button class="language-option" data-lang="es">
+                        <span class="flag-icon flag-icon-es"></span>
+                        Español
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main id="content">
+        <!-- Home Page -->
+        <div class="page active" id="home">
+            <div class="hero-section">
+                <h1 class="hero-title">SVILUPPATORE <span class="highlight">FULL STACK</span></h1>
+                <p class="hero-subtitle">Dal codice dei segni al codice delle funzioni</p>
+                
+                <div class="cta-container">
+                    <a href="#" class="cta-button primary" data-page="progetti">
+                        <span>Esplora i progetti</span>
+                        <svg class="arrow-icon" viewBox="0 0 24 24">
+                            <path d="M5,12H19M19,12L12,5M19,12L12,19"></path>
+                        </svg>
+                    </a>
+                    <a href="#" class="cta-button secondary" data-page="contact">
+                        <span>Contattami</span>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="featured-projects">
+                <h2 class="section-title">PROGETTI IN EVIDENZA</h2>
+                <div class="featured-grid">
+                    <!-- Progetto 1 -->
+                    <div class="featured-card">
+                        <div class="project-image" style="background-image: url('puntoluce.png')"></div>
+                        <h3>PuntoLuce</h3>
+                        <p>E-commerce sviluppato con Open2b</p>
+                        <div class="tech-stack">
+                            <span>HTML</span>
+                            <span>CSS</span>
+                            <span>JavaScript</span>
+                        </div>
+                        <a href="#" class="view-project" data-project="puntoluce">Vedi dettagli</a>
+                    </div>
+                    
+                    <!-- Progetto 2 -->
+                    <div class="featured-card">
+                        <div class="project-image" style="background-image: url('bologna.jpg')"></div>
+                        <h3>Agenzia Immobiliare</h3>
+                        <p>Sito web responsive per agenzia immobiliare</p>
+                        <div class="tech-stack">
+                            <span>HTML</span>
+                            <span>CSS</span>
+                            <span>JavaScript</span>
+                        </div>
+                        <a href="#" class="view-project" data-project="agenzia">Vedi dettagli</a>
+                    </div>
+                    
+                    <!-- Progetto 3 -->
+                    <div class="featured-card">
+                        <div class="project-image" style="background-image: url('discord.png')"></div>
+                        <h3>Discord Clone</h3>
+                        <p>Ricostruzione dell'interfaccia Discord</p>
+                        <div class="tech-stack">
+                            <span>HTML</span>
+                            <span>CSS</span>
+                        </div>
+                        <a href="#" class="view-project" data-project="discord">Vedi dettagli</a>
+                    </div>
+                </div>
+                
+                <div class="section-cta">
+                    <a href="#" class="text-link" data-page="progetti">
+                        <span>Vedi tutti i progetti</span>
+                        <svg class="arrow-icon small" viewBox="0 0 24 24">
+                            <path d="M5,12H19M19,12L12,5M19,12L12,19"></path>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="skills-overview">
+                <h2 class="section-title">COMPETENZE</h2>
+                <div class="skills-container">
+                    <div class="skill-category">
+                        <h3>Frontend</h3>
+                        <div class="skill-tags">
+                            <span class="skill-tag">HTML5</span>
+                            <span class="skill-tag">CSS3/SASS</span>
+                            <span class="skill-tag">JavaScript</span>
+                            <span class="skill-tag">Vue.js</span>
+                            <span class="skill-tag">Responsive Design</span>
+                            <span class="skill-tag">Bootstrap</span>
+                        </div>
+                    </div>
+                    
+                    <div class="skill-category">
+                        <h3>Backend</h3>
+                        <div class="skill-tags">
+                            <span class="skill-tag">PHP</span>
+                            <span class="skill-tag">Laravel</span>
+                            <span class="skill-tag">MySQL</span>
+                            <span class="skill-tag">API Development</span>
+                        </div>
+                    </div>
+                    
+                    <div class="skill-category">
+                        <h3>Tools</h3>
+                        <div class="skill-tags">
+                            <span class="skill-tag">Git</span>
+                            <span class="skill-tag">Google Tag Manager</span>
+                            <span class="skill-tag">SEO</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pagina Progetti -->
+        <div class="page" id="progetti">
+            <h1>PROGETTI WEB</h1>
+            <div class="description">
+                FRONTEND / BACKEND / UI-UX / API DEVELOPMENT<br>
+                MODERN FRAMEWORKS / CUSTOM SOLUTIONS
+            </div>
+            
+            <!-- Filtri progetti -->
+            <div class="project-filters">
+                <button class="filter-btn active" data-filter="all">Tutti</button>
+                <button class="filter-btn" data-filter="ecommerce">E-commerce</button>
+                <button class="filter-btn" data-filter="landing">Landing Page</button>
+                <button class="filter-btn" data-filter="app">Web App</button>
+                <button class="filter-btn" data-filter="clone">UI Clone</button>
+            </div>
+            
+            <div class="projects-grid">
+                <!-- PuntoLuce -->
+                <div class="project-card" data-category="ecommerce">
+                    <div class="project-image" style="background-image: url('puntoluce.png')"></div>
+                    <h3>PuntoLuce</h3>
+                    <p>E-commerce sviluppato con Open2b</p>
+                    <div class="tech-stack">
+                        <span>HTML</span>
+                        <span>CSS</span>
+                        <span>JavaScript</span>
+                        <span>Open2b</span>
+                    </div>
+                    <a href="https://shop.puntoluce.net/open2b/design/Slide-definitiva/~/" target="_blank" class="project-link">
+                        Visita il sito
+                    </a>
+                </div>
+                
+                <!-- Studio Dentistico -->
+                <div class="project-card" data-category="landing">
+                    <div class="project-image" style="background-image: url('dente.jpg')"></div>
+                    <h3>Studio Dentistico</h3>
+                    <p>Landing page moderna per un ambulatorio dentistico</p>
+                    <div class="tech-stack">
+                        <span>HTML</span>
+                        <span>CSS</span>
+                        <span>JavaScript</span>
+                    </div>
+                    <a href="https://gianlivio.github.io/progetto-studio-dentistico/" target="_blank" class="project-link">
+                        Visita il sito
+                    </a>
+                </div>
+                
+                <!-- Studio Psicologi -->
+                <div class="project-card" data-category="landing">
+                    <div class="project-image" style="background-image: url('cervello.jpg')"></div>
+                    <h3>Studio Psicologi</h3>
+                    <p>Sito completo per uno studio di psicologia a Bologna</p>
+                    <div class="tech-stack">
+                        <span>HTML</span>
+                        <span>CSS</span>
+                        <span>JavaScript</span>
+                    </div>
+                    <a href="https://gianlivio.github.io/progetto-studio-psicologi/" target="_blank" class="project-link">
+                        Visita il sito
+                    </a>
+                </div>
+                
+                <!-- Agenzia Immobiliare -->
+                <div class="project-card" data-category="landing">
+                    <div class="project-image" style="background-image: url('bologna.jpg')"></div>
+                    <h3>Agenzia Immobiliare Bologna</h3>
+                    <p>Sito moderno per un'agenzia immobiliare a Bologna</p>
+                    <div class="tech-stack">
+                        <span>HTML</span>
+                        <span>CSS</span>
+                        <span>JavaScript</span>
+                    </div>
+                    <a href="https://gianlivio.github.io/agenzia-musei/" target="_blank" class="project-link">
+                        Visita il sito
+                    </a>
+                </div>
+                
+                <!-- Gestione via Noce -->
+                <div class="project-card" data-category="app">
+                    <div class="project-image" style="background-image: url('casacampagna.jpg')"></div>
+                    <h3>Gestione via Noce</h3>
+                    <p>Piattaforma per l'affitto di stanze e gestione contratti</p>
+                    <div class="tech-stack">
+                        <span>HTML</span>
+                        <span>CSS</span>
+                        <span>JavaScript</span>
+                    </div>
+                    <a href="https://gianlivio.github.io/progetto-gestione-via-noce/" target="_blank" class="project-link">
+                        Visita il sito
+                    </a>
+                </div>
+                
+                <!-- Flappy Bird -->
+                <div class="project-card" data-category="app">
+                    <div class="project-image" style="background-image: url('flappy.jpg')"></div>
+                    <h3>Flappy Bird</h3>
+                    <p>Ricreazione del classico gioco mobile</p>
+                    <div class="tech-stack">
+                        <span>JavaScript</span>
+                        <span>HTML Canvas</span>
+                        <span>CSS</span>
+                    </div>
+                    <a href="https://gianlivio.github.io/Flappy-Bird/" target="_blank" class="project-link">
+                        Visita il sito
+                    </a>
+                </div>
+                
+                <!-- Discord Clone -->
+                <div class="project-card" data-category="clone">
+                    <div class="project-image" style="background-image: url('discord.png')"></div>
+                    <h3>Discord Clone</h3>
+                    <p>Ricostruzione dell'interfaccia Discord</p>
+                    <div class="tech-stack">
+                        <span>HTML</span>
+                        <span>CSS</span>
+                    </div>
+                    <a href="https://gianlivio.github.io/htmlcss-discord/" target="_blank" class="project-link">
+                        Visita il sito
+                    </a>
+                </div>
+                
+                <!-- Train Ticket -->
+                <div class="project-card" data-category="app">
+                    <div class="project-image" style="background-image: url('treno.png')"></div>
+                    <h3>Train Ticket Form</h3>
+                    <p>Form interattivo per la prenotazione di biglietti</p>
+                    <div class="tech-stack">
+                        <span>JavaScript</span>
+                        <span>HTML</span>
+                        <span>CSS</span>
+                    </div>
+                    <a href="https://gianlivio.github.io/js-biglietto-treno-form/" target="_blank" class="project-link">
+                        Visita il sito
+                    </a>
+                </div>
+                
+                <!-- Dropbox Clone -->
+                <div class="project-card" data-category="clone">
+                    <div class="project-image" style="background-image: url('dropbox.png')"></div>
+                    <h3>Dropbox Clone</h3>
+                    <p>Clone dell'interfaccia Dropbox</p>
+                    <div class="tech-stack">
+                        <span>HTML</span>
+                        <span>CSS</span>
+                    </div>
+                    <a href="https://gianlivio.github.io/htmlcss-dropbox/" target="_blank" class="project-link">
+                        Visita il sito
+                    </a>
+                </div>
+                
+                <!-- Neon Snake -->
+                <div class="project-card" data-category="app">
+                    <div class="project-image" style="background-image: url('pig.png')"></div>
+                    <h3>Neon Snake</h3>
+                    <p>Implementazione interattiva di un gioco</p>
+                    <div class="tech-stack">
+                        <span>JavaScript</span>
+                        <span>HTML</span>
+                        <span>CSS</span>
+                    </div>
+                    <a href="https://gianlivio.github.io/neon-snake-game/" target="_blank" class="project-link">
+                        Visita il sito
+                    </a>
+                </div>
+                
+                <!-- Antico Stradello -->
+                <div class="project-card" data-category="landing">
+                    <div class="project-image" style="background-image: url('pizza.png')"></div>
+                    <h3>Antico Stradello</h3>
+                    <p>Sito web per una pizzeria storica</p>
+                    <div class="tech-stack">
+                        <span>HTML</span>
+                        <span>CSS</span>
+                        <span>JavaScript</span>
+                    </div>
+                    <a href="https://gianlivio.github.io/antico-stradello/" target="_blank" class="project-link">
+                        Visita il sito
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- About Page -->
+        <div class="page" id="about">
+            <div class="about-container">
+                <div class="about-hero">
+                    <h1 class="about-title" data-text="CHI SONO">CHI SONO</h1>
+                    <div class="about-subtitle">Sviluppatore Web con Background Semiotico</div>
+                    
+                    <div class="about-intro">
+                        <div class="intro-text">
+                            <p>Creo soluzioni digitali che comunicano efficacemente, unendo competenze tecniche e comprensione umanistica per sviluppare esperienze web significative.</p>
+                            <p>La mia formazione nella <span class="highlight">Semiotica di Umberto Eco</span> arricchisce il mio approccio allo sviluppo web, aiutandomi a decodificare gli strati di significato che determinano le interazioni degli utenti.</p>
+                        </div>
+                        
+                        <div class="portrait-container">
+                            <a href="#" class="portrait-link" data-page="home">
+                                <div class="portrait-frame">
+                                    <div class="portrait-placeholder">G</div>
+                                    <div class="portrait-glitch-effect"></div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="philosophy-visualizer">
+                    <h2 class="section-title" data-text="IL MIO APPROCCIO">IL MIO APPROCCIO</h2>
+                    
+                    <div class="philosophy-canvas">
+                        <div class="node-container">
+                            <!-- Nodo centrale -->
+                            <div class="philosophy-node central-node" id="central-node">
+                                <span class="node-label">Sviluppo Creativo</span>
+                            </div>
+                            
+                            <!-- Nodi orbitanti -->
+                            <div class="philosophy-node orbiting-node" data-orbit="1" id="node-1">
+                                <span class="node-label">Problem Solving</span>
+                                <div class="node-description">
+                                    <h3>Analitico & Creativo</h3>
+                                    <p>Affronto le sfide con precisione e intuizione, trovando soluzioni all'incrocio tra logica e creatività.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="philosophy-node orbiting-node" data-orbit="2" id="node-2">
+                                <span class="node-label">Human-Centric</span>
+                                <div class="node-description">
+                                    <h3>Design Centrato sull'Utente</h3>
+                                    <p>Equilibrio tra eccellenza tecnica e comprensione autentica dei bisogni e delle aspettative dell'utente.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="philosophy-node orbiting-node" data-orbit="3" id="node-3">
+                                <span class="node-label">Cross-Disciplinare</span>
+                                <div class="node-description">
+                                    <h3>Collegamento di Mondi</h3>
+                                    <p>Unisco competenze di sviluppo con teoria della comunicazione per creare esperienze digitali più ricche.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="philosophy-node orbiting-node" data-orbit="4" id="node-4">
+                                <span class="node-label">Orientato al Significato</span>
+                                <div class="node-description">
+                                    <h3>Approccio Semiotico</h3>
+                                    <p>Applico principi semiotici per creare interfacce e sistemi che comunicano in modo chiaro ed efficace.</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Connessioni SVG -->
+                            <svg class="node-connections" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                                <path id="connection-1" class="connection" />
+                                <path id="connection-2" class="connection" />
+                                <path id="connection-3" class="connection" />
+                                <path id="connection-4" class="connection" />
+                            </svg>
+                        </div>
+                        
+                        <div class="interaction-hint">
+                            <span class="hint-icon">↑</span>
+                            <span class="hint-text">Interagisci con i nodi</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="passion-section">
+                    <h2 class="section-title" data-text="COSA MI GUIDA">COSA MI GUIDA</h2>
+                    
+                    <div class="passion-matrix">
+                        <div class="matrix-background">
+                            <canvas id="matrix-canvas"></canvas>
+                        </div>
+                        
+                        <div class="passion-content">
+                            <div class="passion-item">
+                                <div class="passion-icon">
+                                    <i class="fas fa-code"></i>
+                                </div>
+                                <div class="passion-text">
+                                    <h3>Codice Pulito e Significativo</h3>
+                                    <p>Cerco l'eleganza nella semplicità e nella chiarezza. Scrivo codice che altri sviluppatori possano comprendere e migliorare.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="passion-item">
+                                <div class="passion-icon">
+                                    <i class="fas fa-laptop-code"></i>
+                                </div>
+                                <div class="passion-text">
+                                    <h3>Comunicazione Digitale</h3>
+                                    <p>Creo interfacce ed esperienze che parlano chiaramente agli utenti su più livelli cognitivi.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="passion-item">
+                                <div class="passion-icon">
+                                    <i class="fas fa-rocket"></i>
+                                </div>
+                                <div class="passion-text">
+                                    <h3>Evoluzione Continua</h3>
+                                    <p>Abbraccio nuove tecnologie e metodologie, perfezionando costantemente le mie competenze e il mio approccio.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="connect-section">
+                    <p class="connect-text">Interessato al mio percorso professionale e alle mie competenze?</p>
+                    <a href="#" class="connect-button" data-page="cv">
+                        <span class="button-text">Esplora il mio CV</span>
+                        <span class="button-arrow">→</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- CV Page -->
+        <div class="page" id="cv">
+            <div class="cv-container">
+                <header class="cv-header">
+                    <div class="cv-title-block">
+                        <h1 class="cv-title" data-text="CURRICULUM">CURRICULUM</h1>
+                        <div class="cv-subtitle">Sviluppatore Full Stack con Background Semiotico</div>
+                    </div>
+                    
+                    <div class="personal-philosophy">
+                        <blockquote class="philosophy-quote">
+                            "Problem solver con un'anima umanistica. Unisco competenze tecniche e comprensione umana 
+                            per creare soluzioni digitali significative."
+                        </blockquote>
+                    </div>
+                </header>
+
+                <!-- Skill Graph -->
+                <div class="skill-graph-container">
+                    <h2 class="section-title" data-text="COMPETENZE TECNICHE">COMPETENZE TECNICHE</h2>
+                    <div class="skill-graph">
+                        <div class="skill-legend">
+                            <span class="skill-level advanced">Avanzato</span>
+                            <span class="skill-level intermediate">Intermedio</span>
+                            <span class="skill-level basic">Base</span>
+                        </div>
+                        <div class="skill-categories">
+                            <div class="skill-category" id="development-skills">
+                                <h3>Development</h3>
+                                <div class="skill-bars">
+                                    <div class="skill-item">
+                                        <div class="skill-name">Laravel</div>
+                                        <div class="skill-bar">
+                                            <div class="skill-progress advanced" style="width: 90%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="skill-item">
+                                        <div class="skill-name">Vue.js</div>
+                                        <div class="skill-bar">
+                                            <div class="skill-progress advanced" style="width: 85%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="skill-item">
+                                        <div class="skill-name">API Integration</div>
+                                        <div class="skill-bar">
+                                            <div class="skill-progress advanced" style="width: 80%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="skill-item">
+                                        <div class="skill-name">JavaScript</div>
+                                        <div class="skill-bar">
+                                            <div class="skill-progress intermediate" style="width: 75%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="skill-item">
+                                        <div class="skill-name">PHP</div>
+                                        <div class="skill-bar">
+                                            <div class="skill-progress intermediate" style="width: 70%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="skill-item">
+                                        <div class="skill-name">MySQL</div>
+                                        <div class="skill-bar">
+                                            <div class="skill-progress intermediate" style="width: 65%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="skill-category" id="frontend-skills">
+                                <h3>Frontend</h3>
+                                <div class="skill-bars">
+                                    <div class="skill-item">
+                                        <div class="skill-name">HTML5</div>
+                                        <div class="skill-bar">
+                                            <div class="skill-progress advanced" style="width: 90%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="skill-item">
+                                        <div class="skill-name">CSS3/SASS</div>
+                                        <div class="skill-bar">
+                                            <div class="skill-progress advanced" style="width: 85%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="skill-item">
+                                        <div class="skill-name">Bootstrap</div>
+                                        <div class="skill-bar">
+                                            <div class="skill-progress intermediate" style="width: 70%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="skill-item">
+                                        <div class="skill-name">Responsive Design</div>
+                                        <div class="skill-bar">
+                                            <div class="skill-progress advanced" style="width: 85%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="skill-category" id="tools-skills">
+                                <h3>Tools & Methods</h3>
+                                <div class="skill-bars">
+                                    <div class="skill-item">
+                                        <div class="skill-name">Git</div>
+                                        <div class="skill-bar">
+                                            <div class="skill-progress intermediate" style="width: 75%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="skill-item">
+                                        <div class="skill-name">Google Tag Manager</div>
+                                        <div class="skill-bar">
+                                            <div class="skill-progress intermediate" style="width: 65%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="skill-item">
+                                        <div class="skill-name">REST APIs</div>
+                                        <div class="skill-bar">
+                                            <div class="skill-progress advanced" style="width: 80%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="skill-item">
+                                        <div class="skill-name">SEO</div>
+                                        <div class="skill-bar">
+                                            <div class="skill-progress intermediate" style="width: 70%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Experience Timeline -->
+                <div class="experience-timeline-container">
+                    <h2 class="section-title" data-text="PERCORSO PROFESSIONALE">PERCORSO PROFESSIONALE</h2>
+                    
+                    <div class="experience-timeline">
+                        <div class="timeline-controls">
+                            <button class="timeline-control active" data-year="2024">2024</button>
+                            <button class="timeline-control" data-year="2023">2023</button>
+                            <button class="timeline-control" data-year="2022">2022</button>
+                            <button class="timeline-control" data-year="2021">2021</button>
+                        </div>
+                        
+                        <div class="timeline-content">
+                            <!-- 2024 -->
+                            <div class="timeline-panel active" data-year="2024">
+                                <div class="job-header">
+                                    <div class="job-title">Front-end Developer</div>
+                                    <div class="job-company">PuntoLuce - EDIF</div>
+                                    <div class="job-period">2024 - Presente</div>
+                                </div>
+                                <div class="job-description">
+                                    <div class="job-highlights">
+                                        <h4>Risultati Chiave</h4>
+                                        <ul>
+                                            <li>Sviluppo di layout di siti web all'avanguardia implementando moderni principi di design</li>
+                                            <li>Implementazione di un monitoraggio completo degli eventi utilizzando Google Tag Manager</li>
+                                            <li>Creazione di integrazioni API personalizzate per migliorare la funzionalità del sito</li>
+                                        </ul>
+                                    </div>
+                                    <div class="job-tech">
+                                        <div class="tech-tag">HTML5</div>
+                                        <div class="tech-tag">CSS3</div>
+                                        <div class="tech-tag">JavaScript</div>
+                                        <div class="tech-tag">API Integration</div>
+                                        <div class="tech-tag">GTM</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 2023 -->
+                            <div class="timeline-panel" data-year="2023">
+                                <div class="job-header">
+                                    <div class="job-title">Web Content Manager</div>
+                                    <div class="job-company">CopyStudio</div>
+                                    <div class="job-period">2023</div>
+                                </div>
+                                <div class="job-description">
+                                    <p>Sviluppo strategico di contenuti focalizzati sul coinvolgimento degli utenti e l'ottimizzazione SEO</p>
+                                    <div class="job-tech">
+                                        <div class="tech-tag">Content Strategy</div>
+                                        <div class="tech-tag">SEO</div>
+                                        <div class="tech-tag">UX Writing</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="job-divider"></div>
+                                
+                                <div class="job-header">
+                                    <div class="job-title">Junior Web Developer Trainee</div>
+                                    <div class="job-company">Boolean S.R.L.</div>
+                                    <div class="job-period">2023-2024</div>
+                                </div>
+                                <div class="job-description">
+                                    <div class="job-highlights">
+                                        <h4>Progetti Principali</h4>
+                                        <ul>
+                                            <li>Sviluppo di un'interfaccia WhatsApp utilizzando Vue.js con funzionalità di messaggistica in tempo reale</li>
+                                            <li>Creazione di API personalizzate con Laravel per contatti e operazioni utente</li>
+                                            <li>Realizzazione di una dashboard di gestione immobiliare che integra Laravel e Vue.js</li>
+                                            <li>Sviluppo di un'app di pianificazione viaggi con autenticazione utente e gestione percorsi</li>
+                                        </ul>
+                                    </div>
+                                    <div class="job-tech">
+                                        <div class="tech-tag">Vue.js</div>
+                                        <div class="tech-tag">Laravel</div>
+                                        <div class="tech-tag">PHP</div>
+                                        <div class="tech-tag">MySQL</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 2022 -->
+                            <div class="timeline-panel" data-year="2022">
+                                <div class="job-header">
+                                    <div class="job-title">SEO Copywriter & Web Developer</div>
+                                    <div class="job-company">Hetaweb</div>
+                                    <div class="job-period">2022-2023</div>
+                                </div>
+                                <div class="job-description">
+                                    <div class="job-highlights">
+                                        <ul>
+                                            <li>Manutenzione e ottimizzazione di siti web WordPress tramite sviluppo backend</li>
+                                            <li>Creazione di contenuti ottimizzati per SEO per migliorare il posizionamento nei motori di ricerca</li>
+                                            <li>Analisi della concorrenza per supportare lo sviluppo di strategie digitali</li>
+                                        </ul>
+                                    </div>
+                                    <div class="job-tech">
+                                        <div class="tech-tag">WordPress</div>
+                                        <div class="tech-tag">PHP</div>
+                                        <div class="tech-tag">SEO</div>
+                                        <div class="tech-tag">Content Creation</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 2021 -->
+                            <div class="timeline-panel" data-year="2021">
+                                <div class="job-header">
+                                    <div class="job-title">Educatore</div>
+                                    <div class="job-company">OpenGroup</div>
+                                    <div class="job-period">2021-2022</div>
+                                </div>
+                                <div class="job-description">
+                                    <p>Lavoro con minori migranti non accompagnati, facilitando la loro integrazione attraverso l'educazione e la mediazione culturale</p>
+                                    <div class="job-tech">
+                                        <div class="tech-tag">Educazione</div>
+                                        <div class="tech-tag">Mediazione Culturale</div>
+                                        <div class="tech-tag">Comunicazione</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Education & Approach -->
+                <div class="education-approach-container">
+                    <h2 class="section-title" data-text="FORMAZIONE & APPROCCIO">FORMAZIONE & APPROCCIO</h2>
+                    
+                    <div class="education-approach-grid">
+                        <div class="education-block">
+                            <div class="education-item">
+                                <div class="education-degree">Laurea Magistrale in Semiotica</div>
+                                <div class="education-institution">Università di Bologna - Scuola di Umberto Eco</div>
+                                <div class="education-grade">Voto: 108/110</div>
+                                <p class="education-note">
+                                    Prospettiva unica sulla costruzione del significato e della comunicazione, arricchendo 
+                                    ogni aspetto dello sviluppo digitale e dell'interazione utente
+                                </p>
+                            </div>
+                            
+                            <div class="education-item">
+                                <div class="education-degree">Sviluppo Full Stack</div>
+                                <div class="education-institution">Boolean</div>
+                                <div class="education-period">2023</div>
+                            </div>
+                        </div>
+                        
+                        <div class="approach-block">
+                            <h3>Filosofia Professionale</h3>
+                            <div class="approach-content">
+                                <p>
+                                    Unire l'eccellenza tecnica alla comprensione umana. Guidare i team 
+                                    con empatia e precisione, garantendo qualità tecnica e 
+                                    benessere del gruppo.
+                                </p>
+                                
+                                <div class="approach-highlights">
+                                    <div class="approach-highlight">
+                                        <div class="highlight-icon"><i class="fas fa-lightbulb"></i></div>
+                                        <div class="highlight-text">Applicare l'analisi semiotica ai problemi digitali</div>
+                                    </div>
+                                    <div class="approach-highlight">
+                                        <div class="highlight-icon"><i class="fas fa-sync-alt"></i></div>
+                                        <div class="highlight-text">Colmare il divario tra prospettive tecniche e umanistiche</div>
+                                    </div>
+                                    <div class="approach-highlight">
+                                        <div class="highlight-icon"><i class="fas fa-rocket"></i></div>
+                                        <div class="highlight-text">Apprendimento continuo e adattamento costante</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Download CV -->
+                <div class="cv-download-section">
+                    <a href="gianlivio-iemolo-cv.pdf" download class="cv-download-button">
+                        <i class="fas fa-download download-icon"></i>
+                        <span class="download-text">Scarica CV Completo</span>
+                    </a>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Contact Page -->
+        <div class="page" id="contact">
+            <h1>CONTATTI</h1>
+            
+            <div class="contact-grid">
+                <!-- Info principale -->
+                <div class="contact-main">
+                    <p class="contact-lead">
+                        Creiamo qualcosa di significativo insieme.
+                    </p>
+                    
+                    <div class="contact-info">
+                        <div class="info-item">
+                            <h3>Posizione</h3>
+                            <p>40128, Bologna, Italia</p>
+                        </div>
+                        
+                        <div class="info-item">
+                            <h3>Email</h3>
+                            <a href="mailto:gianlivioiemolo@gmail.com">gianlivioiemolo@gmail.com</a>
+                        </div>
+                        
+                        <div class="info-item">
+                            <h3>Telefono</h3>
+                            <a href="tel:+393319462396">+39 331 9462396</a>
+                        </div>
+                    </div>
+                    
+                    <!-- Form di contatto -->
+                    <div class="contact-form-container">
+                        <h3>Inviami un messaggio</h3>
+                        <form class="contact-form" action="https://formsubmit.co/gianlivioiemolo@gmail.com" method="POST">
+                            <div class="form-group">
+                                <label for="name">Nome</label>
+                                <input type="text" id="name" name="name" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="email">Email</label>
+                                <input type="email" id="email" name="email" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="subject">Oggetto</label>
+                                <input type="text" id="subject" name="_subject" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="message">Messaggio</label>
+                                <textarea id="message" name="message" rows="5" required></textarea>
+                            </div>
+                            
+                            <!-- Campi nascosti per configurazione -->
+                            <input type="hidden" name="_captcha" value="false">
+                            
+                            <button type="submit" class="form-submit">Invia Messaggio</button>
+                        </form>
+                    </div>
+                </div>
+        
+                <!-- Social Links -->
+                <div class="social-links">
+                    <h2>CONNETTI</h2>
+                    <div class="social-grid">
+                        <a href="https://github.com/gianlivio" target="_blank" class="social-item">
+                            <div class="social-icon"><i class="fab fa-github"></i></div>
+                            <div class="social-info">
+                                <span class="social-title">GitHub</span>
+                                <span class="social-handle">@gianlivio</span>
+                            </div>
+                        </a>
+                        
+                        <a href="https://linkedin.com/in/gianlivio-iemolo" target="_blank" class="social-item">
+                            <div class="social-icon"><i class="fab fa-linkedin"></i></div>
+                            <div class="social-info">
+                                <span class="social-title">LinkedIn</span>
+                                <span class="social-handle">in/gianlivio-iemolo</span>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-left">
+                <p>&copy; 2025 Gianlivio Iemolo - Web Developer</p>
+            </div>
+            <div class="footer-right">
+                <a href="https://github.com/gianlivio" target="_blank"><i class="fab fa-github"></i> GITHUB</a>
+                <a href="https://linkedin.com/in/gianlivio-iemolo" target="_blank"><i class="fab fa-linkedin"></i> LINKEDIN</a>
+                <a href="mailto:gianlivioiemolo@gmail.com"><i class="fas fa-envelope"></i> EMAIL</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Dettaglio progetto modal -->
+    <div class="project-modal" id="project-modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <div class="modal-body">
+                <!-- Contenuto del modal riempito dinamicamente -->
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
