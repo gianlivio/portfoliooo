@@ -1753,3 +1753,6 @@ function translatePage(lang) {
       }
   });
 }
+
+
+
