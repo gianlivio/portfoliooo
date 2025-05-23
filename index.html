@@ -3,353 +3,1637 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gianlivio Iemolo | Architetto Digitale</title>
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="responsive.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.5.0/css/flag-icon.min.css">
+    <title>Gianlivio Iemolo | Web Developer & Semiologo</title>
+    <meta name="description" content="Full Stack Developer con background in Semiotica. Da Umberto Eco ho imparato a leggere i codici della cultura, ora scrivo codici per il web.">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <meta name="description" content="Portfolio di Gianlivio Iemolo, sviluppatore web full-stack con background in semiotica">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.5.0/css/flag-icon.min.css">
+    
+    <style>
+        /* === RESET & BASE === */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --neon-blue: #00d4ff;
+            --deep-blue: #001428;
+            --electric-purple: #7209b7;
+            --cyber-yellow: #ffd60a;
+            --tech-gray: #0a0a0a;
+            --grid-color: rgba(0, 212, 255, 0.1);
+            --text-light: #e0e0e0;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glow-intensity: 0 0 20px;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--tech-gray);
+            color: var(--text-light);
+            overflow-x: hidden;
+            cursor: crosshair;
+            line-height: 1.6;
+        }
+
+        /* === CUSTOM CURSOR === */
+        .cursor {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--neon-blue);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            transition: all 0.1s ease;
+            transform: translate(-50%, -50%);
+            mix-blend-mode: difference;
+        }
+
+        .cursor-dot {
+            width: 4px;
+            height: 4px;
+            background: var(--neon-blue);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+        }
+
+        .cursor.hover {
+            width: 40px;
+            height: 40px;
+            background: rgba(0, 212, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        @media (hover: hover) {
+            body, a, button, input, textarea, .nav-link, .project-card, .filter-btn {
+                cursor: none;
+            }
+        }
+
+        /* === ANIMATED BACKGROUND GRID === */
+        .bg-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(var(--grid-color) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: grid-move 10s linear infinite;
+            z-index: -2;
+        }
+
+        @keyframes grid-move {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        /* === CYBER PARTICLES === */
+        .cyber-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .cyber-particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: var(--neon-blue);
+            box-shadow: var(--glow-intensity) var(--neon-blue);
+            animation: cyber-float 20s infinite linear;
+        }
+
+        @keyframes cyber-float {
+            0% {
+                transform: translateY(100vh) translateX(0);
+                opacity: 0;
+            }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% {
+                transform: translateY(-100px) translateX(100px);
+                opacity: 0;
+            }
+        }
+
+        /* === NAVIGATION (stile Fabio Masciarelli) === */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 2rem;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--neon-blue);
+            text-decoration: none;
+            text-shadow: 0 0 10px var(--neon-blue);
+            transition: all 0.3s ease;
+        }
+
+        .logo:hover {
+            text-shadow: 0 0 20px var(--neon-blue);
+            transform: scale(1.05);
+        }
+
+        .nav-center {
+            display: flex;
+            gap: 3rem;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: var(--text-light);
+            text-decoration: none;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.9rem;
+            position: relative;
+            transition: all 0.3s ease;
+            padding: 1rem 0;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--neon-blue);
+            transition: width 0.3s ease;
+            box-shadow: 0 0 5px var(--neon-blue);
+        }
+
+        .nav-link:hover::after,
+        .nav-link.active::after {
+            width: 100%;
+        }
+
+        .nav-link:hover {
+            color: var(--neon-blue);
+            text-shadow: 0 0 10px var(--neon-blue);
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .nav-right span {
+            font-size: 0.9rem;
+            color: var(--cyber-yellow);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Language Selector */
+        .language-selector {
+            position: relative;
+        }
+
+        .language-btn {
+            background: none;
+            border: 1px solid var(--neon-blue);
+            padding: 0.5rem 1rem;
+            border-radius: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--neon-blue);
+            font-weight: 500;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .language-btn:hover {
+            background: rgba(0, 212, 255, 0.1);
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+        }
+
+        .language-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--neon-blue);
+            border-radius: 0.25rem;
+            min-width: 150px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            margin-top: 0.5rem;
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.2);
+        }
+
+        .language-dropdown.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .language-option {
+            padding: 0.75rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            color: var(--text-light);
+            transition: all 0.3s ease;
+        }
+
+        .language-option:hover {
+            background: rgba(0, 212, 255, 0.1);
+            color: var(--neon-blue);
+        }
+
+        .flag-icon {
+            width: 20px;
+            height: 15px;
+            border-radius: 2px;
+        }
+
+        /* Hamburger Menu */
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            gap: 4px;
+            background: none;
+            border: none;
+            padding: 0.5rem;
+        }
+
+        .hamburger span {
+            width: 25px;
+            height: 3px;
+            background: var(--neon-blue);
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -6px);
+        }
+
+        /* Fix for page height and layout */
+        main {
+            padding-top: 6rem;
+            min-height: calc(100vh - 6rem);
+        }
+
+        .page {
+            position: absolute;
+            width: 100%;
+            left: 0;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.5s, visibility 0.5s;
+            padding: 2rem;
+            top: 0;
+            min-height: calc(100vh - 12rem);
+            pointer-events: none;
+        }
+
+        .page.active {
+            opacity: 1;
+            visibility: visible;
+            position: relative;
+            min-height: auto;
+            display: block;
+            pointer-events: all;
+        }
+
+        /* General Projects grid fix */
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2.5rem;
+            justify-items: center;
+            align-items: start;
+        }
+
+        .project-card {
+            width: 100%;
+            max-width: 400px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--neon-blue);
+            border-radius: 1rem;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            position: relative;
+            clip-path: polygon(0 0, calc(100% - 30px) 0, 100% 30px, 100% 100%, 30px 100%, 0 calc(100% - 30px));
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* === HOME PAGE === */
+        .hero-section {
+            min-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            margin-bottom: 4rem;
+        }
+
+        .hero-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(3rem, 8vw, 8rem);
+            font-weight: 900;
+            text-transform: uppercase;
+            position: relative;
+            animation: glitch 3s infinite;
+            color: var(--neon-blue);
+            text-shadow: 
+                0 0 10px var(--neon-blue),
+                0 0 20px var(--neon-blue),
+                0 0 30px var(--neon-blue);
+            margin-bottom: 2rem;
+            line-height: 1.1;
+        }
+
+        @keyframes glitch {
+            0%, 100% { 
+                text-shadow: 
+                    0 0 10px var(--neon-blue),
+                    0 0 20px var(--neon-blue),
+                    0 0 30px var(--neon-blue);
+            }
+            25% { 
+                text-shadow: 
+                    -2px 0 var(--cyber-yellow),
+                    2px 0 var(--electric-purple),
+                    0 0 10px var(--neon-blue);
+            }
+        }
+
+        .hero-subtitle {
+            font-size: 2rem;
+            color: var(--cyber-yellow);
+            margin-bottom: 1rem;
+            font-weight: 300;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        .hero-description {
+            font-size: 1.2rem;
+            line-height: 1.8;
+            margin: 2rem 0;
+            max-width: 800px;
+            opacity: 0.9;
+            color: var(--text-light);
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 2rem;
+            margin: 3rem 0;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .tech-btn {
+            padding: 1rem 2.5rem;
+            background: transparent;
+            border: 2px solid var(--neon-blue);
+            color: var(--neon-blue);
+            text-decoration: none;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 100%, 20px 100%);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tech-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: var(--neon-blue);
+            transition: left 0.3s ease;
+            z-index: -1;
+        }
+
+        .tech-btn:hover::before {
+            left: 0;
+        }
+
+        .tech-btn:hover {
+            color: var(--tech-gray);
+            box-shadow: var(--glow-intensity) var(--neon-blue);
+            transform: translateY(-2px);
+        }
+
+        .tech-btn.primary {
+            background: var(--neon-blue);
+            color: var(--tech-gray);
+        }
+
+        .tech-btn.primary::before {
+            background: var(--cyber-yellow);
+        }
+
+        /* Featured Projects Grid Fix */
+        .featured-projects {
+            margin: 6rem 0;
+        }
+
+        .featured-projects .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2.5rem;
+            justify-items: center;
+            align-items: stretch;
+        }
+
+        .featured-projects .project-card {
+            width: 100%;
+            max-width: 400px;
+            height: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .featured-projects .project-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .featured-projects .project-links {
+            margin-top: auto;
+        }
+
+        .section-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--neon-blue);
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            margin-bottom: 3rem;
+            text-align: center;
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .section-title::before,
+        .section-title::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 100px;
+            height: 2px;
+            background: var(--neon-blue);
+            box-shadow: 0 0 10px var(--neon-blue);
+        }
+
+        .section-title::before {
+            left: calc(50% - 200px);
+        }
+
+        .section-title::after {
+            right: calc(50% - 200px);
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2.5rem;
+            justify-items: center;
+            align-items: start;
+        }
+
+        .project-card {
+            width: 100%;
+            max-width: 400px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--neon-blue);
+            border-radius: 1rem;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            position: relative;
+            clip-path: polygon(0 0, calc(100% - 30px) 0, 100% 30px, 100% 100%, 30px 100%, 0 calc(100% - 30px));
+        }
+
+        .project-card::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, var(--neon-blue), var(--electric-purple), var(--cyber-yellow));
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            clip-path: inherit;
+        }
+
+        .project-card:hover::before {
+            opacity: 1;
+        }
+
+        .project-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 212, 255, 0.3);
+        }
+
+        .project-image {
+            height: 240px;
+            background: linear-gradient(135deg, var(--neon-blue) 0%, var(--electric-purple) 100%);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: white;
+        }
+
+        .project-content {
+            padding: 2rem;
+        }
+
+        .project-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.3rem;
+            color: var(--cyber-yellow);
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .project-description {
+            line-height: 1.8;
+            opacity: 0.8;
+            margin-bottom: 1.5rem;
+        }
+
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .tech-tag {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.85rem;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--neon-blue);
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            color: var(--neon-blue);
+        }
+
+        .tech-tag:hover {
+            background: rgba(0, 212, 255, 0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 212, 255, 0.2);
+        }
+
+        .project-links {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .project-link {
+            padding: 0.75rem 1.5rem;
+            background: transparent;
+            border: 1px solid var(--neon-blue);
+            color: var(--neon-blue);
+            text-decoration: none;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .project-link:hover {
+            background: var(--neon-blue);
+            color: var(--tech-gray);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 212, 255, 0.3);
+        }
+
+        /* Skills Overview */
+        .skills-overview {
+            padding: 4rem 0;
+            margin-bottom: 4rem;
+        }
+
+        .skills-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 3rem;
+        }
+
+        .skill-category {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--neon-blue);
+            padding: 2rem;
+            border-radius: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .skill-category:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 212, 255, 0.2);
+        }
+
+        .skill-category h3 {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--cyber-yellow);
+            margin-bottom: 2rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .skill-category i {
+            color: var(--neon-blue);
+            font-size: 1.5rem;
+        }
+
+        .skill-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+        }
+
+        .skill-tag {
+            padding: 0.8rem 1.2rem;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--neon-blue);
+            border-radius: 6px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            color: var(--text-light);
+        }
+
+        .skill-tag:hover {
+            background: var(--neon-blue);
+            color: var(--tech-gray);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 212, 255, 0.3);
+        }
+
+        /* === ABOUT PAGE === */
+        .about-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 0;
+        }
+
+        .about-hero {
+            text-align: center;
+            margin-bottom: 6rem;
+        }
+
+        .about-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 5rem;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            margin-bottom: 2rem;
+            color: var(--neon-blue);
+            text-transform: uppercase;
+            text-shadow: 0 0 20px var(--neon-blue);
+        }
+
+        .about-subtitle {
+            font-size: 1.8rem;
+            font-weight: 400;
+            color: var(--cyber-yellow);
+            margin-bottom: 3rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .about-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+            margin-bottom: 6rem;
+        }
+
+        .about-text {
+            font-size: 1.2rem;
+            line-height: 1.8;
+            color: var(--text-light);
+        }
+
+        .about-text h3 {
+            color: var(--cyber-yellow);
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .about-text p {
+            margin-bottom: 2rem;
+        }
+
+        .highlight {
+            color: var(--neon-blue);
+            font-weight: 600;
+            text-shadow: 0 0 5px var(--neon-blue);
+        }
+
+        .quote-box {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--electric-purple);
+            border-left: 4px solid var(--electric-purple);
+            padding: 2rem;
+            border-radius: 0.5rem;
+            margin: 2rem 0;
+            font-style: italic;
+            color: var(--text-light);
+            box-shadow: 0 10px 30px rgba(114, 9, 183, 0.2);
+        }
+
+        .quote-author {
+            font-style: normal;
+            font-weight: 600;
+            color: var(--electric-purple);
+            margin-top: 1rem;
+            text-align: right;
+        }
+
+        .semiotic-visual {
+            position: relative;
+            height: 400px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--neon-blue);
+            border-radius: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .philosophy-canvas {
+            position: relative;
+            width: 350px;
+            height: 350px;
+        }
+
+        .philosophy-node {
+            position: absolute;
+            padding: 1rem;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--neon-blue);
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 212, 255, 0.2);
+            transition: all 0.5s ease;
+            color: var(--text-light);
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .central-node {
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(45deg, var(--neon-blue), var(--electric-purple));
+            color: white;
+            font-weight: 600;
+            z-index: 10;
+            padding: 1.5rem 2rem;
+            font-size: 1rem;
+            box-shadow: 
+                0 10px 20px rgba(0, 212, 255, 0.3),
+                0 0 30px rgba(0, 212, 255, 0.2);
+        }
+
+        .orbiting-node {
+            width: 130px;
+            transition: all 0.5s ease;
+            animation: float-node 6s ease-in-out infinite;
+        }
+
+        .orbiting-node:hover {
+            background: rgba(0, 212, 255, 0.2);
+            box-shadow: 
+                0 10px 30px rgba(0, 212, 255, 0.3),
+                0 0 20px rgba(0, 212, 255, 0.2);
+            transform: scale(1.1);
+            z-index: 10;
+        }
+
+        .node-1 { top: 15%; left: 15%; animation-delay: 0s; }
+        .node-2 { top: 15%; right: 15%; animation-delay: -2s; }
+        .node-3 { bottom: 15%; left: 15%; animation-delay: -4s; }
+        .node-4 { bottom: 15%; right: 15%; animation-delay: -1s; }
+
+        @keyframes float-node {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(2deg); }
+        }
+
+        /* === PROJECTS PAGE === */
+        .projects-page {
+            padding: 2rem 0;
+        }
+
+        .projects-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .projects-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 4rem;
+            font-weight: 700;
+            color: var(--neon-blue);
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            margin-bottom: 2rem;
+            text-shadow: 0 0 20px var(--neon-blue);
+        }
+
+        .projects-description {
+            font-size: 1.8rem;
+            line-height: 1.5;
+            color: var(--cyber-yellow);
+            max-width: 800px;
+            margin: 0 auto 3rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .project-filters {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 4rem;
+        }
+
+        .filter-btn {
+            padding: 0.8rem 2rem;
+            border: 2px solid var(--neon-blue);
+            background: transparent;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--neon-blue);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            background: var(--neon-blue);
+            color: var(--tech-gray);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 212, 255, 0.3);
+        }
+
+        /* === CONTACT PAGE === */
+        .contact-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 0;
+        }
+
+        .contact-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .contact-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 4rem;
+            font-weight: 700;
+            color: var(--neon-blue);
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            margin-bottom: 2rem;
+            text-shadow: 0 0 20px var(--neon-blue);
+        }
+
+        .contact-lead {
+            font-size: 2rem;
+            line-height: 1.4;
+            color: var(--cyber-yellow);
+            margin-bottom: 4rem;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            text-align: center;
+        }
+
+        .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .contact-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--neon-blue);
+            padding: 2rem;
+            border-radius: 1rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .contact-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 212, 255, 0.3);
+        }
+
+        .contact-card i {
+            font-size: 2.5rem;
+            color: var(--neon-blue);
+            margin-bottom: 1rem;
+        }
+
+        .contact-card h3 {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--cyber-yellow);
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .contact-card p,
+        .contact-card a {
+            color: var(--text-light);
+            text-decoration: none;
+            transition: color 0.3s ease;
+            font-size: 1.1rem;
+        }
+
+        .contact-card a:hover {
+            color: var(--neon-blue);
+            text-shadow: 0 0 5px var(--neon-blue);
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 4rem;
+        }
+
+        .social-link {
+            width: 60px;
+            height: 60px;
+            border: 2px solid var(--neon-blue);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            font-size: 1.5rem;
+            color: var(--neon-blue);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .social-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--neon-blue);
+            transform: scale(0);
+            transition: transform 0.3s ease;
+            border-radius: 50%;
+        }
+
+        .social-link:hover::before {
+            transform: scale(1);
+        }
+
+        .social-link:hover {
+            color: var(--tech-gray);
+            box-shadow: 0 0 20px var(--neon-blue);
+            transform: translateY(-3px);
+        }
+
+        .social-link i {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* === FOOTER === */
+        footer {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid var(--neon-blue);
+            padding: 3rem 2rem;
+            text-align: center;
+            margin-top: 6rem;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer-quote {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.2rem;
+            color: var(--cyber-yellow);
+            margin-bottom: 1rem;
+            font-style: italic;
+        }
+
+        .footer-author {
+            color: var(--neon-blue);
+            font-weight: 600;
+            margin-bottom: 2rem;
+        }
+
+        .footer-copyright {
+            color: var(--text-light);
+            opacity: 0.7;
+            font-size: 0.9rem;
+        }
+
+        /* === RESPONSIVE === */
+        @media (max-width: 1024px) {
+            .nav-center {
+                gap: 2rem;
+            }
+
+            .hero-title {
+                font-size: 5rem;
+            }
+
+            .about-content {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .projects-grid {
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            }
+
+            .skills-container {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                gap: 2rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hamburger {
+                display: flex;
+            }
+
+            .nav-center,
+            .nav-right {
+                position: fixed;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: var(--glass-bg);
+                backdrop-filter: blur(20px);
+                flex-direction: column;
+                padding: 2rem;
+                transform: translateY(-100%);
+                opacity: 0;
+                visibility: hidden;
+                transition: all 0.3s ease;
+                border-top: 1px solid var(--neon-blue);
+            }
+
+            .nav-center.active,
+            .nav-right.active {
+                transform: translateY(0);
+                opacity: 1;
+                visibility: visible;
+            }
+
+            .nav-center {
+                gap: 1.5rem;
+            }
+
+            .nav-right {
+                gap: 1rem;
+            }
+
+            .hero-title {
+                font-size: 3rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1.5rem;
+            }
+
+            .hero-description {
+                font-size: 1rem;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+                align-items: center;
+                gap: 1rem;
+            }
+
+            .tech-btn {
+                width: 100%;
+                max-width: 300px;
+                justify-content: center;
+            }
+
+            .about-title,
+            .projects-title,
+            .contact-title {
+                font-size: 2.5rem;
+            }
+
+            .about-subtitle {
+                font-size: 1.2rem;
+            }
+
+            .projects-description {
+                font-size: 1.2rem;
+            }
+
+            .contact-lead {
+                font-size: 1.5rem;
+            }
+
+            .projects-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .skills-container {
+                grid-template-columns: 1fr;
+            }
+
+            .contact-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .project-filters {
+                overflow-x: auto;
+                padding-bottom: 1rem;
+                justify-content: flex-start;
+            }
+
+            .filter-btn {
+                white-space: nowrap;
+                min-width: 120px;
+            }
+
+            .philosophy-canvas {
+                width: 280px;
+                height: 280px;
+            }
+
+            .orbiting-node {
+                width: 100px;
+                font-size: 0.8rem;
+            }
+
+            .central-node {
+                font-size: 0.9rem;
+                padding: 1rem 1.5rem;
+            }
+
+            .section-title::before,
+            .section-title::after {
+                display: none;
+            }
+
+            .social-links {
+                gap: 1rem;
+            }
+
+            .social-link {
+                width: 50px;
+                height: 50px;
+                font-size: 1.2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            nav {
+                padding: 1rem;
+            }
+
+            .page {
+                padding: 1rem;
+            }
+
+            .hero-title {
+                font-size: 2.5rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1.2rem;
+            }
+
+            .about-title,
+            .projects-title,
+            .contact-title {
+                font-size: 2rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .project-card {
+                margin-bottom: 2rem;
+            }
+
+            .project-content {
+                padding: 1.5rem;
+            }
+
+            .contact-card {
+                padding: 1.5rem;
+            }
+
+            .philosophy-canvas {
+                width: 250px;
+                height: 250px;
+            }
+
+            .orbiting-node {
+                width: 80px;
+                font-size: 0.7rem;
+                padding: 0.8rem;
+            }
+
+            .central-node {
+                font-size: 0.8rem;
+                padding: 1rem;
+            }
+        }
+
+        /* === ANIMATIONS === */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in-up {
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .fade-in-up.delay-1 { animation-delay: 0.2s; animation-fill-mode: both; }
+        .fade-in-up.delay-2 { animation-delay: 0.4s; animation-fill-mode: both; }
+        .fade-in-up.delay-3 { animation-delay: 0.6s; animation-fill-mode: both; }
+
+        /* === SCROLLBAR === */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--tech-gray);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--neon-blue);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--cyber-yellow);
+        }
+    </style>
 </head>
 <body>
-    <!-- Cursore personalizzato -->
-    <div class="custom-cursor">
-        <svg viewBox="0 0 50 50">
-            <path class="cursor-arrow" 
-                  d="M12,38 L38,12 M38,12 L38,25 M38,12 L25,12" 
-                  stroke-linecap="round" 
-                  stroke-linejoin="round">
-            </path>
-        </svg>
-    </div>
-    
-    <!-- Navigazione -->
+    <!-- Custom Cursor -->
+    <div class="cursor"></div>
+    <div class="cursor-dot"></div>
+
+    <!-- Background Elements -->
+    <div class="bg-grid"></div>
+    <div class="cyber-particles" id="particles"></div>
+
+    <!-- Navigation -->
     <nav>
-        <div class="nav-left">
-            <a href="#" class="logo" data-page="home">GIANLIVIO IEMOLO</a>
-        </div>
-        <div class="nav-center">
-            <span class="nav-link" data-page="progetti">PROGETTI</span>
-            <span class="nav-link" data-page="about">ABOUT</span>
-            <span class="nav-link" data-page="cv">CV</span>
-            <span class="nav-link" data-page="contact">CONTATTI</span>
-        </div>
-        <div class="nav-right">
-            <span>WEB DEVELOPER</span>
-            
-            <!-- Selettore lingua -->
-            <div class="language-selector">
-                <button id="language-toggle" class="current-language">
-                    <span class="flag-icon flag-icon-it"></span>
-                    IT
-                </button>
-                <div class="language-dropdown">
-                    <button class="language-option" data-lang="en">
-                        <span class="flag-icon flag-icon-us"></span>
-                        English
-                    </button>
-                    <button class="language-option" data-lang="it">
+        <div class="nav-container">
+            <div class="nav-left">
+                <a href="#home" class="logo">GIANLIVIO IEMOLO</a>
+            </div>
+            <div class="nav-center">
+                <a href="#home" class="nav-link active">HOME</a>
+                <a href="#about" class="nav-link">CHI SONO</a>
+                <a href="#projects" class="nav-link">PROGETTI</a>
+                <a href="#contact" class="nav-link">CONTATTI</a>
+            </div>
+            <div class="nav-right">
+                <span>WEB DEVELOPER</span>
+                
+                <!-- Language Selector -->
+                <div class="language-selector">
+                    <button class="language-btn" id="languageBtn">
                         <span class="flag-icon flag-icon-it"></span>
-                        Italiano
+                        IT
                     </button>
-                    <button class="language-option" data-lang="es">
-                        <span class="flag-icon flag-icon-es"></span>
-                        Español
-                    </button>
+                    <div class="language-dropdown" id="languageDropdown">
+                        <button class="language-option" onclick="changeLanguage('it')">
+                            <span class="flag-icon flag-icon-it"></span>
+                            Italiano
+                        </button>
+                        <button class="language-option" onclick="changeLanguage('en')">
+                            <span class="flag-icon flag-icon-us"></span>
+                            English
+                        </button>
+                        <button class="language-option" onclick="changeLanguage('es')">
+                            <span class="flag-icon flag-icon-es"></span>
+                            Español
+                        </button>
+                    </div>
                 </div>
             </div>
+
+            <button class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
         </div>
     </nav>
 
-    <main id="content">
+    <!-- Main Content -->
+    <main>
         <!-- Home Page -->
         <div class="page active" id="home">
-            <div class="hero-section">
-                <h1 class="hero-title">SVILUPPATORE <span class="highlight">FULL STACK</span></h1>
-                <p class="hero-subtitle">Dal codice dei segni al codice delle funzioni</p>
-                
-                <div class="cta-container">
-                    <a href="#" class="cta-button primary" data-page="progetti">
-                        <span>Esplora i progetti</span>
-                        <svg class="arrow-icon" viewBox="0 0 24 24">
-                            <path d="M5,12H19M19,12L12,5M19,12L12,19"></path>
-                        </svg>
-                    </a>
-                    <a href="#" class="cta-button secondary" data-page="contact">
-                        <span>Contattami</span>
-                    </a>
-                </div>
-            </div>
-            
-            <div class="featured-projects">
-                <h2 class="section-title">PROGETTI IN EVIDENZA</h2>
-                <div class="featured-grid">
-                    <!-- Progetto 1 -->
-                    <div class="featured-card">
-                        <div class="project-image" style="background-image: url('puntoluce.png')"></div>
-                        <h3>PuntoLuce</h3>
-                        <p>E-commerce sviluppato con Open2b</p>
-                        <div class="tech-stack">
-                            <span>HTML</span>
-                            <span>CSS</span>
-                            <span>JavaScript</span>
-                        </div>
-                        <a href="#" class="view-project" data-project="puntoluce">Vedi dettagli</a>
+            <div class="container">
+                <!-- Hero Section -->
+                <section class="hero-section">
+                    <h1 class="hero-title">GIANLIVIO IEMOLO</h1>
+                    <p class="hero-subtitle">Full Stack Developer & Semiologo</p>
+                    <p class="hero-description">
+                        L'esperienza formativa nella <span class="highlight">scuola semiotica di Umberto Eco</span> 
+                        ha configurato il mio approccio al web development come <span class="highlight">analisi dei sistemi segnici digitali</span>. 
+                        Ogni interfaccia costituisce un testo da decodificare e strutturare secondo logiche di pertinenza semantica.
+                    </p>
+                    <div class="hero-buttons">
+                        <a href="#projects" class="tech-btn primary">
+                            <i class="fas fa-code"></i>
+                            ESPLORA PROGETTI
+                        </a>
+                        <a href="#contact" class="tech-btn">
+                            <i class="fas fa-envelope"></i>
+                            CONTATTAMI
+                        </a>
                     </div>
-                    
-                    <!-- Progetto 2 -->
-                    <div class="featured-card">
-                        <div class="project-image" style="background-image: url('bologna.jpg')"></div>
-                        <h3>Agenzia Immobiliare</h3>
-                        <p>Sito web responsive per agenzia immobiliare</p>
-                        <div class="tech-stack">
-                            <span>HTML</span>
-                            <span>CSS</span>
-                            <span>JavaScript</span>
-                        </div>
-                        <a href="#" class="view-project" data-project="agenzia">Vedi dettagli</a>
-                    </div>
-                    
-                    <!-- Progetto 3 -->
-                    <div class="featured-card">
-                        <div class="project-image" style="background-image: url('discord.png')"></div>
-                        <h3>Discord Clone</h3>
-                        <p>Ricostruzione dell'interfaccia Discord</p>
-                        <div class="tech-stack">
-                            <span>HTML</span>
-                            <span>CSS</span>
-                        </div>
-                        <a href="#" class="view-project" data-project="discord">Vedi dettagli</a>
-                    </div>
-                </div>
-                
-                <div class="section-cta">
-                    <a href="#" class="text-link" data-page="progetti">
-                        <span>Vedi tutti i progetti</span>
-                        <svg class="arrow-icon small" viewBox="0 0 24 24">
-                            <path d="M5,12H19M19,12L12,5M19,12L12,19"></path>
-                        </svg>
-                    </a>
-                </div>
-            </div>
-            
-            <div class="skills-overview">
-                <h2 class="section-title">COMPETENZE</h2>
-                <div class="skills-container">
-                    <div class="skill-category">
-                        <h3>Frontend</h3>
-                        <div class="skill-tags">
-                            <span class="skill-tag">HTML5</span>
-                            <span class="skill-tag">CSS3/SASS</span>
-                            <span class="skill-tag">JavaScript</span>
-                            <span class="skill-tag">Vue.js</span>
-                            <span class="skill-tag">Responsive Design</span>
-                            <span class="skill-tag">Bootstrap</span>
-                        </div>
-                    </div>
-                    
-                    <div class="skill-category">
-                        <h3>Backend</h3>
-                        <div class="skill-tags">
-                            <span class="skill-tag">PHP</span>
-                            <span class="skill-tag">Laravel</span>
-                            <span class="skill-tag">MySQL</span>
-                            <span class="skill-tag">API Development</span>
-                        </div>
-                    </div>
-                    
-                    <div class="skill-category">
-                        <h3>Tools</h3>
-                        <div class="skill-tags">
-                            <span class="skill-tag">Git</span>
-                            <span class="skill-tag">Google Tag Manager</span>
-                            <span class="skill-tag">SEO</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+                </section>
 
-        <!-- Pagina Progetti -->
-        <div class="page" id="progetti">
-            <h1>PROGETTI WEB</h1>
-            <div class="description">
-                FRONTEND / BACKEND / UI-UX / API DEVELOPMENT<br>
-                MODERN FRAMEWORKS / CUSTOM SOLUTIONS
-            </div>
-            
-            <!-- Filtri progetti -->
-            <div class="project-filters">
-                <button class="filter-btn active" data-filter="all">Tutti</button>
-                <button class="filter-btn" data-filter="ecommerce">E-commerce</button>
-                <button class="filter-btn" data-filter="landing">Landing Page</button>
-                <button class="filter-btn" data-filter="app">Web App</button>
-                <button class="filter-btn" data-filter="clone">UI Clone</button>
-            </div>
-            
-            <div class="projects-grid">
-                <!-- PuntoLuce -->
-                <div class="project-card" data-category="ecommerce">
-                    <div class="project-image" style="background-image: url('puntoluce.png')"></div>
-                    <h3>PuntoLuce</h3>
-                    <p>E-commerce sviluppato con Open2b</p>
-                    <div class="tech-stack">
-                        <span>HTML</span>
-                        <span>CSS</span>
-                        <span>JavaScript</span>
-                        <span>Open2b</span>
+                <!-- Featured Projects -->
+                <section class="featured-projects">
+                    <h2 class="section-title">PROGETTI IN EVIDENZA</h2>
+                    <div class="projects-grid">
+                        <!-- PuntoLuce Landing -->
+                        <div class="project-card">
+                            <div class="project-image">
+                                <i class="fas fa-bolt"></i>
+                            </div>
+                            <div class="project-content">
+                                <h3 class="project-title">PuntoLuce Landing</h3>
+                                <p class="project-description">
+                                    Implementazione di sistema segnico coerente per azienda del settore elettrico. 
+                                    Architettura interfacciale cyber-tech con particolare attenzione alle isotopie cromatiche neon.
+                                </p>
+                                <div class="tech-stack">
+                                    <span class="tech-tag">HTML5</span>
+                                    <span class="tech-tag">CSS3</span>
+                                    <span class="tech-tag">JavaScript</span>
+                                    <span class="tech-tag">Animazioni</span>
+                                </div>
+                                <div class="project-links">
+                                    <a href="https://gianlivio.github.io/landingpage-puntoluce/" target="_blank" class="project-link">
+                                        <i class="fas fa-external-link-alt"></i>
+                                        DEMO LIVE
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Gestione Via Noce -->
+                        <div class="project-card">
+                            <div class="project-image">
+                                <i class="fas fa-building"></i>
+                            </div>
+                            <div class="project-content">
+                                <h3 class="project-title">Gestione Via Noce</h3>
+                                <p class="project-description">
+                                    Piattaforma gestionale con architettura CRUD per amministrazione contratti locativi. 
+                                    Sviluppo di interfaccia dashboard secondo principi di usabilità e gerarchia informativa.
+                                </p>
+                                <div class="tech-stack">
+                                    <span class="tech-tag">HTML5</span>
+                                    <span class="tech-tag">CSS3</span>
+                                    <span class="tech-tag">JavaScript</span>
+                                    <span class="tech-tag">PHP</span>
+                                    <span class="tech-tag">MySQL</span>
+                                </div>
+                                <div class="project-links">
+                                    <a href="https://gianlivio.github.io/progetto-gestione-via-noce/" target="_blank" class="project-link">
+                                        <i class="fas fa-external-link-alt"></i>
+                                        DEMO LIVE
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- WhatsApp Clone -->
+                        <div class="project-card">
+                            <div class="project-image">
+                                <i class="fab fa-whatsapp"></i>
+                            </div>
+                            <div class="project-content">
+                                <h3 class="project-title">WhatsApp Web Clone</h3>
+                                <p class="project-description">
+                                    Ricostruzione semiotica dell'ecosistema comunicativo WhatsApp attraverso Vue.js. 
+                                    Implementazione di componenti interattivi e architettura API Laravel per gestione messaggistica.
+                                </p>
+                                <div class="tech-stack">
+                                    <span class="tech-tag">Vue.js</span>
+                                    <span class="tech-tag">Laravel</span>
+                                    <span class="tech-tag">PHP</span>
+                                    <span class="tech-tag">MySQL</span>
+                                    <span class="tech-tag">API REST</span>
+                                </div>
+                                <div class="project-links">
+                                    <a href="https://github.com/gianlivio" target="_blank" class="project-link">
+                                        <i class="fab fa-github"></i>
+                                        GITHUB
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <a href="https://shop.puntoluce.net/open2b/design/Slide-definitiva/~/" target="_blank" class="project-link">
-                        Visita il sito
-                    </a>
-                </div>
-                
-                <!-- Studio Dentistico -->
-                <div class="project-card" data-category="landing">
-                    <div class="project-image" style="background-image: url('dente.jpg')"></div>
-                    <h3>Studio Dentistico</h3>
-                    <p>Landing page moderna per un ambulatorio dentistico</p>
-                    <div class="tech-stack">
-                        <span>HTML</span>
-                        <span>CSS</span>
-                        <span>JavaScript</span>
+                </section>
+
+                <!-- Skills Overview -->
+                <section class="skills-overview">
+                    <h2 class="section-title">COMPETENZE</h2>
+                    <div class="skills-container">
+                        <div class="skill-category">
+                            <h3><i class="fas fa-laptop-code"></i> Frontend</h3>
+                            <div class="skill-tags">
+                                <span class="skill-tag">React</span>
+                                <span class="skill-tag">Next.js</span>
+                                <span class="skill-tag">Vue.js</span>
+                                <span class="skill-tag">TypeScript</span>
+                                <span class="skill-tag">JavaScript</span>
+                                <span class="skill-tag">jQuery</span>
+                                <span class="skill-tag">HTML5</span>
+                                <span class="skill-tag">CSS3</span>
+                                <span class="skill-tag">Tailwind CSS</span>
+                                <span class="skill-tag">SASS/SCSS</span>
+                                <span class="skill-tag">Bootstrap</span>
+                                <span class="skill-tag">Responsive Design</span>
+                            </div>
+                        </div>
+
+                        <div class="skill-category">
+                            <h3><i class="fas fa-server"></i> Backend</h3>
+                            <div class="skill-tags">
+                                <span class="skill-tag">Laravel</span>
+                                <span class="skill-tag">PHP</span>
+                                <span class="skill-tag">Node.js</span>
+                                <span class="skill-tag">MySQL</span>
+                                <span class="skill-tag">API REST</span>
+                                <span class="skill-tag">Vite</span>
+                                <span class="skill-tag">Postman</span>
+                                <span class="skill-tag">Webhook</span>
+                            </div>
+                        </div>
+
+                        <div class="skill-category">
+                            <h3><i class="fas fa-tools"></i> CMS & E-commerce</h3>
+                            <div class="skill-tags">
+                                <span class="skill-tag">Open2b</span>
+                                <span class="skill-tag">Twig</span>
+                                <span class="skill-tag">WordPress</span>
+                                <span class="skill-tag">Git</span>
+                                <span class="skill-tag">Pacchetto Office</span>
+                            </div>
+                        </div>
+
+                        <div class="skill-category">
+                            <h3><i class="fas fa-chart-line"></i> Analytics & SEO</h3>
+                            <div class="skill-tags">
+                                <span class="skill-tag">Google Tag Manager</span>
+                                <span class="skill-tag">Google Analytics 4</span>
+                                <span class="skill-tag">Microsoft Clarity</span>
+                                <span class="skill-tag">SEO</span>
+                                <span class="skill-tag">Content Marketing</span>
+                                <span class="skill-tag">UX Writing</span>
+                            </div>
+                        </div>
                     </div>
-                    <a href="https://gianlivio.github.io/progetto-studio-dentistico/" target="_blank" class="project-link">
-                        Visita il sito
-                    </a>
-                </div>
-                
-                <!-- Studio Psicologi -->
-                <div class="project-card" data-category="landing">
-                    <div class="project-image" style="background-image: url('cervello.jpg')"></div>
-                    <h3>Studio Psicologi</h3>
-                    <p>Sito completo per uno studio di psicologia a Bologna</p>
-                    <div class="tech-stack">
-                        <span>HTML</span>
-                        <span>CSS</span>
-                        <span>JavaScript</span>
-                    </div>
-                    <a href="https://gianlivio.github.io/progetto-studio-psicologi/" target="_blank" class="project-link">
-                        Visita il sito
-                    </a>
-                </div>
-                
-                <!-- Agenzia Immobiliare -->
-                <div class="project-card" data-category="landing">
-                    <div class="project-image" style="background-image: url('bologna.jpg')"></div>
-                    <h3>Agenzia Immobiliare Bologna</h3>
-                    <p>Sito moderno per un'agenzia immobiliare a Bologna</p>
-                    <div class="tech-stack">
-                        <span>HTML</span>
-                        <span>CSS</span>
-                        <span>JavaScript</span>
-                    </div>
-                    <a href="https://gianlivio.github.io/agenzia-musei/" target="_blank" class="project-link">
-                        Visita il sito
-                    </a>
-                </div>
-                
-                <!-- Gestione via Noce -->
-                <div class="project-card" data-category="app">
-                    <div class="project-image" style="background-image: url('casacampagna.jpg')"></div>
-                    <h3>Gestione via Noce</h3>
-                    <p>Piattaforma per l'affitto di stanze e gestione contratti</p>
-                    <div class="tech-stack">
-                        <span>HTML</span>
-                        <span>CSS</span>
-                        <span>JavaScript</span>
-                    </div>
-                    <a href="https://gianlivio.github.io/progetto-gestione-via-noce/" target="_blank" class="project-link">
-                        Visita il sito
-                    </a>
-                </div>
-                
-                <!-- Flappy Bird -->
-                <div class="project-card" data-category="app">
-                    <div class="project-image" style="background-image: url('flappy.jpg')"></div>
-                    <h3>Flappy Bird</h3>
-                    <p>Ricreazione del classico gioco mobile</p>
-                    <div class="tech-stack">
-                        <span>JavaScript</span>
-                        <span>HTML Canvas</span>
-                        <span>CSS</span>
-                    </div>
-                    <a href="https://gianlivio.github.io/Flappy-Bird/" target="_blank" class="project-link">
-                        Visita il sito
-                    </a>
-                </div>
-                
-                <!-- Discord Clone -->
-                <div class="project-card" data-category="clone">
-                    <div class="project-image" style="background-image: url('discord.png')"></div>
-                    <h3>Discord Clone</h3>
-                    <p>Ricostruzione dell'interfaccia Discord</p>
-                    <div class="tech-stack">
-                        <span>HTML</span>
-                        <span>CSS</span>
-                    </div>
-                    <a href="https://gianlivio.github.io/htmlcss-discord/" target="_blank" class="project-link">
-                        Visita il sito
-                    </a>
-                </div>
-                
-                <!-- Train Ticket -->
-                <div class="project-card" data-category="app">
-                    <div class="project-image" style="background-image: url('treno.png')"></div>
-                    <h3>Train Ticket Form</h3>
-                    <p>Form interattivo per la prenotazione di biglietti</p>
-                    <div class="tech-stack">
-                        <span>JavaScript</span>
-                        <span>HTML</span>
-                        <span>CSS</span>
-                    </div>
-                    <a href="https://gianlivio.github.io/js-biglietto-treno-form/" target="_blank" class="project-link">
-                        Visita il sito
-                    </a>
-                </div>
-                
-                <!-- Dropbox Clone -->
-                <div class="project-card" data-category="clone">
-                    <div class="project-image" style="background-image: url('dropbox.png')"></div>
-                    <h3>Dropbox Clone</h3>
-                    <p>Clone dell'interfaccia Dropbox</p>
-                    <div class="tech-stack">
-                        <span>HTML</span>
-                        <span>CSS</span>
-                    </div>
-                    <a href="https://gianlivio.github.io/htmlcss-dropbox/" target="_blank" class="project-link">
-                        Visita il sito
-                    </a>
-                </div>
-                
-                <!-- Neon Snake -->
-                <div class="project-card" data-category="app">
-                    <div class="project-image" style="background-image: url('pig.png')"></div>
-                    <h3>Neon Snake</h3>
-                    <p>Implementazione interattiva di un gioco</p>
-                    <div class="tech-stack">
-                        <span>JavaScript</span>
-                        <span>HTML</span>
-                        <span>CSS</span>
-                    </div>
-                    <a href="https://gianlivio.github.io/neon-snake-game/" target="_blank" class="project-link">
-                        Visita il sito
-                    </a>
-                </div>
-                
-                <!-- Antico Stradello -->
-                <div class="project-card" data-category="landing">
-                    <div class="project-image" style="background-image: url('pizza.png')"></div>
-                    <h3>Antico Stradello</h3>
-                    <p>Sito web per una pizzeria storica</p>
-                    <div class="tech-stack">
-                        <span>HTML</span>
-                        <span>CSS</span>
-                        <span>JavaScript</span>
-                    </div>
-                    <a href="https://gianlivio.github.io/antico-stradello/" target="_blank" class="project-link">
-                        Visita il sito
-                    </a>
-                </div>
+                </section>
             </div>
         </div>
 
@@ -357,567 +1641,704 @@
         <div class="page" id="about">
             <div class="about-container">
                 <div class="about-hero">
-                    <h1 class="about-title" data-text="CHI SONO">CHI SONO</h1>
-                    <div class="about-subtitle">Sviluppatore Web con Background Semiotico</div>
-                    
-                    <div class="about-intro">
-                        <div class="intro-text">
-                            <p>Creo soluzioni digitali che comunicano efficacemente, unendo competenze tecniche e comprensione umanistica per sviluppare esperienze web significative.</p>
-                            <p>La mia formazione nella <span class="highlight">Semiotica di Umberto Eco</span> arricchisce il mio approccio allo sviluppo web, aiutandomi a decodificare gli strati di significato che determinano le interazioni degli utenti.</p>
-                        </div>
-                        
-                        <div class="portrait-container">
-                            <a href="#" class="portrait-link" data-page="home">
-                                <div class="portrait-frame">
-                                    <div class="portrait-placeholder">G</div>
-                                    <div class="portrait-glitch-effect"></div>
-                                </div>
-                            </a>
-                        </div>
-                    </div>
+                    <h1 class="about-title">CHI SONO</h1>
+                    <p class="about-subtitle">Sviluppatore Web con Background Semiotico</p>
                 </div>
-                
-                <div class="philosophy-visualizer">
-                    <h2 class="section-title" data-text="IL MIO APPROCCIO">IL MIO APPROCCIO</h2>
-                    
-                    <div class="philosophy-canvas">
-                        <div class="node-container">
-                            <!-- Nodo centrale -->
-                            <div class="philosophy-node central-node" id="central-node">
-                                <span class="node-label">Sviluppo Creativo</span>
-                            </div>
-                            
-                            <!-- Nodi orbitanti -->
-                            <div class="philosophy-node orbiting-node" data-orbit="1" id="node-1">
-                                <span class="node-label">Problem Solving</span>
-                                <div class="node-description">
-                                    <h3>Analitico & Creativo</h3>
-                                    <p>Affronto le sfide con precisione e intuizione, trovando soluzioni all'incrocio tra logica e creatività.</p>
-                                </div>
-                            </div>
-                            
-                            <div class="philosophy-node orbiting-node" data-orbit="2" id="node-2">
-                                <span class="node-label">Human-Centric</span>
-                                <div class="node-description">
-                                    <h3>Design Centrato sull'Utente</h3>
-                                    <p>Equilibrio tra eccellenza tecnica e comprensione autentica dei bisogni e delle aspettative dell'utente.</p>
-                                </div>
-                            </div>
-                            
-                            <div class="philosophy-node orbiting-node" data-orbit="3" id="node-3">
-                                <span class="node-label">Cross-Disciplinare</span>
-                                <div class="node-description">
-                                    <h3>Collegamento di Mondi</h3>
-                                    <p>Unisco competenze di sviluppo con teoria della comunicazione per creare esperienze digitali più ricche.</p>
-                                </div>
-                            </div>
-                            
-                            <div class="philosophy-node orbiting-node" data-orbit="4" id="node-4">
-                                <span class="node-label">Orientato al Significato</span>
-                                <div class="node-description">
-                                    <h3>Approccio Semiotico</h3>
-                                    <p>Applico principi semiotici per creare interfacce e sistemi che comunicano in modo chiaro ed efficace.</p>
-                                </div>
-                            </div>
-                            
-                            <!-- Connessioni SVG -->
-                            <svg class="node-connections" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-                                <path id="connection-1" class="connection" />
-                                <path id="connection-2" class="connection" />
-                                <path id="connection-3" class="connection" />
-                                <path id="connection-4" class="connection" />
-                            </svg>
+
+                <div class="about-content">
+                    <div class="about-text">
+                        <h3>Formazione Accademica</h3>
+                        <p>
+                            <span class="highlight">Laurea triennale in Filosofia</span> presso l'Università di Bologna, 
+                            seguita da <span class="highlight">Laurea Magistrale in Semiotica</span> nella scuola di Umberto Eco - 
+                            l'unico corso magistrale europeo dedicato agli studi semiotici. 
+                            <span class="highlight">Master in Digital Copywriting</span> e 
+                            <span class="highlight">Master in Full Stack Web Development</span> presso Boolean.
+                        </p>
+
+                        <p>
+                            Sono l'autore della <span class="highlight">trilogia narrativa "Sottilissimi Strati di un Enorme Croissant"</span>, 
+                            in cui ho condensato pillole di pensiero in forma di racconti brevi. 
+                            Sono il volto reale di <span class="highlight">Malacarne, JuanLee</span> e altri personaggi musicali, 
+                            dietro le cui spoglie ho sondato i palchi europei, performando musica elettronica 
+                            creata con zelanteria e passione sui miei sintetizzatori.
+                        </p>
+
+                        <div class="quote-box">
+                            <p style="margin-top: 1.5rem;">
+                                "Il <strong>testo è un meccanismo pigro</strong>, ha bisogno di un lettore per essere attivato e realizzarsi. 
+                                Prendiamo: <em>'Marco rientra a casa. Dove cazzo sei stato?', afferma Lisa nera.</em> 
+                                Il testo non ci dice che Marco entra nella stessa stanza di Lisa, 
+                                il testo non ci dice che Lisa sta effettivamente parlando a Marco, 
+                                il testo non ci dice che 'nera' vuol dire furiosa. 
+                                Sono tutti elementi aggiunti dal lettore e che realizzano il senso finale."
+                            </p>
+                            <div class="quote-author">— Metodologia semiotica applicata al web development</div>
                         </div>
-                        
-                        <div class="interaction-hint">
-                            <span class="hint-icon">↑</span>
-                            <span class="hint-text">Interagisci con i nodi</span>
-                        </div>
+
+                        <h3>Approccio Epistemologico</h3>
+                        <p>
+                            La <span class="highlight">semiotica applicata</span> al web development configura ogni interfaccia 
+                            come <span class="highlight">sistema segnico</span> governato da regole di pertinenza e isotopie semantiche. 
+                            Il processo di significazione digitale richiede la medesima attenzione ermeneutica 
+                            che Eco riservava all'interpretazione testuale.
+                        </p>
                     </div>
-                </div>
-                
-                <div class="passion-section">
-                    <h2 class="section-title" data-text="COSA MI GUIDA">COSA MI GUIDA</h2>
-                    
-                    <div class="passion-matrix">
-                        <div class="matrix-background">
-                            <canvas id="matrix-canvas"></canvas>
-                        </div>
-                        
-                        <div class="passion-content">
-                            <div class="passion-item">
-                                <div class="passion-icon">
-                                    <i class="fas fa-code"></i>
-                                </div>
-                                <div class="passion-text">
-                                    <h3>Codice Pulito e Significativo</h3>
-                                    <p>Cerco l'eleganza nella semplicità e nella chiarezza. Scrivo codice che altri sviluppatori possano comprendere e migliorare.</p>
-                                </div>
+
+                    <div class="semiotic-visual">
+                        <div class="philosophy-canvas">
+                            <div class="philosophy-node central-node">
+                                <div>CODICE<br/>SEMIOTICO</div>
                             </div>
-                            
-                            <div class="passion-item">
-                                <div class="passion-icon">
-                                    <i class="fas fa-laptop-code"></i>
-                                </div>
-                                <div class="passion-text">
-                                    <h3>Comunicazione Digitale</h3>
-                                    <p>Creo interfacce ed esperienze che parlano chiaramente agli utenti su più livelli cognitivi.</p>
-                                </div>
+                            <div class="philosophy-node orbiting-node node-1">
+                                <div>Significante<br/>UI/UX</div>
                             </div>
-                            
-                            <div class="passion-item">
-                                <div class="passion-icon">
-                                    <i class="fas fa-rocket"></i>
-                                </div>
-                                <div class="passion-text">
-                                    <h3>Evoluzione Continua</h3>
-                                    <p>Abbraccio nuove tecnologie e metodologie, perfezionando costantemente le mie competenze e il mio approccio.</p>
-                                </div>
+                            <div class="philosophy-node orbiting-node node-2">
+                                <div>Significato<br/>Funzionalità</div>
+                            </div>
+                            <div class="philosophy-node orbiting-node node-3">
+                                <div>Sistema<br/>Architettura</div>
+                            </div>
+                            <div class="philosophy-node orbiting-node node-4">
+                                <div>Comunicazione<br/>Esperienza</div>
                             </div>
                         </div>
                     </div>
-                </div>
-                
-                <div class="connect-section">
-                    <p class="connect-text">Interessato al mio percorso professionale e alle mie competenze?</p>
-                    <a href="#" class="connect-button" data-page="cv">
-                        <span class="button-text">Esplora il mio CV</span>
-                        <span class="button-arrow">→</span>
-                    </a>
                 </div>
             </div>
         </div>
 
-        <!-- CV Page -->
-        <div class="page" id="cv">
-            <div class="cv-container">
-                <header class="cv-header">
-                    <div class="cv-title-block">
-                        <h1 class="cv-title" data-text="CURRICULUM">CURRICULUM</h1>
-                        <div class="cv-subtitle">Sviluppatore Full Stack con Background Semiotico</div>
+        <!-- Projects Page -->
+        <div class="page" id="projects">
+            <div class="projects-page">
+                <div class="container">
+                    <div class="projects-header">
+                        <h1 class="projects-title">PROGETTI WEB</h1>
+                        <p class="projects-description">
+                            FRONTEND / BACKEND / UI-UX / API DEVELOPMENT<br>
+                            Applicazione della metodologia semiotica ai sistemi digitali interattivi
+                        </p>
                     </div>
-                    
-                    <div class="personal-philosophy">
-                        <blockquote class="philosophy-quote">
-                            "Problem solver con un'anima umanistica. Unisco competenze tecniche e comprensione umana 
-                            per creare soluzioni digitali significative."
-                        </blockquote>
-                    </div>
-                </header>
 
-                <!-- Skill Graph -->
-                <div class="skill-graph-container">
-                    <h2 class="section-title" data-text="COMPETENZE TECNICHE">COMPETENZE TECNICHE</h2>
-                    <div class="skill-graph">
-                        <div class="skill-legend">
-                            <span class="skill-level advanced">Avanzato</span>
-                            <span class="skill-level intermediate">Intermedio</span>
-                            <span class="skill-level basic">Base</span>
-                        </div>
-                        <div class="skill-categories">
-                            <div class="skill-category" id="development-skills">
-                                <h3>Development</h3>
-                                <div class="skill-bars">
-                                    <div class="skill-item">
-                                        <div class="skill-name">Laravel</div>
-                                        <div class="skill-bar">
-                                            <div class="skill-progress advanced" style="width: 90%"></div>
-                                        </div>
-                                    </div>
-                                    <div class="skill-item">
-                                        <div class="skill-name">Vue.js</div>
-                                        <div class="skill-bar">
-                                            <div class="skill-progress advanced" style="width: 85%"></div>
-                                        </div>
-                                    </div>
-                                    <div class="skill-item">
-                                        <div class="skill-name">API Integration</div>
-                                        <div class="skill-bar">
-                                            <div class="skill-progress advanced" style="width: 80%"></div>
-                                        </div>
-                                    </div>
-                                    <div class="skill-item">
-                                        <div class="skill-name">JavaScript</div>
-                                        <div class="skill-bar">
-                                            <div class="skill-progress intermediate" style="width: 75%"></div>
-                                        </div>
-                                    </div>
-                                    <div class="skill-item">
-                                        <div class="skill-name">PHP</div>
-                                        <div class="skill-bar">
-                                            <div class="skill-progress intermediate" style="width: 70%"></div>
-                                        </div>
-                                    </div>
-                                    <div class="skill-item">
-                                        <div class="skill-name">MySQL</div>
-                                        <div class="skill-bar">
-                                            <div class="skill-progress intermediate" style="width: 65%"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="skill-category" id="frontend-skills">
-                                <h3>Frontend</h3>
-                                <div class="skill-bars">
-                                    <div class="skill-item">
-                                        <div class="skill-name">HTML5</div>
-                                        <div class="skill-bar">
-                                            <div class="skill-progress advanced" style="width: 90%"></div>
-                                        </div>
-                                    </div>
-                                    <div class="skill-item">
-                                        <div class="skill-name">CSS3/SASS</div>
-                                        <div class="skill-bar">
-                                            <div class="skill-progress advanced" style="width: 85%"></div>
-                                        </div>
-                                    </div>
-                                    <div class="skill-item">
-                                        <div class="skill-name">Bootstrap</div>
-                                        <div class="skill-bar">
-                                            <div class="skill-progress intermediate" style="width: 70%"></div>
-                                        </div>
-                                    </div>
-                                    <div class="skill-item">
-                                        <div class="skill-name">Responsive Design</div>
-                                        <div class="skill-bar">
-                                            <div class="skill-progress advanced" style="width: 85%"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="skill-category" id="tools-skills">
-                                <h3>Tools & Methods</h3>
-                                <div class="skill-bars">
-                                    <div class="skill-item">
-                                        <div class="skill-name">Git</div>
-                                        <div class="skill-bar">
-                                            <div class="skill-progress intermediate" style="width: 75%"></div>
-                                        </div>
-                                    </div>
-                                    <div class="skill-item">
-                                        <div class="skill-name">Google Tag Manager</div>
-                                        <div class="skill-bar">
-                                            <div class="skill-progress intermediate" style="width: 65%"></div>
-                                        </div>
-                                    </div>
-                                    <div class="skill-item">
-                                        <div class="skill-name">REST APIs</div>
-                                        <div class="skill-bar">
-                                            <div class="skill-progress advanced" style="width: 80%"></div>
-                                        </div>
-                                    </div>
-                                    <div class="skill-item">
-                                        <div class="skill-name">SEO</div>
-                                        <div class="skill-bar">
-                                            <div class="skill-progress intermediate" style="width: 70%"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="project-filters">
+                        <button class="filter-btn active" data-filter="all">Tutti</button>
+                        <button class="filter-btn" data-filter="frontend">Frontend</button>
+                        <button class="filter-btn" data-filter="fullstack">Full Stack</button>
+                        <button class="filter-btn" data-filter="creative">Creative</button>
                     </div>
-                </div>
 
-                <!-- Experience Timeline -->
-                <div class="experience-timeline-container">
-                    <h2 class="section-title" data-text="PERCORSO PROFESSIONALE">PERCORSO PROFESSIONALE</h2>
-                    
-                    <div class="experience-timeline">
-                        <div class="timeline-controls">
-                            <button class="timeline-control active" data-year="2024">2024</button>
-                            <button class="timeline-control" data-year="2023">2023</button>
-                            <button class="timeline-control" data-year="2022">2022</button>
-                            <button class="timeline-control" data-year="2021">2021</button>
-                        </div>
-                        
-                        <div class="timeline-content">
-                            <!-- 2024 -->
-                            <div class="timeline-panel active" data-year="2024">
-                                <div class="job-header">
-                                    <div class="job-title">Front-end Developer</div>
-                                    <div class="job-company">PuntoLuce - EDIF</div>
-                                    <div class="job-period">2024 - Presente</div>
-                                </div>
-                                <div class="job-description">
-                                    <div class="job-highlights">
-                                        <h4>Risultati Chiave</h4>
-                                        <ul>
-                                            <li>Sviluppo di layout di siti web all'avanguardia implementando moderni principi di design</li>
-                                            <li>Implementazione di un monitoraggio completo degli eventi utilizzando Google Tag Manager</li>
-                                            <li>Creazione di integrazioni API personalizzate per migliorare la funzionalità del sito</li>
-                                        </ul>
-                                    </div>
-                                    <div class="job-tech">
-                                        <div class="tech-tag">HTML5</div>
-                                        <div class="tech-tag">CSS3</div>
-                                        <div class="tech-tag">JavaScript</div>
-                                        <div class="tech-tag">API Integration</div>
-                                        <div class="tech-tag">GTM</div>
-                                    </div>
-                                </div>
+                    <div class="projects-grid">
+                        <!-- PuntoLuce Landing -->
+                        <div class="project-card" data-category="frontend">
+                            <div class="project-image">
+                                <i class="fas fa-bolt"></i>
                             </div>
-                            
-                            <!-- 2023 -->
-                            <div class="timeline-panel" data-year="2023">
-                                <div class="job-header">
-                                    <div class="job-title">Web Content Manager</div>
-                                    <div class="job-company">CopyStudio</div>
-                                    <div class="job-period">2023</div>
-                                </div>
-                                <div class="job-description">
-                                    <p>Sviluppo strategico di contenuti focalizzati sul coinvolgimento degli utenti e l'ottimizzazione SEO</p>
-                                    <div class="job-tech">
-                                        <div class="tech-tag">Content Strategy</div>
-                                        <div class="tech-tag">SEO</div>
-                                        <div class="tech-tag">UX Writing</div>
-                                    </div>
-                                </div>
-                                
-                                <div class="job-divider"></div>
-                                
-                                <div class="job-header">
-                                    <div class="job-title">Junior Web Developer Trainee</div>
-                                    <div class="job-company">Boolean S.R.L.</div>
-                                    <div class="job-period">2023-2024</div>
-                                </div>
-                                <div class="job-description">
-                                    <div class="job-highlights">
-                                        <h4>Progetti Principali</h4>
-                                        <ul>
-                                            <li>Sviluppo di un'interfaccia WhatsApp utilizzando Vue.js con funzionalità di messaggistica in tempo reale</li>
-                                            <li>Creazione di API personalizzate con Laravel per contatti e operazioni utente</li>
-                                            <li>Realizzazione di una dashboard di gestione immobiliare che integra Laravel e Vue.js</li>
-                                            <li>Sviluppo di un'app di pianificazione viaggi con autenticazione utente e gestione percorsi</li>
-                                        </ul>
-                                    </div>
-                                    <div class="job-tech">
-                                        <div class="tech-tag">Vue.js</div>
-                                        <div class="tech-tag">Laravel</div>
-                                        <div class="tech-tag">PHP</div>
-                                        <div class="tech-tag">MySQL</div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- 2022 -->
-                            <div class="timeline-panel" data-year="2022">
-                                <div class="job-header">
-                                    <div class="job-title">SEO Copywriter & Web Developer</div>
-                                    <div class="job-company">Hetaweb</div>
-                                    <div class="job-period">2022-2023</div>
-                                </div>
-                                <div class="job-description">
-                                    <div class="job-highlights">
-                                        <ul>
-                                            <li>Manutenzione e ottimizzazione di siti web WordPress tramite sviluppo backend</li>
-                                            <li>Creazione di contenuti ottimizzati per SEO per migliorare il posizionamento nei motori di ricerca</li>
-                                            <li>Analisi della concorrenza per supportare lo sviluppo di strategie digitali</li>
-                                        </ul>
-                                    </div>
-                                    <div class="job-tech">
-                                        <div class="tech-tag">WordPress</div>
-                                        <div class="tech-tag">PHP</div>
-                                        <div class="tech-tag">SEO</div>
-                                        <div class="tech-tag">Content Creation</div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- 2021 -->
-                            <div class="timeline-panel" data-year="2021">
-                                <div class="job-header">
-                                    <div class="job-title">Educatore</div>
-                                    <div class="job-company">OpenGroup</div>
-                                    <div class="job-period">2021-2022</div>
-                                </div>
-                                <div class="job-description">
-                                    <p>Lavoro con minori migranti non accompagnati, facilitando la loro integrazione attraverso l'educazione e la mediazione culturale</p>
-                                    <div class="job-tech">
-                                        <div class="tech-tag">Educazione</div>
-                                        <div class="tech-tag">Mediazione Culturale</div>
-                                        <div class="tech-tag">Comunicazione</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Education & Approach -->
-                <div class="education-approach-container">
-                    <h2 class="section-title" data-text="FORMAZIONE & APPROCCIO">FORMAZIONE & APPROCCIO</h2>
-                    
-                    <div class="education-approach-grid">
-                        <div class="education-block">
-                            <div class="education-item">
-                                <div class="education-degree">Laurea Magistrale in Semiotica</div>
-                                <div class="education-institution">Università di Bologna - Scuola di Umberto Eco</div>
-                                <div class="education-grade">Voto: 108/110</div>
-                                <p class="education-note">
-                                    Prospettiva unica sulla costruzione del significato e della comunicazione, arricchendo 
-                                    ogni aspetto dello sviluppo digitale e dell'interazione utente
+                            <div class="project-content">
+                                <h3 class="project-title">PuntoLuce Landing</h3>
+                                <p class="project-description">
+                                    Landing page futuristica per azienda elettrica con design cyber-tech, 
+                                    animazioni CSS avanzate e interfaccia neon immersiva.
                                 </p>
-                            </div>
-                            
-                            <div class="education-item">
-                                <div class="education-degree">Sviluppo Full Stack</div>
-                                <div class="education-institution">Boolean</div>
-                                <div class="education-period">2023</div>
+                                <div class="tech-stack">
+                                    <span class="tech-tag">HTML5</span>
+                                    <span class="tech-tag">CSS3</span>
+                                    <span class="tech-tag">JavaScript</span>
+                                    <span class="tech-tag">Animazioni CSS</span>
+                                    <span class="tech-tag">Responsive Design</span>
+                                </div>
+                                <div class="project-links">
+                                    <a href="https://gianlivio.github.io/landingpage-puntoluce/" target="_blank" class="project-link">
+                                        <i class="fas fa-external-link-alt"></i>
+                                        DEMO LIVE
+                                    </a>
+                                </div>
                             </div>
                         </div>
-                        
-                        <div class="approach-block">
-                            <h3>Filosofia Professionale</h3>
-                            <div class="approach-content">
-                                <p>
-                                    Unire l'eccellenza tecnica alla comprensione umana. Guidare i team 
-                                    con empatia e precisione, garantendo qualità tecnica e 
-                                    benessere del gruppo.
+
+                        <!-- Gestione Via Noce -->
+                        <div class="project-card" data-category="fullstack">
+                            <div class="project-image">
+                                <i class="fas fa-building"></i>
+                            </div>
+                            <div class="project-content">
+                                <h3 class="project-title">Gestione Via Noce</h3>
+                                <p class="project-description">
+                                    Piattaforma completa per gestione affitti e contratti. 
+                                    Dashboard amministrativa con sistema CRUD avanzato e database relazionale.
                                 </p>
-                                
-                                <div class="approach-highlights">
-                                    <div class="approach-highlight">
-                                        <div class="highlight-icon"><i class="fas fa-lightbulb"></i></div>
-                                        <div class="highlight-text">Applicare l'analisi semiotica ai problemi digitali</div>
-                                    </div>
-                                    <div class="approach-highlight">
-                                        <div class="highlight-icon"><i class="fas fa-sync-alt"></i></div>
-                                        <div class="highlight-text">Colmare il divario tra prospettive tecniche e umanistiche</div>
-                                    </div>
-                                    <div class="approach-highlight">
-                                        <div class="highlight-icon"><i class="fas fa-rocket"></i></div>
-                                        <div class="highlight-text">Apprendimento continuo e adattamento costante</div>
-                                    </div>
+                                <div class="tech-stack">
+                                    <span class="tech-tag">HTML5</span>
+                                    <span class="tech-tag">CSS3</span>
+                                    <span class="tech-tag">JavaScript</span>
+                                    <span class="tech-tag">PHP</span>
+                                    <span class="tech-tag">MySQL</span>
+                                    <span class="tech-tag">Bootstrap</span>
+                                </div>
+                                <div class="project-links">
+                                    <a href="https://gianlivio.github.io/progetto-gestione-via-noce/" target="_blank" class="project-link">
+                                        <i class="fas fa-external-link-alt"></i>
+                                        DEMO LIVE
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- WhatsApp Clone -->
+                        <div class="project-card" data-category="fullstack">
+                            <div class="project-image">
+                                <i class="fab fa-whatsapp"></i>
+                            </div>
+                            <div class="project-content">
+                                <h3 class="project-title">WhatsApp Web Clone</h3>
+                                <p class="project-description">
+                                    Implementazione completa dell'interfaccia WhatsApp con Vue.js. 
+                                    Componenti interattivi, messaggistica real-time e API personalizzate con Laravel.
+                                </p>
+                                <div class="tech-stack">
+                                    <span class="tech-tag">Vue.js</span>
+                                    <span class="tech-tag">Laravel</span>
+                                    <span class="tech-tag">PHP</span>
+                                    <span class="tech-tag">MySQL</span>
+                                    <span class="tech-tag">API REST</span>
+                                    <span class="tech-tag">Postman</span>
+                                </div>
+                                <div class="project-links">
+                                    <a href="https://github.com/gianlivio" target="_blank" class="project-link">
+                                        <i class="fab fa-github"></i>
+                                        GITHUB
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Travel App -->
+                        <div class="project-card" data-category="fullstack">
+                            <div class="project-image">
+                                <i class="fas fa-plane"></i>
+                            </div>
+                            <div class="project-content">
+                                <h3 class="project-title">Travel Planning App</h3>
+                                <p class="project-description">
+                                    Applicazione per organizzare viaggi con sistema di autenticazione. 
+                                    Gli utenti possono creare itinerari, pianificare tappe e gestire i propri viaggi.
+                                </p>
+                                <div class="tech-stack">
+                                    <span class="tech-tag">Laravel</span>
+                                    <span class="tech-tag">PHP</span>
+                                    <span class="tech-tag">MySQL</span>
+                                    <span class="tech-tag">jQuery</span>
+                                    <span class="tech-tag">Bootstrap</span>
+                                    <span class="tech-tag">Authentication</span>
+                                </div>
+                                <div class="project-links">
+                                    <a href="https://github.com/gianlivio" target="_blank" class="project-link">
+                                        <i class="fab fa-github"></i>
+                                        GITHUB
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Books Project -->
+                        <div class="project-card" data-category="creative">
+                            <div class="project-image">
+                                <i class="fas fa-book"></i>
+                            </div>
+                            <div class="project-content">
+                                <h3 class="project-title">Sottilissimi Strati di un Enorme Croissant</h3>
+                                <p class="project-description">
+                                    Trilogia narrativa in cui ho condensato pillole di pensiero in forma di racconti brevi, 
+                                    esplorando il principio di Eco: "Tutto ciò che non puoi spiegare, lo puoi narrare".
+                                </p>
+                                <div class="tech-stack">
+                                    <span class="tech-tag">Scrittura Creativa</span>
+                                    <span class="tech-tag">Narrativa Breve</span>
+                                    <span class="tech-tag">Filosofia</span>
+                                    <span class="tech-tag">Self-Publishing</span>
+                                </div>
+                                <div class="project-links">
+                                    <a href="https://www.amazon.com/s?i=stripbooks&rh=p_27%3AGianlivio%2BIemolo&s=relevancerank&text=Gianlivio+Iemolo&ref=dp_byline_sr_book_1" target="_blank" class="project-link">
+                                        <i class="fas fa-book-open"></i>
+                                        AMAZON
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Music Project -->
+                        <div class="project-card" data-category="creative">
+                            <div class="project-image">
+                                <i class="fas fa-music"></i>
+                            </div>
+                            <div class="project-content">
+                                <h3 class="project-title">Performance Musicali Europa</h3>
+                                <p class="project-description">
+                                    Malacarne, JuanLee e altri personaggi musicali: volti dietro cui ho sondato i palchi europei, 
+                                    performando musica elettronica creata con passione sui sintetizzatori.
+                                </p>
+                                <div class="tech-stack">
+                                    <span class="tech-tag">Chitarra</span>
+                                    <span class="tech-tag">Pianoforte</span>
+                                    <span class="tech-tag">Sintetizzatori</span>
+                                    <span class="tech-tag">Composizione</span>
+                                    <span class="tech-tag">Live Performance</span>
+                                </div>
+                                <div class="project-links">
+                                    <a href="https://open.spotify.com/intl-es/album/4dVNDDcyVXrPC5KGf53sIZ" target="_blank" class="project-link">
+                                        <i class="fab fa-spotify"></i>
+                                        SPOTIFY
+                                    </a>
+                                    <a href="https://www.youtube.com/watch?v=YjlkHyGLe0w" target="_blank" class="project-link">
+                                        <i class="fab fa-youtube"></i>
+                                        VIDEO
+                                    </a>
+                                </div>
+                                <div class="project-links" style="margin-top: 1rem;">
+                                    <a href="https://music.apple.com/us/album/semeiosis/1567964226" target="_blank" class="project-link">
+                                        <i class="fab fa-apple"></i>
+                                        APPLE
+                                    </a>
+                                    <a href="https://www.amazon.it/Epigenetica/dp/B0CZ36X8J8" target="_blank" class="project-link">
+                                        <i class="fab fa-amazon"></i>
+                                        AMAZON
+                                    </a>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                
-                <!-- Download CV -->
-                <div class="cv-download-section">
-                    <a href="gianlivio-iemolo-cv.pdf" download class="cv-download-button">
-                        <i class="fas fa-download download-icon"></i>
-                        <span class="download-text">Scarica CV Completo</span>
-                    </a>
-                </div>
-
             </div>
         </div>
 
         <!-- Contact Page -->
         <div class="page" id="contact">
-            <h1>CONTATTI</h1>
-            
-            <div class="contact-grid">
-                <!-- Info principale -->
-                <div class="contact-main">
+            <div class="contact-container">
+                <div class="contact-header">
+                    <h1 class="contact-title">CONTATTI</h1>
                     <p class="contact-lead">
-                        Creiamo qualcosa di significativo insieme.
+                        Disponibile per collaborazioni professionali<br>
+                        che valorizzino l'approccio interdisciplinare humanities-tech.
                     </p>
-                    
-                    <div class="contact-info">
-                        <div class="info-item">
-                            <h3>Posizione</h3>
-                            <p>40128, Bologna, Italia</p>
-                        </div>
-                        
-                        <div class="info-item">
-                            <h3>Email</h3>
-                            <a href="mailto:gianlivioiemolo@gmail.com">gianlivioiemolo@gmail.com</a>
-                        </div>
-                        
-                        <div class="info-item">
-                            <h3>Telefono</h3>
-                            <a href="tel:+393319462396">+39 331 9462396</a>
-                        </div>
+                </div>
+
+                <div class="contact-grid">
+                    <div class="contact-card">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <h3>Posizione</h3>
+                        <p>Bologna, Italia</p>
+                        <p><span class="highlight">Remote Worldwide</span></p>
                     </div>
-                    
-                    <!-- Form di contatto -->
-                    <div class="contact-form-container">
-                        <h3>Inviami un messaggio</h3>
-                        <!-- Modifica questa parte nel tuo file HTML -->
-                        <form class="contact-form" action="https://formsubmit.co/gianlivioiemolo@gmail.com" method="POST">
-                            <div class="form-group">
-                                <label for="name">Nome</label>
-                                <input type="text" id="name" name="name" required>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="email">Email</label>
-                                <input type="email" id="email" name="email" required>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="subject">Oggetto</label>
-                                <input type="text" id="subject" name="_subject" required>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="message">Messaggio</label>
-                                <textarea id="message" name="message" rows="5" required></textarea>
-                            </div>
-                            
-                            <!-- Campi nascosti per configurazione -->
-                            <input type="hidden" name="_next" value="https://tuodominio.com/grazie">
-                            <input type="hidden" name="_captcha" value="false">
-                            
-                            <button type="submit" class="form-submit">Invia Messaggio</button>
-                        </form>
+
+                    <div class="contact-card">
+                        <i class="fas fa-envelope"></i>
+                        <h3>Email</h3>
+                        <a href="mailto:gianlivioiemolo@gmail.com">gianlivioiemolo@gmail.com</a>
+                    </div>
+
+                    <div class="contact-card">
+                        <i class="fas fa-phone"></i>
+                        <h3>Telefono</h3>
+                        <a href="tel:+393319462396">+39 331 9462396</a>
+                    </div>
+
+                    <div class="contact-card">
+                        <i class="fas fa-briefcase"></i>
+                        <h3>Disponibilità</h3>
+                        <p>Aperto a nuove opportunità</p>
+                        <p><span class="highlight">Full-time Remote</span></p>
                     </div>
                 </div>
-        
-                <!-- Social Links -->
+
                 <div class="social-links">
-                    <h2>CONNETTI</h2>
-                    <div class="social-grid">
-                        <a href="https://github.com/gianlivio" target="_blank" class="social-item">
-                            <div class="social-icon"><i class="fab fa-github"></i></div>
-                            <div class="social-info">
-                                <span class="social-title">GitHub</span>
-                                <span class="social-handle">@gianlivio</span>
-                            </div>
-                        </a>
-                        
-                        <a href="https://linkedin.com/in/gianlivio-iemolo" target="_blank" class="social-item">
-                            <div class="social-icon"><i class="fab fa-linkedin"></i></div>
-                            <div class="social-info">
-                                <span class="social-title">LinkedIn</span>
-                                <span class="social-handle">in/gianlivio-iemolo</span>
-                            </div>
-                        </a>
-                    </div>
+                    <a href="https://github.com/gianlivio" target="_blank" class="social-link">
+                        <i class="fab fa-github"></i>
+                    </a>
+                    <a href="https://linkedin.com/in/gianlivio-iemolo" target="_blank" class="social-link">
+                        <i class="fab fa-linkedin-in"></i>
+                    </a>
+                    <a href="mailto:gianlivioiemolo@gmail.com" class="social-link">
+                        <i class="fas fa-envelope"></i>
+                    </a>
+                </div>
+
+                <div style="text-align: center; margin-top: 4rem; margin-bottom: 2rem;">
+                    <a href="CV.pdf" download class="tech-btn" style="margin-right: 2rem;">
+                        <i class="fas fa-download"></i>
+                        SCARICA CV PDF
+                    </a>
+                    <a href="#home" class="tech-btn primary">
+                        <i class="fas fa-arrow-up"></i>
+                        TORNA IN ALTO
+                    </a>
                 </div>
             </div>
         </div>
     </main>
 
+    <!-- Footer -->
     <footer>
         <div class="footer-content">
-            <div class="footer-left">
-                <p>&copy; 2025 Gianlivio Iemolo - Web Developer</p>
-            </div>
-            <div class="footer-right">
-                <a href="https://github.com/gianlivio" target="_blank"><i class="fab fa-github"></i> GITHUB</a>
-                <a href="https://linkedin.com/in/gianlivio-iemolo" target="_blank"><i class="fab fa-linkedin"></i> LINKEDIN</a>
-                <a href="mailto:gianlivioiemolo@gmail.com"><i class="fas fa-envelope"></i> EMAIL</a>
-            </div>
+            <p class="footer-quote">
+                "Tutto ciò che non puoi spiegare, lo puoi narrare"
+            </p>
+            <p class="footer-author">— Umberto Eco</p>
+            <p class="footer-copyright">
+                © 2025 Gianlivio Iemolo. Da Bologna al mondo, con passione e codice.
+            </p>
         </div>
     </footer>
 
-    <!-- Dettaglio progetto modal -->
-    <div class="project-modal" id="project-modal">
-        <div class="modal-content">
-            <span class="close-modal">&times;</span>
-            <div class="modal-body">
-                <!-- Contenuto del modal riempito dinamicamente -->
-            </div>
-        </div>
-    </div>
+    <script>
+        // Translations object
+        const translations = {
+            it: {
+                nav: {
+                    home: 'HOME',
+                    about: 'CHI SONO',
+                    projects: 'PROGETTI',
+                    contact: 'CONTATTI',
+                    webDev: 'WEB DEVELOPER'
+                },
+                hero: {
+                    title: 'GIANLIVIO IEMOLO',
+                    subtitle: 'Full Stack Developer',
+                    description: 'Da Umberto Eco ho imparato a leggere i codici della cultura. Ora scrivo codici per il web, ma con la stessa attenzione a significato e significante.',
+                    exploreProjects: 'ESPLORA PROGETTI',
+                    contact: 'CONTATTAMI'
+                },
+                about: {
+                    title: 'CHI SONO',
+                    subtitle: 'Sviluppatore Web con Background Semiotico'
+                },
+                projects: {
+                    title: 'PROGETTI WEB',
+                    subtitle: 'Frontend / Backend / UI-UX / API Development\nDove la Semiotica incontra la Tecnologia',
+                    all: 'Tutti',
+                    frontend: 'Frontend',
+                    fullstack: 'Full Stack',
+                    creative: 'Creative'
+                },
+                contact: {
+                    title: 'CONTATTI',
+                    subtitle: 'Pronto per il prossimo progetto?\nCostruiamo qualcosa di significativo insieme.',
+                    backToTop: 'TORNA IN ALTO'
+                },
+                footer: {
+                    quote: '"Tutto ciò che non puoi spiegare, lo puoi narrare"',
+                    author: '— Umberto Eco',
+                    copyright: '© 2025 Gianlivio Iemolo. Da Bologna al mondo, con passione e codice.'
+                }
+            },
+            en: {
+                nav: {
+                    home: 'HOME',
+                    about: 'ABOUT',
+                    projects: 'PROJECTS',
+                    contact: 'CONTACT',
+                    webDev: 'WEB DEVELOPER'
+                },
+                hero: {
+                    title: 'GIANLIVIO IEMOLO',
+                    subtitle: 'Full Stack Developer',
+                    description: 'From Umberto Eco I learned to read the codes of culture. Now I write codes for the web, but with the same attention to signifier and signified.',
+                    exploreProjects: 'EXPLORE PROJECTS',
+                    contact: 'CONTACT ME'
+                },
+                about: {
+                    title: 'ABOUT ME',
+                    subtitle: 'Web Developer with Semiotic Background'
+                },
+                projects: {
+                    title: 'WEB PROJECTS',
+                    subtitle: 'Frontend / Backend / UI-UX / API Development\nWhere Semiotics meets Technology',
+                    all: 'All',
+                    frontend: 'Frontend',
+                    fullstack: 'Full Stack',
+                    creative: 'Creative'
+                },
+                contact: {
+                    title: 'CONTACT',
+                    subtitle: 'Ready for the next project?\nLet\'s build something meaningful together.',
+                    backToTop: 'BACK TO TOP'
+                },
+                footer: {
+                    quote: '"Everything you cannot explain, you can narrate"',
+                    author: '— Umberto Eco',
+                    copyright: '© 2025 Gianlivio Iemolo. From Bologna to the world, with passion and code.'
+                }
+            },
+            es: {
+                nav: {
+                    home: 'INICIO',
+                    about: 'SOBRE MÍ',
+                    projects: 'PROYECTOS',
+                    contact: 'CONTACTO',
+                    webDev: 'DESARROLLADOR WEB'
+                },
+                hero: {
+                    title: 'GIANLIVIO IEMOLO',
+                    subtitle: 'Desarrollador Full Stack',
+                    description: 'De Umberto Eco aprendí a leer los códigos de la cultura. Ahora escribo códigos para la web, pero con la misma atención al significante y significado.',
+                    exploreProjects: 'EXPLORAR PROYECTOS',
+                    contact: 'CONTÁCTAME'
+                },
+                about: {
+                    title: 'SOBRE MÍ',
+                    subtitle: 'Desarrollador Web con Base Semiótica'
+                },
+                projects: {
+                    title: 'PROYECTOS WEB',
+                    subtitle: 'Frontend / Backend / UI-UX / Desarrollo API\nDonde la Semiótica encuentra la Tecnología',
+                    all: 'Todos',
+                    frontend: 'Frontend',
+                    fullstack: 'Full Stack',
+                    creative: 'Creativos'
+                },
+                contact: {
+                    title: 'CONTACTO',
+                    subtitle: '¿Listo para el próximo proyecto?\nConstruyamos algo significativo juntos.',
+                    backToTop: 'VOLVER ARRIBA'
+                },
+                footer: {
+                    quote: '"Todo lo que no puedes explicar, lo puedes narrar"',
+                    author: '— Umberto Eco',
+                    copyright: '© 2025 Gianlivio Iemolo. De Bolonia al mundo, con pasión y código.'
+                }
+            }
+        };
 
-    <script src="script.js"></script>
-    <script src="responsive.js"></script>
+        // Current language
+        let currentLanguage = 'it';
+
+        // DOM Elements
+        const cursor = document.querySelector('.cursor');
+        const cursorDot = document.querySelector('.cursor-dot');
+        const hamburger = document.getElementById('hamburger');
+        const navCenter = document.querySelector('.nav-center');
+        const navRight = document.querySelector('.nav-right');
+        const languageBtn = document.getElementById('languageBtn');
+        const languageDropdown = document.getElementById('languageDropdown');
+        const navLinks = document.querySelectorAll('.nav-link');
+        const pages = document.querySelectorAll('.page');
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const projectCards = document.querySelectorAll('.project-card');
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            initCursor();
+            initParticles();
+            initNavigation();
+            initLanguageSelector();
+            initProjectFilters();
+        });
+
+        // Custom Cursor
+        function initCursor() {
+            document.addEventListener('mousemove', (e) => {
+                cursor.style.left = e.clientX + 'px';
+                cursor.style.top = e.clientY + 'px';
+                cursorDot.style.left = e.clientX + 'px';
+                cursorDot.style.top = e.clientY + 'px';
+            });
+
+            // Hover effects
+            const interactiveElements = document.querySelectorAll('a, button, .nav-link, .project-card, .filter-btn, .tech-tag, .skill-tag');
+            
+            interactiveElements.forEach(element => {
+                element.addEventListener('mouseenter', () => {
+                    cursor.classList.add('hover');
+                });
+                
+                element.addEventListener('mouseleave', () => {
+                    cursor.classList.remove('hover');
+                });
+            });
+
+            // Hide cursor on touch devices
+            if ('ontouchstart' in window) {
+                cursor.style.display = 'none';
+                cursorDot.style.display = 'none';
+                document.body.style.cursor = 'auto';
+            }
+        }
+
+        // Cyber Particles
+        function initParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 100;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('cyber-particle');
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 20 + 's';
+                particle.style.opacity = Math.random();
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // Navigation
+        function initNavigation() {
+            // Hamburger menu
+            hamburger.addEventListener('click', () => {
+                hamburger.classList.toggle('active');
+                navCenter.classList.toggle('active');
+                navRight.classList.toggle('active');
+            });
+
+            // Page navigation
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const targetId = link.getAttribute('href').substring(1);
+                    navigateToPage(targetId);
+                    
+                    // Update active nav link
+                    navLinks.forEach(nl => nl.classList.remove('active'));
+                    link.classList.add('active');
+                    
+                    // Close mobile menu
+                    hamburger.classList.remove('active');
+                    navCenter.classList.remove('active');
+                    navRight.classList.remove('active');
+                });
+            });
+
+            // Smooth scroll for internal links
+            document.querySelectorAll('a[href^="#"]').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const targetId = link.getAttribute('href').substring(1);
+                    if (targetId && document.getElementById(targetId)) {
+                        navigateToPage(targetId);
+                        
+                        // Update nav if it's a nav link
+                        const navLink = document.querySelector(`.nav-link[href="#${targetId}"]`);
+                        if (navLink) {
+                            navLinks.forEach(nl => nl.classList.remove('active'));
+                            navLink.classList.add('active');
+                        }
+                    }
+                });
+            });
+        }
+
+        function navigateToPage(pageId) {
+            // Hide all pages
+            pages.forEach(page => {
+                page.classList.remove('active');
+            });
+
+            // Show target page
+            const targetPage = document.getElementById(pageId);
+            if (targetPage) {
+                targetPage.classList.add('active');
+                window.scrollTo(0, 0);
+            }
+        }
+
+        // Language Selector
+        function initLanguageSelector() {
+            languageBtn.addEventListener('click', () => {
+                languageDropdown.classList.toggle('show');
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!languageBtn.contains(e.target) && !languageDropdown.contains(e.target)) {
+                    languageDropdown.classList.remove('show');
+                }
+            });
+        }
+
+        function changeLanguage(lang) {
+            currentLanguage = lang;
+            const t = translations[lang];
+
+            // Update language button
+            const flagMap = { en: 'us', it: 'it', es: 'es' };
+            languageBtn.innerHTML = `
+                <span class="flag-icon flag-icon-${flagMap[lang]}"></span>
+                ${lang.toUpperCase()}
+            `;
+
+            // Update content
+            updateContent(t);
+            languageDropdown.classList.remove('show');
+        }
+
+        function updateContent(t) {
+            // Navigation
+            document.querySelector('.nav-link[href="#home"]').textContent = t.nav.home;
+            document.querySelector('.nav-link[href="#about"]').textContent = t.nav.about;
+            document.querySelector('.nav-link[href="#projects"]').textContent = t.nav.projects;
+            document.querySelector('.nav-link[href="#contact"]').textContent = t.nav.contact;
+            document.querySelector('.nav-right span').textContent = t.nav.webDev;
+
+            // Hero section
+            document.querySelector('.hero-subtitle').textContent = t.hero.subtitle;
+            document.querySelector('.hero-description').innerHTML = t.hero.description.replace(/codici della cultura/g, '<span class="highlight">codici della cultura</span>').replace(/codici per il web/g, '<span class="highlight">codici per il web</span>');
+            document.querySelector('.tech-btn.primary').innerHTML = `<i class="fas fa-code"></i> ${t.hero.exploreProjects}`;
+            document.querySelector('.tech-btn:not(.primary)').innerHTML = `<i class="fas fa-envelope"></i> ${t.hero.contact}`;
+
+            // About section
+            document.querySelector('.about-title').textContent = t.about.title;
+            document.querySelector('.about-subtitle').textContent = t.about.subtitle;
+
+            // Projects section
+            document.querySelector('.projects-title').textContent = t.projects.title;
+            document.querySelector('.projects-description').innerHTML = t.projects.subtitle;
+            
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            filterButtons[0].textContent = t.projects.all;
+            filterButtons[1].textContent = t.projects.frontend;
+            filterButtons[2].textContent = t.projects.fullstack;
+            filterButtons[3].textContent = t.projects.creative;
+
+            // Contact section
+            document.querySelector('.contact-title').textContent = t.contact.title;
+            document.querySelector('.contact-lead').innerHTML = t.contact.subtitle;
+            document.querySelector('a[href="#home"].tech-btn').innerHTML = `<i class="fas fa-arrow-up"></i> ${t.contact.backToTop}`;
+
+            // Footer
+            document.querySelector('.footer-quote').textContent = t.footer.quote;
+            document.querySelector('.footer-author').textContent = t.footer.author;
+            document.querySelector('.footer-copyright').textContent = t.footer.copyright;
+        }
+
+        // Project Filters
+        function initProjectFilters() {
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // Update active filter
+                    filterBtns.forEach(fb => fb.classList.remove('active'));
+                    btn.classList.add('active');
+
+                    // Filter projects
+                    const filterValue = btn.getAttribute('data-filter');
+                    
+                    projectCards.forEach(card => {
+                        if (filterValue === 'all' || card.getAttribute('data-category') === filterValue) {
+                            card.style.display = 'block';
+                            setTimeout(() => {
+                                card.style.opacity = '1';
+                                card.style.transform = 'translateY(0)';
+                            }, 100);
+                        } else {
+                            card.style.opacity = '0';
+                            card.style.transform = 'translateY(20px)';
+                            setTimeout(() => {
+                                card.style.display = 'none';
+                            }, 300);
+                        }
+                    });
+                });
+            });
+        }
+
+        // Initialize language on load
+        changeLanguage('it');
+    </script>
 </body>
 </html>
