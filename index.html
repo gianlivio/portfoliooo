@@ -132,31 +132,111 @@
             color: var(--neon-blue);
             text-decoration: none;
             text-shadow: 0 0 10px var(--neon-blue);
-            transition: all 0.3s ease;
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
             position: relative;
+            overflow: hidden;
+            perspective: 1000px;
+            transform-style: preserve-3d;
         }
 
-        .logo:hover {
-            text-shadow: 0 0 20px var(--neon-blue);
-            transform: scale(1.05);
+        .logo::before {
+            content: 'GIANLIVIO IEMOLO';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, var(--cyber-yellow), var(--electric-purple), var(--neon-blue));
+            background-size: 400% 400%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            opacity: 0;
+            transform: rotateX(90deg) translateZ(20px);
+            animation: gradient-shift 3s ease infinite;
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        @keyframes gradient-shift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
         }
 
         .logo::after {
             content: '';
             position: absolute;
-            top: -5px;
-            left: -5px;
-            right: -5px;
-            bottom: -5px;
-            border: 1px solid var(--neon-blue);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            animation: pulse-border 2s infinite;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: radial-gradient(circle, var(--neon-blue) 0%, transparent 70%);
+            transform: translate(-50%, -50%);
+            transition: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            border-radius: 50%;
+            z-index: -1;
         }
 
-        @keyframes pulse-border {
-            0%, 100% { opacity: 0; transform: scale(1); }
-            50% { opacity: 0.5; transform: scale(1.02); }
+        .logo:hover {
+            transform: rotateY(10deg) rotateX(-5deg) scale(1.1);
+            text-shadow: 
+                0 0 30px var(--neon-blue),
+                0 0 60px var(--neon-blue),
+                5px 5px 0 var(--cyber-yellow),
+                -5px -5px 0 var(--electric-purple);
+            letter-spacing: 4px;
+        }
+
+        .logo:hover::before {
+            opacity: 1;
+            transform: rotateX(0deg) translateZ(0px);
+        }
+
+        .logo:hover::after {
+            width: 200px;
+            height: 200px;
+            animation: pulse-glow 0.8s ease-in-out infinite alternate;
+        }
+
+        @keyframes pulse-glow {
+            0% { 
+                transform: translate(-50%, -50%) scale(0.8);
+                opacity: 0.3;
+            }
+            100% { 
+                transform: translate(-50%, -50%) scale(1.2);
+                opacity: 0.1;
+            }
+        }
+
+        /* Matrix text effect on hover */
+        .logo:hover {
+            animation: matrix-glitch 0.3s ease-in-out;
+        }
+
+        @keyframes matrix-glitch {
+            0%, 100% { 
+                text-shadow: 
+                    0 0 30px var(--neon-blue),
+                    0 0 60px var(--neon-blue);
+            }
+            25% { 
+                text-shadow: 
+                    -2px 0 var(--cyber-yellow),
+                    2px 0 var(--electric-purple),
+                    0 0 30px var(--neon-blue);
+            }
+            50% { 
+                text-shadow: 
+                    2px 0 var(--electric-purple),
+                    -2px 0 var(--cyber-yellow),
+                    0 0 40px var(--neon-blue);
+            }
+            75% { 
+                text-shadow: 
+                    -1px 0 var(--neon-blue),
+                    1px 0 var(--cyber-yellow),
+                    0 0 50px var(--electric-purple);
+            }
         }
 
         .nav-center {
@@ -1547,6 +1627,307 @@
             left: 0;
         }
 
+        /* === ARTICLE PAGES === */
+        .article-content {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem 0;
+        }
+
+        .article-header {
+            text-align: center;
+            margin-bottom: 4rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--neon-blue);
+            position: relative;
+        }
+
+        .article-header::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--neon-blue), transparent);
+            animation: pulse-line 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-line {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        .article-meta {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .article-date {
+            color: var(--cyber-yellow);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .article-category {
+            padding: 0.5rem 1rem;
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid var(--neon-blue);
+            border-radius: 2rem;
+            color: var(--neon-blue);
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .article-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--neon-blue);
+            margin-bottom: 1rem;
+            line-height: 1.2;
+            text-shadow: 0 0 20px var(--neon-blue);
+        }
+
+        .article-subtitle {
+            font-size: 1.3rem;
+            color: var(--cyber-yellow);
+            font-style: italic;
+            opacity: 0.9;
+        }
+
+        .article-body {
+            line-height: 1.8;
+            color: var(--text-light);
+        }
+
+        .article-lead {
+            font-size: 1.2rem;
+            line-height: 1.7;
+            color: var(--cyber-yellow);
+            margin-bottom: 3rem;
+            padding: 1.5rem;
+            border-left: 4px solid var(--cyber-yellow);
+            background: rgba(255, 214, 10, 0.05);
+            border-radius: 0 0.5rem 0.5rem 0;
+        }
+
+        .article-body h2 {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.8rem;
+            color: var(--neon-blue);
+            margin: 3rem 0 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            position: relative;
+        }
+
+        .article-body h2::before {
+            content: '//';
+            color: var(--electric-purple);
+            margin-right: 1rem;
+            opacity: 0.7;
+        }
+
+        .article-body p {
+            margin-bottom: 1.5rem;
+            text-align: justify;
+        }
+
+        .article-body strong {
+            color: var(--cyber-yellow);
+            font-weight: 600;
+        }
+
+        .article-body em {
+            color: var(--electric-purple);
+            font-style: italic;
+        }
+
+        .article-quote {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-left: 4px solid var(--electric-purple);
+            padding: 2rem;
+            margin: 2rem 0;
+            border-radius: 0 0.5rem 0.5rem 0;
+            font-size: 1.1rem;
+            font-style: italic;
+            color: var(--text-light);
+            position: relative;
+        }
+
+        .article-quote::before {
+            content: '"';
+            font-size: 4rem;
+            color: var(--electric-purple);
+            position: absolute;
+            top: -0.5rem;
+            left: 1rem;
+            opacity: 0.3;
+        }
+
+        .article-quote cite {
+            display: block;
+            text-align: right;
+            margin-top: 1rem;
+            color: var(--electric-purple);
+            font-style: normal;
+            font-weight: 500;
+        }
+
+        .article-list {
+            margin: 1.5rem 0;
+            padding-left: 0;
+            list-style: none;
+        }
+
+        .article-list li {
+            margin-bottom: 1rem;
+            padding-left: 2rem;
+            position: relative;
+        }
+
+        .article-list li::before {
+            content: '▶';
+            color: var(--neon-blue);
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+
+        .code-example {
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid var(--neon-blue);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            overflow-x: auto;
+        }
+
+        .code-example pre {
+            margin: 0;
+            color: var(--text-light);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .code-example code {
+            color: var(--text-light);
+        }
+
+        .article-footer {
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--neon-blue);
+        }
+
+        .article-references {
+            margin-bottom: 3rem;
+        }
+
+        .article-references h3 {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--cyber-yellow);
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .article-references ol {
+            padding-left: 2rem;
+        }
+
+        .article-references li {
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        .article-references a {
+            color: var(--neon-blue);
+            text-decoration: none;
+        }
+
+        .article-references a:hover {
+            text-decoration: underline;
+        }
+
+        .article-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .article-tag {
+            padding: 0.5rem 1rem;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--neon-blue);
+            border-radius: 1rem;
+            color: var(--neon-blue);
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .article-tag:hover {
+            background: rgba(0, 212, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .article-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .back-btn, .share-btn {
+            padding: 0.8rem 2rem;
+            border: 1px solid var(--neon-blue);
+            background: transparent;
+            color: var(--neon-blue);
+            text-decoration: none;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-radius: 0.25rem;
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .back-btn::before, .share-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: var(--neon-blue);
+            transition: left 0.3s ease;
+            z-index: -1;
+        }
+
+        .back-btn:hover, .share-btn:hover {
+            color: var(--tech-gray);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 16px rgba(0, 212, 255, 0.4);
+        }
+
+        .back-btn:hover::before, .share-btn:hover::before {
+            left: 0;
+        }
+
         /* === CONTACT PAGE === */
         .contact-container {
             max-width: 1200px;
@@ -1989,6 +2370,15 @@
                 grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
                 gap: 2rem;
             }
+
+            /* Article tablet responsive */
+            .article-title {
+                font-size: 2.5rem;
+            }
+
+            .article-body h2 {
+                font-size: 1.6rem;
+            }
         }
 
         @media (max-width: 768px) {
@@ -2169,6 +2559,38 @@
             .quiz-question {
                 padding: 1.5rem;
                 font-size: 1.1rem;
+            }
+
+            /* Article responsive */
+            .article-content {
+                padding: 1rem;
+            }
+
+            .article-title {
+                font-size: 2rem;
+            }
+
+            .article-subtitle {
+                font-size: 1.1rem;
+            }
+
+            .article-meta {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .article-body h2 {
+                font-size: 1.4rem;
+            }
+
+            .article-actions {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: stretch;
+            }
+
+            .back-btn, .share-btn {
+                justify-content: center;
             }
         }
 
@@ -2516,15 +2938,22 @@
 
                         <div class="quote-box">
                             <p>
-                                "Il <strong>testo è un meccanismo pigro</strong>, ha bisogno di un lettore per essere attivato e realizzarsi. 
-                                Prendiamo: <em>'Marco rientra a casa. Dove cazzo sei stato?', afferma Lisa nera.</em> 
-                                Il testo non ci dice che Marco entra nella stessa stanza di Lisa, 
-                                il testo non ci dice che Lisa sta effettivamente parlando a Marco, 
-                                il testo non ci dice che 'nera' vuol dire furiosa. 
-                                Sono tutti elementi aggiunti dal lettore e che realizzano il senso finale."
+                                Il testo è un meccanismo pigro, ha bisogno di un lettore per essere attivato e <strong>“realizzarsi”</strong>.
+                                <br><br>
+                                <em>Marco rientra a casa.<br>
+                                Dove cazzo sei stato?<br>
+                                Afferma Lisa nera.</em>
+                                <br><br>
+                                Questo testo <strong>NON</strong> specifica che Marco entra nella stessa stanza di Lisa, 
+                                <strong>NON</strong> ci dice che Lisa sta effettivamente parlando a Marco, 
+                                <strong>NON</strong> spiega che “nera” vuol dire furiosa.
+                                <br><br>
+                                Questi ultimi sono tutti elementi che aggiungiamo noi lettori a posteriori,
+                                e che fanno in modo che quell’insieme di parole acquisisca un senso finale, compiuto, logico.
                             </p>
                             <div class="quote-author">— Metodologia semiotica applicata al web development</div>
                         </div>
+
 
                         <h3>Approccio Epistemologico</h3>
                         <p>
@@ -2859,10 +3288,10 @@
                                 <span class="blog-tag">Semiotica</span>
                                 <span class="blog-tag">LLM</span>
                             </div>
-                            <div class="read-more-btn" style="opacity: 0.6; cursor: not-allowed;">
-                                <i class="fas fa-edit"></i>
-                                PROSSIMAMENTE
-                            </div>
+                            <a href="#article-ai-semiotica" class="read-more-btn">
+                                <i class="fas fa-arrow-right"></i>
+                                LEGGI ARTICOLO
+                            </a>
                         </div>
                     </article>
 
@@ -2889,10 +3318,10 @@
                                 <span class="blog-tag">Linguistica</span>
                                 <span class="blog-tag">Web</span>
                             </div>
-                            <div class="read-more-btn" style="opacity: 0.6; cursor: not-allowed;">
-                                <i class="fas fa-edit"></i>
-                                IN SCRITTURA
-                            </div>
+                            <a href="#article-javascript-lingua" class="read-more-btn">
+                                <i class="fas fa-arrow-right"></i>
+                                LEGGI ARTICOLO
+                            </a>
                         </div>
                     </article>
 
@@ -2919,10 +3348,10 @@
                                 <span class="blog-tag">Arte Digitale</span>
                                 <span class="blog-tag">Economia</span>
                             </div>
-                            <div class="read-more-btn" style="opacity: 0.6; cursor: not-allowed;">
-                                <i class="fas fa-edit"></i>
-                                BOZZA
-                            </div>
+                            <a href="#article-nft-feticismo" class="read-more-btn">
+                                <i class="fas fa-arrow-right"></i>
+                                LEGGI ARTICOLO
+                            </a>
                         </div>
                     </article>
 
@@ -2971,6 +3400,476 @@
                         </button>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <!-- Article 1: AI e Semiotica -->
+        <div class="page" id="article-ai-semiotica">
+            <div class="container">
+                <article class="article-content">
+                    <header class="article-header">
+                        <div class="article-meta">
+                            <span class="article-date">26 Maggio 2025</span>
+                            <span class="article-category">TECH</span>
+                        </div>
+                        <h1 class="article-title">AI e Semiotica: Nuovi Paradigmi</h1>
+                        <p class="article-subtitle">
+                            Come l'intelligenza artificiale sta ridefinendo i sistemi di significazione digitale
+                        </p>
+                    </header>
+
+                    <div class="article-body">
+                        <p class="article-lead">
+                            L'avvento dei Large Language Models rappresenta una rivoluzione epistemologica che Umberto Eco 
+                            non avrebbe potuto prevedere, ma che si inserisce perfettamente nel suo framework teorico 
+                            sulla natura dei segni e della significazione.
+                        </p>
+
+                        <h2>L'Interpretazione Automatica dei Segni</h2>
+                        <p>
+                            Secondo Eco, ogni atto interpretativo richiede una <strong>competenza enciclopedica</strong> che 
+                            permette al lettore di attualizzare le potenzialità significative del testo. I modelli GPT-4 e 
+                            successori operano secondo un principio analogo: processano miliardi di connessioni testuali 
+                            per generare risposte contextualmente appropriate.
+                        </p>
+
+                        <blockquote class="article-quote">
+                            Il testo è un meccanismo pigro che vive del plusvalore di senso che il destinatario vi introduce.
+                            <cite>— Umberto Eco, <em>Lector in Fabula</em></cite>
+                        </blockquote>
+
+
+                        <p>
+                            Ma cosa accade quando il <em>destinatario</em> è una macchina? L'AI non introduce "plusvalore di senso" 
+                            in senso umano, ma applica pattern statistici derivati dall'analisi di corpus testuali immensi. 
+                            Questo processo configura una nuova forma di <strong>isotopia digitale</strong>.
+                        </p>
+
+                        <h2>Il Paradosso dell'Interpretazione Senza Coscienza</h2>
+                        <p>
+                            Il MIT Technology Review (2024) riporta che GPT-4 manifesta <em>"comportamenti emergenti"</em> 
+                            nell'interpretazione di testi complessi, suggerendo processi che vanno oltre la mera 
+                            prediczione statistica<sup><a href="#ref1">[1]</a></sup>. Tuttavia, rimane il paradosso: 
+                            può esistere <strong>semiosi</strong> senza soggetto semiotico?
+                        </p>
+
+                        <p>
+                            La risposta di Eco sarebbe probabilmente negativa. La semiosi richiede un <em>Soggetto 
+                            Trascendentale</em> capace di riconoscere e manipolare codici culturali. L'AI opera invece 
+                            attraverso <strong>correlazioni statistical</strong> prive di consapevolezza semantica.
+                        </p>
+
+                        <h2>Implicazioni per il Web Development</h2>
+                        <p>
+                            Come sviluppatori, ci troviamo di fronte a una sfida semiotica inedita: progettare interfacce 
+                            che dialoghino tanto con utenti umani quanto con agenti artificiali. Questo richiede una 
+                            <strong>doppia codifica</strong>:
+                        </p>
+
+                        <ul class="article-list">
+                            <li><strong>Codifica umana:</strong> basata su convenzioni culturali e aspettative UX</li>
+                            <li><strong>Codifica algoritmica:</strong> ottimizzata per parsing automatico e machine readability</li>
+                        </ul>
+
+                        <p>
+                            L'emergere di tecnologie come <em>structured data</em>, <em>semantic web</em> e 
+                            <em>AI-friendly markup</em> rappresenta proprio questo tentativo di creare sistemi segnici 
+                            "bilingui" human-AI.
+                        </p>
+
+                        <h2>Conclusioni: Verso una Semiotica Ibrida</h2>
+                        <p>
+                            L'AI non sostituisce l'interpretazione umana, ma introduce una nuova dimensione semiotica: 
+                            la <strong>significazione computazionale</strong>. Come sviluppatori-semiologi, dobbiamo 
+                            padroneggiare entrambi i codici, creando esperienze che parlino tanto al cuore umano 
+                            quanto alla logica delle macchine.
+                        </p>
+
+                        <p>
+                            Il futuro del web development è semiotico: ogni interfaccia dovrà essere pensata come 
+                            <em>sistema di segni multipli</em>, interpretabile da intelligenze diverse ma convergenti 
+                            verso un'esperienza di senso condivisa.
+                        </p>
+
+                        <footer class="article-footer">
+                            <div class="article-references">
+                                <h3>Riferimenti</h3>
+                                <ol>
+                                    <li id="ref1">
+                                        Bubeck, S. et al. (2023). "Sparks of Artificial General Intelligence: Early experiments with GPT-4." 
+                                        <em>MIT Technology Review</em>, vol. 126, n. 3.
+                                    </li>
+                                    <li>
+                                        Eco, U. (1979). <em>Lector in Fabula</em>. Milano: Bompiani.
+                                    </li>
+                                    <li>
+                                        Peirce, C.S. (1931-1958). <em>Collected Papers</em>. Cambridge: Harvard University Press.
+                                    </li>
+                                </ol>
+                            </div>
+                            
+                            <div class="article-tags">
+                                <span class="article-tag">Semiotica</span>
+                                <span class="article-tag">Intelligenza Artificiale</span>
+                                <span class="article-tag">Web Development</span>
+                                <span class="article-tag">Umberto Eco</span>
+                            </div>
+
+                            <div class="article-actions">
+                                <a href="#blog" class="back-btn">
+                                    <i class="fas fa-arrow-left"></i>
+                                    Torna al Blog
+                                </a>
+                                <button class="share-btn">
+                                    <i class="fas fa-share-alt"></i>
+                                    Condividi
+                                </button>
+                            </div>
+                        </footer>
+                    </div>
+                </article>
+            </div>
+        </div>
+
+        <!-- Article 2: JavaScript Lingua Franca -->
+        <div class="page" id="article-javascript-lingua">
+            <div class="container">
+                <article class="article-content">
+                    <header class="article-header">
+                        <div class="article-meta">
+                            <span class="article-date">20 Maggio 2025</span>
+                            <span class="article-category">FILOSOFIA</span>
+                        </div>
+                        <h1 class="article-title">JavaScript come Lingua Franca</h1>
+                        <p class="article-subtitle">
+                            Riflessioni epistemologiche sul ruolo di JavaScript nel panorama linguistico digitale
+                        </p>
+                    </header>
+
+                    <div class="article-body">
+                        <p class="article-lead">
+                            Nel 1887, Ludwig Zamenhof pubblicò il primo manuale di Esperanto, sognando una lingua universale 
+                            che unisse l'umanità. Oggi, quel sogno si è realizzato in forma digitale attraverso JavaScript: 
+                            il linguaggio che ha conquistato ogni dispositivo connesso del pianeta.
+                        </p>
+
+                        <h2>L'Universalità del Codice</h2>
+                        <p>
+                            JavaScript presenta caratteristiche uniche che lo rendono il più vicino equivalente moderno 
+                            di una <strong>lingua franca universale</strong>. A differenza dell'Esperanto, che rimase 
+                            confinato a nicchie intellettuali, JS ha raggiunto una <em>penetrazione culturale totale</em>.
+                        </p>
+
+                        <p>
+                            Secondo lo Stack Overflow Developer Survey 2024, JavaScript è utilizzato dal 67.9% degli 
+                            sviluppatori mondiali<sup><a href="#ref2">[1]</a></sup>. Ma la vera rivoluzione non è numerica: 
+                            è <strong>ontologica</strong>. JS non è solo un linguaggio di programmazione, è diventato 
+                            il <em>medium</em> attraverso cui l'umanità dialoga con le macchine.
+                        </p>
+
+                        <h2>Semiotica della Sintassi Universale</h2>
+                        <p>
+                            La sintassi JavaScript incorpora elementi derivati da C, ma con una flessibilità semantica 
+                            che ricorda le lingue naturali. Questa <strong>plasticità espressiva</strong> permette 
+                            approcci cognitivi diversi allo stesso problema:
+                        </p>
+
+                        <div class="code-example">
+                            <pre><code>// Approccio imperativo
+let sum = 0;
+for(let i = 0; i < numbers.length; i++) {
+  sum += numbers[i];
+}
+
+// Approccio funzionale
+const sum = numbers.reduce((acc, num) => acc + num, 0);
+
+// Approccio dichiarativo
+const sum = numbers.reduce(add, 0);</code></pre>
+                        </div>
+
+                        <p>
+                            Questa molteplicità stilistica riflette la capacità di JS di <strong>accomodare 
+                            paradigmi mentali diversi</strong>, proprio come una lingua naturale evoluta.
+                        </p>
+
+                        <h2>Il Paradosso dell'Interpretazione</h2>
+                        <blockquote class="article-quote">
+                            "Ogni linguaggio di programmazione incorpora una filosofia implicita sul mondo"
+                            <cite>— Alan Perlis</cite>
+                        </blockquote>
+
+                        <p>
+                            La filosofia di JavaScript è l'<strong>inclusività pragmatica</strong>. Dove altri linguaggi 
+                            impongono rigidità (Java, C++), JS abbraccia l'ambiguità. Questa scelta progettuale, 
+                            spesso criticata come "debolezza", si rivela essere la sua forza evolutiva.
+                        </p>
+
+                        <p>
+                            L'<em>automatic semicolon insertion</em>, la <em>type coercion</em>, l'<em>hoisting</em>: 
+                            tutti meccanismi che permettono a JS di "comprendere" l'intenzione del programmatore anche 
+                            quando questa è espressa in modo impreciso. È <strong>linguistica computazionale</strong> applicata.
+                        </p>
+
+                        <h2>L'Ecosistema come Cultura Linguistica</h2>
+                        <p>
+                            NPM conta oltre 2 milioni di packages<sup><a href="#ref3">[2]</a></sup>. Ma questi numeri 
+                            nascondono una verità più profonda: JavaScript ha generato il primo <strong>ecosistema 
+                            culturale digitale globale</strong>.
+                        </p>
+
+                        <p>
+                            Ogni framework (React, Vue, Angular) rappresenta un <em>dialetto</em> di questa lingua madre. 
+                            Ogni libreria è un <em>idiomatic expression</em>. L'open source diventa 
+                            <strong>letteratura condivisa</strong>, e GitHub il nostro <em>Louvre digitale</em>.
+                        </p>
+
+                        <h2>Implicazioni Filosofiche per il Development</h2>
+                        <p>
+                            Programmare in JavaScript significa partecipare a una <strong>conversazione globale</strong>. 
+                            Ogni `function` scritta aggiunge una voce al coro dell'intelligenza collettiva. 
+                            Questo pone questioni etiche inedite:
+                        </p>
+
+                        <ul class="article-list">
+                            <li>Il nostro codice è <strong>linguisticamente responsabile</strong>?</li>
+                            <li>Contribuiamo all'<em>evoluzione semantica</em> del linguaggio?</li>
+                            <li>Siamo consapevoli dell'<strong>impatto culturale</strong> delle nostre scelte sintattiche?</li>
+                        </ul>
+
+                        <h2>Conclusioni: Verso un'Etica del Codice Universale</h2>
+                        <p>
+                            JavaScript non è solo il linguaggio del web: è il <strong>DNA comunicativo</strong> della 
+                            civiltà digitale. Come sviluppatori, siamo i <em>custodi</em> di questa lingua franca 
+                            universale.
+                        </p>
+
+                        <p>
+                            Il futuro parlerà JavaScript. È nostra responsabilità che lo faccia bene, con eleganza, 
+                            inclusività e rispetto per la diversità cognitiva umana. In fondo, stiamo scrivendo il 
+                            <strong>codice della comunicazione futura</strong>.
+                        </p>
+
+                        <footer class="article-footer">
+                            <div class="article-references">
+                                <h3>Riferimenti</h3>
+                                <ol>
+                                    <li id="ref2">
+                                        Stack Overflow. (2024). "Developer Survey Results." 
+                                        <em>Stack Overflow Insights</em>.
+                                    </li>
+                                    <li id="ref3">
+                                        NPM Inc. (2024). "NPM Registry Statistics." 
+                                        <em>NPM Official Documentation</em>.
+                                    </li>
+                                    <li>
+                                        Perlis, A. (1982). "Epigrams on Programming." 
+                                        <em>ACM SIGPLAN Notices</em>, 17(9).
+                                    </li>
+                                    <li>
+                                        Zamenhof, L.L. (1887). <em>Unua Libro</em>. Warsaw: Kelter.
+                                    </li>
+                                </ol>
+                            </div>
+                            
+                            <div class="article-tags">
+                                <span class="article-tag">JavaScript</span>
+                                <span class="article-tag">Linguistica</span>
+                                <span class="article-tag">Filosofia del Codice</span>
+                                <span class="article-tag">Open Source</span>
+                            </div>
+
+                            <div class="article-actions">
+                                <a href="#blog" class="back-btn">
+                                    <i class="fas fa-arrow-left"></i>
+                                    Torna al Blog
+                                </a>
+                                <button class="share-btn">
+                                    <i class="fas fa-share-alt"></i>
+                                    Condividi
+                                </button>
+                            </div>
+                        </footer>
+                    </div>
+                </article>
+            </div>
+        </div>
+
+        <!-- Article 3: NFT e Feticismo Digitale -->
+        <div class="page" id="article-nft-feticismo">
+            <div class="container">
+                <article class="article-content">
+                    <header class="article-header">
+                        <div class="article-meta">
+                            <span class="article-date">15 Maggio 2025</span>
+                            <span class="article-category">CULTURA</span>
+                        </div>
+                        <h1 class="article-title">NFT e Feticismo Digitale</h1>
+                        <p class="article-subtitle">
+                            Decostruzione semiotica dell'ecosistema NFT attraverso la lente teorica di Umberto Eco
+                        </p>
+                    </header>
+
+                    <div class="article-body">
+                        <p class="article-lead">
+                            Nel 2021, il mondo dell'arte digitale fu scosso dalla vendita di "Everydays" di Beeple per 
+                            69 milioni di dollari. Ma cosa fu venduto esattamente? Un'immagine? Un token? O qualcosa di 
+                            più sottile e inquietante: la <strong>promessa di possesso</strong> di un significante puro?
+                        </p>
+
+                        <h2>Il Significante Autonomo</h2>
+                        <p>
+                            Secondo la semiotica di Eco, ogni segno è costituito da un <strong>significante</strong> 
+                            (l'espressione) e un <strong>significato</strong> (il contenuto). Gli NFT rappresentano 
+                            una rivoluzione ontologica: per la prima volta nella storia, il significante acquisisce 
+                            <em>valore economico autonomo</em>, scollegato dal suo contenuto semantico.
+                        </p>
+
+                        <p>
+                            Un NFT non "contiene" l'artwork digitale, ma punta a esso tramite un URL. È puro 
+                            <strong>riferimento senza referente</strong>, citazione senza testo, mappa senza territorio. 
+                            Baudrillard avrebbe parlato di <em>simulacro perfetto</em>.
+                        </p>
+
+                        <h2>L'Economia del Significante</h2>
+                        <blockquote class="article-quote">
+                            "Il valore di scambio si è completamente emancipato dal valore d'uso"
+                            <cite>— Jean Baudrillard, Il Sistema degli Oggetti</cite>
+                        </blockquote>
+
+                        <p>
+                            Il mercato NFT del 2021-2022, che raggiunse i 25 miliardi di dollari secondo DappRadar<sup><a href="#ref4">[1]</a></sup>, 
+                            rappresenta il trionfo del <strong>feticismo digitale</strong>. Gli acquirenti non compravano 
+                            arte, ma <em>token di appartenenza</em> a una comunità semiotica esclusiva.
+                        </p>
+
+                        <p>
+                            Questo fenomeno rivela una verità profonda sulla natura umana: siamo disposti a pagare 
+                            per possedere <strong>significanti puri</strong>, anche quando sappiamo che il loro 
+                            valore è puramente convenzionale.
+                        </p>
+
+                        <h2>La Blockchain come Sistema Semiotico</h2>
+                        <p>
+                            La blockchain opera come <strong>garante semiotico globale</strong>: assicura che un 
+                            particolare hash corrisponda univocamente a un particolare wallet. Ma questa "verità" 
+                            è puramente <em>consensuale</em> e <em>tecnologica</em>.
+                        </p>
+
+                        <p>
+                            Come osserva il sociologo Nathan Jurgenson, "la blockchain non elimina la fiducia, 
+                            la trasferisce dall'umano al computazionale"<sup><a href="#ref5">[2]</a></sup>. 
+                            È <strong>fetichismo tecnologico</strong> applicato alla proprietà intellettuale.
+                        </p>
+
+                        <h2>Il Paradosso della Riproducibilità</h2>
+                        <p>
+                            Walter Benjamin, in "L'Opera d'Arte nell'Epoca della sua Riproducibilità Tecnica", 
+                            identificava nell'<em>aura</em> l'elemento che rendeva unica un'opera d'arte. Gli NFT 
+                            tentano di reintrodurre artificialmente l'aura nel digitale attraverso la <strong>scarsità 
+                            programmata</strong>.
+                        </p>
+
+                        <p>
+                            Ma l'aura digitale è paradossale: mentre l'immagine può essere copiata infinitamente, 
+                            il token rimane unico. Possediamo l'<em>unicità</em> senza possedere l'<em>oggetto</em>. 
+                            È proprietà <strong>meta-fisica</strong> nel senso più letterale.
+                        </p>
+
+                        <h2>Implicazioni per il Web Development</h2>
+                        <p>
+                            Come sviluppatori, dobbiamo comprendere che stiamo costruendo non solo funzionalità, 
+                            ma <strong>sistemi di significazione</strong>. Ogni smart contract è un 
+                            <em>atto linguistico performativo</em> che crea realtà attraverso il codice.
+                        </p>
+
+                        <div class="code-example">
+                            <pre><code>// Questo codice non trasferisce solo token
+// ma costruisce significato sociale
+function transferNFT(address to, uint256 tokenId) {
+    // Trasferiamo appartenenza simbolica
+    _transfer(msg.sender, to, tokenId);
+    // Creiamo nuovo status sociale
+    emit Transfer(msg.sender, to, tokenId);
+}</code></pre>
+                        </div>
+
+                        <p>
+                            Programmare NFT significa essere <strong>architetti del significato</strong> in un'economia 
+                            simbolica dove il valore emerge dalla credenza collettiva.
+                        </p>
+
+                        <h2>Verso un'Etica del Significante Digitale</h2>
+                        <p>
+                            Il crollo del mercato NFT nel 2023 non invalida l'esperimento semiotico, ma lo purifica. 
+                            Rimosso l'elemento speculativo, emergono usi più sofisticati: <em>certificazione di autenticità</em>, 
+                            <em>gestione dei diritti digitali</em>, <em>comunità token-gated</em>.
+                        </p>
+
+                        <p>
+                            La lezione è chiara: il <strong>valore semiotico</strong> esiste, ma richiede fondamenti 
+                            culturali solidi, non solo hype finanziario.
+                        </p>
+
+                        <h2>Conclusioni: Il Futuro del Possesso Digitale</h2>
+                        <p>
+                            Gli NFT hanno rivelato qualcosa di fondamentale sulla natura umana: il nostro bisogno 
+                            di possedere <strong>significanti</strong>, di appartenere a sistemi semiotici esclusivi, 
+                            di trasformare il simbolico in economico.
+                        </p>
+
+                        <p>
+                            Come sviluppatori e semiologi, dobbiamo costruire sistemi che rispettino questa pulsione 
+                            umana senza sfruttarla. Il futuro del web sarà sempre più <em>semiotico</em>: dovremo 
+                            padroneggiare non solo il codice, ma il <strong>codice del significato</strong>.
+                        </p>
+
+                        <footer class="article-footer">
+                            <div class="article-references">
+                                <h3>Riferimenti</h3>
+                                <ol>
+                                    <li id="ref4">
+                                        DappRadar. (2022). "NFT Market Report 2022." 
+                                        <em>DappRadar Industry Analysis</em>.
+                                    </li>
+                                    <li id="ref5">
+                                        Jurgenson, Nathan. (2019). "The Social Photo: On Photography and Social Media." 
+                                        <em>Verso Books</em>.
+                                    </li>
+                                    <li>
+                                        Benjamin, Walter. (1936). "L'Opera d'Arte nell'Epoca della sua Riproducibilità Tecnica." 
+                                        <em>Zeitschrift für Sozialforschung</em>.
+                                    </li>
+                                    <li>
+                                        Baudrillard, Jean. (1968). <em>Il Sistema degli Oggetti</em>. Milano: Bompiani.
+                                    </li>
+                                    <li>
+                                        Eco, Umberto. (1975). <em>Trattato di Semiotica Generale</em>. Milano: Bompiani.
+                                    </li>
+                                </ol>
+                            </div>
+                            
+                            <div class="article-tags">
+                                <span class="article-tag">NFT</span>
+                                <span class="article-tag">Blockchain</span>
+                                <span class="article-tag">Semiotica Digitale</span>
+                                <span class="article-tag">Arte Digitale</span>
+                                <span class="article-tag">Filosofia della Tecnologia</span>
+                            </div>
+
+                            <div class="article-actions">
+                                <a href="#blog" class="back-btn">
+                                    <i class="fas fa-arrow-left"></i>
+                                    Torna al Blog
+                                </a>
+                                <button class="share-btn">
+                                    <i class="fas fa-share-alt"></i>
+                                    Condividi
+                                </button>
+                            </div>
+                        </footer>
+                    </div>
+                </article>
             </div>
         </div>
 
@@ -3048,7 +3947,7 @@
                     <div class="sphinx-icon">🔮</div>
                     <h3 class="sphinx-title">LA SFINGE DIGITALE</h3>
                     <p class="sphinx-subtitle">
-                        Risolvi l'enigma se puoi... oppure il tuo codice non compilerà mai! 😈
+                        Solo chi non si aggrappa al problema... può vedere la soluzione. 😈
                     </p>
                 </div>
                 
@@ -3087,7 +3986,7 @@
             <div class="footer-divider"></div>
             
             <p class="footer-copyright">
-                © 2025 Gianlivio Iemolo. Da Bologna al mondo, con passione e codice.
+                © 2025 Gianlivio Iemolo. Da Comiso al mondo, con passione e codice.
             </p>
         </div>
     </footer>
@@ -3174,7 +4073,7 @@
                     backToTop: 'BACK TO TOP'
                 },
                 footer: {
-                    copyright: '© 2025 Gianlivio Iemolo. From Bologna to the world, with passion and code.'
+                    copyright: '© 2025 Gianlivio Iemolo. From Sicily to the world, with passion and code.'
                 }
             },
             es: {
@@ -3215,7 +4114,7 @@
                     backToTop: 'VOLVER ARRIBA'
                 },
                 footer: {
-                    copyright: '© 2025 Gianlivio Iemolo. De Bolonia al mundo, con pasión y código.'
+                    copyright: '© 2025 Gianlivio Iemolo. De Sicilia al mundo, con pasión y código.'
                 }
             }
         };
@@ -3340,7 +4239,7 @@
                 });
             });
 
-            // Smooth scroll for internal links
+            // Handle other internal links (including articles)
             document.querySelectorAll('a[href^="#"]').forEach(link => {
                 link.addEventListener('click', (e) => {
                     e.preventDefault();
@@ -3353,6 +4252,13 @@
                         if (navLink) {
                             navLinks.forEach(nl => nl.classList.remove('active'));
                             navLink.classList.add('active');
+                        }
+                        
+                        // If navigating to an article, highlight blog nav
+                        if (targetId.startsWith('article-')) {
+                            navLinks.forEach(nl => nl.classList.remove('active'));
+                            const blogNavLink = document.querySelector('.nav-link[href="#blog"]');
+                            if (blogNavLink) blogNavLink.classList.add('active');
                         }
                     }
                 });
@@ -3915,7 +4821,7 @@
                 options: [
                     { text: "👋 Saluto educato del programma", answer: "wrong" },
                     { text: "🌍 Battesimo digitale dell'iniziazione", answer: "correct" },
-                    { text: "📚 Citazione dal libro di Kernighan & Ritchie", answer: "philosopher" },
+                    { text: "📚 Tradizione dal libro di Kernighan & Ritchie", answer: "philosopher" },
                     { text: "🤖 Prima coscienza dell'AI", answer: "funny" }
                 ],
                 responses: {
