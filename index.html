@@ -608,6 +608,7 @@
             perspective: 1000px;
             transform-style: preserve-3d;
             animation: float-hologram 8s ease-in-out infinite;
+            z-index: 5;
         }
 
         @keyframes float-hologram {
@@ -642,7 +643,7 @@
             position: absolute;
             width: 200px;
             height: 200px;
-            background: rgba(0, 212, 255, 0.05);
+            background: rgba(0, 212, 255, 0.08);
             border: 2px solid var(--neon-blue);
             backdrop-filter: blur(10px);
             display: flex;
@@ -650,12 +651,13 @@
             justify-content: center;
             font-size: 3rem;
             color: var(--neon-blue);
-            box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
             transition: all 0.3s ease;
         }
 
         .cube-face:hover {
             background: rgba(0, 212, 255, 0.15);
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.6);
             transform: scale(1.05);
         }
 
@@ -1131,6 +1133,15 @@
             justify-items: center;
             align-items: start;
             perspective: 1000px;
+        }
+
+        .projects-preview {
+            padding: 4rem 0;
+            margin-bottom: 4rem;
+        }
+
+        .projects-preview .projects-grid {
+            margin-bottom: 3rem;
         }
 
         .project-card {
@@ -1932,10 +1943,83 @@
         }
 
         /* === RESPONSIVE === */
+        @media (hover: none) and (pointer: coarse) {
+            /* Disable all hover effects on touch devices */
+            .project-card:hover,
+            .skill-category:hover,
+            .contact-card:hover,
+            .experience-highlight:hover,
+            .blog-post:hover,
+            .skill-tag:hover,
+            .tech-tag:hover,
+            .blog-tag:hover,
+            .filter-btn:hover,
+            .nav-link:hover,
+            .social-link:hover,
+            .tech-btn:hover {
+                transform: none !important;
+                box-shadow: none !important;
+                text-shadow: none !important;
+            }
+
+            /* Enable tap effects instead */
+            .project-card:active,
+            .skill-category:active,
+            .contact-card:active,
+            .tech-btn:active,
+            .filter-btn:active {
+                transform: scale(0.98) !important;
+                transition: transform 0.1s ease !important;
+            }
+
+            .skill-tag:active,
+            .tech-tag:active {
+                background: var(--neon-blue) !important;
+                color: var(--tech-gray) !important;
+            }
+        }
+
+        @media (min-width: 1400px) {
+            .floating-hologram {
+                right: 15%;
+                width: 250px;
+                height: 250px;
+            }
+
+            .cube-face {
+                width: 250px;
+                height: 250px;
+                font-size: 3.5rem;
+            }
+
+            .cube-face.front { transform: rotateY(0deg) translateZ(125px); }
+            .cube-face.back { transform: rotateY(180deg) translateZ(125px); }
+            .cube-face.right { transform: rotateY(90deg) translateZ(125px); }
+            .cube-face.left { transform: rotateY(-90deg) translateZ(125px); }
+            .cube-face.top { transform: rotateX(90deg) translateZ(125px); }
+            .cube-face.bottom { transform: rotateX(-90deg) translateZ(125px); }
+        }
+
         @media (max-width: 1024px) {
             .floating-hologram {
-                display: none;
+                top: 10%;
+                right: 5%;
+                width: 150px;
+                height: 150px;
             }
+
+            .cube-face {
+                width: 150px;
+                height: 150px;
+                font-size: 2rem;
+            }
+
+            .cube-face.front { transform: rotateY(0deg) translateZ(75px); }
+            .cube-face.back { transform: rotateY(180deg) translateZ(75px); }
+            .cube-face.right { transform: rotateY(90deg) translateZ(75px); }
+            .cube-face.left { transform: rotateY(-90deg) translateZ(75px); }
+            .cube-face.top { transform: rotateX(90deg) translateZ(75px); }
+            .cube-face.bottom { transform: rotateX(-90deg) translateZ(75px); }
 
             .about-content {
                 grid-template-columns: 1fr;
@@ -1946,6 +2030,21 @@
             .section-title::after {
                 display: none;
             }
+
+            /* Disable problematic hover effects on tablet */
+            .project-card:hover,
+            .skill-category:hover,
+            .contact-card:hover,
+            .experience-highlight:hover {
+                transform: translateY(-5px) !important;
+                box-shadow: 0 10px 20px rgba(0, 212, 255, 0.2) !important;
+            }
+
+            .skill-tag:hover,
+            .tech-tag:hover {
+                transform: translateY(-2px) !important;
+                box-shadow: 0 5px 10px rgba(0, 212, 255, 0.3) !important;
+            }
         }
 
         @media (max-width: 768px) {
@@ -1953,10 +2052,15 @@
                 display: flex;
             }
 
+            /* Hide 3D cube on mobile for space */
+            .floating-hologram {
+                display: none;
+            }
+
             .nav-center,
             .nav-right {
                 position: fixed;
-                top: 100%;
+                top: 0;
                 left: 0;
                 right: 0;
                 background: rgba(10, 10, 10, 0.98);
@@ -1967,8 +2071,12 @@
                 opacity: 0;
                 visibility: hidden;
                 transition: all 0.3s ease;
-                border-top: 2px solid var(--neon-blue);
-                z-index: 999;
+                border-bottom: 2px solid var(--neon-blue);
+                z-index: 1002;
+                box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
+                min-height: 100vh;
+                justify-content: center;
+                align-items: center;
             }
 
             .nav-center.active,
@@ -1979,11 +2087,76 @@
             }
 
             .nav-center {
-                gap: 1.5rem;
+                gap: 3rem;
+                align-items: center;
             }
 
             .nav-right {
-                gap: 1rem;
+                gap: 2rem;
+                align-items: center;
+                padding-top: 1rem;
+            }
+
+            .nav-link {
+                font-size: 1.5rem;
+                padding: 1rem 2rem;
+                text-align: center;
+                border: 1px solid transparent;
+                border-radius: 0.5rem;
+                transition: all 0.3s ease;
+            }
+
+            .nav-link:hover,
+            .nav-link.active {
+                border-color: var(--neon-blue);
+                background: rgba(0, 212, 255, 0.1);
+                transform: none !important;
+            }
+
+            .language-selector {
+                order: 1;
+            }
+
+            .nav-social {
+                order: 2;
+                gap: 1.5rem;
+            }
+
+            .nav-social-link {
+                width: 50px;
+                height: 50px;
+                font-size: 1.2rem;
+            }
+
+            /* Completely disable hover effects on mobile */
+            .project-card:hover,
+            .skill-category:hover,
+            .contact-card:hover,
+            .experience-highlight:hover,
+            .blog-post:hover {
+                transform: none !important;
+                box-shadow: none !important;
+            }
+
+            .skill-tag:hover,
+            .tech-tag:hover,
+            .blog-tag:hover {
+                transform: none !important;
+                box-shadow: none !important;
+            }
+
+            /* Mobile-friendly tap effects */
+            .project-card:active,
+            .skill-category:active,
+            .contact-card:active {
+                transform: scale(0.98) !important;
+                transition: transform 0.1s ease !important;
+            }
+
+            .tech-btn:active,
+            .filter-btn:active {
+                transform: scale(0.95) !important;
+                transition: transform 0.1s ease !important;
             }
 
             .hero-title {
@@ -2097,6 +2270,27 @@
                 height: 35px;
                 font-size: 0.8rem;
             }
+
+            /* CTA Section Mobile */
+            .cta-section h2 {
+                font-size: 2rem !important;
+            }
+
+            .cta-section p {
+                font-size: 1.1rem !important;
+            }
+
+            .cta-section div[style*="display: flex"] {
+                flex-direction: column !important;
+                align-items: center !important;
+                gap: 1rem !important;
+            }
+
+            .cta-section .tech-btn {
+                width: 100% !important;
+                max-width: 300px !important;
+                justify-content: center !important;
+            }
         }
 
         @media (max-width: 480px) {
@@ -2151,6 +2345,22 @@
             .central-node {
                 font-size: 0.8rem;
                 padding: 1rem;
+            }
+
+            /* CTA Section Mobile Small */
+            .cta-section {
+                padding: 3rem 1rem !important;
+                margin: 2rem 0 !important;
+            }
+
+            .cta-section h2 {
+                font-size: 1.5rem !important;
+                margin-bottom: 1.5rem !important;
+            }
+
+            .cta-section p {
+                font-size: 1rem !important;
+                margin-bottom: 2rem !important;
             }
         }
 
@@ -2435,6 +2645,128 @@
                                 <span class="skill-tag">Lighthouse Optimization</span>
                             </div>
                         </div>
+                    </div>
+                </section>
+
+                <!-- Projects Preview -->
+                <section class="projects-preview">
+                    <h2 class="section-title">PROGETTI IN EVIDENZA</h2>
+                    <div class="projects-grid">
+                        <!-- PuntoLuce Landing Page -->
+                        <div class="project-card" data-category="frontend">
+                            <div class="project-image">
+                                <i class="fas fa-bolt"></i>
+                            </div>
+                            <div class="project-content">
+                                <h3 class="project-title">PuntoLuce Landing Page</h3>
+                                <p class="project-description">
+                                    Landing page futuristica per azienda elettrica con design cyber-tech, 
+                                    animazioni CSS avanzate e interfaccia neon immersiva.
+                                </p>
+                                <div class="tech-stack">
+                                    <span class="tech-tag">HTML5</span>
+                                    <span class="tech-tag">CSS3</span>
+                                    <span class="tech-tag">JavaScript</span>
+                                    <span class="tech-tag">Responsive Design</span>
+                                </div>
+                                <div class="project-links">
+                                    <a href="https://gianlivio.github.io/landingpage-puntoluce/" target="_blank" class="project-link">
+                                        <i class="fas fa-external-link-alt"></i>
+                                        DEMO LIVE
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- PuntoLuce Sito Ufficiale -->
+                        <div class="project-card" data-category="fullstack">
+                            <div class="project-image">
+                                <i class="fas fa-store"></i>
+                            </div>
+                            <div class="project-content">
+                                <h3 class="project-title">PuntoLuce E-commerce</h3>
+                                <p class="project-description">
+                                    E-commerce completo per azienda elettrica sviluppato con Open2b. 
+                                    Gestione catalogo prodotti, ordini e amministrazione back-end integrata.
+                                </p>
+                                <div class="tech-stack">
+                                    <span class="tech-tag">Open2b</span>
+                                    <span class="tech-tag">Twig</span>
+                                    <span class="tech-tag">PHP</span>
+                                    <span class="tech-tag">MySQL</span>
+                                    <span class="tech-tag">E-commerce</span>
+                                </div>
+                                <div class="project-links">
+                                    <a href="https://shop.puntoluce.net/open2b/admin/module/website/design/" target="_blank" class="project-link">
+                                        <i class="fas fa-external-link-alt"></i>
+                                        SITO LIVE
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Trilogia Narrativa -->
+                        <div class="project-card" data-category="creative">
+                            <div class="project-image">
+                                <i class="fas fa-book"></i>
+                            </div>
+                            <div class="project-content">
+                                <h3 class="project-title">Trilogia Narrativa</h3>
+                                <p class="project-description">
+                                    "Sottilissimi Strati di un Enorme Croissant" - Trilogia in cui ho condensato pillole di pensiero 
+                                    in forma di racconti brevi seguendo Umberto Eco.
+                                </p>
+                                <div class="tech-stack">
+                                    <span class="tech-tag">Scrittura Creativa</span>
+                                    <span class="tech-tag">Narrativa Breve</span>
+                                    <span class="tech-tag">Filosofia</span>
+                                    <span class="tech-tag">Self-Publishing</span>
+                                </div>
+                                <div class="project-links">
+                                    <a href="https://www.amazon.com/s?i=stripbooks&rh=p_27%3AGianlivio%2BIemolo" target="_blank" class="project-link">
+                                        <i class="fas fa-book-open"></i>
+                                        AMAZON
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- CTA Section -->
+                    <div style="text-align: center; margin-top: 4rem;">
+                        <a href="#projects" class="tech-btn primary" style="margin-right: 2rem;">
+                            <i class="fas fa-folder-open"></i>
+                            VEDI TUTTI I PROGETTI
+                        </a>
+                        <a href="#contact" class="tech-btn">
+                            <i class="fas fa-handshake"></i>
+                            COLLABORIAMO
+                        </a>
+                    </div>
+                </section>
+
+                <!-- Call to Action Final -->
+                <section class="cta-section" style="padding: 6rem 0; text-align: center; background: var(--glass-bg); backdrop-filter: blur(20px); border: 1px solid var(--neon-blue); border-radius: 2rem; margin: 4rem 0; position: relative; overflow: hidden;">
+                    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 2px; background: linear-gradient(90deg, var(--neon-blue), var(--cyber-yellow), var(--electric-purple)); animation: line-glow 3s ease-in-out infinite;"></div>
+                    
+                    <h2 style="font-family: 'JetBrains Mono', monospace; font-size: 3rem; color: var(--cyber-yellow); margin-bottom: 2rem; text-transform: uppercase; letter-spacing: 3px; text-shadow: 0 0 20px var(--cyber-yellow); animation: subtitle-glow 3s ease-in-out infinite;">
+                        PRONTO PER IL PROSSIMO PROGETTO?
+                    </h2>
+                    
+                    <p style="font-size: 1.4rem; color: var(--text-light); margin-bottom: 3rem; max-width: 600px; margin-left: auto; margin-right: auto; line-height: 1.6;">
+                        Dall'<span class="highlight">analisi semiotica</span> dei requisiti alla <span class="highlight">implementazione tecnica</span>, 
+                        costruiamo insieme la tua presenza digitale.
+                    </p>
+                    
+                    <div style="display: flex; gap: 2rem; justify-content: center; flex-wrap: wrap;">
+                        <a href="#contact" class="tech-btn primary" style="padding: 1.5rem 3rem; font-size: 1.2rem;">
+                            <i class="fas fa-rocket"></i>
+                            INIZIAMO SUBITO
+                        </a>
+                        <a href="#about" class="tech-btn" style="padding: 1.5rem 3rem; font-size: 1.2rem;">
+                            <i class="fas fa-user-graduate"></i>
+                            SCOPRI DI PIÙ
+                        </a>
                     </div>
                 </section>
             </div>
@@ -3088,6 +3420,17 @@
                 },
                 collaborations: {
                     title: 'COLLABORAZIONI'
+                },
+                projectsPreview: {
+                    title: 'PROGETTI IN EVIDENZA',
+                    viewAll: 'VEDI TUTTI I PROGETTI',
+                    collaborate: 'COLLABORIAMO'
+                },
+                cta: {
+                    title: 'PRONTO PER IL PROSSIMO PROGETTO?',
+                    description: 'Dall\'<span class="highlight">analisi semiotica</span> dei requisiti alla <span class="highlight">implementazione tecnica</span>, costruiamo insieme la tua presenza digitale.',
+                    startNow: 'INIZIAMO SUBITO',
+                    learnMore: 'SCOPRI DI PIÙ'
                 }
             },
             en: {
@@ -3150,6 +3493,17 @@
                 },
                 collaborations: {
                     title: 'COLLABORATIONS'
+                },
+                projectsPreview: {
+                    title: 'FEATURED PROJECTS',
+                    viewAll: 'VIEW ALL PROJECTS',
+                    collaborate: 'LET\'S COLLABORATE'
+                },
+                cta: {
+                    title: 'READY FOR THE NEXT PROJECT?',
+                    description: 'From <span class="highlight">semiotic analysis</span> of requirements to <span class="highlight">technical implementation</span>, let\'s build your digital presence together.',
+                    startNow: 'START NOW',
+                    learnMore: 'LEARN MORE'
                 }
             },
             es: {
@@ -3212,6 +3566,17 @@
                 },
                 collaborations: {
                     title: 'COLABORACIONES'
+                },
+                projectsPreview: {
+                    title: 'PROYECTOS DESTACADOS',
+                    viewAll: 'VER TODOS LOS PROYECTOS',
+                    collaborate: 'COLABOREMOS'
+                },
+                cta: {
+                    title: '¿LISTO PARA EL PRÓXIMO PROYECTO?',
+                    description: 'Desde el <span class="highlight">análisis semiótico</span> de requisitos hasta la <span class="highlight">implementación técnica</span>, construyamos juntos tu presencia digital.',
+                    startNow: 'EMPEZAR AHORA',
+                    learnMore: 'SABER MÁS'
                 }
             }
         };
@@ -3491,6 +3856,35 @@
             // Collaborations section
             if (document.querySelector('.collaborations-section .section-title')) {
                 document.querySelector('.collaborations-section .section-title').textContent = t.collaborations.title;
+            }
+
+            // Projects Preview section
+            const projectsPreviewTitle = document.querySelector('.projects-preview .section-title');
+            if (projectsPreviewTitle) {
+                projectsPreviewTitle.textContent = t.projectsPreview.title;
+            }
+
+            // CTA buttons in projects preview
+            const ctaButtons = document.querySelectorAll('.projects-preview .tech-btn');
+            if (ctaButtons.length >= 2) {
+                ctaButtons[0].innerHTML = `<i class="fas fa-folder-open"></i> ${t.projectsPreview.viewAll}`;
+                ctaButtons[1].innerHTML = `<i class="fas fa-handshake"></i> ${t.projectsPreview.collaborate}`;
+            }
+
+            // Final CTA section
+            const ctaTitle = document.querySelector('.cta-section h2');
+            const ctaDescription = document.querySelector('.cta-section p');
+            const ctaMainButtons = document.querySelectorAll('.cta-section .tech-btn');
+            
+            if (ctaTitle) {
+                ctaTitle.textContent = t.cta.title;
+            }
+            if (ctaDescription) {
+                ctaDescription.innerHTML = t.cta.description;
+            }
+            if (ctaMainButtons.length >= 2) {
+                ctaMainButtons[0].innerHTML = `<i class="fas fa-rocket"></i> ${t.cta.startNow}`;
+                ctaMainButtons[1].innerHTML = `<i class="fas fa-user-graduate"></i> ${t.cta.learnMore}`;
             }
 
             // Projects section
