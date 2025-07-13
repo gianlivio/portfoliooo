@@ -1,0 +1,1703 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gianlivio Iemolo | Full Stack Developer & Semiologo</title>
+    <meta name="description" content="Full Stack Developer con background in Semiotica. Da Umberto Eco ho imparato a leggere i codici della cultura, ora scrivo codici per il web.">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.5.0/css/flag-icon.min.css">
+    
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-cube">
+            <div class="loading-cube-inner">
+                <div class="loading-face"></div>
+                <div class="loading-face"></div>
+                <div class="loading-face"></div>
+                <div class="loading-face"></div>
+                <div class="loading-face"></div>
+                <div class="loading-face"></div>
+            </div>
+        </div>
+        <div class="loading-text">INIZIALIZZAZIONE SISTEMA...</div>
+    </div>
+
+    <!-- 3D Background Canvas -->
+    <canvas id="three-canvas"></canvas>
+
+    <!-- Matrix Rain -->
+    <canvas class="matrix-rain" id="matrixCanvas"></canvas>
+
+    <!-- Custom Cursor -->
+    <div class="cursor"></div>
+    <div class="cursor-dot"></div>
+
+    <!-- Bottom Navigation -->
+    <nav>
+        <div class="nav-container">
+            <div class="nav-left">
+                <a href="#home" class="logo">GIANLIVIO IEMOLO</a>
+            </div>
+            <div class="nav-center">
+                <a href="#home" class="nav-link active">HOME</a>
+                <a href="#about" class="nav-link">CHI SONO</a>
+                <a href="#projects" class="nav-link">PROGETTI</a>                
+                <a href="#contact" class="nav-link">CONTATTI</a>
+            </div>
+            <div class="nav-right">
+                <!-- Language Selector -->
+                <div class="language-selector">
+                    <button class="language-btn" id="languageBtn">
+                        <span class="flag-icon flag-icon-it"></span>
+                        IT
+                    </button>
+                    <div class="language-dropdown" id="languageDropdown">
+                        <button class="language-option" onclick="changeLanguage('it')">
+                            <span class="flag-icon flag-icon-it"></span>
+                            Italiano
+                        </button>
+                        <button class="language-option" onclick="changeLanguage('en')">
+                            <span class="flag-icon flag-icon-us"></span>
+                            English
+                        </button>
+                        <button class="language-option" onclick="changeLanguage('es')">
+                            <span class="flag-icon flag-icon-es"></span>
+                            Español
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Social Links -->
+                <div class="nav-social">
+                    <a href="https://github.com/gianlivio" target="_blank" class="nav-social-link">
+                        <i class="fab fa-github"></i>
+                    </a>
+                    <a href="https://linkedin.com/in/gianlivio-iemolo" target="_blank" class="nav-social-link">
+                        <i class="fab fa-linkedin-in"></i>
+                    </a>
+                    <a href="mailto:gianlivioiemolo@gmail.com" class="nav-social-link">
+                        <i class="fas fa-envelope"></i>
+                    </a>
+                </div>
+            </div>
+
+            <button class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+    <!-- Aggiungi questo DOPO il nav esistente -->
+<div class="mobile-menu">
+    <div class="mobile-menu-content">
+        <div class="mobile-nav-links">
+            <a href="#home" class="mobile-nav-link">HOME</a>
+            <a href="#about" class="mobile-nav-link">CHI SONO</a>
+            <a href="#projects" class="mobile-nav-link">PROGETTI</a>
+            <a href="#contact" class="mobile-nav-link">CONTATTI</a>
+        </div>
+        <div class="mobile-nav-extras">
+            <div class="mobile-language-selector">
+                <button class="mobile-language-btn" onclick="changeLanguage('it')">
+                    <span class="flag-icon flag-icon-it"></span> IT
+                </button>
+                <button class="mobile-language-btn" onclick="changeLanguage('en')">
+                    <span class="flag-icon flag-icon-us"></span> EN
+                </button>
+            </div>
+            <div class="mobile-social-links">
+                <a href="https://github.com/gianlivio" class="mobile-social-link">
+                    <i class="fab fa-github"></i>
+                </a>
+                <a href="https://linkedin.com/in/gianlivio-iemolo" class="mobile-social-link">
+                    <i class="fab fa-linkedin-in"></i>
+                </a>
+                <a href="mailto:gianlivioiemolo@gmail.com" class="mobile-social-link">
+                    <i class="fas fa-envelope"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+    <!-- Main Content -->
+    <main>
+        <!-- Home Page -->
+        <div class="page active" id="home">
+            <div class="container">
+                <!-- Hero Section -->
+                <section class="hero-section">
+                    <!-- Floating 3D Hologram -->
+                    <div class="floating-hologram">
+                        <div class="hologram-cube">
+                            <div class="cube-face front"><i class="fas fa-code"></i></div>
+                            <div class="cube-face back"><i class="fas fa-brain"></i></div>
+                            <div class="cube-face right"><i class="fas fa-laptop-code"></i></div>
+                            <div class="cube-face left"><i class="fas fa-server"></i></div>
+                            <div class="cube-face top"><i class="fas fa-database"></i></div>
+                            <div class="cube-face bottom"><i class="fas fa-globe"></i></div>
+                        </div>
+                    </div>
+
+                    <h1 class="hero-title">GIANLIVIO IEMOLO</h1>
+                    <p class="hero-subtitle">Full Stack Developer & Semiologo</p>
+                    <p class="hero-description">
+                        L'esperienza formativa nella <span class="highlight">scuola semiotica di Umberto Eco</span> 
+                        ha configurato il mio approccio al web development come <span class="highlight">analisi dei sistemi segnici digitali</span>. 
+                        Ogni interfaccia costituisce un testo da decodificare e strutturare secondo logiche di pertinenza semantica.
+                    </p>
+                    <div class="hero-buttons">
+                        <a href="#projects" class="tech-btn primary">
+                            <i class="fas fa-cube"></i>
+                            ESPLORA PROGETTI
+                        </a>
+                        <a href="#about" class="tech-btn">
+                            <i class="fas fa-user-graduate"></i>
+                            SCOPRI DI PIÙ
+                        </a>
+                    </div>
+                </section>
+
+                <!-- Skills Overview -->
+                <section class="skills-overview">
+                    <h2 class="section-title">COMPETENZE TECNICHE</h2>
+                    <div class="skills-container">
+                        <div class="skill-category">
+                            <h3><i class="fas fa-laptop-code"></i> Frontend Development</h3>
+                            <div class="skill-tags">
+                                <span class="skill-tag">React</span>
+                                <span class="skill-tag">Next.js</span>
+                                <span class="skill-tag">Vue.js</span>
+                                <span class="skill-tag">TypeScript</span>
+                                <span class="skill-tag">JavaScript</span>
+                                <span class="skill-tag">jQuery</span>
+                                <span class="skill-tag">HTML5</span>
+                                <span class="skill-tag">CSS3</span>
+                                <span class="skill-tag">Tailwind CSS</span>
+                                <span class="skill-tag">SASS/SCSS</span>
+                                <span class="skill-tag">Bootstrap</span>
+                                <span class="skill-tag">Three.js</span>
+                            </div>
+                        </div>
+
+                        <div class="skill-category">
+                            <h3><i class="fas fa-server"></i> Backend Development</h3>
+                            <div class="skill-tags">
+                                <span class="skill-tag">Laravel</span>
+                                <span class="skill-tag">PHP</span>
+                                <span class="skill-tag">Node.js</span>
+                                <span class="skill-tag">Go</span>
+                                <span class="skill-tag">MySQL</span>
+                                <span class="skill-tag">API REST</span>
+                                <span class="skill-tag">Webhook</span>
+                                <span class="skill-tag">Cron Jobs</span>
+                                <span class="skill-tag">JSON</span>
+                            </div>
+                        </div>
+
+                        <div class="skill-category">
+                            <h3><i class="fas fa-chart-line"></i> Analytics & Tracking</h3>
+                            <div class="skill-tags">
+                                <span class="skill-tag">Google Analytics 4</span>
+                                <span class="skill-tag">Google Tag Manager</span>
+                                <span class="skill-tag">Facebook Meta Pixel</span>
+                                <span class="skill-tag">Microsoft Clarity</span>
+                                <span class="skill-tag">Cookiebot GDPR</span>
+                                <span class="skill-tag">Conversion Tracking</span>
+                                <span class="skill-tag">E-commerce Analytics</span>
+                            </div>
+                        </div>
+
+                        <div class="skill-category">
+                            <h3><i class="fas fa-tools"></i> Tools & Platforms</h3>
+                            <div class="skill-tags">
+                                <span class="skill-tag">Open2b E-commerce</span>
+                                <span class="skill-tag">WordPress</span>
+                                <span class="skill-tag">Twig</span>
+                                <span class="skill-tag">Git</span>
+                                <span class="skill-tag">GitHub</span>
+                                <span class="skill-tag">VS Code</span>
+                                <span class="skill-tag">Figma</span>
+                                <span class="skill-tag">Postman</span>
+                            </div>
+                        </div>
+
+                        <div class="skill-category">
+                            <h3><i class="fas fa-bullhorn"></i> Digital Marketing</h3>
+                            <div class="skill-tags">
+                                <span class="skill-tag">SeoZoom</span>
+                                <span class="skill-tag">Brevo Email Marketing</span>
+                                <span class="skill-tag">SEO Technical</span>
+                                <span class="skill-tag">Content Strategy</span>
+                                <span class="skill-tag">UX Writing</span>
+                                <span class="skill-tag">Conversion Optimization</span>
+                                <span class="skill-tag">Multi-language Systems</span>
+                            </div>
+                        </div>
+
+                        <div class="skill-category">
+                            <h3><i class="fas fa-robot"></i> AI & Advanced</h3>
+                            <div class="skill-tags">
+                                <span class="skill-tag">OpenAI API</span>
+                                <span class="skill-tag">GPT Integration</span>
+                                <span class="skill-tag">Automated Content</span>
+                                <span class="skill-tag">GDPR Compliance</span>
+                                <span class="skill-tag">Performance Optimization</span>
+                                <span class="skill-tag">Lighthouse Optimization</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Projects Preview -->
+                <section class="projects-preview">
+                    <h2 class="section-title">PROGETTI IN EVIDENZA</h2>
+                    <div class="projects-grid">
+                        <!-- PuntoLuce Landing Page -->
+                        <div class="project-card" data-category="frontend">
+                            <div class="project-image">
+                                <i class="fas fa-bolt"></i>
+                            </div>
+                            <div class="project-content">
+                                <h3 class="project-title">PuntoLuce Landing Page</h3>
+                                <p class="project-description">
+                                    Landing page futuristica per azienda elettrica con design cyber-tech, 
+                                    animazioni CSS avanzate e interfaccia neon immersiva.
+                                </p>
+                                <div class="tech-stack">
+                                    <span class="tech-tag">HTML5</span>
+                                    <span class="tech-tag">CSS3</span>
+                                    <span class="tech-tag">JavaScript</span>
+                                    <span class="tech-tag">Responsive Design</span>
+                                </div>
+                                <div class="project-links">
+                                    <a href="https://gianlivio.github.io/landingpage-puntoluce/" target="_blank" class="project-link">
+                                        <i class="fas fa-external-link-alt"></i>
+                                        DEMO LIVE
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- PuntoLuce Sito Ufficiale -->
+                        <div class="project-card" data-category="fullstack">
+                            <div class="project-image">
+                                <i class="fas fa-store"></i>
+                            </div>
+                            <div class="project-content">
+                                <h3 class="project-title">PuntoLuce E-commerce</h3>
+                                <p class="project-description">
+                                    E-commerce completo per azienda elettrica sviluppato con Open2b. 
+                                    Gestione catalogo prodotti, ordini e amministrazione back-end integrata.
+                                </p>
+                                <div class="tech-stack">
+                                    <span class="tech-tag">Open2b</span>
+                                    <span class="tech-tag">Twig</span>
+                                    <span class="tech-tag">PHP</span>
+                                    <span class="tech-tag">MySQL</span>
+                                    <span class="tech-tag">E-commerce</span>
+                                </div>
+                                <div class="project-links">
+                                    <a href="https://shop.puntoluce.net/open2b/admin/module/website/design/" target="_blank" class="project-link">
+                                        <i class="fas fa-external-link-alt"></i>
+                                        SITO LIVE
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Trilogia Narrativa -->
+                        <div class="project-card" data-category="creative">
+                            <div class="project-image">
+                                <i class="fas fa-book"></i>
+                            </div>
+                            <div class="project-content">
+                                <h3 class="project-title">Trilogia Narrativa</h3>
+                                <p class="project-description">
+                                    "Sottilissimi Strati di un Enorme Croissant" - Trilogia in cui ho condensato pillole di pensiero 
+                                    in forma di racconti brevi seguendo Umberto Eco.
+                                </p>
+                                <div class="tech-stack">
+                                    <span class="tech-tag">Scrittura Creativa</span>
+                                    <span class="tech-tag">Narrativa Breve</span>
+                                    <span class="tech-tag">Filosofia</span>
+                                    <span class="tech-tag">Self-Publishing</span>
+                                </div>
+                                <div class="project-links">
+                                    <a href="https://www.amazon.com/s?i=stripbooks&rh=p_27%3AGianlivio%2BIemolo" target="_blank" class="project-link">
+                                        <i class="fas fa-book-open"></i>
+                                        AMAZON
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- CTA Section -->
+                    <div style="text-align: center; margin-top: 4rem;">
+                        <a href="#projects" class="tech-btn primary">
+                            <i class="fas fa-folder-open"></i>
+                            VEDI TUTTI I PROGETTI
+                        </a>
+                    </div>
+                </section>
+
+                <!-- Call to Action Final -->
+                <section class="cta-section" style="padding: 6rem 0; text-align: center; background: var(--glass-bg); backdrop-filter: blur(20px); border: 1px solid var(--neon-blue); border-radius: 2rem; margin: 4rem 0; position: relative; overflow: hidden;">
+                    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 2px; background: linear-gradient(90deg, var(--neon-blue), var(--cyber-yellow), var(--electric-purple)); animation: line-glow 3s ease-in-out infinite;"></div>
+                    
+                    <h2 style="font-family: 'JetBrains Mono', monospace; font-size: 3rem; color: var(--cyber-yellow); margin-bottom: 2rem; text-transform: uppercase; letter-spacing: 3px; text-shadow: 0 0 20px var(--cyber-yellow); animation: subtitle-glow 3s ease-in-out infinite;">
+                        EXPERTISE SEMIOTICA APPLICATA
+                    </h2>
+                    
+                    <p style="font-size: 1.4rem; color: var(--text-light); margin-bottom: 3rem; max-width: 600px; margin-left: auto; margin-right: auto; line-height: 1.6;">
+                        Dall'<span class="highlight">analisi dei sistemi segnici</span> alla <span class="highlight">programmazione funzionale</span>, 
+                        ogni progetto è un'investigazione sui codici della comunicazione digitale.
+                    </p>
+                    
+                    <div style="display: flex; gap: 2rem; justify-content: center; flex-wrap: wrap;">
+                        <a href="#projects" class="tech-btn primary" style="padding: 1.5rem 3rem; font-size: 1.2rem;">
+                            <i class="fas fa-microscope"></i>
+                            ESPLORA L'APPROCCIO
+                        </a>
+                        <a href="#about" class="tech-btn" style="padding: 1.5rem 3rem; font-size: 1.2rem;">
+                            <i class="fas fa-graduation-cap"></i>
+                            METODOLOGIA
+                        </a>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <!-- About Page -->
+        <div class="page" id="about">
+            <div class="about-container">
+                <div class="about-hero">
+                    <h1 class="about-title">CHI SONO</h1>
+                    <p class="about-subtitle">Sviluppatore Web con Background Semiotico</p>
+                </div>
+
+                <div class="about-content">
+                    <div class="about-text">
+                        <h3>Formazione Accademica</h3>
+                        <p>
+                            <span class="highlight">Laurea triennale in Filosofia</span> presso l'Università di Bologna, 
+                            seguita da <span class="highlight">Laurea Magistrale in Semiotica</span> nella scuola di Umberto Eco - 
+                            l'unico corso magistrale europeo dedicato agli studi semiotici. 
+                            <span class="highlight">Master in Digital Copywriting</span> e 
+                            <span class="highlight">Master in Full Stack Web Development</span> presso Boolean.
+                        </p>
+
+                        <p>
+                            Sono l'autore della <span class="highlight">trilogia narrativa "Sottilissimi Strati di un Enorme Croissant"</span>, 
+                            in cui ho condensato pillole di pensiero in forma di racconti brevi. 
+                            Sono il volto reale di <span class="highlight">Malacarne, JuanLee</span> e altri personaggi musicali, 
+                            dietro le cui spoglie ho sondato i palchi europei, performando musica elettronica 
+                            creata con zelanteria e passione sui miei sintetizzatori.
+                        </p>
+
+                        <div class="quote-box">
+                            <p>
+                                Il testo è un meccanismo pigro, ha bisogno di un lettore per essere attivato e <strong>"realizzarsi"</strong>.
+                                <br><br>
+                                <em>Marco rientra a casa.<br>
+                                Dove cazzo sei stato?<br>
+                                Afferma Lisa nera.</em>
+                                <br><br>
+                                Questo testo <strong>NON</strong> specifica che Marco entra nella stessa stanza di Lisa, 
+                                <strong>NON</strong> ci dice che Lisa sta effettivamente parlando a Marco, 
+                                <strong>NON</strong> spiega che "nera" vuol dire furiosa.
+                                <br><br>
+                                Questi ultimi sono tutti elementi che aggiungiamo noi lettori a posteriori,
+                                e che fanno in modo che quell'insieme di parole acquisisca un senso finale, compiuto, logico.
+                            </p>
+                            <div class="quote-author">— Metodologia semiotica applicata al web development</div>
+                        </div>
+
+                        <h3>Approccio Epistemologico</h3>
+                        <p>
+                            La <span class="highlight">semiotica applicata</span> al web development configura ogni interfaccia 
+                            come <span class="highlight">sistema segnico</span> governato da regole di pertinenza e isotopie semantiche. 
+                            Il processo di significazione digitale richiede la medesima attenzione ermeneutica 
+                            che Eco riservava all'interpretazione testuale.
+                        </p>
+                    </div>
+
+                    <div class="semiotic-visual">
+                        <div class="philosophy-canvas">
+                            <div class="philosophy-node central-node">
+                                <div>CODICE<br/>SEMIOTICO</div>
+                            </div>
+                            <div class="philosophy-node orbiting-node node-1">
+                                <div>Significante<br/>UI/UX</div>
+                            </div>
+                            <div class="philosophy-node orbiting-node node-2">
+                                <div>Significato<br/>Funzionalità</div>
+                            </div>
+                            <div class="philosophy-node orbiting-node node-3">
+                                <div>Sistema<br/>Architettura</div>
+                            </div>
+                            <div class="philosophy-node orbiting-node node-4">
+                                <div>Comunicazione<br/>Esperienza</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Collaborations Section -->
+                <section class="collaborations-section">
+                    <h2 class="section-title">COLLABORAZIONI</h2>
+                    
+                    <div class="collaborations-grid">
+                        <!-- EDIF Partnership -->
+                        <div class="experience-highlight">
+                            <h3 class="experience-title">Partnership con EDIF</h3>
+                            <p class="experience-description">
+                                Collaboro con <span class="experience-logo">EDIF SpA</span>, 
+                                <strong>leader nazionale</strong> nella distribuzione di materiale elettrico 
+                                (€254M fatturato, 25+ filiali in Italia). Sviluppo soluzioni e-commerce 
+                                e sistemi di tracking per il loro ecosistema digitale.
+                            </p>
+                        </div>
+
+                        <!-- CopyStudio -->
+                        <div class="experience-highlight">
+                            <h3 class="experience-title">CopyStudio di Carlo Scribano</h3>
+                            <p class="experience-description">
+                                Ho collaborato con <span class="experience-logo">CopyStudio Ragusa</span>, 
+                                celebre laboratorio di brand identity del Sud Italia, specializzandomi 
+                                nella <strong>creazione di contenuti strategici</strong> e analisi semiotiche 
+                                dei competitor.
+                            </p>
+                        </div>
+
+                        <!-- Hetaweb -->
+                        <div class="experience-highlight" style="background: linear-gradient(135deg, rgba(0, 212, 255, 0.1) 0%, rgba(114, 9, 183, 0.1) 100%); border: 2px solid var(--neon-blue);">
+                            <h3 class="experience-title">Hetaweb - SEO Strategy</h3>
+                            <p class="experience-description">
+                                <strong>SEO Copywriter</strong> per progetti WordPress enterprise. 
+                                Indagini strategiche sui competitor e ottimizzazione contenuti 
+                                per il posizionamento organico su Google.
+                            </p>
+                        </div>
+
+                        <!-- Jointoyou -->
+                        <div class="experience-highlight" style="background: linear-gradient(135deg, rgba(255, 214, 10, 0.1) 0%, rgba(114, 9, 183, 0.1) 100%); border: 2px solid var(--electric-purple);">
+                            <h3 class="experience-title">Jointoyou Startup</h3>
+                            <p class="experience-description">
+                                <strong>Tech Lead</strong> per startup delivery multi-città. 
+                                Gestione piattaforma WordPress, coordinamento logistica rider 
+                                e creazione contenuti per il blog aziendale.
+                            </p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <!-- Projects Page -->
+        <div class="page" id="projects">
+            <div class="container">
+                <div class="projects-header">
+                    <h1 class="section-title">PROGETTI WEB</h1>
+                    <p style="font-size: 1.8rem; line-height: 1.5; color: var(--cyber-yellow); max-width: 800px; margin: 0 auto 3rem; text-align: center; text-transform: uppercase; letter-spacing: 2px;">
+                        FRONTEND / BACKEND / UI-UX / API DEVELOPMENT<br>
+                        Dove la Semiotica incontra la Tecnologia
+                    </p>
+                </div>
+
+                <div class="project-filters">
+                    <button class="filter-btn active" data-filter="all">Tutti</button>
+                    <button class="filter-btn" data-filter="frontend">Frontend</button>
+                    <button class="filter-btn" data-filter="fullstack">Full Stack</button>
+                    <button class="filter-btn" data-filter="creative">Creative</button>
+                </div>
+
+                <div class="projects-grid">
+                    <!-- PuntoLuce Landing Page -->
+                    <div class="project-card" data-category="frontend">
+                        <div class="project-image">
+                            <i class="fas fa-bolt"></i>
+                        </div>
+                        <div class="project-content">
+                            <h3 class="project-title">PuntoLuce Landing Page</h3>
+                            <p class="project-description">
+                                Landing page futuristica per azienda elettrica con design cyber-tech, 
+                                animazioni CSS avanzate e interfaccia neon immersiva.
+                            </p>
+                            <div class="tech-stack">
+                                <span class="tech-tag">HTML5</span>
+                                <span class="tech-tag">CSS3</span>
+                                <span class="tech-tag">JavaScript</span>
+                                <span class="tech-tag">Responsive Design</span>
+                            </div>
+                            <div class="project-links">
+                                <a href="https://gianlivio.github.io/landingpage-puntoluce/" target="_blank" class="project-link">
+                                    <i class="fas fa-external-link-alt"></i>
+                                    DEMO LIVE
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PuntoLuce Sito Ufficiale -->
+                    <div class="project-card" data-category="fullstack">
+                        <div class="project-image">
+                            <i class="fas fa-store"></i>
+                        </div>
+                        <div class="project-content">
+                            <h3 class="project-title">PuntoLuce Sito Ufficiale</h3>
+                            <p class="project-description">
+                                E-commerce completo per azienda elettrica sviluppato con Open2b. 
+                                Gestione catalogo prodotti, ordini e amministrazione back-end integrata.
+                            </p>
+                            <div class="tech-stack">
+                                <span class="tech-tag">Open2b</span>
+                                <span class="tech-tag">Twig</span>
+                                <span class="tech-tag">PHP</span>
+                                <span class="tech-tag">MySQL</span>
+                                <span class="tech-tag">E-commerce</span>
+                            </div>
+                            <div class="project-links">
+                                <a href="https://shop.puntoluce.net/open2b/admin/module/website/design/" target="_blank" class="project-link">
+                                    <i class="fas fa-external-link-alt"></i>
+                                    SITO LIVE
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Agenzia Musei -->
+                    <div class="project-card" data-category="frontend">
+                        <div class="project-image">
+                            <i class="fas fa-university"></i>
+                        </div>
+                        <div class="project-content">
+                            <h3 class="project-title">Agenzia Musei</h3>
+                            <p class="project-description">
+                                Sito web istituzionale per agenzia specializzata in servizi museali. 
+                                Design elegante e professionale con focus su user experience e accessibilità.
+                            </p>
+                            <div class="tech-stack">
+                                <span class="tech-tag">HTML5</span>
+                                <span class="tech-tag">CSS3</span>
+                                <span class="tech-tag">JavaScript</span>
+                                <span class="tech-tag">Bootstrap</span>
+                                <span class="tech-tag">Responsive Design</span>
+                            </div>
+                            <div class="project-links">
+                                <a href="https://gianlivio.github.io/agenzia-musei/" target="_blank" class="project-link">
+                                    <i class="fas fa-external-link-alt"></i>
+                                    DEMO LIVE
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Studio Dentistico -->
+                    <div class="project-card" data-category="frontend">
+                        <div class="project-image">
+                            <i class="fas fa-tooth"></i>
+                        </div>
+                        <div class="project-content">
+                            <h3 class="project-title">Studio Dentistico</h3>
+                            <p class="project-description">
+                                Sito web per studio dentistico con sezioni dedicate ai servizi, 
+                                team medico e sistema di prenotazione appuntamenti online.
+                            </p>
+                            <div class="tech-stack">
+                                <span class="tech-tag">HTML5</span>
+                                <span class="tech-tag">CSS3</span>
+                                <span class="tech-tag">JavaScript</span>
+                                <span class="tech-tag">Medical UI</span>
+                            </div>
+                            <div class="project-links">
+                                <a href="https://gianlivio.github.io/progetto-studio-dentistico/" target="_blank" class="project-link">
+                                    <i class="fas fa-external-link-alt"></i>
+                                    DEMO LIVE
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Studio Psicologi -->
+                    <div class="project-card" data-category="frontend">
+                        <div class="project-image">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                        <div class="project-content">
+                            <h3 class="project-title">Studio Psicologi</h3>
+                            <p class="project-description">
+                                Piattaforma web per studio di psicologia con approccio user-centered. 
+                                Design calmo e rassicurante, ottimizzato per trasmettere fiducia e professionalità.
+                            </p>
+                            <div class="tech-stack">
+                                <span class="tech-tag">HTML5</span>
+                                <span class="tech-tag">CSS3</span>
+                                <span class="tech-tag">JavaScript</span>
+                                <span class="tech-tag">UX Psychology</span>
+                            </div>
+                            <div class="project-links">
+                                <a href="https://gianlivio.github.io/progetto-studio-psicologi/" target="_blank" class="project-link">
+                                    <i class="fas fa-external-link-alt"></i>
+                                    DEMO LIVE
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Flappy Bird Game -->
+                    <div class="project-card" data-category="creative">
+                        <div class="project-image">
+                            <i class="fas fa-gamepad"></i>
+                        </div>
+                        <div class="project-content">
+                            <h3 class="project-title">Flappy Bird Game</h3>
+                            <p class="project-description">
+                                Implementazione del celebre gioco Flappy Bird utilizzando HTML5 Canvas e JavaScript vanilla. 
+                                Game logic, physics engine e sistema di punteggio personalizzati.
+                            </p>
+                            <div class="tech-stack">
+                                <span class="tech-tag">HTML5 Canvas</span>
+                                <span class="tech-tag">JavaScript</span>
+                                <span class="tech-tag">Game Development</span>
+                                <span class="tech-tag">Animation</span>
+                            </div>
+                            <div class="project-links">
+                                <a href="https://gianlivio.github.io/Flappy-Bird/" target="_blank" class="project-link">
+                                    <i class="fas fa-play"></i>
+                                    GIOCA
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Books Project -->
+                    <div class="project-card" data-category="creative">
+                        <div class="project-image">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <div class="project-content">
+                            <h3 class="project-title">Trilogia Narrativa</h3>
+                            <p class="project-description">
+                                "Sottilissimi Strati di un Enorme Croissant" - Trilogia in cui ho condensato pillole di pensiero 
+                                in forma di racconti brevi, seguendo il principio di Eco: <em>"Tutto ciò che non puoi spiegare, lo puoi narrare"</em>.
+                            </p>
+                            <div class="tech-stack">
+                                <span class="tech-tag">Scrittura Creativa</span>
+                                <span class="tech-tag">Narrativa Breve</span>
+                                <span class="tech-tag">Filosofia</span>
+                                <span class="tech-tag">Self-Publishing</span>
+                            </div>
+                            <div class="project-links">
+                                <a href="https://www.amazon.com/s?i=stripbooks&rh=p_27%3AGianlivio%2BIemolo" target="_blank" class="project-link">
+                                    <i class="fas fa-book-open"></i>
+                                    AMAZON
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Music Project -->
+                    <div class="project-card" data-category="creative">
+                        <div class="project-image">
+                            <i class="fas fa-music"></i>
+                        </div>
+                        <div class="project-content">
+                            <h3 class="project-title">Performance Musicali</h3>
+                            <p class="project-description">
+                                Malacarne, JuanLee e altri personaggi musicali: volti dietro cui ho sondato i palchi europei, 
+                                performando musica elettronica creata con passione sui sintetizzatori.
+                            </p>
+                            <div class="tech-stack">
+                                <span class="tech-tag">Sintetizzatori</span>
+                                <span class="tech-tag">Composizione</span>
+                                <span class="tech-tag">Live Performance</span>
+                                <span class="tech-tag">Electronic Music</span>
+                            </div>
+                            <div class="project-links">
+                                <a href="https://open.spotify.com/intl-es/album/4dVNDDcyVXrPC5KGf53sIZ" target="_blank" class="project-link">
+                                    <i class="fab fa-spotify"></i>
+                                    SPOTIFY
+                                </a>
+                                <a href="https://www.youtube.com/watch?v=YjlkHyGLe0w" target="_blank" class="project-link">
+                                    <i class="fab fa-youtube"></i>
+                                    VIDEO
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact Page -->
+        <div class="page" id="contact">
+            <div class="contact-container">
+                <div class="contact-header">
+                <h1 class="contact-title">CONNESSIONI</h1>
+                <p class="contact-lead">
+                    Scambi di idee, networking professionale<br>
+                    e discussioni sull'intersezione tra semiotica e tecnologia.
+                </p>
+                </div>
+
+                <!-- Contact Form -->
+                <div class="contact-form-section">
+                    <div class="form-container">
+                        <h2 class="form-title">AVVIA UNA CONVERSAZIONE</h2>
+                        <form action="https://formspree.io/f/xkgnzgol" method="POST" class="contact-form" id="contactForm">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="name" class="form-label">Nome *</label>
+                                    <input type="text" id="name" name="name" class="form-input" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="email" class="form-label">Email *</label>
+                                    <input type="email" id="email" name="email" class="form-input" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="subject" class="form-label">Oggetto *</label>
+                                <input type="text" id="subject" name="subject" class="form-input" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="message" class="form-label">Messaggio *</label>
+                                <textarea id="message" name="message" class="form-textarea" rows="6" required placeholder="Condividi le tue riflessioni, domande o feedback..."></textarea>
+                            </div>
+                            <div class="form-group">
+                                <button type="submit" class="form-submit">
+                                    <i class="fas fa-paper-plane"></i>
+                                    INVIA MESSAGGIO
+                                </button>
+                            </div>
+                        </form>
+                        
+                        <div class="form-success" id="formSuccess">
+                            <div class="success-icon">✓</div>
+                            <h3>Messaggio Inviato con Successo!</h3>
+                            <p>Ti risponderò entro 24 ore.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="contact-grid">
+                    <div class="contact-card">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <h3>Posizione</h3>
+                        <p>Bologna, Italia</p>
+                        <p><span class="highlight">Remote Worldwide</span></p>
+                    </div>
+
+                    <div class="contact-card">
+                        <i class="fas fa-envelope"></i>
+                        <h3>Email</h3>
+                        <a href="mailto:gianlivioiemolo@gmail.com">gianlivioiemolo@gmail.com</a>
+                    </div>
+
+                    <div class="contact-card">
+                        <i class="fas fa-phone"></i>
+                        <h3>Telefono</h3>
+                        <a href="tel:+393319462396">+39 331 9462396</a>
+                    </div>
+                </div>
+
+                <div class="social-links">
+                    <a href="https://github.com/gianlivio" target="_blank" class="social-link">
+                        <i class="fab fa-github"></i>
+                    </a>
+                    <a href="https://linkedin.com/in/gianlivio-iemolo" target="_blank" class="social-link">
+                        <i class="fab fa-linkedin-in"></i>
+                    </a>
+                    <a href="mailto:gianlivioiemolo@gmail.com" class="social-link">
+                        <i class="fas fa-envelope"></i>
+                    </a>
+                </div>
+
+                <div style="text-align: center; margin-top: 4rem;">
+                    <a href="#home" class="tech-btn primary">
+                        <i class="fas fa-arrow-up"></i>
+                        TORNA IN ALTO
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Translations object
+const translations = {
+            it: {
+                nav: {
+                    home: 'HOME',
+                    about: 'CHI SONO',
+                    projects: 'PROGETTI',
+                    contact: 'CONTATTI'
+                },
+                hero: {
+                    title: 'GIANLIVIO IEMOLO',
+                    subtitle: 'Full Stack Developer & Semiologo',
+                    description: 'L\'esperienza formativa nella <span class="highlight">scuola semiotica di Umberto Eco</span> ha configurato il mio approccio al web development come <span class="highlight">analisi dei sistemi segnici digitali</span>. Ogni interfaccia costituisce un testo da decodificare e strutturare secondo logiche di pertinenza semantica.',
+                    exploreProjects: 'ESPLORA PROGETTI',
+                    learnMore: 'SCOPRI DI PIÙ'
+                },
+                about: {
+                    title: 'CHI SONO',
+                    subtitle: 'Sviluppatore Web con Background Semiotico'
+                },
+                projects: {
+                    title: 'PROGETTI WEB',
+                    subtitle: 'FRONTEND / BACKEND / UI-UX / API DEVELOPMENT<br>Dove la Semiotica incontra la Tecnologia',
+                    all: 'Tutti',
+                    frontend: 'Frontend',
+                    fullstack: 'Full Stack',
+                    creative: 'Creative'
+                },
+                contact: {
+                    title: 'CONNESSIONI',
+                    subtitle: 'Scambi di idee, networking professionale<br>e discussioni sull\'intersezione tra semiotica e tecnologia.',
+                    backToTop: 'TORNA IN ALTO',
+                    form: {
+                        title: 'AVVIA UNA CONVERSAZIONE',
+                        name: 'Nome',
+                        email: 'Email',
+                        subject: 'Oggetto',
+                        message: 'Messaggio',
+                        messagePlaceholder: 'Condividi le tue riflessioni, domande o feedback...',
+                        submit: 'INVIA MESSAGGIO',
+                        success: {
+                            title: 'Messaggio Inviato con Successo!',
+                            message: 'Ti risponderò entro 24 ore.'
+                        }
+                    }
+                },
+                skills: {
+                    title: 'COMPETENZE TECNICHE',
+                    frontend: 'Frontend Development',
+                    backend: 'Backend Development',
+                    analytics: 'Analytics & Tracking',
+                    tools: 'Tools & Platforms',
+                    marketing: 'Digital Marketing',
+                    ai: 'AI & Advanced'
+                },
+                collaborations: {
+                    title: 'COLLABORAZIONI'
+                },
+                projectsPreview: {
+                    title: 'PROGETTI IN EVIDENZA',
+                    viewAll: 'VEDI TUTTI I PROGETTI'
+                },
+                cta: {
+                    title: 'EXPERTISE SEMIOTICA APPLICATA',
+                    description: 'Dall\'<span class="highlight">analisi dei sistemi segnici</span> alla <span class="highlight">programmazione funzionale</span>, ogni progetto è un\'investigazione sui codici della comunicazione digitale.',
+                    exploreApproach: 'ESPLORA L\'APPROCCIO',
+                    methodology: 'METODOLOGIA'
+                }
+            },
+            en: {
+                nav: {
+                    home: 'HOME',
+                    about: 'ABOUT',
+                    projects: 'PROJECTS',
+                    contact: 'CONTACT'
+                },
+                hero: {
+                    title: 'GIANLIVIO IEMOLO',
+                    subtitle: 'Full Stack Developer & Semiotician',
+                    description: 'The formative experience in <span class="highlight">Umberto Eco\'s semiotic school</span> has configured my approach to web development as <span class="highlight">analysis of digital sign systems</span>. Every interface constitutes a text to be decoded and structured according to semantic pertinence logics.',
+                    exploreProjects: 'EXPLORE PROJECTS',
+                    learnMore: 'LEARN MORE'
+                },
+                about: {
+                    title: 'ABOUT ME',
+                    subtitle: 'Web Developer with Semiotic Background'
+                },
+                projects: {
+                    title: 'WEB PROJECTS',
+                    subtitle: 'FRONTEND / BACKEND / UI-UX / API DEVELOPMENT<br>Where Semiotics meets Technology',
+                    all: 'All',
+                    frontend: 'Frontend',
+                    fullstack: 'Full Stack',
+                    creative: 'Creative'
+                },
+                contact: {
+                    title: 'CONNECTIONS',
+                    subtitle: 'Exchange of ideas, professional networking<br>and discussions on the intersection between semiotics and technology.',
+                    backToTop: 'BACK TO TOP',
+                    form: {
+                        title: 'START A CONVERSATION',
+                        name: 'Name',
+                        email: 'Email',
+                        subject: 'Subject',
+                        message: 'Message',
+                        messagePlaceholder: 'Share your thoughts, questions or feedback...',
+                        submit: 'SEND MESSAGE',
+                        success: {
+                            title: 'Message Sent Successfully!',
+                            message: 'I will reply within 24 hours.'
+                        }
+                    }
+                },
+                skills: {
+                    title: 'TECHNICAL SKILLS',
+                    frontend: 'Frontend Development',
+                    backend: 'Backend Development',
+                    analytics: 'Analytics & Tracking',
+                    tools: 'Tools & Platforms',
+                    marketing: 'Digital Marketing',
+                    ai: 'AI & Advanced'
+                },
+                collaborations: {
+                    title: 'COLLABORATIONS'
+                },
+                projectsPreview: {
+                    title: 'FEATURED PROJECTS',
+                    viewAll: 'VIEW ALL PROJECTS'
+                },
+                cta: {
+                    title: 'APPLIED SEMIOTIC EXPERTISE',
+                    description: 'From <span class="highlight">sign systems analysis</span> to <span class="highlight">functional programming</span>, each project is an investigation into the codes of digital communication.',
+                    exploreApproach: 'EXPLORE APPROACH',
+                    methodology: 'METHODOLOGY'
+                }
+            },
+            es: {
+                nav: {
+                    home: 'INICIO',
+                    about: 'SOBRE MÍ',
+                    projects: 'PROYECTOS',
+                    contact: 'CONTACTO'
+                },
+                hero: {
+                    title: 'GIANLIVIO IEMOLO',
+                    subtitle: 'Desarrollador Full Stack y Semiótico',
+                    description: 'La experiencia formativa en la <span class="highlight">escuela semiótica de Umberto Eco</span> ha configurado mi enfoque del desarrollo web como <span class="highlight">análisis de sistemas de signos digitales</span>. Cada interfaz constituye un texto a decodificar y estructurar según lógicas de pertinencia semántica.',
+                    exploreProjects: 'EXPLORAR PROYECTOS',
+                    learnMore: 'SABER MÁS'
+                },
+                about: {
+                    title: 'SOBRE MÍ',
+                    subtitle: 'Desarrollador Web con Base Semiótica'
+                },
+                projects: {
+                    title: 'PROYECTOS WEB',
+                    subtitle: 'FRONTEND / BACKEND / UI-UX / DESARROLLO API<br>Donde la Semiótica encuentra la Tecnología',
+                    all: 'Todos',
+                    frontend: 'Frontend',
+                    fullstack: 'Full Stack',
+                    creative: 'Creativos'
+                },
+                contact: {
+                    title: 'CONEXIONES',
+                    subtitle: 'Intercambio de ideas, networking profesional<br>y discusiones sobre la intersección entre semiótica y tecnología.',
+                    backToTop: 'VOLVER ARRIBA',
+                    form: {
+                        title: 'INICIAR UNA CONVERSACIÓN',
+                        name: 'Nombre',
+                        email: 'Email',
+                        subject: 'Asunto',
+                        message: 'Mensaje',
+                        messagePlaceholder: 'Comparte tus reflexiones, preguntas o comentarios...',
+                        submit: 'ENVIAR MENSAJE',
+                        success: {
+                            title: '¡Mensaje Enviado con Éxito!',
+                            message: 'Te responderé en 24 horas.'
+                        }
+                    }
+                },
+                skills: {
+                    title: 'COMPETENCIAS TÉCNICAS',
+                    frontend: 'Desarrollo Frontend',
+                    backend: 'Desarrollo Backend',
+                    analytics: 'Analytics y Seguimiento',
+                    tools: 'Herramientas y Plataformas',
+                    marketing: 'Marketing Digital',
+                    ai: 'IA y Avanzado'
+                },
+                collaborations: {
+                    title: 'COLABORACIONES'
+                },
+                projectsPreview: {
+                    title: 'PROYECTOS DESTACADOS',
+                    viewAll: 'VER TODOS LOS PROYECTOS'
+                },
+                cta: {
+                    title: 'EXPERTISE SEMIÓTICA APLICADA',
+                    description: 'Desde el <span class="highlight">análisis de sistemas de signos</span> hasta la <span class="highlight">programación funcional</span>, cada proyecto es una investigación sobre los códigos de la comunicación digital.',
+                    exploreApproach: 'EXPLORAR ENFOQUE',
+                    methodology: 'METODOLOGÍA'
+                }
+            }
+        };
+
+        // Global variables
+        let scene, camera, renderer, particles, geometryFloat;
+        let currentLanguage = 'it';
+        const cursor = document.querySelector('.cursor');
+        const cursorDot = document.querySelector('.cursor-dot');
+        const loadingScreen = document.getElementById('loadingScreen');
+
+        // DOM Elements
+        const hamburger = document.getElementById('hamburger');
+        const navCenter = document.querySelector('.nav-center');
+        const navRight = document.querySelector('.nav-right');
+        const languageBtn = document.getElementById('languageBtn');
+        const languageDropdown = document.getElementById('languageDropdown');
+        const navLinks = document.querySelectorAll('.nav-link');
+        const pages = document.querySelectorAll('.page');
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const projectCards = document.querySelectorAll('.project-card');
+
+        // Initialize everything
+        document.addEventListener('DOMContentLoaded', () => {
+            initLoading();
+            initCursor();
+            initNavigation();
+            initLanguageSelector();
+            initProjectFilters();
+            initContactForm();
+            init3DBackground();
+            initMatrixRain();
+            initProjectInteractions();
+            
+            // Hide loading screen after everything is loaded
+            setTimeout(() => {
+                loadingScreen.classList.add('hidden');
+            }, 3000);
+            
+            // Initialize language
+            setTimeout(() => {
+                changeLanguage('it');
+            }, 100);
+        });
+
+        // Loading Screen
+        function initLoading() {
+            const loadingText = document.querySelector('.loading-text');
+            const messages = [
+                'INIZIALIZZAZIONE SISTEMA...',
+                'CARICAMENTO SHADERS...',
+                'COMPILAZIONE GEOMETRIE...',
+                'ATTIVAZIONE OLOGRAMMI...',
+                'SISTEMA PRONTO!'
+            ];
+            
+            let index = 0;
+            const interval = setInterval(() => {
+                if (index < messages.length - 1) {
+                    loadingText.textContent = messages[++index];
+                } else {
+                    clearInterval(interval);
+                }
+            }, 600);
+        }
+
+        // Contact Form Handler
+        function initContactForm() {
+            const contactForm = document.getElementById('contactForm');
+            const formSuccess = document.getElementById('formSuccess');
+            
+            if (contactForm) {
+                contactForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    
+                    const submitBtn = document.querySelector('.form-submit');
+                    const originalText = submitBtn.innerHTML;
+                    
+                    // Show loading state
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> INVIO IN CORSO...';
+                    submitBtn.disabled = true;
+                    
+                    try {
+                        const formData = new FormData(contactForm);
+                        
+                        const response = await fetch(contactForm.action, {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'Accept': 'application/json'
+                            }
+                        });
+                        
+                        if (response.ok) {
+                            // Show success message
+                            contactForm.style.display = 'none';
+                            formSuccess.style.display = 'block';
+                            
+                            // Reset form after delay
+                            setTimeout(() => {
+                                contactForm.reset();
+                                contactForm.style.display = 'block';
+                                formSuccess.style.display = 'none';
+                                submitBtn.innerHTML = originalText;
+                                submitBtn.disabled = false;
+                            }, 5000);
+                        } else {
+                            throw new Error('Form submission failed');
+                        }
+                    } catch (error) {
+                        // Show error message
+                        alert('Si è verificato un errore. Riprova o contattami direttamente via email.');
+                        submitBtn.innerHTML = originalText;
+                        submitBtn.disabled = false;
+                    }
+                });
+            }
+        }
+
+        // Custom Cursor
+        function initCursor() {
+            document.addEventListener('mousemove', (e) => {
+                cursor.style.left = e.clientX + 'px';
+                cursor.style.top = e.clientY + 'px';
+                cursorDot.style.left = e.clientX + 'px';
+                cursorDot.style.top = e.clientY + 'px';
+            });
+
+            // Hover effects
+            const interactiveElements = document.querySelectorAll('a, button, .nav-link, .project-card, .filter-btn, .tech-tag, .skill-tag');
+            
+            interactiveElements.forEach(element => {
+                element.addEventListener('mouseenter', () => {
+                    cursor.classList.add('hover');
+                });
+                
+                element.addEventListener('mouseleave', () => {
+                    cursor.classList.remove('hover');
+                });
+            });
+
+            // Hide cursor on touch devices
+            if ('ontouchstart' in window) {
+                cursor.style.display = 'none';
+                cursorDot.style.display = 'none';
+                document.body.style.cursor = 'auto';
+            }
+        }
+
+        // Navigation System
+        function initNavigation() {
+            // Hamburger menu
+            hamburger.classList.toggle('active');
+            document.querySelector('.mobile-menu').classList.toggle('active');
+
+            // Page navigation
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const targetId = link.getAttribute('href').substring(1);
+                    navigateToPage(targetId);
+                    
+                    // Update active nav link
+                    navLinks.forEach(nl => nl.classList.remove('active'));
+                    link.classList.add('active');
+                    
+                    // Close mobile menu
+                    hamburger.classList.remove('active');
+                    navCenter.classList.remove('active');
+                    navRight.classList.remove('active');
+                });
+            });
+
+            // Handle other internal links
+            document.querySelectorAll('a[href^="#"]').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const targetId = link.getAttribute('href').substring(1);
+                    if (targetId && document.getElementById(targetId)) {
+                        navigateToPage(targetId);
+                        
+                        // Update nav if it's a nav link
+                        const navLink = document.querySelector(`.nav-link[href="#${targetId}"]`);
+                        if (navLink) {
+                            navLinks.forEach(nl => nl.classList.remove('active'));
+                            navLink.classList.add('active');
+                        }
+                    }
+                });
+            });
+        }
+
+        function navigateToPage(pageId) {
+            // Hide all pages
+            pages.forEach(page => {
+                page.classList.remove('active');
+            });
+
+            // Show target page
+            const targetPage = document.getElementById(pageId);
+            if (targetPage) {
+                targetPage.classList.add('active');
+                window.scrollTo(0, 0);
+            }
+        }
+
+        // Language Selector
+        function initLanguageSelector() {
+            languageBtn.addEventListener('click', () => {
+                languageDropdown.classList.toggle('show');
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!languageBtn.contains(e.target) && !languageDropdown.contains(e.target)) {
+                    languageDropdown.classList.remove('show');
+                }
+            });
+        }
+
+        function changeLanguage(lang) {
+            currentLanguage = lang;
+            const t = translations[lang];
+
+            // Update language button
+            const flagMap = { en: 'us', it: 'it', es: 'es' };
+            languageBtn.innerHTML = `
+                <span class="flag-icon flag-icon-${flagMap[lang]}"></span>
+                ${lang.toUpperCase()}
+            `;
+
+            // Update content
+            updateContent(t);
+            languageDropdown.classList.remove('show');
+        }
+
+        function updateContent(t) {
+            // Navigation
+            document.querySelector('.nav-link[href="#home"]').textContent = t.nav.home;
+            document.querySelector('.nav-link[href="#about"]').textContent = t.nav.about;
+            document.querySelector('.nav-link[href="#projects"]').textContent = t.nav.projects;
+            document.querySelector('.nav-link[href="#blog"]').textContent = t.nav.blog;
+            document.querySelector('.nav-link[href="#contact"]').textContent = t.nav.contact;
+
+            // Hero section
+            if (document.querySelector('.hero-subtitle')) {
+                document.querySelector('.hero-subtitle').textContent = t.hero.subtitle;
+                document.querySelector('.hero-description').innerHTML = t.hero.description;
+                document.querySelector('.tech-btn.primary').innerHTML = `<i class="fas fa-cube"></i> ${t.hero.exploreProjects}`;
+                document.querySelector('.tech-btn:not(.primary)').innerHTML = `<i class="fas fa-user-graduate"></i> ${t.hero.learnMore}`;
+            }
+            // About section
+            if (document.querySelector('.about-title')) {
+                document.querySelector('.about-title').textContent = t.about.title;
+                document.querySelector('.about-subtitle').textContent = t.about.subtitle;
+            }
+
+            // Skills section
+            if (document.querySelector('.skills-overview .section-title')) {
+                document.querySelector('.skills-overview .section-title').textContent = t.skills.title;
+                
+                const skillCategories = document.querySelectorAll('.skill-category h3');
+                if (skillCategories.length >= 6) {
+                    skillCategories[0].innerHTML = `<i class="fas fa-laptop-code"></i> ${t.skills.frontend}`;
+                    skillCategories[1].innerHTML = `<i class="fas fa-server"></i> ${t.skills.backend}`;
+                    skillCategories[2].innerHTML = `<i class="fas fa-chart-line"></i> ${t.skills.analytics}`;
+                    skillCategories[3].innerHTML = `<i class="fas fa-tools"></i> ${t.skills.tools}`;
+                    skillCategories[4].innerHTML = `<i class="fas fa-bullhorn"></i> ${t.skills.marketing}`;
+                    skillCategories[5].innerHTML = `<i class="fas fa-robot"></i> ${t.skills.ai}`;
+                }
+            }
+
+            // Collaborations section
+            if (document.querySelector('.collaborations-section .section-title')) {
+                document.querySelector('.collaborations-section .section-title').textContent = t.collaborations.title;
+            }
+
+            // Projects Preview section
+            const projectsPreviewTitle = document.querySelector('.projects-preview .section-title');
+            if (projectsPreviewTitle) {
+                projectsPreviewTitle.textContent = t.projectsPreview.title;
+            }
+
+            // CTA buttons in projects preview
+            const ctaButtons = document.querySelectorAll('.projects-preview .tech-btn');
+            if (ctaButtons.length >= 1) {
+                ctaButtons[0].innerHTML = `<i class="fas fa-folder-open"></i> ${t.projectsPreview.viewAll}`;
+            }
+
+            // Final CTA section
+            const ctaTitle = document.querySelector('.cta-section h2');
+            const ctaDescription = document.querySelector('.cta-section p');
+            const ctaMainButtons = document.querySelectorAll('.cta-section .tech-btn');
+
+            if (ctaTitle) {
+                ctaTitle.textContent = t.cta.title;
+            }
+            if (ctaDescription) {
+                ctaDescription.innerHTML = t.cta.description;
+            }
+            if (ctaMainButtons.length >= 2) {
+                ctaMainButtons[0].innerHTML = `<i class="fas fa-microscope"></i> ${t.cta.exploreApproach}`;
+                ctaMainButtons[1].innerHTML = `<i class="fas fa-graduation-cap"></i> ${t.cta.methodology}`;
+            }
+
+            // Projects section
+            if (document.querySelector('.projects-header .section-title')) {
+                document.querySelector('.projects-header .section-title').textContent = t.projects.title;
+                document.querySelector('.projects-header p').innerHTML = t.projects.subtitle;
+                
+                const filterButtons = document.querySelectorAll('.filter-btn');
+                if (filterButtons.length >= 4) {
+                    filterButtons[0].textContent = t.projects.all;
+                    filterButtons[1].textContent = t.projects.frontend;
+                    filterButtons[2].textContent = t.projects.fullstack;
+                    filterButtons[3].textContent = t.projects.creative;
+                }
+            }
+
+            // Blog section
+            if (document.querySelector('#blog .section-title')) {
+                document.querySelector('#blog .section-title').textContent = t.blog.title;
+                const blogSubtitle = document.querySelector('#blog .blog-header p');
+                if (blogSubtitle) {
+                    blogSubtitle.innerHTML = t.blog.subtitle;
+                }
+            }
+
+            // Contact section
+            if (document.querySelector('.contact-title')) {
+                document.querySelector('.contact-title').textContent = t.contact.title;
+                document.querySelector('.contact-lead').innerHTML = t.contact.subtitle;
+                const backToTopBtn = document.querySelector('a[href="#home"].tech-btn');
+                if (backToTopBtn) {
+                    backToTopBtn.innerHTML = `<i class="fas fa-arrow-up"></i> ${t.contact.backToTop}`;
+                }
+
+                // Contact form
+                const formTitle = document.querySelector('.form-title');
+                if (formTitle) {
+                    formTitle.textContent = t.contact.form.title;
+                }
+
+                const formLabels = document.querySelectorAll('.form-label');
+                if (formLabels.length >= 4) {
+                    formLabels[0].textContent = t.contact.form.name + ' *';
+                    formLabels[1].textContent = t.contact.form.email + ' *';
+                    formLabels[2].textContent = t.contact.form.subject + ' *';
+                    formLabels[3].textContent = t.contact.form.message + ' *';
+                }
+
+                const messageTextarea = document.querySelector('#message');
+                if (messageTextarea) {
+                    messageTextarea.placeholder = t.contact.form.messagePlaceholder;
+                }
+
+                const submitBtn = document.querySelector('.form-submit');
+                if (submitBtn) {
+                    submitBtn.innerHTML = `<i class="fas fa-paper-plane"></i> ${t.contact.form.submit}`;
+                }
+
+                // Success message
+                const successTitle = document.querySelector('.form-success h3');
+                const successMessage = document.querySelector('.form-success p');
+                if (successTitle && successMessage) {
+                    successTitle.textContent = t.contact.form.success.title;
+                    successMessage.textContent = t.contact.form.success.message;
+                }
+            }
+        }
+
+        // Project Filters
+        function initProjectFilters() {
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // Update active filter
+                    filterBtns.forEach(fb => fb.classList.remove('active'));
+                    btn.classList.add('active');
+
+                    // Filter projects
+                    const filterValue = btn.getAttribute('data-filter');
+                    
+                    projectCards.forEach(card => {
+                        if (filterValue === 'all' || card.getAttribute('data-category') === filterValue) {
+                            card.style.display = 'block';
+                            setTimeout(() => {
+                                card.style.opacity = '1';
+                                card.style.transform = 'translateY(0)';
+                            }, 100);
+                        } else {
+                            card.style.opacity = '0';
+                            card.style.transform = 'translateY(20px)';
+                            setTimeout(() => {
+                                card.style.display = 'none';
+                            }, 300);
+                        }
+                    });
+                });
+            });
+        }
+
+        // 3D Background with Three.js
+        function init3DBackground() {
+            const canvas = document.getElementById('three-canvas');
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true });
+            
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setClearColor(0x000000, 0);
+
+            // Create floating geometric particles
+            const geometry = new THREE.BufferGeometry();
+            const particleCount = 200;
+            const positions = new Float32Array(particleCount * 3);
+            const colors = new Float32Array(particleCount * 3);
+            
+            for (let i = 0; i < particleCount * 3; i += 3) {
+                positions[i] = (Math.random() - 0.5) * 150;
+                positions[i + 1] = (Math.random() - 0.5) * 150;
+                positions[i + 2] = (Math.random() - 0.5) * 150;
+                
+                // Neon colors
+                const colorChoice = Math.random();
+                if (colorChoice < 0.33) {
+                    colors[i] = 0; colors[i + 1] = 0.83; colors[i + 2] = 1; // Neon blue
+                } else if (colorChoice < 0.66) {
+                    colors[i] = 1; colors[i + 1] = 0.84; colors[i + 2] = 0.04; // Cyber yellow
+                } else {
+                    colors[i] = 0.45; colors[i + 1] = 0.04; colors[i + 2] = 0.72; // Electric purple
+                }
+            }
+            
+            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+            
+            const material = new THREE.PointsMaterial({
+                size: 2,
+                vertexColors: true,
+                transparent: true,
+                opacity: 0.8,
+                blending: THREE.AdditiveBlending
+            });
+            
+            particles = new THREE.Points(geometry, material);
+            scene.add(particles);
+
+            // Add floating geometric shapes
+            createFloatingGeometry();
+            
+            camera.position.z = 50;
+            
+            animate3D();
+            
+            // Handle window resize
+            window.addEventListener('resize', onWindowResize);
+        }
+
+        function createFloatingGeometry() {
+            const shapes = [];
+            
+            // Create various geometric shapes
+            for (let i = 0; i < 12; i++) {
+                let geometry, material, mesh;
+                
+                const shapeType = Math.floor(Math.random() * 5);
+                
+                if (shapeType === 0) {
+                    geometry = new THREE.BoxGeometry(1.5, 1.5, 1.5);
+                } else if (shapeType === 1) {
+                    geometry = new THREE.OctahedronGeometry(1.2);
+                } else if (shapeType === 2) {
+                    geometry = new THREE.TetrahedronGeometry(1.4);
+                } else if (shapeType === 3) {
+                    geometry = new THREE.IcosahedronGeometry(1.0);
+                } else {
+                    geometry = new THREE.ConeGeometry(1.0, 2.0, 8);
+                }
+                
+                const colorChoice = Math.random();
+                let color;
+                if (colorChoice < 0.33) {
+                    color = 0x00d4ff; // Neon blue
+                } else if (colorChoice < 0.66) {
+                    color = 0x7209b7; // Electric purple
+                } else {
+                    color = 0xffd60a; // Cyber yellow
+                }
+                
+                material = new THREE.MeshBasicMaterial({
+                    color: color,
+                    wireframe: true,
+                    transparent: true,
+                    opacity: 0.4
+                });
+                
+                mesh = new THREE.Mesh(geometry, material);
+                mesh.position.set(
+                    (Math.random() - 0.5) * 100,
+                    (Math.random() - 0.5) * 100,
+                    (Math.random() - 0.5) * 100
+                );
+                
+                mesh.userData = {
+                    rotationSpeed: {
+                        x: (Math.random() - 0.5) * 0.02,
+                        y: (Math.random() - 0.5) * 0.02,
+                        z: (Math.random() - 0.5) * 0.02
+                    },
+                    floatSpeed: Math.random() * 0.01 + 0.005
+                };
+                
+                scene.add(mesh);
+                shapes.push(mesh);
+            }
+            
+            geometryFloat = shapes;
+        }
+
+        function animate3D() {
+            requestAnimationFrame(animate3D);
+            
+            // Rotate particles
+            if (particles) {
+                particles.rotation.x += 0.0008;
+                particles.rotation.y += 0.0012;
+            }
+            
+            // Animate floating geometry
+            if (geometryFloat) {
+                geometryFloat.forEach((shape, index) => {
+                    shape.rotation.x += shape.userData.rotationSpeed.x;
+                    shape.rotation.y += shape.userData.rotationSpeed.y;
+                    shape.rotation.z += shape.userData.rotationSpeed.z;
+                    
+                    // Float up and down with sine wave
+                    shape.position.y += Math.sin(Date.now() * shape.userData.floatSpeed + index) * 0.02;
+                    shape.position.x += Math.cos(Date.now() * shape.userData.floatSpeed + index) * 0.01;
+                });
+            }
+            
+            // Mouse interaction
+            const mouse = { x: 0, y: 0 };
+            document.addEventListener('mousemove', (event) => {
+                mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+                mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+                
+                camera.position.x += (mouse.x * 3 - camera.position.x) * 0.03;
+                camera.position.y += (mouse.y * 3 - camera.position.y) * 0.03;
+                camera.lookAt(scene.position);
+            });
+            
+            renderer.render(scene, camera);
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        // Matrix Rain Effect
+        function initMatrixRain() {
+            const canvas = document.getElementById('matrixCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            
+            const matrix = "01ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            const matrixArray = matrix.split("");
+            
+            const fontSize = 12;
+            const columns = canvas.width / fontSize;
+            
+            const drops = [];
+            for (let x = 0; x < columns; x++) {
+                drops[x] = 1;
+            }
+            
+            function drawMatrix() {
+                ctx.fillStyle = 'rgba(10, 10, 10, 0.05)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                ctx.fillStyle = '#00d4ff';
+                ctx.font = fontSize + 'px JetBrains Mono';
+                
+                for (let i = 0; i < drops.length; i++) {
+                    const text = matrixArray[Math.floor(Math.random() * matrixArray.length)];
+                    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                    
+                    if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                        drops[i] = 0;
+                    }
+                    drops[i]++;
+                }
+            }
+            
+            setInterval(drawMatrix, 120);
+            
+            window.addEventListener('resize', () => {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            });
+        }
+
+        // Project Card Interactions
+        function initProjectInteractions() {
+            const projectCards = document.querySelectorAll('.project-card');
+            
+            projectCards.forEach(card => {
+                card.addEventListener('mouseenter', () => {
+                    // Add subtle glow effect to nearby cards
+                    projectCards.forEach(otherCard => {
+                        if (otherCard !== card) {
+                            otherCard.style.filter = 'brightness(0.8)';
+                        }
+                    });
+                });
+                
+                card.addEventListener('mouseleave', () => {
+                    // Remove glow effect
+                    projectCards.forEach(otherCard => {
+                        otherCard.style.filter = 'none';
+                    });
+                });
+                
+                // Add click animation
+                card.addEventListener('click', () => {
+                    card.style.transform = 'translateY(-20px) rotateX(8deg) rotateY(5deg) scale(1.03)';
+                    setTimeout(() => {
+                        card.style.transform = 'translateY(-15px) rotateX(5deg) rotateY(2deg) scale(1.02)';
+                    }, 150);
+                });
+            });
+        }
+
+        // Smooth scrolling and animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Observe elements for animations
+        document.addEventListener('DOMContentLoaded', () => {
+            const elementsToObserve = document.querySelectorAll('.project-card, .skill-category, .contact-card, .experience-highlight');
+            elementsToObserve.forEach(el => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(30px)';
+                el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                observer.observe(el);
+            });
+        });
+
+    </script>
+</body>
+</html>
