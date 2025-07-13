@@ -118,7 +118,7 @@
             left: 0;
             right: 0;
             z-index: 1000;
-            padding: 1.5rem 2rem;
+            padding: 0 1rem;
             background: var(--glass-bg);
             backdrop-filter: blur(20px);
             border-top: 1px solid rgba(0, 212, 255, 0.2);
@@ -2050,6 +2050,9 @@
         @media (max-width: 768px) {
             .hamburger {
                 display: flex;
+                z-index: 1004; /* PIÙ ALTO */
+                position: relative;
+                order: 3; 
             }
 
             /* Hide 3D cube on mobile for space */
@@ -2057,7 +2060,7 @@
                 display: none;
             }
 
-            .nav-center,
+             .nav-center,
             .nav-right {
                 position: fixed;
                 top: 0;
@@ -2066,7 +2069,7 @@
                 background: rgba(10, 10, 10, 0.98);
                 backdrop-filter: blur(20px);
                 flex-direction: column;
-                padding: 2rem;
+                padding: 8rem 2rem 2rem 2rem;  /* PADDING CONTROLLATO */
                 transform: translateY(-100%);
                 opacity: 0;
                 visibility: hidden;
@@ -2074,29 +2077,39 @@
                 border-bottom: 2px solid var(--neon-blue);
                 z-index: 1002;
                 box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
-                min-height: 100vh;
-                justify-content: center;
+                /* RIMUOVI min-height: 100vh */
+                height: auto;  /* ALTEZZA AUTOMATICA */
+                max-height: 100vh;  /* MASSIMO SCHERMO */
+                justify-content: flex-start;  /* INIZIA DALL'ALTO */
                 align-items: center;
+                overflow-y: auto;
             }
 
             .nav-center.active,
             .nav-right.active {
-                transform: translateY(0);
+                /* transform: translateY(0); */
                 opacity: 1;
                 visibility: visible;
             }
-
+            
+            /* MENU PRINCIPALE */
             .nav-center {
-                gap: 3rem;
-                align-items: center;
+                gap: 2rem;  /* SPAZIO TRA I LINK */
+                padding-bottom: 2rem;
             }
-
+            
+            /* SEZIONE SOCIAL/LANGUAGE */
             .nav-right {
+                position: static;  /* NON FIXED */
+                background: transparent;
+                backdrop-filter: none;
+                border: none;
+                box-shadow: none;
+                padding: 1rem 2rem;
                 gap: 2rem;
-                align-items: center;
-                padding-top: 1rem;
             }
-
+            
+            /* LINK DEL MENU */
             .nav-link {
                 font-size: 1.5rem;
                 padding: 1rem 2rem;
@@ -2104,6 +2117,9 @@
                 border: 1px solid transparent;
                 border-radius: 0.5rem;
                 transition: all 0.3s ease;
+                display: block;
+                width: 200px;
+                margin: 0.5rem 0;  /* MARGINE TRA I LINK */
             }
 
             .nav-link:hover,
@@ -3728,11 +3744,23 @@
 
         // Navigation System
         function initNavigation() {
-            // Hamburger menu
-            hamburger.addEventListener('click', () => {
+            // Hamburger menu - FIX PRINCIPALE
+            hamburger.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                console.log('Hamburger clicked'); // Debug
+                
                 hamburger.classList.toggle('active');
                 navCenter.classList.toggle('active');
                 navRight.classList.toggle('active');
+                
+                // Blocca scroll quando menu aperto
+                if (hamburger.classList.contains('active')) {
+                    document.body.style.overflow = 'hidden';
+                } else {
+                    document.body.style.overflow = '';
+                }
             });
 
             // Page navigation
