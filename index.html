@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GIANLIVIO IEMOLO - FULL STACK DEVELOPER</title>
-    <meta name="description" content="Full Stack Developer con background in Semiotica. Portfolio in stile Commodore 64.">
+    <title>GIANLIVIO IEMOLO - FRONTEND DEVELOPER</title>
+    <meta name="description" content="Frontend Developer con background in Semiotica. Portfolio in stile Commodore 64.">
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=VT323:wght@400&display=swap');
         
-        /* === COMMODORE 64 VARIABLES === */
         :root {
             --c64-blue: #6C5CE7;
             --c64-light-blue: #74B9FF;
@@ -23,7 +22,6 @@
             --scan-line: rgba(0, 255, 65, 0.1);
         }
 
-        /* === RESET === */
         * {
             margin: 0;
             padding: 0;
@@ -39,7 +37,6 @@
             overflow-x: hidden;
         }
 
-        /* === CRT EFFECT === */
         body::before {
             content: '';
             position: fixed;
@@ -64,21 +61,38 @@
             100% { transform: translateY(4px); }
         }
 
-        /* === CONTAINER === */
+        .scene-3d {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            opacity: 0.3;
+        }
+
+        #three-canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
         .container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 0 1rem;
+            position: relative;
+            z-index: 10;
         }
 
-        /* === HEADER === */
         header {
-            background: var(--c64-bg);
+            background: rgba(64, 64, 122, 0.95);
             border-bottom: 3px solid var(--c64-border);
             padding: 1rem 0;
             position: sticky;
             top: 0;
             z-index: 100;
+            backdrop-filter: blur(10px);
         }
 
         nav {
@@ -86,7 +100,6 @@
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            position: relative;
         }
 
         .logo {
@@ -118,7 +131,6 @@
             background: rgba(0, 255, 65, 0.1);
         }
 
-        /* === MOBILE MENU === */
         .menu-toggle {
             display: none;
             background: none;
@@ -130,9 +142,9 @@
             cursor: pointer;
         }
 
-        /* === MAIN CONTENT === */
         main {
             min-height: calc(100vh - 80px);
+            position: relative;
         }
 
         .section {
@@ -144,11 +156,21 @@
             border-bottom: none;
         }
 
-        /* === HERO === */
         .hero {
             text-align: center;
             padding: 4rem 0;
             background: linear-gradient(45deg, var(--c64-dark), var(--c64-bg));
+            position: relative;
+            overflow: hidden;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 10;
         }
 
         .hero h1 {
@@ -177,7 +199,6 @@
             color: var(--c64-white);
         }
 
-        /* === INTERACTIVE TERMINAL === */
         .terminal-container {
             max-width: 600px;
             margin: 2rem auto;
@@ -296,7 +317,6 @@
             margin-left: 2rem;
         }
 
-        /* === SNAKE GAME === */
         .snake-container {
             position: fixed;
             top: 50%;
@@ -351,32 +371,6 @@
             font-size: 0.9rem;
         }
 
-        /* === MOBILE TERMINAL === */
-        @media (max-width: 768px) {
-            .terminal-container {
-                margin: 1rem;
-                font-size: 0.9rem;
-            }
-
-            .terminal-body {
-                min-height: 150px;
-                padding: 0.5rem;
-            }
-
-            .snake-container {
-                margin: 1rem;
-                width: calc(100% - 2rem);
-                max-width: 400px;
-            }
-
-            #snakeCanvas {
-                width: 100%;
-                height: auto;
-                max-width: 350px;
-            }
-        }
-
-        /* === BUTTONS === */
         .btn {
             display: inline-block;
             padding: 1rem 2rem;
@@ -406,7 +400,6 @@
             color: var(--c64-green);
         }
 
-        /* === SECTIONS === */
         .section-title {
             font-size: 2.5rem;
             color: var(--c64-light-blue);
@@ -415,7 +408,6 @@
             text-shadow: 2px 2px 0 var(--c64-blue);
         }
 
-        /* === SKILLS === */
         .skills-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -427,6 +419,12 @@
             border: 2px solid var(--c64-border);
             background: rgba(64, 64, 122, 0.3);
             padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .skill-box:hover {
+            border-color: var(--c64-green);
+            background: rgba(0, 255, 65, 0.1);
         }
 
         .skill-box h3 {
@@ -449,7 +447,6 @@
             border: 1px solid var(--c64-light-blue);
         }
 
-        /* === PROJECTS === */
         .projects-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -515,7 +512,6 @@
             color: var(--c64-dark);
         }
 
-        /* === ABOUT === */
         .about-content {
             max-width: 800px;
             margin: 0 auto;
@@ -536,7 +532,6 @@
             font-style: italic;
         }
 
-        /* === CONTACT === */
         .contact-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -587,7 +582,6 @@
             color: var(--c64-dark);
         }
 
-        /* === FOOTER === */
         footer {
             background: var(--c64-bg);
             border-top: 3px solid var(--c64-border);
@@ -596,7 +590,6 @@
             color: var(--c64-white);
         }
 
-        /* === MOBILE STYLES === */
         @media (max-width: 768px) {
             .menu-toggle {
                 display: block;
@@ -640,6 +633,18 @@
             .social-links {
                 flex-wrap: wrap;
             }
+
+            .snake-container {
+                margin: 1rem;
+                width: calc(100% - 2rem);
+                max-width: 400px;
+            }
+
+            #snakeCanvas {
+                width: 100%;
+                height: auto;
+                max-width: 350px;
+            }
         }
 
         @media (max-width: 480px) {
@@ -662,7 +667,6 @@
             }
         }
 
-        /* === ANIMATIONS === */
         .fade-in {
             opacity: 0;
             transform: translateY(20px);
@@ -676,7 +680,6 @@
             }
         }
 
-        /* === CURSOR === */
         .cursor-blink::after {
             content: '█';
             animation: cursor-blink 1s infinite;
@@ -698,8 +701,8 @@
                 <ul class="nav-links" id="navLinks">
                     <li><a href="#home" class="nav-link active">HOME</a></li>
                     <li><a href="#about" class="nav-link">PROFILO</a></li>
-                    <li><a href="#skills" class="nav-link">SKILLS</a></li>
-                    <li><a href="#projects" class="nav-link">PROGETTI</a></li>
+                    <li><a href="#skills" class="nav-link">COMPETENZE</a></li>
+                    <li><a href="#projects" class="nav-link">PORTFOLIO</a></li>
                     <li><a href="#contact" class="nav-link">CONTATTI</a></li>
                 </ul>
             </nav>
@@ -710,53 +713,59 @@
     <main>
         <!-- HERO SECTION -->
         <section id="home" class="hero">
+            <div class="scene-3d">
+                <canvas id="three-canvas"></canvas>
+            </div>
             <div class="container">
-                <h1>GIANLIVIO IEMOLO</h1>
-                <h2>FULL STACK DEVELOPER</h2>
-                
-                <!-- Interactive Terminal -->
-                <div class="terminal-container">
-                    <div class="terminal-header">
-                        <div class="terminal-buttons">
-                            <span class="btn-close"></span>
-                            <span class="btn-minimize"></span>
-                            <span class="btn-maximize"></span>
+                <div class="hero-content">
+                    <h1>GIANLIVIO IEMOLO</h1>
+                    <h2>FRONTEND DEVELOPER</h2>
+                    <p>Frontend Developer @ EDIF SpA | Web Development | Analytics</p>
+                    
+                    <!-- Interactive Terminal -->
+                    <div class="terminal-container">
+                        <div class="terminal-header">
+                            <div class="terminal-buttons">
+                                <span class="btn-close"></span>
+                                <span class="btn-minimize"></span>
+                                <span class="btn-maximize"></span>
+                            </div>
+                            <div class="terminal-title">COMMODORE_64_TERMINAL.EXE</div>
                         </div>
-                        <div class="terminal-title">COMMODORE_64_TERMINAL.EXE</div>
+                        <div class="terminal-body" id="terminalBody">
+                            <div class="terminal-line">
+                                <span class="prompt">C64></span>
+                                <span class="typed-text">LOADING DEVELOPER PROFILE...</span>
+                            </div>
+                            <div class="terminal-line">
+                                <span class="prompt">C64></span>
+                                <span class="terminal-info">TYPE 'HELP' FOR COMMANDS</span>
+                            </div>
+                            <div class="terminal-input-line">
+                                <span class="prompt">C64></span>
+                                <input type="text" id="terminalInput" class="terminal-input" placeholder="Try: portfolio, skills, work..." autocomplete="off">
+                                <span class="cursor-terminal">█</span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="terminal-body" id="terminalBody">
-                        <div class="terminal-line">
-                            <span class="prompt">C64></span>
-                            <span class="typed-text">LOADING DEVELOPER PROFILE...</span>
-                        </div>
-                        <div class="terminal-line">
-                            <span class="prompt">C64></span>
-                            <span class="terminal-info">TYPE 'HELP' FOR COMMANDS</span>
-                        </div>
-                        <div class="terminal-input-line">
-                            <span class="prompt">C64></span>
-                            <input type="text" id="terminalInput" class="terminal-input" placeholder="Try: skills, projects, snake..." autocomplete="off">
-                            <span class="cursor-terminal">█</span>
-                        </div>
-                    </div>
-                </div>
 
-                <!-- Snake Game Container (Hidden) -->
-                <div class="snake-container" id="snakeContainer" style="display: none;">
-                    <div class="snake-header">
-                        <div class="snake-title">🐍 COMMODORE SNAKE - HIGH SCORE: <span id="highScore">0</span></div>
-                        <button class="snake-close" onclick="closeSnake()">×</button>
+                    <!-- Snake Game Container (Hidden) -->
+                    <div class="snake-container" id="snakeContainer" style="display: none;">
+                        <div class="snake-header">
+                            <div class="snake-title">🐍 COMMODORE SNAKE - HIGH SCORE: <span id="highScore">0</span></div>
+                            <button class="snake-close" onclick="closeSnake()">×</button>
+                        </div>
+                        <canvas id="snakeCanvas" width="400" height="400"></canvas>
+                        <div class="snake-controls">
+                            <div>USE ARROW KEYS OR WASD • ESC TO EXIT</div>
+                            <div>SCORE: <span id="currentScore">0</span></div>
+                        </div>
                     </div>
-                    <canvas id="snakeCanvas" width="400" height="400"></canvas>
-                    <div class="snake-controls">
-                        <div>USE ARROW KEYS OR WASD • ESC TO EXIT</div>
-                        <div>SCORE: <span id="currentScore">0</span></div>
-                    </div>
-                </div>
 
-                <div class="hero-buttons">
-                    <a href="#projects" class="btn primary">PORTFOLIO</a>
-                    <a href="#contact" class="btn">COLLABORATE</a>
+                    <div class="hero-buttons">
+                        <a href="#projects" class="btn primary">PORTFOLIO</a>
+                        <a href="#contact" class="btn">CONTATTI</a>
+                    </div>
                 </div>
             </div>
         </section>
@@ -767,32 +776,30 @@
                 <h2 class="section-title">PROFILO PROFESSIONALE</h2>
                 <div class="about-content fade-in">
                     <p>
-                        <span class="highlight">Senior Full Stack Developer</span> attualmente impiegato presso 
-                        <span class="highlight">EDIF SpA</span>, leader nazionale nel comparto industriale elettrico 
-                        con fatturato di €254M e 25+ filiali distribuite sul territorio italiano.
+                        Frontend Developer presso EDIF SpA, azienda nel settore elettrico 
+                        con oltre 25 filiali distribuite in Italia.
                     </p>
                     
-                    <h3>COLLABORAZIONI ENTERPRISE</h3>
+                    <h3>COMPETENZE ATTUALI</h3>
                     <p>
-                        Coordino implementazioni tecniche con i <span class="highlight">team Google</span> per 
-                        ottimizzazioni SEO avanzate, configurazioni Google Tag Manager e integrazione di servizi cloud. 
-                        Collaboro quotidianamente con <span class="highlight">UX Designer internazionali</span> 
-                        per la progettazione di interfacce enterprise-grade.
+                        Sviluppo e manutenzione piattaforma e-commerce Open2b 
+                        con implementazione Google Tag Manager per tracking conversioni 
+                        e compliance GDPR. Integrazione sistemi esterni tramite API REST e webhook.
                     </p>
 
-                    <h3>BACKGROUND ACCADEMICO</h3>
+                    <h3>FORMAZIONE</h3>
                     <p>
-                        <span class="highlight">Laurea Magistrale in Semiotica</span> presso l'Università di Bologna, 
-                        seguita da <span class="highlight">Master in Full Stack Development</span> (700 ore) presso Boolean 
-                        e <span class="highlight">specializzazione in Digital Architecture</span>.
+                        Laurea Magistrale in Semiotica presso l'Università di Bologna (2020), 
+                        specializzazione in teorie della comunicazione applicate ai media digitali. 
+                        Full Stack Web Developer presso Boolean (2023) - 700 ore di formazione intensiva.
                     </p>
 
-                    <h3>EXPERTISE TECNICA</h3>
-                    <p>
-                        Architetture scalabili con Laravel/Vue.js, implementazione API RESTful, 
-                        ottimizzazione database relazionali, configurazione avanzata Google Analytics 4, 
-                        integrazione sistemi di tracking e compliance GDPR.
-                    </p>
+                    <h3>CERTIFICAZIONI</h3>
+                    <div class="quote-box">
+                        ✓ Google Analytics Certified (2025)<br>
+                        ✓ Google Skillshop GA4 Advanced<br>
+                        ✓ Certificazione Digital Copywriter - Agenzia Dante Alighieri (2022)
+                    </div>
                 </div>
             </div>
         </section>
@@ -800,60 +807,80 @@
         <!-- SKILLS SECTION -->
         <section id="skills" class="section">
             <div class="container">
-                <h2 class="section-title">STACK TECNOLOGICO</h2>
+                <h2 class="section-title">COMPETENZE TECNICHE</h2>
                 <div class="skills-grid">
                     <div class="skill-box fade-in">
-                        <h3>FRONTEND ARCHITECTURE</h3>
+                        <h3>FRONTEND DEVELOPMENT</h3>
                         <div class="skill-tags">
-                            <span class="skill-tag">React</span>
-                            <span class="skill-tag">Next.js</span>
-                            <span class="skill-tag">Vue.js</span>
-                            <span class="skill-tag">TypeScript</span>
-                            <span class="skill-tag">JavaScript ES6+</span>
-                            <span class="skill-tag">HTML5 Semantic</span>
-                            <span class="skill-tag">CSS3 Advanced</span>
-                            <span class="skill-tag">Tailwind CSS</span>
+                            <span class="skill-tag">HTML5</span>
+                            <span class="skill-tag">CSS3</span>
                             <span class="skill-tag">SASS/SCSS</span>
-                            <span class="skill-tag">Webpack/Vite</span>
+                            <span class="skill-tag">JavaScript</span>
+                            <span class="skill-tag">TypeScript</span>
+                            <span class="skill-tag">Vue.js</span>
+                            <span class="skill-tag">jQuery</span>
+                            <span class="skill-tag">Bootstrap</span>
+                            <span class="skill-tag">Tailwind CSS</span>
                         </div>
                     </div>
 
                     <div class="skill-box fade-in">
-                        <h3>BACKEND SYSTEMS</h3>
+                        <h3>BACKEND & DATABASE</h3>
                         <div class="skill-tags">
-                            <span class="skill-tag">Laravel Framework</span>
                             <span class="skill-tag">PHP 8+</span>
+                            <span class="skill-tag">Laravel</span>
+                            <span class="skill-tag">MySQL</span>
+                            <span class="skill-tag">API REST</span>
+                            <span class="skill-tag">Webhook</span>
                             <span class="skill-tag">Node.js</span>
-                            <span class="skill-tag">Go Language</span>
-                            <span class="skill-tag">MySQL Advanced</span>
-                            <span class="skill-tag">API RESTful</span>
-                            <span class="skill-tag">Webhook Integration</span>
-                            <span class="skill-tag">Microservices</span>
+                            <span class="skill-tag">Git</span>
+                            <span class="skill-tag">Postman</span>
                         </div>
                     </div>
 
                     <div class="skill-box fade-in">
-                        <h3>ENTERPRISE PLATFORMS</h3>
+                        <h3>E-COMMERCE & CMS</h3>
                         <div class="skill-tags">
-                            <span class="skill-tag">Open2b E-commerce</span>
-                            <span class="skill-tag">WordPress Enterprise</span>
-                            <span class="skill-tag">Git/GitHub</span>
+                            <span class="skill-tag">Open2b Platform</span>
+                            <span class="skill-tag">WordPress</span>
+                            <span class="skill-tag">Performance Optimization</span>
+                            <span class="skill-tag">Mobile-First</span>
+                            <span class="skill-tag">UX/UI Design</span>
+                            <span class="skill-tag">Responsive</span>
+                        </div>
+                    </div>
+
+                    <div class="skill-box fade-in">
+                        <h3>MARKETING & ANALYTICS</h3>
+                        <div class="skill-tags">
                             <span class="skill-tag">Google Tag Manager</span>
                             <span class="skill-tag">Google Analytics 4</span>
-                            <span class="skill-tag">SEO Technical</span>
+                            <span class="skill-tag">Microsoft Clarity</span>
+                            <span class="skill-tag">Facebook Pixel</span>
+                            <span class="skill-tag">Microsoft UET</span>
+                            <span class="skill-tag">SEO</span>
                             <span class="skill-tag">GDPR Compliance</span>
                         </div>
                     </div>
 
                     <div class="skill-box fade-in">
-                        <h3>ADVANCED INTEGRATIONS</h3>
+                        <h3>AUTOMAZIONE</h3>
                         <div class="skill-tags">
-                            <span class="skill-tag">OpenAI API</span>
-                            <span class="skill-tag">Cloud Services</span>
-                            <span class="skill-tag">Performance Optimization</span>
-                            <span class="skill-tag">Security Implementation</span>
-                            <span class="skill-tag">Database Design</span>
-                            <span class="skill-tag">CI/CD Pipeline</span>
+                            <span class="skill-tag">Brevo API</span>
+                            <span class="skill-tag">Newsletter Systems</span>
+                            <span class="skill-tag">Process Automation</span>
+                            <span class="skill-tag">Data Management</span>
+                            <span class="skill-tag">Core Web Vitals</span>
+                            <span class="skill-tag">Lighthouse</span>
+                        </div>
+                    </div>
+
+                    <div class="skill-box fade-in">
+                        <h3>LINGUAGGI</h3>
+                        <div class="skill-tags">
+                            <span class="skill-tag">Italiano Madrelingua</span>
+                            <span class="skill-tag">Inglese B2/C1</span>
+                            <span class="skill-tag">Spagnolo B2</span>
                         </div>
                     </div>
                 </div>
@@ -863,114 +890,129 @@
         <!-- PROJECTS SECTION -->
         <section id="projects" class="section">
             <div class="container">
-                <h2 class="section-title">PORTFOLIO TECNICO</h2>
+                <h2 class="section-title">PORTFOLIO</h2>
                 <div class="projects-grid">
                     <div class="project-card fade-in">
-                        <h3>EDIF PUNTOLUCE PLATFORM</h3>
+                        <h3>EDIF PUNTOLUCE E-COMMERCE</h3>
                         <p>
-                            Piattaforma e-commerce enterprise per leader nazionale distribuzione elettrica. 
-                            Architettura scalabile Open2b con integrazione Google Tag Manager avanzata 
-                            e tracking multi-layer per analytics comportamentali.
+                            Piattaforma e-commerce con gestione di oltre 50.000 prodotti. 
+                            Sviluppo e manutenzione tramite Open2b, implementazione Google Tag Manager 
+                            per tracking conversioni e compliance GDPR.
                         </p>
                         <div class="tech-stack">
                             <span class="tech-tag">Open2b</span>
-                            <span class="tech-tag">Twig Engine</span>
-                            <span class="tech-tag">PHP 8+</span>
-                            <span class="tech-tag">MySQL</span>
+                            <span class="tech-tag">HTML5</span>
+                            <span class="tech-tag">CSS3</span>
+                            <span class="tech-tag">JavaScript</span>
+                            <span class="tech-tag">Twig</span>
                             <span class="tech-tag">GTM</span>
                         </div>
                         <div class="project-links">
-                            <a href="https://shop.puntoluce.net/open2b/admin/module/website/design/" target="_blank" class="project-link">PLATFORM LIVE</a>
+                            <a href="https://shop.puntoluce.net/" target="_blank" class="project-link">VISITA SITO</a>
                         </div>
                     </div>
 
                     <div class="project-card fade-in">
-                        <h3>CYBER-TECH INTERFACE</h3>
+                        <h3>LANDING PAGE PUNTOLUCE</h3>
                         <p>
-                            Landing page futuristica con advanced CSS animations e responsive design. 
-                            Performance-optimized con Lighthouse score 95+ e semantic HTML5 
-                            per accessibilità WCAG 2.1 compliant.
+                            Landing page moderna con animazioni CSS avanzate e design responsive. 
+                            Performance ottimizzate e interfaccia utente coinvolgente 
+                            per il settore elettrico.
                         </p>
                         <div class="tech-stack">
-                            <span class="tech-tag">HTML5 Semantic</span>
-                            <span class="tech-tag">CSS3 Advanced</span>
-                            <span class="tech-tag">JavaScript ES6</span>
-                            <span class="tech-tag">Mobile-First</span>
-                        </div>
-                        <div class="project-links">
-                            <a href="https://gianlivio.github.io/landingpage-puntoluce/" target="_blank" class="project-link">VIEW DEMO</a>
-                        </div>
+                            <span class="tech-tag">HTML5</span>
+                            <span class="tech-tag">CSS3</span>
+                            <span class="tech-tag">JavaScript</span>
+                            <span class="tech-tag">Responsive</span>
                     </div>
 
                     <div class="project-card fade-in">
-                        <h3>INSTITUTIONAL WEB ARCHITECTURE</h3>
-                        <p>
-                            Sistema web per agenzia servizi museali con focus su UX accessibility 
-                            e cross-browser compatibility. Implementazione progressive enhancement 
-                            e graceful degradation strategies.
-                        </p>
+                        <h3>ANTICO STRADELLO</h3>
+                        <p>Sito web per struttura ricettiva con focus su accessibilità e user experience.</p>
                         <div class="tech-stack">
-                            <span class="tech-tag">Semantic HTML</span>
-                            <span class="tech-tag">CSS Grid/Flexbox</span>
-                            <span class="tech-tag">Vanilla JavaScript</span>
-                            <span class="tech-tag">Bootstrap Framework</span>
+                            <span class="tech-tag">HTML5</span>
+                            <span class="tech-tag">CSS3</span>
+                            <span class="tech-tag">JavaScript</span>
                         </div>
                         <div class="project-links">
-                            <a href="https://gianlivio.github.io/agenzia-musei/" target="_blank" class="project-link">EXPLORE</a>
+                            <a href="https://gianlivio.github.io/antico-stradello/" target="_blank" class="project-link">VISUALIZZA</a>
                         </div>
                     </div>
 
                     <div class="project-card fade-in">
-                        <h3>GAME ENGINE DEVELOPMENT</h3>
-                        <p>
-                            Implementazione game logic con HTML5 Canvas API e custom physics engine. 
-                            Object-oriented JavaScript architecture con performance optimization 
-                            e requestAnimationFrame management.
-                        </p>
+                        <h3>AGENZIA MUSEI</h3>
+                        <p>Sito istituzionale per agenzia servizi museali con semantic HTML e accessibility.</p>
+                        <div class="tech-stack">
+                            <span class="tech-tag">HTML5</span>
+                            <span class="tech-tag">CSS Grid</span>
+                            <span class="tech-tag">JavaScript</span>
+                        </div>
+                        <div class="project-links">
+                            <a href="https://gianlivio.github.io/agenzia-musei/" target="_blank" class="project-link">ESPLORA</a>
+                        </div>
+                    </div>
+
+                    <div class="project-card fade-in">
+                        <h3>STUDIO DENTISTICO</h3>
+                        <p>Sito professionale con design pulito e mobile-first approach.</p>
+                        <div class="tech-stack">
+                            <span class="tech-tag">HTML5</span>
+                            <span class="tech-tag">CSS3</span>
+                            <span class="tech-tag">JavaScript</span>
+                        </div>
+                        <div class="project-links">
+                            <a href="https://gianlivio.github.io/progetto-studio-dentistico/" target="_blank" class="project-link">VISUALIZZA</a>
+                        </div>
+                    </div>
+
+                    <div class="project-card fade-in">
+                        <h3>NEGOZIO VINTAGE</h3>
+                        <p>E-commerce vintage con design retrò e catalogo prodotti interattivo.</p>
+                        <div class="tech-stack">
+                            <span class="tech-tag">HTML5</span>
+                            <span class="tech-tag">CSS3</span>
+                            <span class="tech-tag">JavaScript</span>
+                        </div>
+                        <div class="project-links">
+                            <a href="https://gianlivio.github.io/negozio-vintage/" target="_blank" class="project-link">SHOP DEMO</a>
+                        </div>
+                    </div>
+
+                    <div class="project-card fade-in">
+                        <h3>FLAPPY BIRD GAME</h3>
+                        <p>Implementazione classico gioco con HTML5 Canvas API e physics engine.</p>
                         <div class="tech-stack">
                             <span class="tech-tag">Canvas API</span>
-                            <span class="tech-tag">OOP JavaScript</span>
-                            <span class="tech-tag">Physics Engine</span>
-                            <span class="tech-tag">Animation Loop</span>
+                            <span class="tech-tag">JavaScript</span>
+                            <span class="tech-tag">Game Physics</span>
                         </div>
                         <div class="project-links">
-                            <a href="https://gianlivio.github.io/Flappy-Bird/" target="_blank" class="project-link">PLAY GAME</a>
+                            <a href="https://gianlivio.github.io/Flappy-Bird/" target="_blank" class="project-link">GIOCA</a>
                         </div>
                     </div>
 
                     <div class="project-card fade-in">
-                        <h3>LITERARY DIGITAL PUBLISHING</h3>
-                        <p>
-                            Trilogy publishing project con self-publishing workflow automation. 
-                            Digital content management e cross-platform distribution strategy 
-                            per mercati internazionali.
-                        </p>
+                        <h3>FIZZBUZZ CHALLENGE</h3>
+                        <p>Soluzione interattiva con validazione in tempo reale.</p>
                         <div class="tech-stack">
-                            <span class="tech-tag">Content Strategy</span>
-                            <span class="tech-tag">Digital Publishing</span>
-                            <span class="tech-tag">SEO Content</span>
-                            <span class="tech-tag">Cross-Platform</span>
+                            <span class="tech-tag">JavaScript</span>
+                            <span class="tech-tag">DOM Manipulation</span>
                         </div>
                         <div class="project-links">
-                            <a href="https://www.amazon.com/s?i=stripbooks&rh=p_27%3AGianlivio%2BIemolo" target="_blank" class="project-link">VIEW BOOKS</a>
+                            <a href="https://gianlivio.github.io/js-fizzbuzz/" target="_blank" class="project-link">PROVA</a>
                         </div>
                     </div>
 
                     <div class="project-card fade-in">
-                        <h3>ELECTRONIC MUSIC PRODUCTION</h3>
-                        <p>
-                            Digital audio workstation programming e live performance systems. 
-                            MIDI controller integration e real-time audio processing 
-                            per performance internazionali nei circuiti europei.
-                        </p>
+                        <h3>NEON SNAKE GAME</h3>
+                        <p>Snake moderno con estetica neon e punteggio persistente.</p>
                         <div class="tech-stack">
-                            <span class="tech-tag">DAW Programming</span>
-                            <span class="tech-tag">MIDI Integration</span>
-                            <span class="tech-tag">Live Performance</span>
-                            <span class="tech-tag">Audio Processing</span>
+                            <span class="tech-tag">Canvas API</span>
+                            <span class="tech-tag">JavaScript ES6</span>
+                            <span class="tech-tag">LocalStorage</span>
                         </div>
                         <div class="project-links">
-                            <a href="https://open.spotify.com/intl-es/album/4dVNDDcyVXrPC5KGf53sIZ" target="_blank" class="project-link">SPOTIFY</a>
+                            <a href="https://gianlivio.github.io/neon-snake-game/" target="_blank" class="project-link">GIOCA</a>
                         </div>
                     </div>
                 </div>
@@ -986,27 +1028,19 @@
                         <h3>EMAIL</h3>
                         <a href="mailto:gianlivioiemolo@gmail.com">gianlivioiemolo@gmail.com</a>
                     </div>
-
                     <div class="contact-card fade-in">
                         <h3>TELEFONO</h3>
-                        <a href="tel:+393319462396">+39 331 9462396</a>
+                        <a href="tel:+393319462396">+39 331 946 2396</a>
                     </div>
-
                     <div class="contact-card fade-in">
                         <h3>POSIZIONE</h3>
-                        <p>Bologna, Italia</p>
-                        <p><span class="highlight">Currently @ EDIF SpA</span></p>
-                        <p><span class="highlight">Remote Consulting Available</span></p>
+                        <p>Bologna, Italia (40050)</p>
                     </div>
-
                     <div class="contact-card fade-in">
-                        <h3>STATUS</h3>
-                        <p>Full Stack Developer</p>
-                        <p><span class="highlight">Enterprise Collaborations</span></p>
-                        <p><span class="highlight">Consulting Projects</span></p>
+                        <h3>LAVORO ATTUALE</h3>
+                        <p>Frontend Developer @ EDIF SpA</p>
                     </div>
                 </div>
-
                 <div class="social-links">
                     <a href="https://github.com/gianlivio" target="_blank" class="social-link">GITHUB</a>
                     <a href="https://linkedin.com/in/gianlivio-iemolo" target="_blank" class="social-link">LINKEDIN</a>
@@ -1016,215 +1050,153 @@
         </section>
     </main>
 
-    <!-- FOOTER -->
     <footer>
         <div class="container">
-            <p>&copy; 2025 GIANLIVIO IEMOLO - SENIOR FULL STACK DEVELOPER</p>
-            <p>CURRENTLY @ EDIF SpA - ENTERPRISE SOLUTIONS ARCHITECT</p>
+            <p>&copy; 2025 GIANLIVIO IEMOLO - FRONTEND DEVELOPER</p>
+            <p>ATTUALMENTE @ EDIF SpA - SVILUPPO E-COMMERCE</p>
+            <p>📧 gianlivioiemolo@gmail.com | 📱 +39 331 946 2396</p>
             <p class="cursor-blink">SYSTEM READY FOR COLLABORATION</p>
         </div>
     </footer>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
-        // Mobile menu toggle
         function toggleMenu() {
-            const navLinks = document.getElementById('navLinks');
-            navLinks.classList.toggle('active');
+            document.getElementById('navLinks').classList.toggle('active');
         }
 
-        // Smooth scrolling and navigation
-        // Initialize everything
-        document.addEventListener('DOMContentLoaded', function() {
-            const navLinks = document.querySelectorAll('.nav-link');
-            const sections = document.querySelectorAll('section');
-            const heroButtons = document.querySelectorAll('.hero-buttons .btn');
+        let scene, camera, renderer, cubes = [];
+        let mouseX = 0, mouseY = 0;
 
-            // Initialize terminal
-            initInteractiveTerminal();
-
-            // Typewriter effect for hero
-            const heroTitle = document.querySelector('.hero h1');
-            const originalText = heroTitle.textContent;
-            heroTitle.textContent = '';
+        function init3D() {
+            const canvas = document.getElementById('three-canvas');
+            if (!canvas) return;
             
-            let i = 0;
-            function typeWriter() {
-                if (i < originalText.length) {
-                    heroTitle.textContent += originalText.charAt(i);
-                    i++;
-                    setTimeout(typeWriter, 100);
-                }
-            }
-            
-            setTimeout(typeWriter, 1000);
+            const container = canvas.parentElement;
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, container.offsetWidth / container.offsetHeight, 0.1, 1000);
+            camera.position.z = 50;
 
-            // Function to handle navigation
-            function navigateToSection(targetId) {
-                const targetSection = document.getElementById(targetId);
-                if (targetSection) {
-                    targetSection.scrollIntoView({ 
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                    
-                    // Update active nav link
-                    navLinks.forEach(nl => nl.classList.remove('active'));
-                    const correspondingNavLink = document.querySelector(`.nav-link[href="#${targetId}"]`);
-                    if (correspondingNavLink) {
-                        correspondingNavLink.classList.add('active');
-                    }
-                }
+            renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+            renderer.setSize(container.offsetWidth, container.offsetHeight);
+            renderer.setClearColor(0x000000, 0);
+
+            const geometry = new THREE.BoxGeometry(1, 1, 1);
+            
+            for (let i = 0; i < 50; i++) {
+                const material = new THREE.MeshBasicMaterial({
+                    color: Math.random() > 0.5 ? 0x6C5CE7 : 0x00FF41,
+                    wireframe: true,
+                    transparent: true,
+                    opacity: 0.6
+                });
+                
+                const cube = new THREE.Mesh(geometry, material);
+                cube.position.x = (Math.random() - 0.5) * 100;
+                cube.position.y = (Math.random() - 0.5) * 100;
+                cube.position.z = (Math.random() - 0.5) * 100;
+                cube.rotationSpeed = {
+                    x: (Math.random() - 0.5) * 0.02,
+                    y: (Math.random() - 0.5) * 0.02,
+                    z: (Math.random() - 0.5) * 0.02
+                };
+                
+                scene.add(cube);
+                cubes.push(cube);
             }
 
-            // Nav links event listeners
-            navLinks.forEach(link => {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    
-                    const targetId = this.getAttribute('href').substring(1);
-                    navigateToSection(targetId);
-                    
-                    // Close mobile menu
-                    document.getElementById('navLinks').classList.remove('active');
-                });
+            document.addEventListener('mousemove', onMouseMove, false);
+            window.addEventListener('resize', onWindowResize, false);
+            animate3D();
+        }
+
+        function onMouseMove(event) {
+            mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+            mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+        }
+
+        function onWindowResize() {
+            const container = document.getElementById('three-canvas').parentElement;
+            camera.aspect = container.offsetWidth / container.offsetHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.offsetWidth, container.offsetHeight);
+        }
+
+        function animate3D() {
+            requestAnimationFrame(animate3D);
+            cubes.forEach(cube => {
+                cube.rotation.x += cube.rotationSpeed.x;
+                cube.rotation.y += cube.rotationSpeed.y;
+                cube.rotation.z += cube.rotationSpeed.z;
+                cube.position.x += (mouseX * 5 - cube.position.x) * 0.01;
+                cube.position.y += (mouseY * 5 - cube.position.y) * 0.01;
             });
+            camera.position.x += (mouseX * 10 - camera.position.x) * 0.05;
+            camera.position.y += (mouseY * 10 - camera.position.y) * 0.05;
+            camera.lookAt(scene.position);
+            renderer.render(scene, camera);
+        }
 
-            // Hero buttons event listeners
-            heroButtons.forEach(button => {
-                button.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    
-                    const targetId = this.getAttribute('href').substring(1);
-                    navigateToSection(targetId);
-                });
-            });
-
-            // Intersection Observer for animations
-            const observerOptions = {
-                threshold: 0.1,
-                rootMargin: '0px 0px -50px 0px'
-            };
-
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.style.animationDelay = '0.1s';
-                        entry.target.classList.add('fade-in');
-                    }
-                });
-            }, observerOptions);
-
-            // Observe elements for animations
-            const elementsToAnimate = document.querySelectorAll('.fade-in');
-            elementsToAnimate.forEach(el => {
-                observer.observe(el);
-            });
-
-            // Update active nav based on scroll position
-            window.addEventListener('scroll', () => {
-                let current = '';
-                sections.forEach(section => {
-                    const sectionTop = section.offsetTop;
-                    const sectionHeight = section.clientHeight;
-                    if (scrollY >= (sectionTop - 200)) {
-                        current = section.getAttribute('id');
-                    }
-                });
-
-                navLinks.forEach(link => {
-                    link.classList.remove('active');
-                    if (link.getAttribute('href') === '#' + current) {
-                        link.classList.add('active');
-                    }
-                });
-            });
-
-        // Interactive Terminal System
-        function initInteractiveTerminal() {
+        function initTerminal() {
             const terminalInput = document.getElementById('terminalInput');
             const terminalBody = document.getElementById('terminalBody');
-            
             if (!terminalInput) return;
 
             const commands = {
-                help: () => `AVAILABLE COMMANDS:
-├── skills       Show technical stack
-├── projects     List portfolio projects  
-├── experience   Professional background
-├── contact      Get contact information
-├── snake        🐍 Play Commodore Snake
-├── matrix       Activate matrix mode
-├── clear        Clear terminal
-└── about        Developer information`,
+                help: () => `COMANDI DISPONIBILI:
+├── portfolio     Progetti web sviluppati
+├── work          Lavoro attuale @ EDIF SpA
+├── skills        Stack tecnologico
+├── contact       Informazioni di contatto
+├── snake         🐍 Retro game Commodore Snake
+└── clear         Pulisci terminale`,
 
-                skills: () => `TECHNICAL STACK ANALYSIS:
-╔═══════════════════════════════════════╗
-║ FRONTEND: React, Vue.js, TypeScript  ║
-║ BACKEND:  Laravel, Node.js, PHP 8+   ║
-║ DATABASE: MySQL, Advanced Queries    ║
-║ DEVOPS:   Git, API REST, Webhooks    ║
-║ TOOLS:    Open2b, GTM, Analytics     ║
-╚═══════════════════════════════════════╝
-→ ENTERPRISE LEVEL PROFICIENCY ✓`,
+                portfolio: () => `PORTFOLIO PROGETTI:
+╔═══════════════════════════════════════════╗
+║ 🏢 EDIF PUNTOLUCE E-COMMERCE (50k+ prod) ║
+║ 🎨 LANDING PAGE PUNTOLUCE                ║
+║ 🏨 ANTICO STRADELLO                      ║
+║ 🏛️ AGENZIA MUSEI                         ║
+║ 🦷 STUDIO DENTISTICO                     ║
+║ 👗 NEGOZIO VINTAGE                       ║
+║ 🎮 FLAPPY BIRD & NEON SNAKE              ║
+║ 💻 FIZZBUZZ CHALLENGE                    ║
+╚═══════════════════════════════════════════╝`,
 
-                projects: () => `PORTFOLIO PROJECTS:
-┌─ EDIF PUNTOLUCE PLATFORM
-│  └─ E-commerce enterprise (€254M company)
-├─ CYBER-TECH INTERFACES  
-│  └─ Advanced CSS animations + responsive
-├─ GAME ENGINE DEVELOPMENT
-│  └─ HTML5 Canvas + Physics engine
-└─ INSTITUTIONAL WEB ARCHITECTURE
-   └─ UX accessibility + performance optimized`,
-
-                experience: () => `PROFESSIONAL BACKGROUND:
+                work: () => `LAVORO ATTUALE @ EDIF SPA:
 ╭─────────────────────────────────────╮
-│ CURRENT: Front-end Dev @ EDIF SpA   │
-│ STACK:   Laravel + Vue.js + Open2b │
-│ COLLAB:  Google Teams (SEO/GTM)    │
-│ SCOPE:   International UX Designers │
-╰─────────────────────────────────────╯
-→ Enterprise-grade solutions architect`,
+│ RUOLO: Frontend Developer           │
+│ PIATTAFORMA: Open2b E-commerce      │
+│ PRODOTTI: 50.000+ gestiti          │
+│ TECNOLOGIE: HTML, CSS, JS, Twig    │  
+│ ANALYTICS: GTM, GA4 implementation │
+│ PERIODO: 2024 - presente           │
+│ SEDE: Bologna (remote disponibile) │
+╰─────────────────────────────────────╯`,
 
-                contact: () => `CONTACT INFORMATION:
-📧 gianlivioiemolo@gmail.com
-📱 +39 331 9462396
-🌍 Bologna, Italy (Remote available)
-💼 Currently @ EDIF SpA
-🔗 linkedin.com/in/gianlivio-iemolo
-⚡ Available for consulting projects`,
+                skills: () => `STACK TECNOLOGICO:
+Frontend: HTML5, CSS3, JavaScript, Vue.js, TypeScript
+Backend: PHP 8+, Laravel, MySQL, API REST, Node.js
+CMS: Open2b, WordPress, Git
+Analytics: GA4, GTM, Microsoft Clarity, Facebook Pixel
+Languages: IT (madrelingua), EN (B2/C1), ES (B2)`,
 
-                about: () => `DEVELOPER PROFILE:
-╔════════════════════════════════════════╗
-║ NAME: Gianlivio Iemolo                ║
-║ ROLE: Full Stack Developer            ║
-║ SPEC: Enterprise Web Architecture     ║
-║ EDUCATION: Philosophy + Semiotics     ║
-║ APPROACH: Methodological rigor        ║
-║ GOAL: Semantic precision in code      ║
-╚════════════════════════════════════════╝`,
-
-                matrix: () => {
-                    document.body.style.animation = 'matrix-glitch 0.5s infinite';
-                    setTimeout(() => {
-                        document.body.style.animation = '';
-                    }, 3000);
-                    return `MATRIX MODE ACTIVATED... 
-┌─ Reality.exe has stopped working
-├─ Loading alternative dimension...
-└─ Welcome to the desert of the real.`;
-                },
+                contact: () => `INFORMAZIONI DI CONTATTO:
+📧 EMAIL: gianlivioiemolo@gmail.com
+📱 TEL: +39 331 946 2396  
+🌍 SEDE: Bologna, Italia (40050)
+💼 LAVORO: Frontend Developer @ EDIF SpA
+🔗 LINKEDIN: linkedin.com/in/gianlivio-iemolo
+💻 GITHUB: github.com/gianlivio`,
 
                 snake: () => {
                     document.getElementById('snakeContainer').style.display = 'block';
                     initSnakeGame();
-                    return `LAUNCHING COMMODORE SNAKE...
-🐍 Game loaded! Use arrow keys to play.
-💡 Pro tip: This is how we entertained ourselves in '85!`;
+                    return `AVVIO COMMODORE SNAKE...
+🐍 Gioco caricato! Usa le frecce direzionali.`;
                 },
 
                 clear: () => {
-                    // Clear terminal except input line
                     const lines = terminalBody.querySelectorAll('.terminal-line:not(.terminal-input-line)');
                     lines.forEach(line => line.remove());
                     return '';
@@ -1235,19 +1207,13 @@
                 if (e.key === 'Enter') {
                     const command = this.value.toLowerCase().trim();
                     
-                    // Add command to terminal
                     const commandLine = document.createElement('div');
                     commandLine.className = 'terminal-line';
-                    commandLine.innerHTML = `
-                        <span class="prompt">C64></span>
-                        <span style="color: var(--c64-white);">${this.value}</span>
-                    `;
+                    commandLine.innerHTML = `<span class="prompt">C64></span><span style="color: var(--c64-white);">${this.value}</span>`;
                     
-                    // Add before input line
                     const inputLine = document.querySelector('.terminal-input-line');
                     terminalBody.insertBefore(commandLine, inputLine);
 
-                    // Process command
                     if (commands[command]) {
                         const output = commands[command]();
                         if (output) {
@@ -1259,8 +1225,7 @@
                     } else if (command) {
                         const errorLine = document.createElement('div');
                         errorLine.className = 'terminal-line';
-                        errorLine.innerHTML = `<div class="terminal-error">COMMAND NOT FOUND: ${command}
-Try 'help' for available commands.</div>`;
+                        errorLine.innerHTML = `<div class="terminal-error">COMMAND NOT FOUND: ${command}<br>Prova 'help' per i comandi disponibili.</div>`;
                         terminalBody.insertBefore(errorLine, inputLine);
                     }
 
@@ -1268,15 +1233,9 @@ Try 'help' for available commands.</div>`;
                     terminalBody.scrollTop = terminalBody.scrollHeight;
                 }
             });
-
-            // Auto-focus terminal
             terminalInput.focus();
-            terminalInput.addEventListener('blur', () => {
-                setTimeout(() => terminalInput.focus(), 100);
-            });
         }
 
-        // Snake Game Implementation
         function initSnakeGame() {
             const canvas = document.getElementById('snakeCanvas');
             const ctx = canvas.getContext('2d');
@@ -1289,13 +1248,9 @@ Try 'help' for available commands.</div>`;
 
             const gridSize = 20;
             const tileCount = canvas.width / gridSize;
-
             let snake = [{ x: 10, y: 10 }];
             let food = { x: 15, y: 15 };
-            let dx = 0;
-            let dy = 0;
-            let gameStarted = false;
-            let gameRunning = false;
+            let dx = 0, dy = 0, gameStarted = false;
 
             function drawSnake() {
                 ctx.fillStyle = '#00FF41';
@@ -1313,31 +1268,23 @@ Try 'help' for available commands.</div>`;
                 ctx.fillStyle = '#6C5CE7';
                 ctx.font = '16px VT323';
                 ctx.textAlign = 'center';
-                ctx.fillText('PRESS ARROW KEY TO START', canvas.width/2, canvas.height/2 - 20);
-                ctx.fillText('WASD ALSO WORKS', canvas.width/2, canvas.height/2 + 10);
+                ctx.fillText('PREMI FRECCIA PER INIZIARE', canvas.width/2, canvas.height/2 - 20);
+                ctx.fillText('WASD FUNZIONA ANCHE', canvas.width/2, canvas.height/2 + 10);
                 ctx.textAlign = 'left';
             }
 
             function moveSnake() {
                 if (!gameStarted || dx === 0 && dy === 0) return;
-
                 const head = { x: snake[0].x + dx, y: snake[0].y + dy };
                 
-                // Wall collision
-                if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount) {
-                    gameOver();
-                    return;
-                }
-                
-                // Self collision
-                if (snake.some(segment => segment.x === head.x && segment.y === head.y)) {
+                if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount || 
+                    snake.some(segment => segment.x === head.x && segment.y === head.y)) {
                     gameOver();
                     return;
                 }
                 
                 snake.unshift(head);
                 
-                // Food collision
                 if (head.x === food.x && head.y === food.y) {
                     score += 10;
                     scoreElement.textContent = score;
@@ -1349,265 +1296,137 @@ Try 'help' for available commands.</div>`;
 
             function generateFood() {
                 do {
-                    food = {
-                        x: Math.floor(Math.random() * tileCount),
-                        y: Math.floor(Math.random() * tileCount)
-                    };
+                    food = { x: Math.floor(Math.random() * tileCount), y: Math.floor(Math.random() * tileCount) };
                 } while (snake.some(segment => segment.x === food.x && segment.y === food.y));
             }
 
             function gameOver() {
-                gameRunning = false;
                 gameStarted = false;
-                
                 if (score > highScore) {
                     highScore = score;
                     localStorage.setItem('snakeHighScore', highScore);
                     highScoreElement.textContent = highScore;
-                    
-                    setTimeout(() => {
-                        alert(`🏆 NEW HIGH SCORE: ${score}!\nYou're officially a Commodore Snake master!`);
-                    }, 100);
+                    setTimeout(() => alert(`🏆 NUOVO RECORD: ${score}!`), 100);
                 } else {
-                    setTimeout(() => {
-                        alert(`💀 GAME OVER!\nScore: ${score}\nPress arrow key to play again!`);
-                    }, 100);
+                    setTimeout(() => alert(`💀 GAME OVER! Punteggio: ${score}`), 100);
                 }
-                
-                // Reset game
                 snake = [{ x: 10, y: 10 }];
-                score = 0;
-                dx = 0;
-                dy = 0;
+                score = 0; dx = 0; dy = 0;
                 scoreElement.textContent = score;
                 generateFood();
             }
 
-            function startGame() {
-                if (!gameStarted) {
-                    gameStarted = true;
-                    gameRunning = true;
-                }
-            }
-
             function gameLoop() {
-                // Clear canvas
                 ctx.fillStyle = '#0F0F23';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
-                
                 if (!gameStarted) {
-                    drawSnake();
-                    drawFood();
-                    drawStartMessage();
+                    drawSnake(); drawFood(); drawStartMessage();
                 } else {
-                    moveSnake();
-                    drawSnake();
-                    drawFood();
+                    moveSnake(); drawSnake(); drawFood();
                 }
             }
 
-            // Controls
             const gameKeyHandler = (e) => {
                 if (document.getElementById('snakeContainer').style.display === 'none') return;
-                
                 let moved = false;
-                
                 switch(e.key) {
-                    case 'ArrowUp':
-                    case 'w':
-                    case 'W':
-                        if (dy !== 1) { 
-                            dx = 0; dy = -1; 
-                            moved = true;
-                        }
-                        break;
-                    case 'ArrowDown':
-                    case 's':
-                    case 'S':
-                        if (dy !== -1) { 
-                            dx = 0; dy = 1; 
-                            moved = true;
-                        }
-                        break;
-                    case 'ArrowLeft':
-                    case 'a':
-                    case 'A':
-                        if (dx !== 1) { 
-                            dx = -1; dy = 0; 
-                            moved = true;
-                        }
-                        break;
-                    case 'ArrowRight':
-                    case 'd':
-                    case 'D':
-                        if (dx !== -1) { 
-                            dx = 1; dy = 0; 
-                            moved = true;
-                        }
-                        break;
-                    case 'Escape':
-                        closeSnake();
-                        return;
+                    case 'ArrowUp': case 'w': case 'W':
+                        if (dy !== 1) { dx = 0; dy = -1; moved = true; } break;
+                    case 'ArrowDown': case 's': case 'S':
+                        if (dy !== -1) { dx = 0; dy = 1; moved = true; } break;
+                    case 'ArrowLeft': case 'a': case 'A':
+                        if (dx !== 1) { dx = -1; dy = 0; moved = true; } break;
+                    case 'ArrowRight': case 'd': case 'D':
+                        if (dx !== -1) { dx = 1; dy = 0; moved = true; } break;
+                    case 'Escape': closeSnake(); return;
                 }
-                
-                if (moved) {
-                    startGame();
-                    e.preventDefault();
-                }
+                if (moved) { gameStarted = true; e.preventDefault(); }
             };
 
-            // Add event listener
             document.addEventListener('keydown', gameKeyHandler);
-            
-            // Store reference to remove later
             window.snakeKeyHandler = gameKeyHandler;
-
-            // Start game loop
             const gameInterval = setInterval(gameLoop, 150);
-            
-            // Store interval reference to clear later
             window.snakeInterval = gameInterval;
-            
-            // Initial draw
-            generateFood();
-            gameLoop();
+            generateFood(); gameLoop();
         }
 
         function closeSnake() {
             document.getElementById('snakeContainer').style.display = 'none';
-            
-            // Clean up event listeners and intervals
             if (window.snakeKeyHandler) {
                 document.removeEventListener('keydown', window.snakeKeyHandler);
                 window.snakeKeyHandler = null;
             }
-            
             if (window.snakeInterval) {
                 clearInterval(window.snakeInterval);
                 window.snakeInterval = null;
             }
         }
 
-            // Console-style loading message
-            setTimeout(() => {
-                console.log('%c COMMODORE 64 PORTFOLIO LOADED ', 'background: #6C5CE7; color: #fff; padding: 5px; font-family: monospace;');
-                console.log('%c READY FOR INPUT... ', 'background: #00FF41; color: #000; padding: 5px; font-family: monospace;');
-            }, 2000);
+        document.addEventListener('DOMContentLoaded', function() {
+            const navLinks = document.querySelectorAll('.nav-link');
+            const sections = document.querySelectorAll('section');
+            const heroButtons = document.querySelectorAll('.hero-buttons .btn');
 
-            // Add click sound effect (optional)
-            document.addEventListener('click', function() {
-                // Simple beep sound simulation
-                if (window.AudioContext || window.webkitAudioContext) {
-                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                    const oscillator = audioContext.createOscillator();
-                    const gainNode = audioContext.createGain();
-                    
-                    oscillator.connect(gainNode);
-                    gainNode.connect(audioContext.destination);
-                    
-                    oscillator.frequency.value = 800;
-                    oscillator.type = 'square';
-                    
-                    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
-                    
-                    oscillator.start(audioContext.currentTime);
-                    oscillator.stop(audioContext.currentTime + 0.1);
+            init3D(); initTerminal();
+
+            const heroTitle = document.querySelector('.hero h1');
+            const originalText = heroTitle.textContent;
+            heroTitle.textContent = '';
+            let i = 0;
+            function typeWriter() {
+                if (i < originalText.length) {
+                    heroTitle.textContent += originalText.charAt(i);
+                    i++; setTimeout(typeWriter, 100);
                 }
+            }
+            setTimeout(typeWriter, 1000);
+
+            function navigateToSection(targetId) {
+                const targetSection = document.getElementById(targetId);
+                if (targetSection) {
+                    targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    navLinks.forEach(nl => nl.classList.remove('active'));
+                    const correspondingNavLink = document.querySelector(`.nav-link[href="#${targetId}"]`);
+                    if (correspondingNavLink) correspondingNavLink.classList.add('active');
+                }
+            }
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href').substring(1);
+                    navigateToSection(targetId);
+                    document.getElementById('navLinks').classList.remove('active');
+                });
             });
-        });
 
-        // Easter egg: Konami code
-        let konamiCode = [];
-        const konami = [38, 38, 40, 40, 37, 39, 37, 39, 66, 65]; // Up Up Down Down Left Right Left Right B A
+            heroButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href').substring(1);
+                    navigateToSection(targetId);
+                });
+            });
 
-        document.addEventListener('keydown', function(e) {
-            konamiCode.push(e.keyCode);
-            if (konamiCode.length > konami.length) {
-                konamiCode.shift();
-            }
-            
-            if (JSON.stringify(konamiCode) === JSON.stringify(konami)) {
-                document.body.style.filter = 'hue-rotate(180deg)';
-                alert('COMMODORE 64 EASTER EGG ACTIVATED! 🕹️');
-                setTimeout(() => {
-                    document.body.style.filter = 'none';
-                }, 5000);
-                konamiCode = [];
-            }
-        });
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) entry.target.classList.add('fade-in');
+                });
+            }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
 
-        // Retro terminal commands simulation
-        let terminalMode = false;
-        document.addEventListener('keydown', function(e) {
-            if (e.ctrlKey && e.key === '`') {
-                e.preventDefault();
-                terminalMode = !terminalMode;
-                
-                if (terminalMode) {
-                    const terminal = document.createElement('div');
-                    terminal.id = 'terminal';
-                    terminal.innerHTML = `
-                        <div style="position: fixed; bottom: 0; left: 0; right: 0; background: var(--c64-dark); 
-                                    color: var(--c64-green); padding: 1rem; font-family: 'VT323', monospace; 
-                                    border-top: 2px solid var(--c64-green); z-index: 999;">
-                            <div>COMMODORE 64 TERMINAL READY</div>
-                            <div>TYPE 'HELP' FOR COMMANDS</div>
-                            <div style="display: flex; align-items: center;">
-                                <span>C64> </span>
-                                <input type="text" id="terminalInput" style="background: transparent; border: none; 
-                                       color: var(--c64-green); font-family: inherit; outline: none; flex: 1;" 
-                                       autocomplete="off">
-                            </div>
-                        </div>
-                    `;
-                    document.body.appendChild(terminal);
-                    document.getElementById('terminalInput').focus();
-                    
-                    document.getElementById('terminalInput').addEventListener('keydown', function(e) {
-                        if (e.key === 'Enter') {
-                            const command = this.value.toLowerCase().trim();
-                            const output = document.createElement('div');
-                            
-                            switch(command) {
-                                case 'help':
-                                    output.innerHTML = 'AVAILABLE COMMANDS: HELP, ABOUT, SKILLS, PROJECTS, CONTACT, CLEAR, EXIT';
-                                    break;
-                                case 'about':
-                                    output.innerHTML = 'GIANLIVIO IEMOLO - FULL STACK DEVELOPER & SEMIOLOGO';
-                                    break;
-                                case 'skills':
-                                    output.innerHTML = 'REACT | LARAVEL | NODE.JS | PHP | JAVASCRIPT | SEMIOTICA';
-                                    break;
-                                case 'projects':
-                                    output.innerHTML = 'PUNTOLUCE | AGENZIA MUSEI | FLAPPY BIRD | TRILOGIA NARRATIVA';
-                                    break;
-                                case 'contact':
-                                    output.innerHTML = 'EMAIL: gianlivioiemolo@gmail.com | TEL: +39 331 9462396';
-                                    break;
-                                case 'clear':
-                                    terminal.querySelectorAll('div:not(:last-child)').forEach(el => {
-                                        if (!el.querySelector('input')) el.remove();
-                                    });
-                                    this.value = '';
-                                    return;
-                                case 'exit':
-                                    terminal.remove();
-                                    terminalMode = false;
-                                    return;
-                                default:
-                                    output.innerHTML = `UNKNOWN COMMAND: ${command.toUpperCase()}`;
-                            }
-                            
-                            terminal.insertBefore(output, terminal.lastElementChild);
-                            this.value = '';
-                        } else if (e.key === 'Escape') {
-                            terminal.remove();
-                            terminalMode = false;
-                        }
-                    });
-                }
-            }
+            document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+            window.addEventListener('scroll', () => {
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    if (scrollY >= (sectionTop - 200)) current = section.getAttribute('id');
+                });
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href') === '#' + current) link.classList.add('active');
+                });
+            });
         });
     </script>
 </body>
