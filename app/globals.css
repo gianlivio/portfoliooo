@@ -1,16 +1,125 @@
 @import "tailwindcss";
 
 @layer base {
+  :root {
+    /* PALETTE PRINCIPALE */
+    --color-signal: #ff3e00;        /* Rosso segnale principale */
+    --color-signal-dark: #cc3200;   /* Rosso scuro (hover/contrasto) */
+    --color-signal-light: #ff5722;  /* Rosso chiaro (accenti) */
+    
+    /* NEUTRALI CON CONTRASTO */
+    --color-white: #ffffff;
+    --color-black: #000000;
+    --color-gray-900: #1a1a1a;
+    --color-gray-800: #2d2d2d;
+    --color-gray-100: #f5f5f5;
+    
+    /* TRASPARENZE CALIBRATE */
+    --bg-glass: rgba(255, 255, 255, 0.05);
+    --bg-glass-hover: rgba(255, 255, 255, 0.15);
+    --border-subtle: rgba(255, 255, 255, 0.2);
+    --border-strong: rgba(255, 255, 255, 0.6);
+    
+    /* SHADOWS PER DEPTH */
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+    --shadow-glow: 0 0 20px rgba(255, 255, 255, 0.3);
+  }
+
   body {
-    background-color: #ff3e00 !important; /* Rosso Segnale */
-    color: white;
+    background-color: var(--color-signal) !important;
+    color: var(--color-white);
     margin: 0;
     padding: 0;
     overflow-x: hidden;
   }
 }
 
-/* Effetto di inversione pazzesco */
+/* UTILITIES PER CONTRASTO */
+@layer utilities {
+  /* Backgrounds con contrasto ottimizzato */
+  .bg-glass {
+    background: var(--bg-glass);
+    backdrop-filter: blur(8px);
+  }
+  
+  .bg-glass-hover {
+    background: var(--bg-glass-hover);
+  }
+  
+  /* Borders calibrati */
+  .border-subtle {
+    border-color: var(--border-subtle);
+  }
+  
+  .border-strong {
+    border-color: var(--border-strong);
+  }
+  
+  /* Text contrast helpers */
+  .text-contrast-high {
+    color: var(--color-white);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  }
+  
+  .text-contrast-subtle {
+    color: rgba(255, 255, 255, 0.7);
+  }
+  
+  /* Icon containers con bg solido per massimo contrasto */
+  .icon-container {
+    background: var(--color-white);
+    border: 2px solid var(--border-subtle);
+    border-radius: 12px;
+    padding: 1rem;
+    box-shadow: var(--shadow-md);
+    transition: all 0.3s ease;
+  }
+  
+  .icon-container:hover {
+    background: var(--color-white);
+    border-color: var(--color-white);
+    box-shadow: var(--shadow-glow);
+    transform: scale(1.1);
+  }
+  
+  /* Card con depth migliorato */
+  .card-elevated {
+    background: var(--bg-glass);
+    border: 2px solid var(--border-subtle);
+    box-shadow: var(--shadow-md);
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .card-elevated:hover {
+    background: var(--color-white);
+    color: var(--color-signal);
+    border-color: var(--color-white);
+    box-shadow: var(--shadow-lg);
+  }
+}
+
+/* OTTIMIZZAZIONE MIX-BLEND-MODE */
 .mix-difference {
   mix-blend-mode: difference;
+  filter: brightness(1.2) contrast(1.1); /* Boost contrasto cursore */
+}
+
+/* GRAYSCALE OTTIMIZZATO PER ICONE */
+.icon-grayscale {
+  filter: grayscale(1) brightness(0) invert(1); /* Icone BIANCHE di default */
+  transition: filter 0.3s ease;
+}
+
+.icon-grayscale:hover {
+  filter: grayscale(0) brightness(1) invert(0); /* Colore originale al hover */
+}
+
+/* BACKGROUND LOGS CON CONTRASTO RIDOTTO */
+.bg-logs {
+  color: rgba(255, 255, 255, 0.08); /* Ultra subtle per non disturbare */
+  font-family: 'Courier New', monospace;
+  user-select: none;
+  pointer-events: none;
 }

@@ -2,6 +2,7 @@
 import { motion, useMotionValue, useSpring, useScroll, useTransform } from "framer-motion";
 import { useEffect, useState, use } from "react";
 import LanguagePicker from '../../components/LanguagePicker';
+import InfiniteSlider from '../../components/InfiniteSlider';
 
 import it from '../../dictionaries/it.json';
 import en from '../../dictionaries/en.json';
@@ -48,7 +49,7 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
       {/* BACKGROUND LOGS */}
       <motion.div 
         style={{ opacity: opacityLog }}
-        className="fixed top-0 left-0 w-full h-full pointer-events-none font-mono text-[10px] leading-none break-all p-4 z-0 text-white"
+        className="fixed top-0 left-0 w-full h-full pointer-events-none font-mono text-[10px] leading-none break-all p-4 z-0 bg-logs"
       >
         {Array.from({ length: 40 }).map((_, i) => (
           <p key={i}>ERR_NO_SEMANTIC_NOISE_SKU_51240_CATEGORIES_13102_CWV_OPTIMIZED_STATUS_OK_</p>
@@ -98,17 +99,17 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
       {/* NEW SECTION: AUTOMATIONS & ENTROPY - 6 ITEMS */}
       <section className="relative z-10 mt-80 px-6 md:px-12 text-white">
         <div className="mb-20">
-          <h3 className="text-[10vw] font-[1000] leading-[0.8] tracking-tighter mb-4 underline decoration-[10px]">
+          <h3 className="text-[10vw] font-[1000] leading-[0.8] tracking-tighter mb-4 underline decoration-[10px] text-contrast-high">
             {dict.automations.title}
           </h3>
-          <p className="font-mono text-xl md:text-2xl opacity-80 uppercase tracking-widest italic">
+          <p className="font-mono text-xl md:text-2xl text-white/80 uppercase tracking-widest italic">
             {dict.automations.subtitle}
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-1 border-white/20 bg-white/20">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-1 border-white/20 bg-white/10">
           {dict.automations.items.map((item: any, idx: number) => (
-            <div key={idx} className="bg-[#ff3e00] p-8 border border-white h-full flex flex-col justify-between hover:bg-white hover:text-[#ff3e00] transition-colors duration-500 group">
+            <div key={idx} className="card-elevated p-8 h-full flex flex-col justify-between group">
               <span className="font-mono text-sm mb-10 opacity-50 group-hover:opacity-100 italic">LOG_0{idx + 1}</span>
               <div>
                 <h4 className="text-3xl font-[1000] mb-6 leading-none uppercase">{item.title}</h4>
@@ -117,6 +118,32 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
             </div>
           ))}
         </div>
+      </section>
+
+       {/* SECTION: CERTIFICATIONS SLIDER */}
+      <section className="relative z-10 mt-80 px-6 md:px-12 text-white">
+        <h3 className="text-[10vw] font-[1000] leading-[0.8] tracking-tighter mb-12 underline decoration-[10px] uppercase">
+          {dict.certifications.title}
+        </h3>
+        <InfiniteSlider 
+          items={dict.certifications.items} 
+          speed={0.8} 
+          itemWidth={120} 
+          itemHeight={120}
+        />
+      </section>
+
+      {/* SECTION: TECH STACK SLIDER */}
+      <section className="relative z-10 mt-40 px-6 md:px-12 text-white">
+        <h3 className="text-[10vw] font-[1000] leading-[0.8] tracking-tighter mb-12 underline decoration-[10px] uppercase">
+          {dict.techstack.title}
+        </h3>
+        <InfiniteSlider 
+          items={dict.techstack.items} 
+          speed={1.2} 
+          itemWidth={80} 
+          itemHeight={80}
+        />
       </section>
 
       {/* FOOTER */}
