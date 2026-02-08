@@ -8,6 +8,36 @@
     "units": "STRUCTURED_ENTITIES",
     "desc": "I governed the complexity of a massive ecosystem. Zero visual noise. Surgical rigor."
   },
+  "automations": {
+    "title": "AUTOMATIONS & INTEGRATIONS",
+    "subtitle": "Architectures that nullify the entropy of distributed data",
+    "items": [
+      {
+        "title": "SYNTHESIS OF MARKETING AUTOMATION",
+        "desc": "Bidirectional flows between e-commerce core and Brevo. 60,000+ synchronized contacts. User semantic persistence. Zero information latency."
+      },
+      {
+        "title": "DIGITAL CONSENT ARCHITECTURE",
+        "desc": "GDPR layer treating consent as legal-symbolic structure. Cookiebot manages semiotics. GTM orchestrates signal. Complete audit trail."
+      },
+      {
+        "title": "STATISTICAL NOISE ELIMINATION",
+        "desc": "GA4/GTM/Consent Mode v2 tracking. Signal-to-noise ratio reduced. Every event is a validated signifier, not a random artifact."
+      },
+      {
+        "title": "MASTERY OF MASSIVE COMPLEXITY",
+        "desc": "51,240 SKUs across 13,102 categories. Combinatorial weight governed. Scalability translates vastness into cognitive navigability."
+      },
+      {
+        "title": "UNIFIED EUROPEAN VAT VALIDATION",
+        "desc": "OpenAPI replaces legacy SOAP. 28 EU countries. Stratified cache. Hard-blocking at checkout. 70% cost reduction. Validation as regulatory barricade."
+      },
+      {
+        "title": "AUTOMATIC B2B/B2C SEGMENTATION",
+        "desc": "Classification via VAT presence/absence and Tax Area. Webhook-driven. Zero categorical ambiguity. No manual intervention."
+      }
+    ]
+  },
   "footer": {
     "philosophy": "An interface that fails to convey its meaning through pure structure is merely computational noise."
   }

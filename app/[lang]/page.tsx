@@ -3,7 +3,6 @@ import { motion, useMotionValue, useSpring, useScroll, useTransform } from "fram
 import { useEffect, useState, use } from "react";
 import LanguagePicker from '../../components/LanguagePicker';
 
-// Import dizionari
 import it from '../../dictionaries/it.json';
 import en from '../../dictionaries/en.json';
 import es from '../../dictionaries/es.json';
@@ -12,9 +11,6 @@ const dictionaries: any = { it, en, es };
 
 export default function Home({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = use(params);
-  
-  // Seleziona il dizionario in base al parametro dell'URL
-  // Aggiungiamo un log per debuggare in tempo reale nella console del browser
   const dict = dictionaries[lang] || dictionaries.it;
 
   const mouseX = useMotionValue(-500);
@@ -42,9 +38,8 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
   }, [mouseX, mouseY]);
 
   return (
-    <main className="relative min-h-[250vh] bg-[#ff3e00] overflow-x-hidden select-none cursor-none font-sans">
+    <main className="relative min-h-[400vh] bg-[#ff3e00] overflow-x-hidden select-none cursor-none font-sans">
       
-      {/* CURSORE INVERTENTE */}
       <motion.div 
         className="fixed top-0 left-0 w-64 h-64 md:w-96 md:h-96 bg-white rounded-full pointer-events-none z-[100] mix-blend-difference"
         style={{ x: springX, y: springY, translateX: "-50%", translateY: "-50%" }}
@@ -60,7 +55,6 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
         ))}
       </motion.div>
 
-      {/* NAV CON LANGUAGE PICKER */}
       <nav className="fixed top-0 left-0 w-full p-6 md:p-12 flex justify-between items-start z-[110] mix-blend-difference text-white">
         <div className="text-3xl font-[1000] leading-[0.7] tracking-tighter">
           GIANLIVIO<br/>IEMOLO
@@ -68,7 +62,7 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
         <LanguagePicker currentLang={lang} />
       </nav>
 
-      {/* HERO SECTION */}
+      {/* HERO */}
       <section className="relative z-10 pt-48 md:pt-64 px-6 md:px-12 pointer-events-none text-white">
         <motion.h1 
           style={{ skewX: skew }}
@@ -88,10 +82,10 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
         </div>
       </section>
 
-      {/* SECTION PUNTOLUCE */}
-      <section className="relative z-10 mt-80 px-6 md:px-12 text-white pb-40">
+      {/* STATS PUNTOLUCE */}
+      <section className="relative z-10 mt-80 px-6 md:px-12 text-white">
         <div className="border-t-[10px] border-white pt-10">
-          <div className="flex flex-col md:flex-row justify-between items-baseline gap-4">
+          <div className="flex flex-col md:flex-row justify-between items-baseline gap-4 text-white">
             <span className="text-[18vw] font-[1000] italic leading-none">51.240</span>
             <span className="font-mono text-2xl md:text-5xl font-black italic uppercase">{dict.stats.units}</span>
           </div>
@@ -101,11 +95,35 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
         </div>
       </section>
 
+      {/* NEW SECTION: AUTOMATIONS & ENTROPY - 6 ITEMS */}
+      <section className="relative z-10 mt-80 px-6 md:px-12 text-white">
+        <div className="mb-20">
+          <h3 className="text-[10vw] font-[1000] leading-[0.8] tracking-tighter mb-4 underline decoration-[10px]">
+            {dict.automations.title}
+          </h3>
+          <p className="font-mono text-xl md:text-2xl opacity-80 uppercase tracking-widest italic">
+            {dict.automations.subtitle}
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-1 border-white/20 bg-white/20">
+          {dict.automations.items.map((item: any, idx: number) => (
+            <div key={idx} className="bg-[#ff3e00] p-8 border border-white h-full flex flex-col justify-between hover:bg-white hover:text-[#ff3e00] transition-colors duration-500 group">
+              <span className="font-mono text-sm mb-10 opacity-50 group-hover:opacity-100 italic">LOG_0{idx + 1}</span>
+              <div>
+                <h4 className="text-3xl font-[1000] mb-6 leading-none uppercase">{item.title}</h4>
+                <p className="text-lg font-bold leading-tight uppercase">{item.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* FOOTER */}
-      <footer className="mt-40 p-6 md:p-12 flex flex-col md:flex-row justify-between items-end gap-10 text-white pb-20">
+      <footer className="mt-80 p-6 md:p-12 flex flex-col md:flex-row justify-between items-end gap-10 text-white pb-20">
         <div className="max-w-md">
-          <p className="font-mono text-xs mb-4 opacity-50 tracking-widest">SYSTEM_PHILOSOPHY</p>
-          <p className="text-xl font-bold italic">
+          <p className="font-mono text-xs mb-4 opacity-50 tracking-widest uppercase italic">SYSTEM_PHILOSOPHY</p>
+          <p className="text-xl font-bold italic underline">
             "{dict.footer.philosophy}"
           </p>
         </div>

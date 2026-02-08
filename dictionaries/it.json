@@ -8,6 +8,36 @@
     "units": "ENTITÀ_STRUTTURATE",
     "desc": "Ho governato la complessità di un ecosistema massivo. Zero rumore visivo. Rigore chirurgico."
   },
+  "automations": {
+    "title": "AUTOMAZIONI & INTEGRAZIONI",
+    "subtitle": "Architetture che annullano l'entropia dei dati distribuiti",
+    "items": [
+      {
+        "title": "SINTESI DI MARKETING AUTOMATION",
+        "desc": "Flussi bidirezionali tra core e-commerce e Brevo. 60.000+ contatti sincronizzati. Persistenza semantica dell'utente. Zero latenza informativa."
+      },
+      {
+        "title": "ARCHITETTURA DEL CONSENSO DIGITALE",
+        "desc": "Layer GDPR che tratta il consenso come struttura giuridico-simbolica. Cookiebot gestisce la semiotica. GTM orchestra il segnale. Audit trail completo."
+      },
+      {
+        "title": "ABBATTIMENTO DEL RUMORE STATISTICO",
+        "desc": "Tracking GA4/GTM/Consent Mode v2. Rapporto segnale/rumore ridotto. Ogni evento è un significante validato, non un artefatto casuale."
+      },
+      {
+        "title": "DOMINIO DELLA COMPLESSITÀ MASSIVA",
+        "desc": "51.240 SKU su 13.102 categorie. Peso combinatorico governato. La scalabilità traduce vastità in navigabilità cognitiva."
+      },
+      {
+        "title": "VALIDAZIONE IVA EUROPEA UNIFICATA",
+        "desc": "API OpenAPI sostituisce SOAP legacy. 28 paesi UE. Cache stratificata. Hard-blocking al checkout. Riduzione costi 70%. La validazione è barricata normativa."
+      },
+      {
+        "title": "SEGMENTAZIONE AUTOMATICA B2B/B2C",
+        "desc": "Classificazione via presenza/assenza P.IVA e Tax Area. Webhook-driven. Zero ambiguità categoriale. Nessun intervento manuale."
+      }
+    ]
+  },
   "footer": {
     "philosophy": "Un'interfaccia che non esplicita il proprio senso tramite la pura struttura è mero rumore computazionale."
   }

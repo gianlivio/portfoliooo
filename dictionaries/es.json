@@ -2,11 +2,41 @@
   "hero": {
     "title": "SIGNOS CÓDIGO",
     "sub": "EL SENTIDO PRECEDE LA FUNCIÓN.",
-    "desc": "Desarrollo interfaces en las cuales l'análisis semiótico deconstruye el caos y la arquitectura del código sintetiza el orden."
+    "desc": "Desarrollo interfaces en las que el análisis semiótico deconstruye el caos y la arquitectura del código sintetiza el orden."
   },
   "stats": {
     "units": "ENTIDADES_ESTRUCTURADAS",
     "desc": "He gobernado la complejidad de un ecosistema masivo. Cero ruido visual. Rigor quirúrgico."
+  },
+  "automations": {
+    "title": "AUTOMATIZACIONES E INTEGRACIONES",
+    "subtitle": "Arquitecturas que anulan la entropía de los datos distribuidos",
+    "items": [
+      {
+        "title": "SÍNTESIS DE MARKETING AUTOMATION",
+        "desc": "Flujos bidireccionales entre core e-commerce y Brevo. 60.000+ contactos sincronizados. Persistencia semántica del usuario. Latencia informativa cero."
+      },
+      {
+        "title": "ARQUITECTURA DEL CONSENTIMIENTO DIGITAL",
+        "desc": "Capa GDPR que trata el consentimiento como estructura jurídico-simbólica. Cookiebot gestiona la semiótica. GTM orquesta la señal. Audit trail completo."
+      },
+      {
+        "title": "ELIMINACIÓN DEL RUIDO ESTADÍSTICO",
+        "desc": "Tracking GA4/GTM/Consent Mode v2. Relación señal/ruido reducida. Cada evento es un significante validado, no un artefacto aleatorio."
+      },
+      {
+        "title": "DOMINIO DE LA COMPLEJIDAD MASIVA",
+        "desc": "51.240 SKUs en 13.102 categorías. Peso combinatorio gobernado. La escalabilidad traduce vastedad en navegabilidad cognitiva."
+      },
+      {
+        "title": "VALIDACIÓN IVA EUROPEA UNIFICADA",
+        "desc": "API OpenAPI sustituye SOAP legacy. 28 países UE. Caché estratificada. Hard-blocking en checkout. Reducción de costos 70%. La validación es barricada normativa."
+      },
+      {
+        "title": "SEGMENTACIÓN AUTOMÁTICA B2B/B2C",
+        "desc": "Clasificación vía presencia/ausencia P.IVA y Tax Area. Webhook-driven. Ambigüedad categorial cero. Sin intervención manual."
+      }
+    ]
   },
   "footer": {
     "philosophy": "Una interfaz que no explicita su propio sentido a través de la pura estructura es mero ruido computacional."
