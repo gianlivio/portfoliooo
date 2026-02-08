@@ -4,6 +4,7 @@ import { useEffect, useState, use } from "react";
 import LanguagePicker from '../../components/LanguagePicker';
 import InfiniteSlider from '../../components/InfiniteSlider';
 import ContactCard from '../../components/ContactCard';
+import DownloadCV from '../../components/DownloadCV';
 
 import it from '../../dictionaries/it.json';
 import en from '../../dictionaries/en.json';
@@ -164,32 +165,50 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
       </section>
 
       {/* SECTION: CONTACT - MAGNETIC CARDS */}
-<section className="relative z-10 mt-80 px-6 md:px-12 text-white">
-  <div className="mb-20">
-    <h3 className="text-[10vw] font-[1000] leading-[0.8] tracking-tighter mb-4 underline decoration-[10px] text-contrast-high">
-      {dict.contact.title}
-    </h3>
-    <p className="font-mono text-xl md:text-2xl text-white/80 uppercase tracking-widest italic">
-      {dict.contact.subtitle}
-    </p>
-  </div>
+      <section className="relative z-10 mt-80 px-6 md:px-12 text-white">
+        <div className="mb-20">
+          <h3 className="text-[10vw] font-[1000] leading-[0.8] tracking-tighter mb-4 underline decoration-[10px] text-contrast-high">
+            {dict.contact.title}
+          </h3>
+          <p className="font-mono text-xl md:text-2xl text-white/80 uppercase tracking-widest italic">
+            {dict.contact.subtitle}
+          </p>
+        </div>
 
-  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-    {dict.contact.items.map((item: any, idx: number) => (
-      <ContactCard
-        key={idx}
-        icon={item.icon}
-        label={item.label}
-        value={item.value}
-        href={item.href}
-        copyable={item.copyable}
-        type={item.type}
-      />
-    ))}
-  </div>
-</section>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {dict.contact.items.map((item: any, idx: number) => (
+            <ContactCard
+              key={idx}
+              icon={item.icon}
+              label={item.label}
+              value={item.value}
+              href={item.href}
+              copyable={item.copyable}
+              type={item.type}
+            />
+          ))}
+        </div>
+      </section>
 
-      
+      {/* SECTION: DOWNLOAD CV */}
+      <section className="relative z-10 mt-80 px-6 md:px-12 text-white">
+        <div className="mb-20">
+          <h3 className="text-[10vw] font-[1000] leading-[0.8] tracking-tighter mb-4 underline decoration-[10px] text-contrast-high">
+            {dict.cta.title}
+          </h3>
+          <p className="font-mono text-xl md:text-2xl text-white/80 uppercase tracking-widest italic">
+            {dict.cta.subtitle}
+          </p>
+        </div>
+
+        <div className="flex justify-center">
+          <DownloadCV 
+            buttonText={dict.cta.button}
+            filesize={dict.cta.filesize}
+            lang={lang}
+          />
+        </div>
+      </section>
 
       {/* FOOTER */}
       <footer className="mt-80 p-6 md:p-12 flex flex-col md:flex-row justify-between items-end gap-10 text-white pb-20">

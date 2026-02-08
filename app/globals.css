@@ -287,3 +287,36 @@
     box-shadow: 0 0 30px rgba(255, 255, 255, 0.6);
   }
 }
+
+/* DOWNLOAD CV EFFECTS */
+@keyframes glitch-1 {
+  0%, 100% { transform: translate(0); }
+  33% { transform: translate(-3px, 2px); }
+  66% { transform: translate(3px, -2px); }
+}
+
+@keyframes glitch-2 {
+  0%, 100% { transform: translate(0); }
+  33% { transform: translate(3px, -2px); }
+  66% { transform: translate(-3px, 2px); }
+}
+
+@keyframes download-particle {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(calc((var(--angle, 0) * 1deg) * 150px), calc(sin(var(--angle, 0) * 1deg) * 150px)) scale(0);
+    opacity: 0;
+  }
+}
+
+.scan-lines-download {
+  animation: scan-move 4s linear infinite;
+}
+
+@keyframes scan-move {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
+}

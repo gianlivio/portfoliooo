@@ -174,6 +174,18 @@
         }
     ]
     },
+    "cta": {
+    "title": "DESCARGAR_CURRÍCULUM",
+    "subtitle": "Documento técnico completo",
+    "button": "DESCARGAR CV.PDF",
+    "filesize": "~150KB",
+    "availability": {
+        "status": "DISPONIBLE INMEDIATAMENTE",
+        "type": "Remote Full-Time",
+        "timezone": "EU (CET/CEST)"
+    }
+    },
+
   "footer": {
     "philosophy": "Una interfaz que no explicita su propio sentido a través de la pura estructura es mero ruido computacional."
   }
