@@ -140,6 +140,40 @@
       { "name": "Figma", "icon": "https://cdn.simpleicons.org/figma/F24E1E" }
     ]
   },
+    "contact": {
+    "title": "INTERFACCIA DI CONTATTO",
+    "subtitle": "Canali di comunicazione diretta",
+        "items": [
+        {
+            "label": "EMAIL",
+            "value": "gianlivioiemolo@gmail.com",
+            "href": "mailto:gianlivioiemolo@gmail.com",
+            "type": "email",
+            "copyable": true
+        },
+        {
+            "label": "TELEFONO",
+            "value": "+39 331 946 2396",
+            "href": "tel:+393319462396",
+            "type": "phone",
+            "copyable": true
+        },
+        {
+            "label": "LINKEDIN",
+            "value": "gianlivio-iemolo",
+            "href": "https://www.linkedin.com/in/gianlivio-iemolo/",
+            "type": "linkedin",
+            "copyable": false
+        },
+        {
+            "label": "GITHUB",
+            "value": "gianlivio",
+            "href": "https://github.com/gianlivio/",
+            "type": "github",
+            "copyable": false
+        }
+        ]
+    },
   "footer": {
     "philosophy": "Un'interfaccia che non esplicita il proprio senso tramite la pura struttura è mero rumore computazionale."
   }
