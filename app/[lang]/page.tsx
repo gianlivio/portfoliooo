@@ -46,15 +46,31 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
         style={{ x: springX, y: springY, translateX: "-50%", translateY: "-50%" }}
       />
 
-      {/* BACKGROUND LOGS */}
-      <motion.div 
-        style={{ opacity: opacityLog }}
-        className="fixed top-0 left-0 w-full h-full pointer-events-none font-mono text-[10px] leading-none break-all p-4 z-0 bg-logs"
-      >
-        {Array.from({ length: 40 }).map((_, i) => (
-          <p key={i}>ERR_NO_SEMANTIC_NOISE_SKU_51240_CATEGORIES_13102_CWV_OPTIMIZED_STATUS_OK_</p>
-        ))}
-      </motion.div>
+{/* BACKGROUND LOGS - FAST SEAMLESS */}
+<motion.div 
+  style={{ opacity: opacityLog }}
+  className="fixed top-0 left-0 w-full h-full pointer-events-none font-mono text-[8px] leading-tight break-all p-4 z-0 overflow-hidden"
+>
+  <motion.div
+    className="flex flex-col gap-1"
+    animate={{
+      y: [-800, 0]
+    }}
+    transition={{
+      duration: 30,
+      repeat: Infinity,
+      ease: "linear"
+    }}
+  >
+    {[...Array(3)].flatMap((_, setIdx) => 
+      Array.from({ length: 30 }).map((_, i) => (
+        <p key={`${setIdx}-${i}`} style={{ color: 'rgba(0, 0, 0, 0.8)' }}>
+          ERR_NO_SEMANTIC_NOISE_SKU_51240_CATEGORIES_13102_CWV_OPTIMIZED_STATUS_OK_
+        </p>
+      ))
+    )}
+  </motion.div>
+</motion.div>
 
       <nav className="fixed top-0 left-0 w-full p-6 md:p-12 flex justify-between items-start z-[110] mix-blend-difference text-white">
         <div className="text-3xl font-[1000] leading-[0.7] tracking-tighter">
@@ -107,7 +123,7 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-1 border-white/20 bg-white/10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-1 border-white/20 bg-white/10">
           {dict.automations.items.map((item: any, idx: number) => (
             <div key={idx} className="card-elevated p-8 h-full flex flex-col justify-between group">
               <span className="font-mono text-sm mb-10 opacity-50 group-hover:opacity-100 italic">LOG_0{idx + 1}</span>

@@ -118,7 +118,7 @@
 
 /* BACKGROUND LOGS CON CONTRASTO RIDOTTO */
 .bg-logs {
-  color: rgba(255, 255, 255, 0.08); /* Ultra subtle per non disturbare */
+  color: rgba(0, 0, 0, 0.15); /* NERO 15% invece di bianco */
   font-family: 'Courier New', monospace;
   user-select: none;
   pointer-events: none;
