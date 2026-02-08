@@ -178,16 +178,15 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {dict.contact.items.map((item: any, idx: number) => (
-            <ContactCard
-              key={idx}
-              icon={item.icon}
-              label={item.label}
-              value={item.value}
-              href={item.href}
-              copyable={item.copyable}
-              type={item.type}
-              icon={item.icon}
-            />
+          <ContactCard
+            key={idx}
+            label={item.label}
+            value={item.value}
+            href={item.href}
+            type={item.type}
+            copyable={item.copyable}
+            icon={item.icon} 
+          />
           ))}
         </div>
       </section>
