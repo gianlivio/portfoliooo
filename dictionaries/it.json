@@ -174,7 +174,6 @@
         }
         ]
     },
-
     "cta": {
     "title": "DOWNLOAD_CURRICULUM",
     "subtitle": "Documento tecnico completo",
@@ -185,6 +184,75 @@
         "type": "Remote Full-Time",
         "timezone": "EU (CET/CEST)"
     }
+    },
+    "timeline": {
+    "title": "PERCORSO_EVOLUTIVO",
+    "subtitle": "Dal pensiero alla sintassi",
+    "items": [
+        {
+        "year": "2024-2025",
+        "role": "FULL STACK DEVELOPER",
+        "company": "PuntoLuce / EDIF",
+        "location": "Bologna, Italia",
+        "highlights": [
+            "Sviluppo e gestione shop.puntoluce.net (51.240 SKU, 13.102 categorie)",
+            "Implementazione 20+ integrazioni API (Open2B, Brevo, GTM, GA4, Feedaty, Kelkoo, Trovaprezzi)",
+            "Ottimizzazione performance: Lighthouse da 40 a 80 (+100%), LCP da 12.3s a 3.4s (-72%)",
+            "Sistema VAT validation unificato (VIES EU + Cerved IT) per 28 paesi",
+            "Marketing automation Brevo: sincronizzazione 60k+ contatti con webhook bidirezionali",
+            "Implementazione GDPR compliance (Cookiebot + Consent Mode v2)",
+            "Refactoring CSS mobile-first: 15k→10k righe, utilities centralizzate"
+        ]
+        },
+        {
+        "year": "2023-2024",
+        "role": "TRAINEE FULL STACK",
+        "company": "Boolean Academy",
+        "location": "Remote",
+        "highlights": [
+            "Bootcamp intensivo 600+ ore: HTML, CSS, JavaScript, Vue.js, PHP, Laravel, MySQL",
+            "Progetti team: replica Spotify (Vue.js), clone Deliveboo (Laravel + Vue)",
+            "Git workflow collaborativo e metodologia Agile/Scrum",
+            "Deployment applicazioni full-stack su server Linux"
+        ]
+        },
+        {
+        "year": "2022",
+        "role": "DIGITAL COPYWRITER",
+        "company": "Hetaweb / Copystudio",
+        "location": "Remote",
+        "highlights": [
+            "Redazione testi SEO-oriented per e-commerce e siti aziendali",
+            "Creazione contenuti blog tecnici e guide prodotto",
+            "Ottimizzazione meta description e tag title per posizionamento organico",
+            "Attestato Digital Copywriter - Società Dante Alighieri (2022)"
+        ]
+        },
+        {
+        "year": "2020",
+        "role": "LAUREA MAGISTRALE",
+        "company": "Università di Bologna",
+        "location": "Bologna, Italia",
+        "highlights": [
+            "Semiotica e Filosofia del Linguaggio (110/110)",
+            "Tesi: \"Semiotica applicata all'analisi delle interfacce digitali\"",
+            "Analisi strutturale di sistemi di significazione complessi",
+            "Logica formale, semantica e pragmatica del linguaggio"
+        ]
+        },
+        {
+        "year": "2017",
+        "role": "LAUREA TRIENNALE",
+        "company": "Università di Bologna",
+        "location": "Bologna, Italia",
+        "highlights": [
+            "Filosofia (110/110)",
+            "Focus: Logica, Filosofia del Linguaggio, Epistemologia",
+            "Metodologia della ricerca e pensiero critico",
+            "Analisi testuale, argomentativa e retorica"
+        ]
+        }
+    ]
     },
   "footer": {
     "philosophy": "Un'interfaccia che non esplicita il proprio senso tramite la pura struttura è mero rumore computazionale."

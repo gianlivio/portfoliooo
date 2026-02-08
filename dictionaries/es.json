@@ -185,7 +185,75 @@
         "timezone": "EU (CET/CEST)"
     }
     },
-
+    "timeline": {
+    "title": "CAMINO_EVOLUTIVO",
+    "subtitle": "Del pensamiento a la sintaxis",
+    "items": [
+        {
+        "year": "2024-2025",
+        "role": "DESARROLLADOR FULL STACK",
+        "company": "PuntoLuce / EDIF",
+        "location": "Bolonia, Italia",
+        "highlights": [
+            "Desarrollo y gestión shop.puntoluce.net (51.240 SKUs, 13.102 categorías)",
+            "Implementación 20+ integraciones API (Open2B, Brevo, GTM, GA4, Feedaty, Kelkoo, Trovaprezzi)",
+            "Optimización performance: Lighthouse 40→80 (+100%), LCP 12.3s→3.4s (-72%)",
+            "Sistema VAT validation unificado (VIES EU + Cerved IT) para 28 países",
+            "Marketing automation Brevo: sincronización 60k+ contactos con webhooks bidireccionales",
+            "Implementación compliance GDPR (Cookiebot + Consent Mode v2)",
+            "Refactoring CSS mobile-first: 15k→10k líneas, utilities centralizadas"
+        ]
+        },
+        {
+        "year": "2023-2024",
+        "role": "TRAINEE FULL STACK",
+        "company": "Boolean Academy",
+        "location": "Remoto",
+        "highlights": [
+            "Bootcamp intensivo 600+ horas: HTML, CSS, JavaScript, Vue.js, PHP, Laravel, MySQL",
+            "Proyectos equipo: réplica Spotify (Vue.js), clon Deliveboo (Laravel + Vue)",
+            "Git workflow colaborativo y metodología Agile/Scrum",
+            "Deployment aplicaciones full-stack en servidores Linux"
+        ]
+        },
+        {
+        "year": "2022",
+        "role": "DIGITAL COPYWRITER",
+        "company": "Hetaweb / Copystudio",
+        "location": "Remoto",
+        "highlights": [
+            "Redacción textos SEO para e-commerce y sitios corporativos",
+            "Creación contenidos blog técnicos y guías producto",
+            "Optimización meta description y title tags para posicionamiento orgánico",
+            "Certificado Digital Copywriter - Società Dante Alighieri (2022)"
+        ]
+        },
+        {
+        "year": "2020",
+        "role": "MÁSTER",
+        "company": "Universidad de Bolonia",
+        "location": "Bolonia, Italia",
+        "highlights": [
+            "Semiótica y Filosofía del Lenguaje (110/110 summa cum laude)",
+            "Tesis: \"Semiótica aplicada al análisis de interfaces digitales\"",
+            "Análisis estructural sistemas de significación complejos",
+            "Lógica formal, semántica y pragmática del lenguaje"
+        ]
+        },
+        {
+        "year": "2017",
+        "role": "LICENCIATURA",
+        "company": "Universidad de Bolonia",
+        "location": "Bolonia, Italia",
+        "highlights": [
+            "Filosofía (110/110 summa cum laude)",
+            "Focus: Lógica, Filosofía del Lenguaje, Epistemología",
+            "Metodología investigación y pensamiento crítico",
+            "Análisis textual, argumentativo y retórico"
+        ]
+        }
+    ]
+    },
   "footer": {
     "philosophy": "Una interfaz que no explicita su propio sentido a través de la pura estructura es mero ruido computacional."
   }

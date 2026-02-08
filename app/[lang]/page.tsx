@@ -5,6 +5,7 @@ import LanguagePicker from '../../components/LanguagePicker';
 import InfiniteSlider from '../../components/InfiniteSlider';
 import ContactCard from '../../components/ContactCard';
 import DownloadCV from '../../components/DownloadCV';
+import ExperienceTimeline from '../../components/ExperienceTimeline';
 
 import it from '../../dictionaries/it.json';
 import en from '../../dictionaries/en.json';
@@ -208,6 +209,20 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
             lang={lang}
           />
         </div>
+      </section>
+
+      {/* SECTION: EXPERIENCE TIMELINE */}
+      <section className="relative z-10 mt-80 px-6 md:px-12 text-white">
+        <div className="mb-20">
+          <h3 className="text-[10vw] font-[1000] leading-[0.8] tracking-tighter mb-4 underline decoration-[10px] text-contrast-high">
+            {dict.timeline.title}
+          </h3>
+          <p className="font-mono text-xl md:text-2xl text-white/80 uppercase tracking-widest italic">
+            {dict.timeline.subtitle}
+          </p>
+        </div>
+
+        <ExperienceTimeline items={dict.timeline.items} />
       </section>
 
       {/* FOOTER */}

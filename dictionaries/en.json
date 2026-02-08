@@ -185,6 +185,75 @@
         "timezone": "EU (CET/CEST)"
     }
     },
+    "timeline": {
+    "title": "EVOLUTIONARY_PATH",
+    "subtitle": "From thought to syntax",
+    "items": [
+        {
+        "year": "2024-2025",
+        "role": "FULL STACK DEVELOPER",
+        "company": "PuntoLuce / EDIF",
+        "location": "Bologna, Italy",
+        "highlights": [
+            "Development and management of shop.puntoluce.net (51,240 SKUs, 13,102 categories)",
+            "Implementation of 20+ API integrations (Open2B, Brevo, GTM, GA4, Feedaty, Kelkoo, Trovaprezzi)",
+            "Performance optimization: Lighthouse 40→80 (+100%), LCP 12.3s→3.4s (-72%)",
+            "Unified VAT validation system (VIES EU + Cerved IT) for 28 countries",
+            "Brevo marketing automation: 60k+ contacts sync with bidirectional webhooks",
+            "GDPR compliance implementation (Cookiebot + Consent Mode v2)",
+            "Mobile-first CSS refactoring: 15k→10k lines, centralized utilities"
+        ]
+        },
+        {
+        "year": "2023-2024",
+        "role": "FULL STACK TRAINEE",
+        "company": "Boolean Academy",
+        "location": "Remote",
+        "highlights": [
+            "Intensive 600+ hour bootcamp: HTML, CSS, JavaScript, Vue.js, PHP, Laravel, MySQL",
+            "Team projects: Spotify replica (Vue.js), Deliveboo clone (Laravel + Vue)",
+            "Collaborative Git workflow and Agile/Scrum methodology",
+            "Full-stack application deployment on Linux servers"
+        ]
+        },
+        {
+        "year": "2022",
+        "role": "DIGITAL COPYWRITER",
+        "company": "Hetaweb / Copystudio",
+        "location": "Remote",
+        "highlights": [
+            "SEO-oriented copywriting for e-commerce and corporate websites",
+            "Technical blog content and product guide creation",
+            "Meta description and title tag optimization for organic ranking",
+            "Digital Copywriter Certificate - Società Dante Alighieri (2022)"
+        ]
+        },
+        {
+        "year": "2020",
+        "role": "MASTER'S DEGREE",
+        "company": "University of Bologna",
+        "location": "Bologna, Italy",
+        "highlights": [
+            "Semiotics and Philosophy of Language (110/110 summa cum laude)",
+            "Thesis: \"Semiotics applied to digital interface analysis\"",
+            "Structural analysis of complex signification systems",
+            "Formal logic, semantics and pragmatics of language"
+        ]
+        },
+        {
+        "year": "2017",
+        "role": "BACHELOR'S DEGREE",
+        "company": "University of Bologna",
+        "location": "Bologna, Italy",
+        "highlights": [
+            "Philosophy (110/110 summa cum laude)",
+            "Focus: Logic, Philosophy of Language, Epistemology",
+            "Research methodology and critical thinking",
+            "Textual, argumentative and rhetorical analysis"
+        ]
+        }
+    ]
+    },
   "footer": {
     "philosophy": "An interface that fails to convey its meaning through pure structure is merely computational noise."
   }
