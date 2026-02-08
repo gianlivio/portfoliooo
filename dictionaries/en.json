@@ -1,11 +1,14 @@
 {
   "hero": {
-    "title": "Gianlivio Iemolo",
-    "sub": "Full Stack Developer & Digital Semiotician",
-    "desc": "I design interfaces where code meets meaning. Specialized in performance and advanced tracking."
+    "title": "SIGNS CODE",
+    "sub": "MEANING PRECEDES FUNCTION.",
+    "desc": "I develop interfaces wherein semiotic analysis deconstructs chaos and code architecture synthesizes order."
   },
   "stats": {
-    "lighthouse": "Performance Score",
-    "tracking": "GTM & GA4 Expert"
+    "units": "STRUCTURED_ENTITIES",
+    "desc": "I governed the complexity of a massive ecosystem. Zero visual noise. Surgical rigor."
+  },
+  "footer": {
+    "philosophy": "An interface that fails to convey its meaning through pure structure is merely computational noise."
   }
 }

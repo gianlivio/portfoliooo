@@ -1,11 +1,14 @@
 {
   "hero": {
-    "title": "Gianlivio Iemolo",
-    "sub": "Full Stack Developer y Semiótico Digital",
-    "desc": "Diseño interfaces donde el código se encuentra con el significado. Especializado en rendimiento y seguimiento avanzado."
+    "title": "SIGNOS CÓDIGO",
+    "sub": "EL SENTIDO PRECEDE LA FUNCIÓN.",
+    "desc": "Desarrollo interfaces en las cuales l'análisis semiótico deconstruye el caos y la arquitectura del código sintetiza el orden."
   },
   "stats": {
-    "lighthouse": "Puntuación de Rendimiento",
-    "tracking": "Experto en GTM y GA4"
+    "units": "ENTIDADES_ESTRUCTURADAS",
+    "desc": "He gobernado la complejidad de un ecosistema masivo. Cero ruido visual. Rigor quirúrgico."
+  },
+  "footer": {
+    "philosophy": "Una interfaz que no explicita su propio sentido a través de la pura estructura es mero ruido computacional."
   }
 }

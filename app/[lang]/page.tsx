@@ -1,69 +1,118 @@
+"use client";
+import { motion, useMotionValue, useSpring, useScroll, useTransform } from "framer-motion";
+import { useEffect, useState, use } from "react";
 import LanguagePicker from '../../components/LanguagePicker';
 
-// Funzione per caricare il dizionario corretto
-const getDictionary = async (lang: string) => {
-  const dictionaries: any = {
-    it: () => import('../../dictionaries/it.json').then((module) => module.default),
-    en: () => import('../../dictionaries/en.json').then((module) => module.default),
-    es: () => import('../../dictionaries/es.json').then((module) => module.default),
-  };
-  
-  // Gestione errore se la lingua non esiste
-  return dictionaries[lang] ? dictionaries[lang]() : dictionaries['it']();
-};
+// Import dizionari
+import it from '../../dictionaries/it.json';
+import en from '../../dictionaries/en.json';
+import es from '../../dictionaries/es.json';
 
-export default async function Home({ params }: { params: Promise<{ lang: string }> }) {
-  // AWAIT dei params (fondamentale in Next.js 15+)
-  const { lang } = await params;
-  const dict = await getDictionary(lang);
+const dictionaries: any = { it, en, es };
+
+export default function Home({ params }: { params: Promise<{ lang: string }> }) {
+  const { lang } = use(params);
+  
+  // Seleziona il dizionario in base al parametro dell'URL
+  // Aggiungiamo un log per debuggare in tempo reale nella console del browser
+  const dict = dictionaries[lang] || dictionaries.it;
+
+  const mouseX = useMotionValue(-500);
+  const mouseY = useMotionValue(-500);
+  const springX = useSpring(mouseX, { damping: 30, stiffness: 200 });
+  const springY = useSpring(mouseY, { damping: 30, stiffness: 200 });
+
+  const { scrollYProgress } = useScroll();
+  const skew = useTransform(scrollYProgress, [0, 1], [0, 20]);
+  const opacityLog = useTransform(scrollYProgress, [0, 0.2], [0.15, 0]);
+
+  useEffect(() => {
+    const handleMove = (e: MouseEvent | TouchEvent) => {
+      const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+      const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+      mouseX.set(clientX);
+      mouseY.set(clientY);
+    };
+    window.addEventListener("mousemove", handleMove);
+    window.addEventListener("touchmove", handleMove);
+    return () => {
+      window.removeEventListener("mousemove", handleMove);
+      window.removeEventListener("touchmove", handleMove);
+    };
+  }, [mouseX, mouseY]);
 
   return (
-    <main className="bg-white min-h-screen text-slate-900 selection:bg-black selection:text-white">
-      {/* Navigazione */}
-      <nav className="p-8 flex justify-between items-center fixed w-full top-0 bg-white/80 backdrop-blur-md z-50">
-        <span className="font-bold tracking-tighter text-xl text-black">GIANLIVIO.</span>
-        <LanguagePicker />
+    <main className="relative min-h-[250vh] bg-[#ff3e00] overflow-x-hidden select-none cursor-none font-sans">
+      
+      {/* CURSORE INVERTENTE */}
+      <motion.div 
+        className="fixed top-0 left-0 w-64 h-64 md:w-96 md:h-96 bg-white rounded-full pointer-events-none z-[100] mix-blend-difference"
+        style={{ x: springX, y: springY, translateX: "-50%", translateY: "-50%" }}
+      />
+
+      {/* BACKGROUND LOGS */}
+      <motion.div 
+        style={{ opacity: opacityLog }}
+        className="fixed top-0 left-0 w-full h-full pointer-events-none font-mono text-[10px] leading-none break-all p-4 z-0 text-white"
+      >
+        {Array.from({ length: 40 }).map((_, i) => (
+          <p key={i}>ERR_NO_SEMANTIC_NOISE_SKU_51240_CATEGORIES_13102_CWV_OPTIMIZED_STATUS_OK_</p>
+        ))}
+      </motion.div>
+
+      {/* NAV CON LANGUAGE PICKER */}
+      <nav className="fixed top-0 left-0 w-full p-6 md:p-12 flex justify-between items-start z-[110] mix-blend-difference text-white">
+        <div className="text-3xl font-[1000] leading-[0.7] tracking-tighter">
+          GIANLIVIO<br/>IEMOLO
+        </div>
+        <LanguagePicker currentLang={lang} />
       </nav>
 
-      <section className="max-w-6xl mx-auto px-6 pt-48 pb-20">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          
-          {/* Box 1: HERO - Semiotica */}
-          <div className="md:col-span-3 bg-slate-50 p-12 rounded-[2rem] flex flex-col justify-center border border-slate-100">
-            <h1 className="text-6xl md:text-8xl font-bold tracking-tighter mb-8 leading-[0.9] text-black">
-              {dict.hero.title}
-            </h1>
-            <p className="max-w-xl text-xl text-slate-600 leading-relaxed">
-              {dict.hero.desc}
-            </p>
+      {/* HERO SECTION */}
+      <section className="relative z-10 pt-48 md:pt-64 px-6 md:px-12 pointer-events-none text-white">
+        <motion.h1 
+          style={{ skewX: skew }}
+          className="text-[20vw] font-[1000] leading-[0.75] tracking-[-0.08em] mb-20"
+        >
+          {dict.hero.title.split(' ')[0]}<br/>
+          {dict.hero.title.split(' ')[1] || ""}
+        </motion.h1>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-20">
+          <h2 className="text-5xl md:text-[7vw] font-[1000] tracking-tighter leading-[0.8] uppercase">
+             {dict.hero.sub}
+          </h2>
+          <div className="self-end italic text-2xl md:text-4xl font-bold leading-tight tracking-tight max-w-xl">
+            "{dict.hero.desc}"
           </div>
-
-          {/* Box 2: Performance (Lighthouse) */}
-          <div className="bg-black text-white p-8 rounded-[2rem] flex flex-col justify-between items-center text-center group hover:bg-[#00ff41] hover:text-black transition-colors duration-500">
-             <div className="text-7xl font-bold italic">100</div>
-             <p className="text-[10px] font-mono uppercase tracking-[0.2em]">{dict.stats.lighthouse}</p>
-          </div>
-
-          {/* Box 3: Analytics (Dato dal tuo CV) */}
-          <div className="bg-slate-900 text-white p-8 rounded-[2rem] flex flex-col justify-between border border-slate-800">
-            <div className="flex gap-2">
-              <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-              <div className="w-2 h-2 rounded-full bg-slate-700"></div>
-            </div>
-            <div>
-              <p className="text-[10px] font-mono uppercase mb-2 text-slate-500">Analytics Specialist</p>
-              <h4 className="text-lg font-medium leading-tight">{dict.stats.tracking}</h4>
-            </div>
-          </div>
-
-          {/* Box 4: Role (EDIF) */}
-          <div className="md:col-span-2 bg-slate-100 p-8 rounded-[2rem] flex flex-col justify-between border border-slate-200">
-             <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest">Bologna, IT</span>
-             <h3 className="text-2xl font-bold text-black mt-4">Frontend Dev @ EDIF SpA</h3>
-          </div>
-
         </div>
       </section>
+
+      {/* SECTION PUNTOLUCE */}
+      <section className="relative z-10 mt-80 px-6 md:px-12 text-white pb-40">
+        <div className="border-t-[10px] border-white pt-10">
+          <div className="flex flex-col md:flex-row justify-between items-baseline gap-4">
+            <span className="text-[18vw] font-[1000] italic leading-none">51.240</span>
+            <span className="font-mono text-2xl md:text-5xl font-black italic uppercase">{dict.stats.units}</span>
+          </div>
+          <p className="text-4xl md:text-7xl font-[1000] mt-10 max-w-6xl leading-[0.85] uppercase">
+            {dict.stats.desc}
+          </p>
+        </div>
+      </section>
+
+      {/* FOOTER */}
+      <footer className="mt-40 p-6 md:p-12 flex flex-col md:flex-row justify-between items-end gap-10 text-white pb-20">
+        <div className="max-w-md">
+          <p className="font-mono text-xs mb-4 opacity-50 tracking-widest">SYSTEM_PHILOSOPHY</p>
+          <p className="text-xl font-bold italic">
+            "{dict.footer.philosophy}"
+          </p>
+        </div>
+        <div className="text-[15vw] font-[1000] leading-[0.7] opacity-20">
+          2026
+        </div>
+      </footer>
     </main>
   );
 }
