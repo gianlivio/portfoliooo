@@ -474,3 +474,22 @@
     display: none;
   }
 }
+
+@layer base {
+  h3 {
+    /* Clamp impedisce al titolo di diventare troppo piccolo o troppo grande */
+    /* font-size: clamp(min, preferred, max) */
+    font-size: clamp(2.5rem, 10vw, 12rem) !important;
+    line-height: 0.85 !important;
+    word-break: break-word; /* Forza l'andata a capo se la parola è troppo lunga */
+    hyphens: auto;
+  }
+}
+
+@media (max-width: 768px) {
+  /* Riduce lo spazio vuoto tra le sezioni su mobile */
+  section {
+    margin-top: 5rem !important; 
+  }
+}
+

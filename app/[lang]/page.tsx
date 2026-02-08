@@ -139,11 +139,13 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
         </div>
       </section>
 
-       {/* SECTION: CERTIFICATIONS SLIDER */}
-      <section className="relative z-10 mt-80 px-6 md:px-12 text-white">
-        <h3 className="text-[10vw] font-[1000] leading-[0.8] tracking-tighter mb-12 underline decoration-[10px] uppercase">
-          {dict.certifications.title}
-        </h3>
+{/* SECTION: CERTIFICATIONS SLIDER */}
+      <section className="relative z-10 mt-32 md:mt-80 px-6 md:px-12 text-white">
+        <div className="mb-20">
+          <h3 className="text-[12vw] md:text-[10vw] font-[1000] leading-[0.8] tracking-tighter mb-4 underline decoration-[10px] text-contrast-high uppercase break-words">
+            {dict.certifications.title}
+          </h3>
+        </div>
         <InfiniteSlider 
           items={dict.certifications.items} 
           speed={0.8} 
@@ -153,10 +155,12 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
       </section>
 
       {/* SECTION: TECH STACK SLIDER */}
-      <section className="relative z-10 mt-40 px-6 md:px-12 text-white">
-        <h3 className="text-[10vw] font-[1000] leading-[0.8] tracking-tighter mb-12 underline decoration-[10px] uppercase">
-          {dict.techstack.title}
-        </h3>
+      <section className="relative z-10 mt-32 md:mt-80 px-6 md:px-12 text-white">
+        <div className="mb-20">
+          <h3 className="text-[12vw] md:text-[10vw] font-[1000] leading-[0.8] tracking-tighter mb-4 underline decoration-[10px] text-contrast-high uppercase break-words">
+            {dict.techstack.title}
+          </h3>
+        </div>
         <InfiniteSlider 
           items={dict.techstack.items} 
           speed={1.2} 
@@ -166,9 +170,9 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
       </section>
 
       {/* SECTION: CONTACT - MAGNETIC CARDS */}
-      <section className="relative z-10 mt-80 px-6 md:px-12 text-white">
+      <section className="relative z-10 mt-32 md:mt-80 px-6 md:px-12 text-white">
         <div className="mb-20">
-          <h3 className="text-[10vw] font-[1000] leading-[0.8] tracking-tighter mb-4 underline decoration-[10px] text-contrast-high">
+          <h3 className="text-[12vw] md:text-[10vw] font-[1000] leading-[0.8] tracking-tighter mb-4 underline decoration-[10px] text-contrast-high uppercase break-words">
             {dict.contact.title}
           </h3>
           <p className="font-mono text-xl md:text-2xl text-white/80 uppercase tracking-widest italic">
@@ -178,23 +182,23 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {dict.contact.items.map((item: any, idx: number) => (
-          <ContactCard
-            key={idx}
-            label={item.label}
-            value={item.value}
-            href={item.href}
-            type={item.type}
-            copyable={item.copyable}
-            icon={item.icon} 
-          />
+            <ContactCard
+              key={idx}
+              label={item.label}
+              value={item.value}
+              href={item.href}
+              type={item.type}
+              copyable={item.copyable}
+              icon={item.icon} 
+            />
           ))}
         </div>
       </section>
 
       {/* SECTION: DOWNLOAD CV */}
-      <section className="relative z-10 mt-80 px-6 md:px-12 text-white">
+      <section className="relative z-10 mt-32 md:mt-80 px-6 md:px-12 text-white">
         <div className="mb-20">
-          <h3 className="text-[10vw] font-[1000] leading-[0.8] tracking-tighter mb-4 underline decoration-[10px] text-contrast-high">
+          <h3 className="text-[12vw] md:text-[10vw] font-[1000] leading-[0.8] tracking-tighter mb-4 underline decoration-[10px] text-contrast-high uppercase break-words">
             {dict.cta.title}
           </h3>
           <p className="font-mono text-xl md:text-2xl text-white/80 uppercase tracking-widest italic">
@@ -212,9 +216,9 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
       </section>
 
       {/* SECTION: EXPERIENCE TIMELINE */}
-      <section className="relative z-10 mt-80 px-6 md:px-12 text-white">
+      <section className="relative z-10 mt-32 md:mt-80 px-6 md:px-12 text-white">
         <div className="mb-20">
-          <h3 className="text-[10vw] font-[1000] leading-[0.8] tracking-tighter mb-4 underline decoration-[10px] text-contrast-high">
+          <h3 className="text-[12vw] md:text-[10vw] font-[1000] leading-[0.8] tracking-tighter mb-4 underline decoration-[10px] text-contrast-high uppercase break-words">
             {dict.timeline.title}
           </h3>
           <p className="font-mono text-xl md:text-2xl text-white/80 uppercase tracking-widest italic">
@@ -226,7 +230,7 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
       </section>
 
       {/* FOOTER */}
-      <footer className="mt-80 p-6 md:p-12 flex flex-col md:flex-row justify-between items-end gap-10 text-white pb-20">
+      <footer className="mt-32 md:mt-80 p-6 md:p-12 flex flex-col md:flex-row justify-between items-end gap-10 text-white pb-20">
         <div className="max-w-md">
           <p className="font-mono text-xs mb-4 opacity-50 tracking-widest uppercase italic">SYSTEM_PHILOSOPHY</p>
           <p className="text-xl font-bold italic underline">
