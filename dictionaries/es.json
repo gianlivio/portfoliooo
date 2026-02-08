@@ -1,0 +1,11 @@
+{
+  "hero": {
+    "title": "Gianlivio Iemolo",
+    "sub": "Full Stack Developer y Semiótico Digital",
+    "desc": "Diseño interfaces donde el código se encuentra con el significado. Especializado en rendimiento y seguimiento avanzado."
+  },
+  "stats": {
+    "lighthouse": "Puntuación de Rendimiento",
+    "tracking": "Experto en GTM y GA4"
+  }
+}
