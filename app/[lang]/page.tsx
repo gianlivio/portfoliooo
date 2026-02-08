@@ -186,6 +186,7 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
               href={item.href}
               copyable={item.copyable}
               type={item.type}
+              icon={item.icon}
             />
           ))}
         </div>

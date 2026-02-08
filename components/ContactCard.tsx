@@ -7,6 +7,7 @@ interface ContactCardProps {
   href: string;
   copyable?: boolean;
   type: "email" | "phone" | "linkedin" | "github";
+  icon?: any;
 }
 
 const ICONS = {
