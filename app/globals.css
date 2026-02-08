@@ -106,14 +106,15 @@
   filter: brightness(1.2) contrast(1.1); /* Boost contrasto cursore */
 }
 
-/* GRAYSCALE OTTIMIZZATO PER ICONE */
+/* ICONE SLIDER SEMPRE VISIBILI */
 .icon-grayscale {
-  filter: grayscale(1) brightness(0) invert(1); /* Icone BIANCHE di default */
-  transition: filter 0.3s ease;
+  filter: none; /* Rimuovo filtro che le rendeva bianche */
+  transition: filter 0.3s ease, transform 0.3s ease;
 }
 
 .icon-grayscale:hover {
-  filter: grayscale(0) brightness(1) invert(0); /* Colore originale al hover */
+  filter: brightness(1.2) drop-shadow(0 0 8px rgba(255, 255, 255, 0.6));
+  transform: scale(1.1);
 }
 
 /* BACKGROUND LOGS CON CONTRASTO RIDOTTO */
@@ -223,5 +224,66 @@
 @media (max-width: 768px) {
   .contact-card a {
     padding: 1.5rem;
+  }
+}
+
+/* SLIDER ADVANCED EFFECTS */
+.slider-icon-container {
+  position: relative;
+  overflow: visible !important;
+}
+
+/* Rainbow glow animation */
+.rainbow-glow {
+  animation: rainbow-rotate 3s linear infinite;
+}
+
+@keyframes rainbow-rotate {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Shine sweep effect */
+.shine-effect {
+  animation: shine-sweep 1.5s ease-in-out;
+}
+
+@keyframes shine-sweep {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+
+/* Particle trail */
+@keyframes particle-trail {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.6;
+  }
+  100% {
+    transform: translate(calc(var(--random-x, -30px)), calc(var(--random-y, 20px))) scale(0);
+    opacity: 0;
+  }
+}
+
+/* Text particles on hover */
+@keyframes text-particle {
+  0% {
+    transform: translate(-50%, 0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -30px) scale(0);
+    opacity: 0;
+  }
+}
+
+/* Pulsing glow for active items */
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.6);
   }
 }

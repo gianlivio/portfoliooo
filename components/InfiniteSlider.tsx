@@ -22,6 +22,7 @@ export default function InfiniteSlider({
 }: InfiniteSliderProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isPaused, setIsPaused] = useState(false);
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -60,42 +61,116 @@ export default function InfiniteSlider({
         msOverflowStyle: 'none'
       }}
     >
-      <style jsx>{`
-        div::-webkit-scrollbar {
-          display: none;
-        }
-      `}</style>
-      
       <div className="flex gap-8 w-max">
         {tripleItems.map((item, idx) => (
           <div
             key={`${item.name}-${idx}`}
-            className="flex-shrink-0 flex flex-col items-center justify-center gap-3 group"
+            className="flex-shrink-0 flex flex-col items-center justify-center gap-3 group relative"
             style={{ width: itemWidth, height: itemHeight + 60 }}
+            onMouseEnter={() => setHoveredIndex(idx)}
+            onMouseLeave={() => setHoveredIndex(null)}
           >
-            {/* CONTAINER ICONA CON BG BIANCO SOLIDO */}
+            {/* PARTICLE TRAIL */}
+            {!isPaused && (
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
+                {[...Array(3)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="absolute w-1 h-1 bg-white/40 rounded-full"
+                    style={{
+                      animation: `particle-trail ${0.8 + i * 0.2}s ease-out infinite`,
+                      animationDelay: `${i * 0.15}s`,
+                    }}
+                  />
+                ))}
+              </div>
+            )}
+
+            {/* ICON CONTAINER WITH 3D FLIP */}
             <div 
-              className="relative overflow-hidden rounded-xl bg-white border-2 border-white/20 p-4 shadow-md transition-all duration-300 group-hover:border-white group-hover:shadow-[0_0_20px_rgba(255,255,255,0.4)] group-hover:scale-110"
-              style={{ width: itemWidth, height: itemHeight }}
+              className="relative overflow-visible rounded-xl bg-white border-2 border-white/20 p-4 shadow-md transition-all duration-500 group-hover:border-white slider-icon-container"
+              style={{ 
+                width: itemWidth, 
+                height: itemHeight,
+                transformStyle: 'preserve-3d',
+                transform: hoveredIndex === idx ? 'rotateY(360deg) scale(1.15)' : 'rotateY(0deg) scale(1)',
+              }}
             >
+              {/* RAINBOW GLOW */}
+              <div 
+                className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rainbow-glow"
+                style={{
+                  background: 'linear-gradient(45deg, #ff0080, #ff8c00, #40e0d0, #ff0080)',
+                  backgroundSize: '300% 300%',
+                  filter: 'blur(20px)',
+                  transform: 'scale(1.5)',
+                  zIndex: -1,
+                }}
+              />
+
+              {/* ICON */}
               <img 
                 src={item.icon} 
                 alt={item.name}
-                className="w-full h-full object-contain icon-grayscale group-hover:filter-none"
+                className="w-full h-full object-contain transition-all duration-500 relative z-10"
+                style={{
+                  filter: hoveredIndex === idx 
+                    ? 'brightness(1.3) contrast(1.2) drop-shadow(0 0 10px rgba(255,255,255,0.8))' 
+                    : 'brightness(0.9) contrast(1.1)',
+                }}
                 loading="lazy"
                 onError={(e) => {
-                  e.currentTarget.src = `https://via.placeholder.com/${itemWidth}x${itemHeight}/000000/ffffff?text=${item.name.charAt(0)}`;
+                  e.currentTarget.src = `https://via.placeholder.com/${itemWidth}x${itemHeight}/ff3e00/ffffff?text=${item.name.charAt(0)}`;
+                }}
+              />
+
+              {/* SHINE EFFECT */}
+              <div 
+                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none shine-effect"
+                style={{
+                  background: 'linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%)',
+                  transform: 'translateX(-100%)',
                 }}
               />
             </div>
             
-            {/* TESTO CON TEXT-SHADOW PER CONTRASTO */}
-            <div className="text-center">
-              <span className="font-mono text-xs text-white/70 group-hover:text-white uppercase leading-tight transition-all duration-300 block text-shadow-sm" style={{ textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>
+            {/* TEXT WITH GLOW */}
+            <div className="text-center relative z-10">
+              <span 
+                className="font-mono text-xs text-white/90 group-hover:text-white uppercase leading-tight transition-all duration-300 block relative"
+                style={{ 
+                  textShadow: hoveredIndex === idx 
+                    ? '0 0 10px rgba(255,255,255,0.8), 0 2px 4px rgba(0,0,0,0.8)' 
+                    : '0 2px 4px rgba(0,0,0,0.8)' 
+                }}
+              >
                 {item.name}
+                {/* TEXT PARTICLES ON HOVER */}
+                {hoveredIndex === idx && (
+                  <>
+                    {[...Array(4)].map((_, i) => (
+                      <span
+                        key={i}
+                        className="absolute top-0 left-1/2 w-1 h-1 bg-white/60 rounded-full"
+                        style={{
+                          animation: `text-particle ${0.6}s ease-out forwards`,
+                          animationDelay: `${i * 0.1}s`,
+                          transform: `rotate(${i * 90}deg)`,
+                        }}
+                      />
+                    ))}
+                  </>
+                )}
               </span>
               {item.year && (
-                <span className="font-mono text-[10px] text-white/50 group-hover:text-white/90 transition-all duration-300 block mt-1" style={{ textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}>
+                <span 
+                  className="font-mono text-[10px] text-white/70 group-hover:text-white transition-all duration-300 block mt-1" 
+                  style={{ 
+                    textShadow: hoveredIndex === idx 
+                      ? '0 0 8px rgba(255,255,255,0.6)' 
+                      : '0 1px 2px rgba(0,0,0,0.8)' 
+                  }}
+                >
                   {item.year}
                 </span>
               )}
