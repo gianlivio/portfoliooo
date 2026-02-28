@@ -1,0 +1,495 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    /* PALETTE PRINCIPALE */
+    --color-signal: #ff3e00;        /* Rosso segnale principale */
+    --color-signal-dark: #cc3200;   /* Rosso scuro (hover/contrasto) */
+    --color-signal-light: #ff5722;  /* Rosso chiaro (accenti) */
+    
+    /* NEUTRALI CON CONTRASTO */
+    --color-white: #ffffff;
+    --color-black: #000000;
+    --color-gray-900: #1a1a1a;
+    --color-gray-800: #2d2d2d;
+    --color-gray-100: #f5f5f5;
+    
+    /* TRASPARENZE CALIBRATE */
+    --bg-glass: rgba(255, 255, 255, 0.05);
+    --bg-glass-hover: rgba(255, 255, 255, 0.15);
+    --border-subtle: rgba(255, 255, 255, 0.2);
+    --border-strong: rgba(255, 255, 255, 0.6);
+    
+    /* SHADOWS PER DEPTH */
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+    --shadow-glow: 0 0 20px rgba(255, 255, 255, 0.3);
+  }
+
+  body {
+    background-color: var(--color-signal) !important;
+    color: var(--color-white);
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+  }
+}
+
+/* UTILITIES PER CONTRASTO */
+@layer utilities {
+  /* Backgrounds con contrasto ottimizzato */
+  .bg-glass {
+    background: var(--bg-glass);
+    backdrop-filter: blur(8px);
+  }
+  
+  .bg-glass-hover {
+    background: var(--bg-glass-hover);
+  }
+  
+  /* Borders calibrati */
+  .border-subtle {
+    border-color: var(--border-subtle);
+  }
+  
+  .border-strong {
+    border-color: var(--border-strong);
+  }
+  
+  /* Text contrast helpers */
+  .text-contrast-high {
+    color: var(--color-white);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  }
+  
+  .text-contrast-subtle {
+    color: rgba(255, 255, 255, 0.7);
+  }
+  
+  /* Icon containers con bg solido per massimo contrasto */
+  .icon-container {
+    background: var(--color-white);
+    border: 2px solid var(--border-subtle);
+    border-radius: 12px;
+    padding: 1rem;
+    box-shadow: var(--shadow-md);
+    transition: all 0.3s ease;
+  }
+  
+  .icon-container:hover {
+    background: var(--color-white);
+    border-color: var(--color-white);
+    box-shadow: var(--shadow-glow);
+    transform: scale(1.1);
+  }
+  
+  /* Card con depth migliorato */
+  .card-elevated {
+    background: var(--bg-glass);
+    border: 2px solid var(--border-subtle);
+    box-shadow: var(--shadow-md);
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .card-elevated:hover {
+    background: var(--color-white);
+    color: var(--color-signal);
+    border-color: var(--color-white);
+    box-shadow: var(--shadow-lg);
+  }
+}
+
+/* OTTIMIZZAZIONE MIX-BLEND-MODE */
+.mix-difference {
+  mix-blend-mode: difference;
+  filter: brightness(1.2) contrast(1.1); /* Boost contrasto cursore */
+}
+
+/* ICONE SLIDER SEMPRE VISIBILI */
+.icon-grayscale {
+  filter: none; /* Rimuovo filtro che le rendeva bianche */
+  transition: filter 0.3s ease, transform 0.3s ease;
+}
+
+.icon-grayscale:hover {
+  filter: brightness(1.2) drop-shadow(0 0 8px rgba(255, 255, 255, 0.6));
+  transform: scale(1.1);
+}
+
+/* BACKGROUND LOGS CON CONTRASTO RIDOTTO */
+.bg-logs {
+  color: rgba(0, 0, 0, 0.15); /* NERO 15% invece di bianco */
+  font-family: 'Courier New', monospace;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* ADVANCED CONTACT CARD EFFECTS */
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.noise-texture {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  animation: noise-move 8s steps(10) infinite;
+}
+
+@keyframes noise-move {
+  0%, 100% { transform: translate(0, 0); }
+  10% { transform: translate(-5%, -5%); }
+  20% { transform: translate(-10%, 5%); }
+  30% { transform: translate(5%, -10%); }
+  40% { transform: translate(-5%, 15%); }
+  50% { transform: translate(-10%, 5%); }
+  60% { transform: translate(15%, 0); }
+  70% { transform: translate(0, 10%); }
+  80% { transform: translate(-15%, 0); }
+  90% { transform: translate(10%, 5%); }
+}
+
+.scan-lines {
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(255, 255, 255, 0.03),
+    rgba(255, 255, 255, 0.03) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+  animation: scan-lines-move 8s linear infinite;
+}
+
+@keyframes scan-lines-move {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(100%); }
+}
+
+.glitch-text {
+  position: relative;
+}
+
+.glitch-text::before,
+.glitch-text::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+}
+
+.contact-card:hover .glitch-text::before {
+  animation: glitch-anim-1 0.3s infinite;
+  color: #ff3e00;
+  z-index: -1;
+  opacity: 0.7;
+}
+
+.contact-card:hover .glitch-text::after {
+  animation: glitch-anim-2 0.3s infinite;
+  color: cyan;
+  z-index: -2;
+  opacity: 0.7;
+}
+
+@keyframes glitch-anim-1 {
+  0%, 100% { transform: translate(0); }
+  20% { transform: translate(-3px, 3px); }
+  40% { transform: translate(-3px, -3px); }
+  60% { transform: translate(3px, 3px); }
+  80% { transform: translate(3px, -3px); }
+}
+
+@keyframes glitch-anim-2 {
+  0%, 100% { transform: translate(0); }
+  20% { transform: translate(3px, -3px); }
+  40% { transform: translate(3px, 3px); }
+  60% { transform: translate(-3px, -3px); }
+  80% { transform: translate(-3px, 3px); }
+}
+
+@keyframes particle-explode {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(calc(var(--random-x, 1) * 100px), calc(var(--random-y, 1) * -100px)) scale(0);
+    opacity: 0;
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .contact-card a {
+    padding: 1.5rem;
+  }
+}
+
+/* SLIDER ADVANCED EFFECTS */
+.slider-icon-container {
+  position: relative;
+  overflow: visible !important;
+}
+
+/* Rainbow glow animation */
+.rainbow-glow {
+  animation: rainbow-rotate 3s linear infinite;
+}
+
+@keyframes rainbow-rotate {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Shine sweep effect */
+.shine-effect {
+  animation: shine-sweep 1.5s ease-in-out;
+}
+
+@keyframes shine-sweep {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+
+/* Particle trail */
+@keyframes particle-trail {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.6;
+  }
+  100% {
+    transform: translate(calc(var(--random-x, -30px)), calc(var(--random-y, 20px))) scale(0);
+    opacity: 0;
+  }
+}
+
+/* Text particles on hover */
+@keyframes text-particle {
+  0% {
+    transform: translate(-50%, 0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -30px) scale(0);
+    opacity: 0;
+  }
+}
+
+/* Pulsing glow for active items */
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.6);
+  }
+}
+
+/* DOWNLOAD CV EFFECTS */
+@keyframes glitch-1 {
+  0%, 100% { transform: translate(0); }
+  33% { transform: translate(-3px, 2px); }
+  66% { transform: translate(3px, -2px); }
+}
+
+@keyframes glitch-2 {
+  0%, 100% { transform: translate(0); }
+  33% { transform: translate(3px, -2px); }
+  66% { transform: translate(-3px, 2px); }
+}
+
+@keyframes download-particle {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(calc((var(--angle, 0) * 1deg) * 150px), calc(sin(var(--angle, 0) * 1deg) * 150px)) scale(0);
+    opacity: 0;
+  }
+}
+
+.scan-lines-download {
+  animation: scan-move 4s linear infinite;
+}
+
+@keyframes scan-move {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
+}
+/* NEON CIRCUIT BOARD TIMELINE */
+.pcb-grid {
+  background-image: 
+    linear-gradient(rgba(0,255,136,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,255,136,0.05) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.microchip-card {
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.3));
+}
+
+.pin-connector {
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.pin-connector::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: -2px;
+  width: 4px;
+  height: 4px;
+  background: #888;
+  border-radius: 50%;
+  transform: translateY(-50%);
+}
+
+.circuit-trace {
+  animation: circuit-pulse 3s ease-in-out infinite;
+}
+
+@keyframes circuit-pulse {
+  0%, 100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.8;
+    filter: drop-shadow(0 0 4px rgba(0,255,136,0.6));
+  }
+}
+
+.neon-pulse {
+  animation: neon-breath 2s ease-in-out infinite;
+}
+
+@keyframes neon-breath {
+  0%, 100% {
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+.solder-point {
+  animation: solder-glow 2s ease-in-out infinite;
+}
+
+@keyframes solder-glow {
+  0%, 100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+@keyframes blink {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+.circuit-connection {
+  transition: all 0.3s ease;
+}
+
+.circuit-connection-active {
+  transition: opacity 0.3s ease;
+  animation: circuit-flow 2s linear infinite;
+}
+
+@keyframes circuit-flow {
+  0% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: -20;
+  }
+}
+
+.electric-arc {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    #00ff88 10%, 
+    #00ccff 50%, 
+    #00ff88 90%, 
+    transparent 100%
+  );
+  box-shadow: 
+    0 0 10px rgba(0,255,136,0.8),
+    0 0 20px rgba(0,204,255,0.6),
+    0 0 30px rgba(0,255,136,0.4);
+  filter: blur(1px);
+}
+
+@keyframes electric-flow {
+  0% {
+    opacity: 0;
+    transform: translateX(-100%) scaleX(0.5);
+  }
+  50% {
+    opacity: 1;
+    transform: translateX(0) scaleX(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(100%) scaleX(0.5);
+  }
+}
+
+@keyframes circuit-fade-in {
+  from {
+    opacity: 0;
+    transform: translateX(-15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Mobile circuit styles */
+@media (max-width: 768px) {
+  .microchip-card {
+    width: 100%;
+  }
+  
+  .electric-arc {
+    display: none;
+  }
+}
+
+@layer base {
+  h3 {
+    /* Clamp impedisce al titolo di diventare troppo piccolo o troppo grande */
+    /* font-size: clamp(min, preferred, max) */
+    font-size: clamp(2.5rem, 10vw, 12rem) !important;
+    line-height: 0.85 !important;
+    word-break: break-word; /* Forza l'andata a capo se la parola è troppo lunga */
+    hyphens: auto;
+  }
+}
+
+@media (max-width: 768px) {
+  /* Riduce lo spazio vuoto tra le sezioni su mobile */
+  section {
+    margin-top: 5rem !important; 
+  }
+}
+

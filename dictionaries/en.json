@@ -1,0 +1,260 @@
+{
+  "hero": {
+    "title": "SIGNS CODE",
+    "sub": "MEANING PRECEDES FUNCTION.",
+    "desc": "I develop interfaces wherein semiotic analysis deconstructs chaos and code architecture synthesizes order."
+  },
+  "stats": {
+    "units": "STRUCTURED_ENTITIES",
+    "desc": "I governed the complexity of a massive ecosystem. Zero visual noise. Surgical rigor."
+  },
+  "automations": {
+    "title": "AUTOMATIONS & INTEGRATIONS",
+    "subtitle": "Architectures that nullify the entropy of distributed data",
+    "items": [
+      {
+        "title": "SYNTHESIS OF MARKETING AUTOMATION",
+        "desc": "Bidirectional flows between e-commerce core and Brevo. 60,000+ synchronized contacts. User semantic persistence. Zero information latency."
+      },
+      {
+        "title": "DIGITAL CONSENT ARCHITECTURE",
+        "desc": "GDPR layer treating consent as legal-symbolic structure. Cookiebot manages semiotics. GTM orchestrates signal. Complete audit trail."
+      },
+      {
+        "title": "STATISTICAL NOISE ELIMINATION",
+        "desc": "GA4/GTM/Consent Mode v2 tracking. Signal-to-noise ratio reduced. Every event is a validated signifier, not a random artifact."
+      },
+      {
+        "title": "MASTERY OF MASSIVE COMPLEXITY",
+        "desc": "51,240 SKUs across 13,102 categories. Combinatorial weight governed. Scalability translates vastness into cognitive navigability."
+      },
+      {
+        "title": "UNIFIED EUROPEAN VAT VALIDATION",
+        "desc": "OpenAPI replaces legacy SOAP. 28 EU countries. Stratified cache. Hard-blocking at checkout. 70% cost reduction. Validation as regulatory barricade."
+      },
+      {
+        "title": "AUTOMATIC B2B/B2C SEGMENTATION",
+        "desc": "Classification via VAT presence/absence and Tax Area. Webhook-driven. Zero categorical ambiguity. No manual intervention."
+      },
+      {
+        "title": "VELOCITY ENGINEERING",
+        "desc": "Lighthouse Performance from 40 to 80 (+100%). LCP from 12.3s to 3.4s (-72%). CLS zeroed. Mobile-first CSS refactoring: 15,000 lines reduced to 10,000. Lazy loading, fetchpriority optimization, centralized utilities."
+      },
+      {
+        "title": "PREDICTIVE LOGISTICS ANALYTICS",
+        "desc": "KPI system for courier delivery times. Mean, median, P90, standard deviation. Filtering by country/region/province. Automatic outlier identification. Chart.js graphs with 1000 orders/step batch processing."
+      },
+      {
+        "title": "MOBILE AS ORIGIN",
+        "desc": "CSS restructured from desktop-first to mobile-first. Breakpoints 480/768/1024px. Centralized utilities, custom properties, zero duplications. Responsive grid for header, products, checkout."
+      },
+      {
+        "title": "CATALOG PERSISTENCE",
+        "desc": "23,550 products synchronized Open2B → Brevo eCommerce. Batch processing 100 SKU/call. Real-time webhooks for create/update/delete. Automatic rate limiting 429 handling. Global producer cache."
+      },
+      {
+        "title": "SEMANTIC EXPORT TO COMPARATORS",
+        "desc": "Automatic feeds Kelkoo IT/FR + Trovaprezzi. Server-side category filters. Shipping cost calculation by weight. Automatic stock=0 exclusion. URLs with UTM parameters for conversion tracking."
+      },
+      {
+        "title": "GOVERNANCE OF 20+ INTEGRATIONS",
+        "desc": "Open2B, Brevo, Feedaty, Facebook Pixel, Microsoft UET, Kelkoo, Trovaprezzi, Doofinder, Cerved, OpenAPI VIES. Automatic retry, rate limiting, intelligent fallbacks. Webhook resilience with JSON logs."
+      },
+      {
+        "title": "SEMANTIC CONTRAST INVERSION",
+        "desc": "Dark mode via CSS custom properties and localStorage. Dynamic toggle without reload. data-theme='dark' variables applied to root. Session persistence. Fluid transitions across 200+ components."
+      },
+      {
+        "title": "SEARCH AS COGNITIVE INTERFACE",
+        "desc": "Custom Search API with isolated Shadow DOM. Server-side producer/department/price filters. Client-side obsolete category exclusion. Live Open2B data reconciliation post-ranking. Dedicated responsive overlay."
+      }
+    ]
+  },
+  "certifications": {
+    "title": "EDUCATION & CERTIFICATIONS",
+    "items": [
+      { 
+        "name": "Master's Degree in Semiotics", 
+        "year": "2020",
+        "icon": "https://www.unibo.it/it/++theme++unibotheme.portale/img/header/sigillo1x_xl.png?v=2"
+      },
+      { 
+        "name": "Bachelor's Degree in Philosophy", 
+        "year": "2017",
+        "icon": "https://www.unibo.it/it/++theme++unibotheme.portale/img/header/sigillo1x_xl.png?v=2"
+      },
+      { 
+        "name": "Boolean - Full Stack Developer", 
+        "year": "2023",
+        "icon": "https://static-media.hotmart.com/L87A84c8-Hn-IpF9DpvZW26ETxA=/0x120/https://uploads.teachablecdn.com/attachments/TjVQNjOSQy7nfBipUsFc_Logo-RGB-1920-BLUE.png"
+      },
+      { 
+        "name": "Google Analytics Certified", 
+        "year": "2025",
+        "icon": "https://www.gstatic.com/analytics-suite/header/suite/v2/ic_analytics.svg"
+      },
+      { 
+        "name": "Google Skillshop GA4 Advanced", 
+        "year": "2025",
+        "icon": "https://www.gstatic.com/images/branding/product/1x/google_analytics_512dp.png"
+      },
+      { 
+        "name": "Usercentrics Consent Mode v2", 
+        "year": "2025",
+        "icon": "https://images.seeklogo.com/logo-png/62/1/usercentrics-logo-png_seeklogo-622613.png"
+      },
+      { 
+        "name": "JavaScript - Learnn", 
+        "year": "2025",
+        "icon": "https://cdn.simpleicons.org/javascript/F7DF1E"
+      },
+      { 
+        "name": "Digital Copywriter", 
+        "year": "2022",
+        "icon": "https://img.shields.io/badge/Dante_Alighieri-990000?style=flat&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTEyIDJjNS41MiAwIDEwIDQuNDggMTAgMTBzLTQuNDggMTAtMTAgMTBTMiAxNy41MiAyIDEyIDYuNDggMiAxMiAyem0wIDE4YzQuNDEgMCA4LTMuNTkgOC04cy0zLjU5LTgtOC04LTggMy41OS04IDggMy41OSA4IDggOHoiIGZpbGw9IiNmZmYiLz48L3N2Zz4="
+      }
+    ]
+  },
+  "techstack": {
+    "title": "TECH STACK",
+    "items": [
+      { "name": "Vue.js", "icon": "https://cdn.simpleicons.org/vuedotjs/4FC08D" },
+      { "name": "TypeScript", "icon": "https://cdn.simpleicons.org/typescript/3178C6" },
+      { "name": "JavaScript", "icon": "https://cdn.simpleicons.org/javascript/F7DF1E" },
+      { "name": "React", "icon": "https://cdn.simpleicons.org/react/61DAFB" },
+      { "name": "Next.js", "icon": "https://cdn.simpleicons.org/nextdotjs/000000" },
+      { "name": "Tailwind CSS", "icon": "https://cdn.simpleicons.org/tailwindcss/06B6D4" },
+      { "name": "Bootstrap", "icon": "https://cdn.simpleicons.org/bootstrap/7952B3" },
+      { "name": "SASS", "icon": "https://cdn.simpleicons.org/sass/CC6699" },
+      { "name": "PHP", "icon": "https://cdn.simpleicons.org/php/777BB4" },
+      { "name": "Laravel", "icon": "https://cdn.simpleicons.org/laravel/FF2D20" },
+      { "name": "MySQL", "icon": "https://cdn.simpleicons.org/mysql/4479A1" },
+      { "name": "WordPress", "icon": "https://cdn.simpleicons.org/wordpress/21759B" },
+      { "name": "Prisma", "icon": "https://cdn.simpleicons.org/prisma/2D3748" },
+      { "name": "Supabase", "icon": "https://cdn.simpleicons.org/supabase/3FCF8E" },
+      { "name": "Git", "icon": "https://cdn.simpleicons.org/git/F05032" },
+      { "name": "GitHub", "icon": "https://cdn.simpleicons.org/github/181717" },
+      { "name": "Google Tag Manager", "icon": "https://cdn.simpleicons.org/googletagmanager/246FDB" },
+      { "name": "Google Analytics", "icon": "https://cdn.simpleicons.org/googleanalytics/E37400" },
+      { "name": "Postman", "icon": "https://cdn.simpleicons.org/postman/FF6C37" },
+      { "name": "Figma", "icon": "https://cdn.simpleicons.org/figma/F24E1E" }
+    ]
+  },
+    "contact": {
+    "title": "CONTACT INTERFACE",
+    "subtitle": "Direct communication channels",
+    "items": [
+        {
+            "label": "EMAIL",
+            "value": "gianlivioiemolo@gmail.com",
+            "href": "mailto:gianlivioiemolo@gmail.com",
+            "type": "email",
+            "copyable": true
+        },
+        {
+            "label": "TELEFONO",
+            "value": "+39 331 946 2396",
+            "href": "tel:+393319462396",
+            "type": "phone",
+            "copyable": true
+        },
+        {
+            "label": "LINKEDIN",
+            "value": "gianlivio-iemolo",
+            "href": "https://www.linkedin.com/in/gianlivio-iemolo/",
+            "type": "linkedin",
+            "copyable": false
+        },
+        {
+            "label": "GITHUB",
+            "value": "gianlivio",
+            "href": "https://github.com/gianlivio/",
+            "type": "github",
+            "copyable": false
+        }
+        ]
+    },
+    "cta": {
+    "title": "DOWNLOAD_RESUME",
+    "subtitle": "Complete technical document",
+    "button": "DOWNLOAD CV.PDF",
+    "filesize": "~150KB",
+    "availability": {
+        "status": "AVAILABLE IMMEDIATELY",
+        "type": "Remote Full-Time",
+        "timezone": "EU (CET/CEST)"
+    }
+    },
+    "timeline": {
+    "title": "EVOLUTIONARY_PATH",
+    "subtitle": "From thought to syntax",
+    "items": [
+        {
+        "year": "2024-2025",
+        "role": "FULL STACK DEVELOPER",
+        "company": "PuntoLuce / EDIF",
+        "location": "Bologna, Italy",
+        "highlights": [
+            "Development and management of shop.puntoluce.net (51,240 SKUs, 13,102 categories)",
+            "Implementation of 20+ API integrations (Open2B, Brevo, GTM, GA4, Feedaty, Kelkoo, Trovaprezzi)",
+            "Performance optimization: Lighthouse 40→80 (+100%), LCP 12.3s→3.4s (-72%)",
+            "Unified VAT validation system (VIES EU + Cerved IT) for 28 countries",
+            "Brevo marketing automation: 60k+ contacts sync with bidirectional webhooks",
+            "GDPR compliance implementation (Cookiebot + Consent Mode v2)",
+            "Mobile-first CSS refactoring: 15k→10k lines, centralized utilities"
+        ]
+        },
+        {
+        "year": "2023-2024",
+        "role": "FULL STACK TRAINEE",
+        "company": "Boolean Academy",
+        "location": "Remote",
+        "highlights": [
+            "Intensive 600+ hour bootcamp: HTML, CSS, JavaScript, Vue.js, PHP, Laravel, MySQL",
+            "Team projects: Spotify replica (Vue.js), Deliveboo clone (Laravel + Vue)",
+            "Collaborative Git workflow and Agile/Scrum methodology",
+            "Full-stack application deployment on Linux servers"
+        ]
+        },
+        {
+        "year": "2022",
+        "role": "DIGITAL COPYWRITER",
+        "company": "Hetaweb / Copystudio",
+        "location": "Remote",
+        "highlights": [
+            "SEO-oriented copywriting for e-commerce and corporate websites",
+            "Technical blog content and product guide creation",
+            "Meta description and title tag optimization for organic ranking",
+            "Digital Copywriter Certificate - Società Dante Alighieri (2022)"
+        ]
+        },
+        {
+        "year": "2020",
+        "role": "MASTER'S DEGREE",
+        "company": "University of Bologna",
+        "location": "Bologna, Italy",
+        "highlights": [
+            "Semiotics and Philosophy of Language (110/110 summa cum laude)",
+            "Thesis: \"Semiotics applied to digital interface analysis\"",
+            "Structural analysis of complex signification systems",
+            "Formal logic, semantics and pragmatics of language"
+        ]
+        },
+        {
+        "year": "2017",
+        "role": "BACHELOR'S DEGREE",
+        "company": "University of Bologna",
+        "location": "Bologna, Italy",
+        "highlights": [
+            "Philosophy (110/110 summa cum laude)",
+            "Focus: Logic, Philosophy of Language, Epistemology",
+            "Research methodology and critical thinking",
+            "Textual, argumentative and rhetorical analysis"
+        ]
+        }
+    ]
+    },
+  "footer": {
+    "philosophy": "An interface that fails to convey its meaning through pure structure is merely computational noise."
+  }
+}
