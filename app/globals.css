@@ -84,6 +84,20 @@
     transform: scale(1.1);
   }
   
+  /* Card con depth migliorato */
+  .card-elevated {
+    background: var(--bg-glass);
+    border: 2px solid var(--border-subtle);
+    box-shadow: var(--shadow-md);
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .card-elevated:hover {
+    background: var(--color-white);
+    color: var(--color-signal);
+    border-color: var(--color-white);
+    box-shadow: var(--shadow-lg);
+  }
 }
 
 /* OTTIMIZZAZIONE MIX-BLEND-MODE */
@@ -479,3 +493,89 @@
   }
 }
 
+/* ===============================
+   ORBITAL SLIDER SYSTEM
+================================ */
+
+.orb-wrapper {
+  perspective: 1200px;
+}
+
+.orb {
+  position: relative;
+  border-radius: 999px;
+  overflow: hidden;
+  backdrop-filter: blur(18px);
+  transform-style: preserve-3d;
+  transition:
+    transform .6s cubic-bezier(.22,1,.36,1),
+    filter .4s ease,
+    background-color .4s ease;
+}
+
+/* profondità alternata */
+.orb:nth-child(odd) {
+  transform: translateY(-30px) scale(.92);
+}
+
+.orb:nth-child(even) {
+  transform: translateY(30px) scale(1.08);
+}
+
+/* glow volumetrico */
+.orb::before {
+  content:"";
+  position:absolute;
+  inset:-2px;
+  border-radius:inherit;
+  background:
+    radial-gradient(circle at 30% 30%,
+      rgba(255,62,0,.6),
+      transparent 60%);
+  opacity:0;
+  transition:opacity .4s;
+}
+
+.orb:hover::before {
+  opacity:1;
+}
+
+/* luce dinamica */
+.orb-light {
+  position:absolute;
+  inset:0;
+  border-radius:inherit;
+  pointer-events:none;
+  background:
+    radial-gradient(
+      circle at var(--mx,50%) var(--my,50%),
+      rgba(255,255,255,.35),
+      transparent 45%
+    );
+  opacity:0;
+  transition:opacity .25s;
+}
+
+.orb:hover .orb-light {
+  opacity:1;
+}
+
+/* hover fisico */
+.orb:hover {
+  transform:
+    scale(1.25)
+    translateZ(80px);
+  filter:
+    brightness(1.25)
+    contrast(1.2);
+}
+
+/* floating motion */
+@keyframes orbital-float {
+  0%,100% { transform: translateY(0px); }
+  50% { transform: translateY(-12px); }
+}
+
+.orb-float {
+  animation: orbital-float 6s ease-in-out infinite;
+}

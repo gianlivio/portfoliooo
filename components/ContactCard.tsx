@@ -91,30 +91,47 @@ export default function ContactCard(props: ContactCardProps) {
       <a
         href={href}
         onClick={handleClick}
-        className="block relative overflow-hidden bg-black/80 border-4 border-white/20 p-8 rounded backdrop-blur-sm"
+        className="block relative overflow-hidden bg-[#0a0a0a] border-l border-t border-white/10 p-8 backdrop-blur-md transition-colors duration-500 group-hover:bg-[#111]"
+        style={{
+          clipPath: "polygon(0 0, 100% 0, 100% 82%, 88% 100%, 0 100%)",
+        }}
         target={type === "linkedin" || type === "github" ? "_blank" : undefined}
         rel={type === "linkedin" || type === "github" ? "noopener noreferrer" : undefined}
       >
         <div 
-          className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+          className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-500 pointer-events-none"
           style={{
-            background: `radial-gradient(circle at ${mousePos.x}% ${mousePos.y}%, rgba(255, 62, 0, 0.3) 0%, transparent 50%)`,
+            background: `
+              linear-gradient(90deg, rgba(255,62,0,0.1) 1px, transparent 1px),
+              linear-gradient(rgba(255,62,0,0.1) 1px, transparent 1px),
+              radial-gradient(circle at ${mousePos.x}% ${mousePos.y}%, rgba(255, 255, 255, 0.15) 0%, transparent 60%)
+            `,
+            backgroundSize: '20px 20px, 20px 20px, 100% 100%',
           }}
         />
         <div className="absolute inset-0 opacity-0 group-hover:opacity-20 noise-texture pointer-events-none" />
         <div className="relative z-10">
+          <div className="absolute -top-4 -right-4 font-mono text-[8px] text-[#ff3e00] opacity-0 group-hover:opacity-100 transition-all duration-300">
+            REF_ID: {type.toUpperCase()}_MOD_01
+          </div>
           <div 
             className="w-16 h-16 mb-4 text-white group-hover:text-[#ff3e00] transition-all duration-300 relative"
             style={{
               transform: `translateZ(30px) translateX(${(mousePos.x - 50) * 0.1}px) translateY(${(mousePos.y - 50) * 0.1}px)`,
             }}
           >
-            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
-              <div className="absolute inset-0 text-red-500 mix-blend-screen translate-x-[-2px]">
-                {ICONS[type]}
-              </div>
-              <div className="absolute inset-0 text-cyan-500 mix-blend-screen translate-x-[2px]">
-                {ICONS[type]}
+            <div 
+              className="w-12 h-12 mb-6 text-white group-hover:text-black transition-all duration-300"
+              style={{ transform: `translateZ(40px)` }}
+            >
+              <div className="relative">
+                {/* Doppia icona per effetto sdoppiamento */}
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 group-hover:animate-pulse text-[#ff3e00] translate-x-[2px]">
+                  {ICONS[type]}
+                </div>
+                <div className="relative mix-blend-difference">
+                  {ICONS[type]}
+                </div>
               </div>
             </div>
             <div className="relative group-hover:opacity-0 transition-opacity duration-150">
