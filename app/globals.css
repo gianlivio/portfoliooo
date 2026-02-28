@@ -84,20 +84,6 @@
     transform: scale(1.1);
   }
   
-  /* Card con depth migliorato */
-  .card-elevated {
-    background: var(--bg-glass);
-    border: 2px solid var(--border-subtle);
-    box-shadow: var(--shadow-md);
-    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-  
-  .card-elevated:hover {
-    background: var(--color-white);
-    color: var(--color-signal);
-    border-color: var(--color-white);
-    box-shadow: var(--shadow-lg);
-  }
 }
 
 /* OTTIMIZZAZIONE MIX-BLEND-MODE */

@@ -6,6 +6,7 @@ import InfiniteSlider from '../../components/InfiniteSlider';
 import ContactCard from '../../components/ContactCard';
 import DownloadCV from '../../components/DownloadCV';
 import ExperienceTimeline from '../../components/ExperienceTimeline';
+import WorkSlider from '../../components/WorkSlider';
 
 import it from '../../dictionaries/it.json';
 import en from '../../dictionaries/en.json';
@@ -102,45 +103,15 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
         </div>
       </section>
 
-      {/* STATS PUNTOLUCE */}
-      <section className="relative z-10 mt-80 px-6 md:px-12 text-white">
-        <div className="border-t-[10px] border-white pt-10">
-          <div className="flex flex-col md:flex-row justify-between items-baseline gap-4 text-white">
-            <span className="text-[18vw] font-[1000] italic leading-none">51.240</span>
-            <span className="font-mono text-2xl md:text-5xl font-black italic uppercase">{dict.stats.units}</span>
-          </div>
-          <p className="text-4xl md:text-7xl font-[1000] mt-10 max-w-6xl leading-[0.85] uppercase">
-            {dict.stats.desc}
-          </p>
-        </div>
-      </section>
-
-      {/* NEW SECTION: AUTOMATIONS & ENTROPY - 6 ITEMS */}
-      <section className="relative z-10 mt-80 px-6 md:px-12 text-white">
-        <div className="mb-20">
-          <h3 className="text-[10vw] font-[1000] leading-[0.8] tracking-tighter mb-4 underline decoration-[10px] text-contrast-high">
-            {dict.automations.title}
-          </h3>
-          <p className="font-mono text-xl md:text-2xl text-white/80 uppercase tracking-widest italic">
-            {dict.automations.subtitle}
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-1 border-white/20 bg-white/10">
-          {dict.automations.items.map((item: any, idx: number) => (
-            <div key={idx} className="card-elevated p-8 h-full flex flex-col justify-between group">
-              <span className="font-mono text-sm mb-10 opacity-50 group-hover:opacity-100 italic">LOG_0{idx + 1}</span>
-              <div>
-                <h4 className="text-3xl font-[1000] mb-6 leading-none uppercase">{item.title}</h4>
-                <p className="text-lg font-bold leading-tight uppercase">{item.desc}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
+      {/* ── WORK SLIDER: stats + automations unificate ── */}
+<WorkSlider
+  statsUnits={dict.stats.units}
+  statsDesc={dict.stats.desc}
+  items={dict.automations.items}
+/>
 
 {/* SECTION: CERTIFICATIONS SLIDER */}
-      <section className="relative z-10 mt-32 md:mt-80 px-6 md:px-12 text-white">
+      <section className="relative z-10 mt-16 md:mt-40 px-6 md:px-12 text-white">
         <div className="mb-20">
           <h3 className="text-[12vw] md:text-[10vw] font-[1000] leading-[0.8] tracking-tighter mb-4 underline decoration-[10px] text-contrast-high uppercase break-words">
             {dict.certifications.title}
@@ -155,7 +126,7 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
       </section>
 
       {/* SECTION: TECH STACK SLIDER */}
-      <section className="relative z-10 mt-32 md:mt-80 px-6 md:px-12 text-white">
+      <section className="relative z-10 mt-16 md:mt-40 px-6 md:px-12 text-white">
         <div className="mb-20">
           <h3 className="text-[12vw] md:text-[10vw] font-[1000] leading-[0.8] tracking-tighter mb-4 underline decoration-[10px] text-contrast-high uppercase break-words">
             {dict.techstack.title}
@@ -170,7 +141,7 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
       </section>
 
       {/* SECTION: CONTACT - MAGNETIC CARDS */}
-      <section className="relative z-10 mt-32 md:mt-80 px-6 md:px-12 text-white">
+      <section className="relative z-10 mt-16 md:mt-40 px-6 md:px-12 text-white">
         <div className="mb-20">
           <h3 className="text-[12vw] md:text-[10vw] font-[1000] leading-[0.8] tracking-tighter mb-4 underline decoration-[10px] text-contrast-high uppercase break-words">
             {dict.contact.title}
@@ -196,7 +167,7 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
       </section>
 
       {/* SECTION: DOWNLOAD CV */}
-      <section className="relative z-10 mt-32 md:mt-80 px-6 md:px-12 text-white">
+      <section className="relative z-10 mt-16 md:mt-40 px-6 md:px-12 text-white">
         <div className="mb-20">
           <h3 className="text-[12vw] md:text-[10vw] font-[1000] leading-[0.8] tracking-tighter mb-4 underline decoration-[10px] text-contrast-high uppercase break-words">
             {dict.cta.title}
@@ -216,7 +187,7 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
       </section>
 
       {/* SECTION: EXPERIENCE TIMELINE */}
-      <section className="relative z-10 mt-32 md:mt-80 px-6 md:px-12 text-white">
+      <section className="relative z-10 mt-16 md:mt-40 px-6 md:px-12 text-white">
         <div className="mb-20">
           <h3 className="text-[12vw] md:text-[10vw] font-[1000] leading-[0.8] tracking-tighter mb-4 underline decoration-[10px] text-contrast-high uppercase break-words">
             {dict.timeline.title}
@@ -230,7 +201,7 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
       </section>
 
       {/* FOOTER */}
-      <footer className="mt-32 md:mt-80 p-6 md:p-12 flex flex-col md:flex-row justify-between items-end gap-10 text-white pb-20">
+      <footer className="mt-16 md:mt-40 p-6 md:p-12 flex flex-col md:flex-row justify-between items-end gap-10 text-white pb-20">
         <div className="max-w-md">
           <p className="font-mono text-xs mb-4 opacity-50 tracking-widest uppercase italic">SYSTEM_PHILOSOPHY</p>
           <p className="text-xl font-bold italic underline">
