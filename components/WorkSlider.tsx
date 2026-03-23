@@ -62,7 +62,7 @@ function FloatingNumber({ units, desc }: { units: string; desc: string }) {
   return (
     <div
       className="flex-shrink-0 flex flex-col justify-center select-none pointer-events-none"
-      style={{ width: HERO_W, height: CARD_H, position: "relative", overflow: "visible" }}
+      style={{ width: HERO_W, position: "relative", overflow: "visible" }}
     >
       {/* Slow vertical float */}
       <motion.div
@@ -181,7 +181,15 @@ export default function WorkSlider({ statsUnits, statsDesc, items }: WorkSliderP
   const dragX     = useRef(0);
 
   const [hovered, setHovered] = useState<number | null>(null);
+  const [isMobile, setIsMobile] = useState(true);
   const [mx, setMx]           = useState<Record<number, { x: number; y: number }>>({});
+
+  useEffect(() => {
+  const check = () => setIsMobile(window.innerWidth < 640);
+  check();
+  window.addEventListener("resize", check);
+  return () => window.removeEventListener("resize", check);
+  }, []);
 
   const totalW = items.length * (CARD_W + GAP);
 
@@ -241,7 +249,7 @@ export default function WorkSlider({ statsUnits, statsDesc, items }: WorkSliderP
   };
 
   return (
-    <section className="relative z-10 mt-16 md:mt-40 text-white">
+    <section className="relative z-10 mt-8 md:mt-40 text-white">
 
       {/* ── NEON MARQUEE ── */}
       <div
@@ -268,20 +276,20 @@ export default function WorkSlider({ statsUnits, statsDesc, items }: WorkSliderP
       </div>
 
       {/* ── DRAG HINT ── */}
-      <div className="px-6 md:px-12 mt-5 mb-3">
+      
+      <div className="px-6 md:px-12 mt-2 mb-2">
         <motion.span
           className="font-mono text-[9px] uppercase tracking-[0.4em] block"
           style={{ color: "rgba(255,255,255,0.22)" }}
           animate={{ opacity: [0.22, 0.6, 0.22] }}
           transition={{ duration: 2.8, repeat: Infinity, ease: "easeInOut" }}
         >
-          ← drag to explore →
+          {isMobile ? "↑ swipe to explore →" : "← drag to explore →"}
         </motion.span>
       </div>
 
       {/* ── LAYOUT ── */}
-      <div className="flex" style={{ alignItems: "center", paddingLeft: "1.5rem" }}>
-
+      <div className="flex flex-col md:flex-row" style={{ alignItems: "flex-start", paddingLeft: "1.5rem" }}>
         {/* ── FLOATING NUMBER ── */}
         <FloatingNumber units={statsUnits} desc={statsDesc} />
 
@@ -319,8 +327,8 @@ export default function WorkSlider({ statsUnits, statsDesc, items }: WorkSliderP
                   key={globalIdx}
                   className="flex-shrink-0 relative overflow-hidden"
                   style={{
-                    width: CARD_W,
-                    height: CARD_H,
+                    width: isMobile ? 160 : CARD_W,
+                    height: isMobile ? 240 : CARD_H,
                     background: isHov ? "#000" : "rgba(0,0,0,0.45)",
                     border: isHov
                       ? "1.5px solid #ff3e00"
@@ -345,7 +353,7 @@ export default function WorkSlider({ statsUnits, statsDesc, items }: WorkSliderP
                       className="absolute left-0 w-full pointer-events-none z-20"
                       style={{ height: 1, background: "rgba(255,62,0,0.7)" }}
                       initial={{ top: 0 }}
-                      animate={{ top: CARD_H }}
+                      animate={{ top: isMobile ? 240 : CARD_H }}
                       transition={{ duration: 1.1, ease: "linear", repeat: Infinity, repeatDelay: 0.9 }}
                     />
                   )}
@@ -358,7 +366,7 @@ export default function WorkSlider({ statsUnits, statsDesc, items }: WorkSliderP
                     {String(localIdx + 1).padStart(2, "0")}
                   </div>
 
-                  <div className="relative z-10 p-5 flex flex-col" style={{ height: CARD_H }}>
+                  <div className="relative z-10 p-5 flex flex-col" style={{ height: isMobile ? 240 : CARD_H }}>
                     <div className="flex justify-between items-center">
                       <span className="font-mono uppercase" style={{
                         fontSize: 8, letterSpacing: "0.35em",
@@ -380,14 +388,14 @@ export default function WorkSlider({ statsUnits, statsDesc, items }: WorkSliderP
 
                     <div className="mt-auto">
                       <h4 className="font-[1000] uppercase leading-tight mb-3" style={{
-                        fontSize: 13, letterSpacing: "-0.01em",
+                        fontSize: isMobile ? 11 : 13, letterSpacing: "-0.01em",
                         color: isHov ? "#ff3e00" : "#fff",
                         transition: "color 0.22s ease",
                       }}>
                         {item.title}
                       </h4>
                       <p style={{
-                        fontSize: 10, lineHeight: 1.65, fontWeight: 500, letterSpacing: "0.02em",
+                        fontSize: isMobile ? 9 : 10, lineHeight: 1.65, fontWeight: 500, letterSpacing: "0.02em",
                         color: isHov ? "rgba(255,255,255,0.5)" : "rgba(255,255,255,0.38)",
                         transition: "color 0.22s ease",
                       }}>
@@ -419,7 +427,7 @@ export default function WorkSlider({ statsUnits, statsDesc, items }: WorkSliderP
       </div>
 
       {/* ── PUNTOLUCE LINKS ── */}
-      <div className="px-6 md:px-12 mt-6 flex flex-col sm:flex-row gap-3">
+      <div className="px-6 md:px-12 mt-3 md:mt-6 flex flex-col sm:flex-row gap-3">
         {[
           { label: "SHOP", sub: "shop.puntoluce.net", href: "https://shop.puntoluce.net/" },
           { label: "BLOG", sub: "puntoluce.net/comefare", href: "https://www.puntoluce.net/comefare/" },
