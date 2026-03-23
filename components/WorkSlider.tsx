@@ -321,7 +321,7 @@ export default function WorkSlider({ statsUnits, statsDesc, items }: WorkSliderP
                   style={{
                     width: CARD_W,
                     height: CARD_H,
-                    background: isHov ? "#000" : "rgba(0,0,0,0.08)",
+                    background: isHov ? "#000" : "rgba(0,0,0,0.45)",
                     border: isHov
                       ? "1.5px solid #ff3e00"
                       : "1.5px solid rgba(255,255,255,0.35)",

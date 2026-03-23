@@ -134,9 +134,6 @@ export default function ContactCard(props: ContactCardProps) {
                 </div>
               </div>
             </div>
-            <div className="relative group-hover:opacity-0 transition-opacity duration-150">
-              {ICONS[type]}
-            </div>
           </div>
           <div 
             className="relative mb-2"
