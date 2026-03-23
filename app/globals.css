@@ -487,10 +487,10 @@
 }
 
 @media (max-width: 768px) {
-  /* Riduce lo spazio vuoto tra le sezioni su mobile */
   section {
-    margin-top: 5rem !important; 
+    margin-top: 1.5rem !important; 
   }
+
 }
 
 /* ===============================
