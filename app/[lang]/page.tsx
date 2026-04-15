@@ -97,9 +97,9 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
           <h2 className="text-5xl md:text-[7vw] font-[1000] tracking-tighter leading-[0.8] uppercase">
              {dict.hero.sub}
           </h2>
-          <div className="self-end italic text-2xl md:text-4xl font-bold leading-tight tracking-tight max-w-xl">
-            "{dict.hero.desc}"
-          </div>
+        <div className="self-end text-xl md:text-2xl font-normal leading-relaxed tracking-normal max-w-xl text-white/80">
+          {dict.hero.desc}
+        </div>
         </div>
       </section>
 
@@ -203,9 +203,8 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
       {/* FOOTER */}
       <footer className="mt-16 md:mt-40 p-6 md:p-12 flex flex-col md:flex-row justify-between items-end gap-10 text-white pb-20">
         <div className="max-w-md">
-          <p className="font-mono text-xs mb-4 opacity-50 tracking-widest uppercase italic">SYSTEM_PHILOSOPHY</p>
-          <p className="text-xl font-bold italic underline">
-            "{dict.footer.philosophy}"
+          <p className="font-mono text-xs opacity-40 tracking-widest uppercase">
+            {dict.footer.philosophy}
           </p>
         </div>
         <div className="text-[15vw] font-[1000] leading-[0.7] opacity-20">

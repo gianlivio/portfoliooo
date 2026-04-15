@@ -2,7 +2,7 @@
   "hero": {
     "title": "GIANLIVIO IEMOLO",
     "sub": "Full Stack Web Developer",
-    "desc": "Sviluppo e integro sistemi e-commerce complessi. Background in semiotica applicata alla struttura delle interfacce."
+    "desc": "Sviluppo e integro sistemi e-commerce complessi. Automatizzo processi, connetto API, ottimizzo performance. Laurea magistrale in semiotica — approccio analitico applicato alla struttura del codice e delle interfacce."
   },
   "stats": {
     "units": "SKU GESTITI",
@@ -255,6 +255,6 @@
     ]
     },
   "footer": {
-    "philosophy": "Un'interfaccia che non esplicita il proprio senso tramite la pura struttura è mero rumore computazionale."
+    "philosophy": ""
   }
 }
