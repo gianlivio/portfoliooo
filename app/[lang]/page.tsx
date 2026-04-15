@@ -78,16 +78,16 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
 
       <nav className="fixed top-0 left-0 w-full p-6 md:p-12 flex justify-between items-start z-[110] mix-blend-difference text-white">
         <div className="text-3xl font-[1000] leading-[0.7] tracking-tighter">
-          GIANLIVIO<br/>IEMOLO
+          PORTFOLIO
         </div>
         <LanguagePicker currentLang={lang} />
       </nav>
 
       {/* HERO */}
-      <section className="relative z-10 pt-48 md:pt-64 px-6 md:px-12 pointer-events-none text-white">
+      <section className="relative z-10 h-screen flex flex-col justify-center px-6 md:px-12 pointer-events-none text-white">
         <motion.h1 
           style={{ skewX: skew }}
-          className="text-[11vw] font-[1000] leading-[0.75] tracking-[-0.08em] mb-20"
+          className="text-[10vw] font-[1000] leading-[0.82] tracking-[-0.06em] mb-10"
         >
           {dict.hero.title.split(' ')[0]}<br/>
           {dict.hero.title.split(' ')[1] || ""}
