@@ -1,12 +1,12 @@
 {
   "hero": {
-    "title": "SIGNOS CÓDIGO",
-    "sub": "EL SENTIDO PRECEDE LA FUNCIÓN.",
-    "desc": "Desarrollo interfaces en las que el análisis semiótico deconstruye el caos y la arquitectura del código sintetiza el orden."
+    "title": "GIANLIVIO IEMOLO",
+    "sub": "Desarrollador Web Full Stack",
+    "desc": "Desarrollo e integro sistemas e-commerce complejos. Background en semiótica aplicada a la estructura de interfaces."
   },
   "stats": {
-    "units": "ENTIDADES_ESTRUCTURADAS",
-    "desc": "He gobernado la complejidad de un ecosistema masivo. Cero ruido visual. Rigor quirúrgico."
+    "units": "SKUs GESTIONADOS",
+    "desc": "Catálogo activo en shop.puntoluce.net. 13.102 categorías, 300+ proveedores, sincronización en tiempo real."
   },
   "automations": {
     "title": "AUTOMATIZACIONES E INTEGRACIONES",
