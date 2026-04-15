@@ -477,11 +477,9 @@
 
 @layer base {
   h3 {
-    /* Clamp impedisce al titolo di diventare troppo piccolo o troppo grande */
-    /* font-size: clamp(min, preferred, max) */
-    font-size: clamp(2.5rem, 10vw, 12rem) !important;
-    line-height: 0.85 !important;
-    word-break: break-word; /* Forza l'andata a capo se la parola è troppo lunga */
+    font-size: clamp(2rem, 6vw, 7rem) !important;
+    line-height: 0.88 !important;
+    word-break: break-word;
     hyphens: auto;
   }
 }

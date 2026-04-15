@@ -87,7 +87,7 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
       <section className="relative z-10 pt-48 md:pt-64 px-6 md:px-12 pointer-events-none text-white">
         <motion.h1 
           style={{ skewX: skew }}
-          className="text-[20vw] font-[1000] leading-[0.75] tracking-[-0.08em] mb-20"
+          className="text-[11vw] font-[1000] leading-[0.75] tracking-[-0.08em] mb-20"
         >
           {dict.hero.title.split(' ')[0]}<br/>
           {dict.hero.title.split(' ')[1] || ""}
