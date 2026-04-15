@@ -13,61 +13,61 @@
     "subtitle": "Architetture che annullano l'entropia dei dati distribuiti",
     "items": [
       {
-        "title": "SINTESI DI MARKETING AUTOMATION",
-        "desc": "Flussi bidirezionali tra core e-commerce e Brevo. 60.000+ contatti sincronizzati. Persistenza semantica dell'utente. Zero latenza informativa."
+        "title": "Sincronizzazione contatti Open2B ↔ Brevo",
+        "desc": "Flusso bidirezionale tra gestionale e piattaforma email. 60.000+ contatti sincronizzati con segmentazione automatica B2B/B2C. Webhook real-time per iscrizioni e cancellazioni, gestione rate limiting e retry."
       },
       {
-        "title": "ARCHITETTURA DEL CONSENSO DIGITALE",
-        "desc": "Layer GDPR che tratta il consenso come struttura giuridico-simbolica. Cookiebot gestisce la semiotica. GTM orchestra il segnale. Audit trail completo."
+        "title": "GDPR & Consent Mode v2",
+        "desc": "Layer di consenso con Cookiebot e Consent Mode v2. Blocco cookie pre-consenso, audit trail GTM completo. Conformità verificata tramite Network tab su tutti i tag attivi."
       },
       {
-        "title": "ABBATTIMENTO DEL RUMORE STATISTICO",
-        "desc": "Tracking GA4/GTM/Consent Mode v2. Rapporto segnale/rumore ridotto. Ogni evento è un significante validato, non un artefatto casuale."
+        "title": "Tracking GA4 / GTM",
+        "desc": "Configurazione eventi e-commerce GA4 completi: view_item, add_to_cart, purchase. Facebook Pixel con url_passthrough. Microsoft UET Enhanced Conversion. Debugging tramite GTM preview e Network tab."
       },
       {
-        "title": "DOMINIO DELLA COMPLESSITÀ MASSIVA",
-        "desc": "51.240 SKU su 13.102 categorie. Peso combinatorico governato. La scalabilità traduce vastità in navigabilità cognitiva."
+        "title": "Template e-commerce Open2B",
+        "desc": "Sviluppo completo del tema su piattaforma Open2B/Scriggo: struttura mobile-first, dark mode, checkout multi-step, filtri dinamici AJAX, schede prodotto con badge, SKU e disponibilità in tempo reale."
       },
       {
-        "title": "VALIDAZIONE IVA EUROPEA UNIFICATA",
-        "desc": "API OpenAPI sostituisce SOAP legacy. 28 paesi UE. Cache stratificata. Hard-blocking al checkout. Riduzione costi 70%. La validazione è barricata normativa."
+        "title": "Validazione P.IVA europea",
+        "desc": "API unificata Cerved (IT) + VIES (EU) per verifica partita IVA in 28 paesi. Cache su filesystem, smart soft-fail, auto-compilazione dati aziendali al checkout. Hard-blocking su P.IVA non valida."
       },
       {
-        "title": "SEGMENTAZIONE AUTOMATICA B2B/B2C",
-        "desc": "Classificazione via presenza/assenza P.IVA e Tax Area. Webhook-driven. Zero ambiguità categoriale. Nessun intervento manuale."
+        "title": "Segmentazione clienti B2B / B2C",
+        "desc": "Classificazione automatica via presenza P.IVA e Tax Area. Webhook-driven su Open2B, smistamento in gruppi fiscali IT/EU/Extra-EU senza intervento manuale."
       },
       {
-        "title": "INGEGNERIA DELLA VELOCITÀ",
-        "desc": "Lighthouse Performance da 40 a 80 (+100%). LCP da 12.3s a 3.4s (-72%). CLS azzerato. Mobile-first CSS refactoring: 15.000 righe ridotte a 10.000. Lazy loading, fetchpriority optimization, utilities centralizzate."
-        },
-        {
-        "title": "ANALYTICS PREDITTIVA LOGISTICA",
-        "desc": "Sistema KPI per tempi consegna corrieri. Media, mediana, P90, deviazione standard. Filtraggio per paese/regione/provincia. Identificazione outlier automatica. Grafici Chart.js con batch processing 1000 ordini/step."
-        },
-        {
-        "title": "MOBILE COME ORIGINE",
-        "desc": "CSS ristrutturato da desktop-first a mobile-first. Breakpoint 480/768/1024px. Utilities centralizzate, custom properties, zero duplicazioni. Grid responsive per header, products, checkout."
-        },
-        {
-        "title": "PERSISTENZA DEL CATALOGO",
-        "desc": "23.550 prodotti sincronizzati Open2B → Brevo eCommerce. Batch processing 100 SKU/call. Webhook real-time per create/update/delete. Gestione automatica rate limiting 429. Cache globale produttori."
-        },
-        {
-        "title": "EXPORT SEMANTICO VERSO COMPARATORI",
-        "desc": "Feed automatici Kelkoo IT/FR + Trovaprezzi. Filtri categoria server-side. Calcolo costi spedizione per peso. Esclusione automatica stock=0. URL con parametri UTM per tracciamento conversioni."
-        },
-        {
-        "title": "GOVERNANCE DI 20+ INTEGRAZIONI",
-        "desc": "Open2B, Brevo, Feedaty, Facebook Pixel, Microsoft UET, Kelkoo, Trovaprezzi, Doofinder, Cerved, OpenAPI VIES. Retry automatico, rate limiting, fallback intelligenti. Webhook resilience con log JSON."
-        },
-        {
-        "title": "INVERSIONE SEMANTICA DEL CONTRASTO",
-        "desc": "Dark mode via CSS custom properties e localStorage. Toggle dinamico senza reload. Variabili data-theme='dark' applicate a root. Persistenza sessione. Transizioni fluide su 200+ componenti."
-        },
-        {
-        "title": "RICERCA COME INTERFACCIA COGNITIVA",
-        "desc": "Search API custom con Shadow DOM isolato. Filtri produttore/reparto/prezzo server-side. Esclusione categorie obsolete client-side. Reconciliazione dati live Open2B post-ranking. Overlay dedicato responsive."
-        }
+        "title": "Ottimizzazione performance",
+        "desc": "LCP da 12s a 4s su mobile tramite lazy-loading, preload, JS differito, eliminazione forced-reflow. TBT ridotto del 40%. CSS refactoring mobile-first: 15.000 righe ridotte a 10.000, utilities centralizzate."
+      },
+      {
+        "title": "KPI logistica — tempi di consegna",
+        "desc": "Dashboard interna che calcola media, mediana e P90 sui tempi di consegna reali per corriere e area geografica. Batch processing su 1.000+ ordini/step. Grafici Chart.js con filtri per paese e provincia."
+      },
+      {
+        "title": "Social login OAuth 2.0",
+        "desc": "Login e registrazione con Google Identity Services (JWT lato client) e Facebook SDK v18.0. Gestione sicura dei tre scenari: nuovo utente, account esistente, collegamento account preesistente."
+      },
+      {
+        "title": "Sincronizzazione prodotti verso Brevo",
+        "desc": "23.550 prodotti sincronizzati da Open2B verso Brevo eCommerce. Batch da 100 SKU per chiamata, webhook real-time per create/update/delete, gestione automatica rate limiting 429."
+      },
+      {
+        "title": "Feed automatici Kelkoo e Trovaprezzi",
+        "desc": "Generazione feed XML per Kelkoo IT/FR e Trovaprezzi. Filtri disponibilità server-side, calcolo costi spedizione per peso, parametri UTM per tracciamento conversioni. Aggiornamento automatico."
+      },
+      {
+        "title": "Gestione 20+ integrazioni attive",
+        "desc": "Brevo, Feedaty, Kelkoo, Trovaprezzi, Doofinder, Cerved, VIES, DocFinance, Facebook Graph API, Google Identity. Retry automatico, rate limiting, fallback intelligenti, log JSON per ogni webhook."
+      },
+      {
+        "title": "Dark mode — sistema a variabili CSS",
+        "desc": "Dark mode via CSS custom properties e localStorage. Toggle dinamico senza reload, variabili data-theme applicati a root. Persistenza sessione. Transizioni fluide su oltre 200 componenti."
+      },
+      {
+        "title": "Ricerca prodotti con filtri server-side",
+        "desc": "Proxy search con Shadow DOM isolato. Filtri per produttore, reparto e prezzo elaborati server-side. Esclusione reparti obsoleti client-side. Overlay responsive dedicato, reconciliazione dati live Open2B."
+      }
     ]
   },
   "certifications": {
