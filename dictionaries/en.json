@@ -1,11 +1,11 @@
 {
-  "hero": {
+    "hero": {
     "title": "GIANLIVIO IEMOLO",
     "sub": "Full Stack Web Developer",
     "desc": "I build and integrate complex e-commerce systems. Background in semiotics applied to interface structure."
   },
   "stats": {
-    "units": "SKUs MANAGED",
+    "units": "MANAGED SKUs",
     "desc": "Live catalogue on shop.puntoluce.net. 13,102 categories, 300+ suppliers, real-time synchronisation."
   },
   "automations": {
