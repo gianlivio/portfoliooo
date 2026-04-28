@@ -101,7 +101,7 @@ export default function ContactCard(props: ContactCardProps) {
         <div 
           className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-500 pointer-events-none"
           style={{
-            background: `
+            backgroundImage: `
               linear-gradient(90deg, rgba(255,62,0,0.1) 1px, transparent 1px),
               linear-gradient(rgba(255,62,0,0.1) 1px, transparent 1px),
               radial-gradient(circle at ${mousePos.x}% ${mousePos.y}%, rgba(255, 255, 255, 0.15) 0%, transparent 60%)
