@@ -6,11 +6,11 @@
   },
   "stats": {
     "units": "SKU GESTITI",
-    "desc": "Catalogo attivo su shop.puntoluce.net. 13.102 categorie, 300+ fornitori, sincronizzazione in tempo reale."
+    "desc": "Catalogo e-commerce attivo su shop.puntoluce.net. 13.102 categorie, 300+ fornitori, aggiornamento in tempo reale."
   },
   "automations": {
     "title": "AUTOMAZIONI & INTEGRAZIONI",
-    "subtitle": "Architetture che annullano l'entropia dei dati distribuiti",
+    "subtitle": "Integrazioni API, automazioni e tracking sviluppati su shop.puntoluce.net",
     "items": [
       {
         "title": "Sincronizzazione contatti Open2B ↔ Brevo",
@@ -189,69 +189,97 @@
     "title": "PERCORSO_EVOLUTIVO",
     "subtitle": "Dal pensiero alla sintassi",
     "items": [
-        {
-        "year": "2024-2025",
+      {
+        "year": "2026",
+        "role": "CO-FOUNDER & FULL STACK DEVELOPER",
+        "company": "Futura Blog",
+        "location": "Remote",
+        "highlights": [
+          "Sviluppo piattaforma Next.js/TypeScript per gestione autonoma di blog aziendali",
+          "Integrazione e addestramento agenti AI per ottimizzazione SEO/GEO e flusso editoriale",
+          "Pianificazione editoriale, analisi GSC, gestione campagne e reportistica clienti",
+          "Progetto early-stage: dalla definizione del prodotto al deploy, in team ristretto"
+        ]
+      },
+      {
+        "year": "2026",
+        "role": "FULL STACK DEVELOPER — QA & INTEGRATION",
+        "company": "Beauty Broker World",
+        "location": "Remote",
+        "highlights": [
+          "QA testing strutturato: 22+ scenari end-to-end su flussi critici (OTP, IBAN, checkout, referral medico)",
+          "Issue tracking su GitHub: apertura, documentazione e regression testing post-fix",
+          "Team internazionale (Italia, Brasile, USA), coordinamento via GitHub (branch, PR, code review)",
+          "CTO: Bibop Gresta — collaborazione in ambiente startup internazionale"
+        ]
+      },
+      {
+        "year": "2024–oggi",
         "role": "FULL STACK DEVELOPER",
-        "company": "PuntoLuce / EDIF",
-        "location": "Bologna, Italia",
+        "company": "Punto Luce / EDIF",
+        "location": "Sasso Marconi (BO)",
         "highlights": [
-            "Sviluppo e gestione shop.puntoluce.net (51.240 SKU, 13.102 categorie)",
-            "Implementazione 20+ integrazioni API (Open2B, Brevo, GTM, GA4, Feedaty, Kelkoo, Trovaprezzi)",
-            "Ottimizzazione performance: Lighthouse da 40 a 80 (+100%), LCP da 12.3s a 3.4s (-72%)",
-            "Sistema VAT validation unificato (VIES EU + Cerved IT) per 28 paesi",
-            "Marketing automation Brevo: sincronizzazione 60k+ contatti con webhook bidirezionali",
-            "Implementazione GDPR compliance (Cookiebot + Consent Mode v2)",
-            "Refactoring CSS mobile-first: 15k→10k righe, utilities centralizzate"
+          "Sviluppo e gestione shop.puntoluce.net (51.240 SKU, 13.102 categorie, 300+ fornitori)",
+          "20+ integrazioni API: Open2B, Brevo, GTM/GA4, Feedaty, Kelkoo, Trovaprezzi, VIES, Cerved",
+          "Performance: Lighthouse 40→80, LCP 12s→4s, CSS refactoring mobile-first 15k→10k righe",
+          "GDPR compliance: Cookiebot + Consent Mode v2, audit tracking completo",
+          "Sincronizzazione bidirezionale Open2B ↔ Brevo: 58.000 contatti, 23.550 prodotti",
+          "15+ app PHP interne: KPI logistica, feed comparatori, archiviazione automatica fatture"
         ]
-        },
-        {
-        "year": "2023-2024",
-        "role": "TRAINEE FULL STACK",
+      },
+      {
+        "year": "2024",
+        "role": "JUNIOR WEB DEVELOPER TRAINEE",
         "company": "Boolean Academy",
-        "location": "Remote",
+        "location": "Milano / Remote",
         "highlights": [
-            "Bootcamp intensivo 600+ ore: HTML, CSS, JavaScript, Vue.js, PHP, Laravel, MySQL",
-            "Progetti team: replica Spotify (Vue.js), clone Deliveboo (Laravel + Vue)",
-            "Git workflow collaborativo e metodologia Agile/Scrum",
-            "Deployment applicazioni full-stack su server Linux"
+          "Bootcamp intensivo 700 ore: HTML, CSS, JavaScript, Vue.js, PHP, Laravel, MySQL",
+          "Clone WhatsApp in Vue.js con API Laravel custom, testing con Postman",
+          "Dashboard gestione appartamenti: RDBMS, CRUD completo, Bootstrap + SCSS",
+          "Git workflow collaborativo e metodologia Agile/Scrum"
         ]
-        },
-        {
-        "year": "2022",
-        "role": "DIGITAL COPYWRITER",
-        "company": "Hetaweb / Copystudio",
-        "location": "Remote",
+      },
+      {
+        "year": "2023",
+        "role": "FRONT END DEVELOPER & WEB CONTENT MANAGER",
+        "company": "Copystudio",
+        "location": "Ragusa / Remote",
         "highlights": [
-            "Redazione testi SEO-oriented per e-commerce e siti aziendali",
-            "Creazione contenuti blog tecnici e guide prodotto",
-            "Ottimizzazione meta description e tag title per posizionamento organico",
-            "Attestato Digital Copywriter - Società Dante Alighieri (2022)"
+          "Sviluppo frontend per siti aziendali: HTML, CSS, JavaScript, WordPress",
+          "Produzione contenuti digitali, analisi semiotica e concorrenziale, consulenza SEO"
         ]
-        },
-        {
+      },
+      {
+        "year": "2023",
+        "role": "SEO COPYWRITER & WEB CONTENT MANAGER",
+        "company": "Hetaweb",
+        "location": "Lucca / Remote",
+        "highlights": [
+          "Gestione siti WordPress per clienti dell'agenzia: cliniche mediche, Federazione Italiana Rugby, gioiellerie",
+          "Produzione contenuti SEO-oriented, ottimizzazione meta tag e posizionamento organico"
+        ]
+      },
+      {
         "year": "2020",
         "role": "LAUREA MAGISTRALE",
         "company": "Università di Bologna",
-        "location": "Bologna, Italia",
+        "location": "Bologna",
         "highlights": [
-            "Semiotica e Filosofia del Linguaggio (110/110)",
-            "Tesi: \"Semiotica applicata all'analisi delle interfacce digitali\"",
-            "Analisi strutturale di sistemi di significazione complessi",
-            "Logica formale, semantica e pragmatica del linguaggio"
+          "Semiotica e Filosofia del Linguaggio (110/110)",
+          "Tesi: pratiche semiotiche di amministrazione dello spazio, dei discorsi e dei soggetti",
+          "Relatori: Prof. Marsciani, Prof. Frixa"
         ]
-        },
-        {
+      },
+      {
         "year": "2017",
         "role": "LAUREA TRIENNALE",
         "company": "Università di Bologna",
-        "location": "Bologna, Italia",
+        "location": "Bologna",
         "highlights": [
-            "Filosofia (110/110)",
-            "Focus: Logica, Filosofia del Linguaggio, Epistemologia",
-            "Metodologia della ricerca e pensiero critico",
-            "Analisi testuale, argomentativa e retorica"
+          "Filosofia (110/110)",
+          "Focus: Logica, Filosofia del Linguaggio, Epistemologia"
         ]
-        }
+      }
     ]
     },
   "footer": {

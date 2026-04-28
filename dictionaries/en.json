@@ -6,11 +6,11 @@
   },
   "stats": {
     "units": "MANAGED SKUs",
-    "desc": "Live catalogue on shop.puntoluce.net. 13,102 categories, 300+ suppliers, real-time synchronisation."
+    "desc": "Active e-commerce catalogue on shop.puntoluce.net. 13,102 categories, 300+ suppliers, real-time updates."
   },
   "automations": {
     "title": "AUTOMATIONS & INTEGRATIONS",
-    "subtitle": "Architectures that nullify the entropy of distributed data",
+    "subtitle": "API integrations, automations and tracking built for shop.puntoluce.net",
     "items": [
       {
         "title": "Open2B ↔ Brevo contact sync",

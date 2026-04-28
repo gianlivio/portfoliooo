@@ -6,11 +6,11 @@
   },
   "stats": {
     "units": "SKUs GESTIONADOS",
-    "desc": "Catálogo activo en shop.puntoluce.net. 13.102 categorías, 300+ proveedores, sincronización en tiempo real."
+    "desc": "Catálogo e-commerce activo en shop.puntoluce.net. 13.102 categorías, 300+ proveedores, actualización en tiempo real."
   },
   "automations": {
     "title": "AUTOMATIZACIONES E INTEGRACIONES",
-    "subtitle": "Arquitecturas que anulan la entropía de los datos distribuidos",
+    "subtitle": "Integraciones API, automatizaciones y tracking desarrollados para shop.puntoluce.net",
     "items": [
       {
         "title": "Sincronización contactos Open2B ↔ Brevo",
@@ -190,69 +190,97 @@
     "subtitle": "Del pensamiento a la sintaxis",
     "items": [
         {
-        "year": "2024-2025",
-        "role": "DESARROLLADOR FULL STACK",
-        "company": "PuntoLuce / EDIF",
-        "location": "Bolonia, Italia",
-        "highlights": [
-            "Desarrollo y gestión shop.puntoluce.net (51.240 SKUs, 13.102 categorías)",
-            "Implementación 20+ integraciones API (Open2B, Brevo, GTM, GA4, Feedaty, Kelkoo, Trovaprezzi)",
-            "Optimización performance: Lighthouse 40→80 (+100%), LCP 12.3s→3.4s (-72%)",
-            "Sistema VAT validation unificado (VIES EU + Cerved IT) para 28 países",
-            "Marketing automation Brevo: sincronización 60k+ contactos con webhooks bidireccionales",
-            "Implementación compliance GDPR (Cookiebot + Consent Mode v2)",
-            "Refactoring CSS mobile-first: 15k→10k líneas, utilities centralizadas"
-        ]
+          "year": "2026",
+          "role": "CO-FUNDADOR & DESARROLLADOR FULL STACK",
+          "company": "Futura Blog",
+          "location": "Remoto",
+          "highlights": [
+            "Desarrollo de plataforma Next.js/TypeScript para gestión autónoma de blogs empresariales",
+            "Integración y entrenamiento de agentes IA para optimización SEO/GEO y automatización editorial",
+            "Planificación editorial, análisis GSC, gestión de campañas e informes para clientes",
+            "Proyecto en fase inicial: desde la definición del producto al deploy, en equipo reducido"
+          ]
         },
         {
-        "year": "2023-2024",
-        "role": "TRAINEE FULL STACK",
-        "company": "Boolean Academy",
-        "location": "Remoto",
-        "highlights": [
-            "Bootcamp intensivo 600+ horas: HTML, CSS, JavaScript, Vue.js, PHP, Laravel, MySQL",
-            "Proyectos equipo: réplica Spotify (Vue.js), clon Deliveboo (Laravel + Vue)",
-            "Git workflow colaborativo y metodología Agile/Scrum",
-            "Deployment aplicaciones full-stack en servidores Linux"
-        ]
+          "year": "2026",
+          "role": "DESARROLLADOR FULL STACK — QA & INTEGRACIÓN",
+          "company": "Beauty Broker World",
+          "location": "Remoto",
+          "highlights": [
+            "QA testing estructurado: 22+ escenarios end-to-end en flujos críticos (OTP, IBAN, checkout, referral médico)",
+            "Issue tracking en GitHub: apertura, documentación y regression testing post-fix",
+            "Equipo internacional (Italia, Brasil, EE.UU.), coordinación via GitHub (ramas, PRs, code review)",
+            "CTO: Bibop Gresta — colaboración en entorno startup internacional"
+          ]
         },
         {
-        "year": "2022",
-        "role": "DIGITAL COPYWRITER",
-        "company": "Hetaweb / Copystudio",
-        "location": "Remoto",
-        "highlights": [
-            "Redacción textos SEO para e-commerce y sitios corporativos",
-            "Creación contenidos blog técnicos y guías producto",
-            "Optimización meta description y title tags para posicionamiento orgánico",
-            "Certificado Digital Copywriter - Società Dante Alighieri (2022)"
-        ]
+          "year": "2024–hoy",
+          "role": "DESARROLLADOR FULL STACK",
+          "company": "Punto Luce / EDIF",
+          "location": "Sasso Marconi (BO)",
+          "highlights": [
+            "Desarrollo y gestión de shop.puntoluce.net (51.240 SKU, 13.102 categorías, 300+ proveedores)",
+            "20+ integraciones API: Open2B, Brevo, GTM/GA4, Feedaty, Kelkoo, Trovaprezzi, VIES, Cerved",
+            "Rendimiento: Lighthouse 40→80, LCP 12s→4s, refactoring CSS mobile-first 15k→10k líneas",
+            "Conformidad GDPR: Cookiebot + Consent Mode v2, auditoría de tracking completa",
+            "Sincronización bidireccional Open2B ↔ Brevo: 58.000 contactos, 23.550 productos",
+            "15+ apps PHP internas: KPIs logística, feeds comparadores, archivo automático de facturas"
+          ]
         },
         {
-        "year": "2020",
-        "role": "MÁSTER",
-        "company": "Universidad de Bolonia",
-        "location": "Bolonia, Italia",
-        "highlights": [
-            "Semiótica y Filosofía del Lenguaje (110/110 summa cum laude)",
-            "Tesis: \"Semiótica aplicada al análisis de interfaces digitales\"",
-            "Análisis estructural sistemas de significación complejos",
-            "Lógica formal, semántica y pragmática del lenguaje"
-        ]
+          "year": "2024",
+          "role": "JUNIOR WEB DEVELOPER TRAINEE",
+          "company": "Boolean Academy",
+          "location": "Milán / Remoto",
+          "highlights": [
+            "Bootcamp intensivo 700 horas: HTML, CSS, JavaScript, Vue.js, PHP, Laravel, MySQL",
+            "Clon WhatsApp en Vue.js con API Laravel personalizada, testing con Postman",
+            "Dashboard gestión apartamentos: RDBMS, CRUD completo, Bootstrap + SCSS",
+            "Git workflow colaborativo y metodología Agile/Scrum"
+          ]
         },
         {
-        "year": "2017",
-        "role": "LICENCIATURA",
-        "company": "Universidad de Bolonia",
-        "location": "Bolonia, Italia",
-        "highlights": [
-            "Filosofía (110/110 summa cum laude)",
-            "Focus: Lógica, Filosofía del Lenguaje, Epistemología",
-            "Metodología investigación y pensamiento crítico",
-            "Análisis textual, argumentativo y retórico"
-        ]
+          "year": "2023",
+          "role": "DESARROLLADOR FRONT END & WEB CONTENT MANAGER",
+          "company": "Copystudio",
+          "location": "Ragusa / Remoto",
+          "highlights": [
+            "Desarrollo frontend para sitios web empresariales: HTML, CSS, JavaScript, WordPress",
+            "Producción de contenidos digitales, análisis semiótico y de competencia, consultoría SEO"
+          ]
+        },
+        {
+          "year": "2023",
+          "role": "SEO COPYWRITER & WEB CONTENT MANAGER",
+          "company": "Hetaweb",
+          "location": "Lucca / Remoto",
+          "highlights": [
+            "Gestión de sitios WordPress para clientes de la agencia: clínicas, Federación Italiana de Rugby, joyerías",
+            "Producción de contenidos SEO, optimización de meta tags y posicionamiento orgánico"
+          ]
+        },
+        {
+          "year": "2020",
+          "role": "MÁSTER UNIVERSITARIO",
+          "company": "Universidad de Bolonia",
+          "location": "Bolonia",
+          "highlights": [
+            "Semiótica y Filosofía del Lenguaje (110/110 con matrícula de honor)",
+            "Tesis: prácticas semióticas de administración del espacio, los discursos y los sujetos",
+            "Directores: Prof. Marsciani, Prof. Frixa"
+          ]
+        },
+        {
+          "year": "2017",
+          "role": "GRADO UNIVERSITARIO",
+          "company": "Universidad de Bolonia",
+          "location": "Bolonia",
+          "highlights": [
+            "Filosofía (110/110 con matrícula de honor)",
+            "Especialización: Lógica, Filosofía del Lenguaje, Epistemología"
+          ]
         }
-    ]
+      ]
     },
   "footer": {
     "philosophy": ""
