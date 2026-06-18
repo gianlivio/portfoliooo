@@ -1,7 +1,7 @@
 {
   "hero": {
     "title": "GIANLIVIO IEMOLO",
-    "sub": "Desarrollador Web Full Stack",
+    "sub": "Desarrollador Web Full Stack · Freelance",
     "desc": "Desarrollo e integro sistemas de comercio electrónico complejos. Automatizo procesos, conecto APIs y optimizo el rendimiento. Mi maestría en Semiótica me permite aplicar un enfoque analítico a la estructura del código y de las interfaces."
   },
   "stats": {
@@ -29,7 +29,7 @@
         "desc": "Desarrollo completo del tema en Open2B/Scriggo: estructura mobile-first, dark mode, checkout multi-paso, filtros dinámicos AJAX, fichas de producto con badges, SKU y disponibilidad en tiempo real."
       },
       {
-        "title": "Validación NIF/IVA europea",
+        "title": "Validación fiscal europea",
         "desc": "API unificada Cerved (IT) + VIES (EU) para verificación en 28 países. Caché en sistema de archivos, soft-fail inteligente, autocompletado de datos empresariales en checkout. Bloqueo duro en NIF inválido."
       },
       {
@@ -73,43 +73,43 @@
   "certifications": {
     "title": "FORMACIÓN Y CERTIFICACIONES",
     "items": [
-      { 
-        "name": "Máster en Semiótica", 
+      {
+        "name": "Máster en Semiótica",
         "year": "2020",
         "icon": "https://www.unibo.it/it/++theme++unibotheme.portale/img/header/sigillo1x_xl.png?v=2"
       },
-      { 
-        "name": "Licenciatura en Filosofía", 
+      {
+        "name": "Licenciatura en Filosofía",
         "year": "2017",
         "icon": "https://www.unibo.it/it/++theme++unibotheme.portale/img/header/sigillo1x_xl.png?v=2"
       },
-      { 
-        "name": "Boolean - Full Stack Developer", 
+      {
+        "name": "Boolean - Full Stack Developer",
         "year": "2023",
         "icon": "https://static-media.hotmart.com/L87A84c8-Hn-IpF9DpvZW26ETxA=/0x120/https://uploads.teachablecdn.com/attachments/TjVQNjOSQy7nfBipUsFc_Logo-RGB-1920-BLUE.png"
       },
-      { 
-        "name": "Google Analytics Certified", 
+      {
+        "name": "Google Analytics Certified",
         "year": "2025",
         "icon": "https://www.gstatic.com/analytics-suite/header/suite/v2/ic_analytics.svg"
       },
-      { 
-        "name": "Google Skillshop GA4 Advanced", 
+      {
+        "name": "Google Skillshop GA4 Advanced",
         "year": "2025",
         "icon": "https://www.gstatic.com/images/branding/product/1x/google_analytics_512dp.png"
       },
-      { 
-        "name": "Usercentrics Consent Mode v2", 
+      {
+        "name": "Usercentrics Consent Mode v2",
         "year": "2025",
         "icon": "https://images.seeklogo.com/logo-png/62/1/usercentrics-logo-png_seeklogo-622613.png"
       },
-      { 
-        "name": "JavaScript - Learnn", 
+      {
+        "name": "JavaScript - Learnn",
         "year": "2025",
         "icon": "https://cdn.simpleicons.org/javascript/F7DF1E"
       },
-      { 
-        "name": "Digital Copywriter", 
+      {
+        "name": "Digital Copywriter",
         "year": "2022",
         "icon": "https://img.shields.io/badge/Dante_Alighieri-990000?style=flat&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTEyIDJjNS41MiAwIDEwIDQuNDggMTAgMTBzLTQuNDggMTAtMTAgMTBTMiAxNy41MiAyIDEyIDYuNDggMiAxMiAyem0wIDE4YzQuNDEgMCA4LTMuNTkgOC04cy0zLjU5LTgtOC04LTggMy41OS04IDggMy41OSA4IDggOHoiIGZpbGw9IiNmZmYiLz48L3N2Zz4="
       }
@@ -118,170 +118,230 @@
   "techstack": {
     "title": "STACK TECNOLÓGICO",
     "items": [
-      { "name": "Vue.js", "icon": "https://cdn.simpleicons.org/vuedotjs/4FC08D" },
-      { "name": "TypeScript", "icon": "https://cdn.simpleicons.org/typescript/3178C6" },
-      { "name": "JavaScript", "icon": "https://cdn.simpleicons.org/javascript/F7DF1E" },
-      { "name": "React", "icon": "https://cdn.simpleicons.org/react/61DAFB" },
-      { "name": "Next.js", "icon": "https://cdn.simpleicons.org/nextdotjs/000000" },
-      { "name": "Tailwind CSS", "icon": "https://cdn.simpleicons.org/tailwindcss/06B6D4" },
-      { "name": "Bootstrap", "icon": "https://cdn.simpleicons.org/bootstrap/7952B3" },
-      { "name": "SASS", "icon": "https://cdn.simpleicons.org/sass/CC6699" },
-      { "name": "PHP", "icon": "https://cdn.simpleicons.org/php/777BB4" },
-      { "name": "Laravel", "icon": "https://cdn.simpleicons.org/laravel/FF2D20" },
-      { "name": "MySQL", "icon": "https://cdn.simpleicons.org/mysql/4479A1" },
-      { "name": "WordPress", "icon": "https://cdn.simpleicons.org/wordpress/21759B" },
-      { "name": "Prisma", "icon": "https://cdn.simpleicons.org/prisma/2D3748" },
-      { "name": "Supabase", "icon": "https://cdn.simpleicons.org/supabase/3FCF8E" },
-      { "name": "Git", "icon": "https://cdn.simpleicons.org/git/F05032" },
-      { "name": "GitHub", "icon": "https://cdn.simpleicons.org/github/181717" },
-      { "name": "Google Tag Manager", "icon": "https://cdn.simpleicons.org/googletagmanager/246FDB" },
-      { "name": "Google Analytics", "icon": "https://cdn.simpleicons.org/googleanalytics/E37400" },
-      { "name": "Postman", "icon": "https://cdn.simpleicons.org/postman/FF6C37" },
-      { "name": "Figma", "icon": "https://cdn.simpleicons.org/figma/F24E1E" }
+      {
+        "name": "Vue.js",
+        "icon": "https://cdn.simpleicons.org/vuedotjs/4FC08D"
+      },
+      {
+        "name": "TypeScript",
+        "icon": "https://cdn.simpleicons.org/typescript/3178C6"
+      },
+      {
+        "name": "JavaScript",
+        "icon": "https://cdn.simpleicons.org/javascript/F7DF1E"
+      },
+      {
+        "name": "React",
+        "icon": "https://cdn.simpleicons.org/react/61DAFB"
+      },
+      {
+        "name": "Next.js",
+        "icon": "https://cdn.simpleicons.org/nextdotjs/000000"
+      },
+      {
+        "name": "Tailwind CSS",
+        "icon": "https://cdn.simpleicons.org/tailwindcss/06B6D4"
+      },
+      {
+        "name": "Bootstrap",
+        "icon": "https://cdn.simpleicons.org/bootstrap/7952B3"
+      },
+      {
+        "name": "SASS",
+        "icon": "https://cdn.simpleicons.org/sass/CC6699"
+      },
+      {
+        "name": "PHP",
+        "icon": "https://cdn.simpleicons.org/php/777BB4"
+      },
+      {
+        "name": "Laravel",
+        "icon": "https://cdn.simpleicons.org/laravel/FF2D20"
+      },
+      {
+        "name": "MySQL",
+        "icon": "https://cdn.simpleicons.org/mysql/4479A1"
+      },
+      {
+        "name": "WordPress",
+        "icon": "https://cdn.simpleicons.org/wordpress/21759B"
+      },
+      {
+        "name": "Prisma",
+        "icon": "https://cdn.simpleicons.org/prisma/2D3748"
+      },
+      {
+        "name": "Supabase",
+        "icon": "https://cdn.simpleicons.org/supabase/3FCF8E"
+      },
+      {
+        "name": "Git",
+        "icon": "https://cdn.simpleicons.org/git/F05032"
+      },
+      {
+        "name": "GitHub",
+        "icon": "https://cdn.simpleicons.org/github/181717"
+      },
+      {
+        "name": "Google Tag Manager",
+        "icon": "https://cdn.simpleicons.org/googletagmanager/246FDB"
+      },
+      {
+        "name": "Google Analytics",
+        "icon": "https://cdn.simpleicons.org/googleanalytics/E37400"
+      },
+      {
+        "name": "Postman",
+        "icon": "https://cdn.simpleicons.org/postman/FF6C37"
+      },
+      {
+        "name": "Figma",
+        "icon": "https://cdn.simpleicons.org/figma/F24E1E"
+      }
     ]
   },
-    "contact": {
+  "contact": {
     "title": "INTERFAZ DE CONTACTO",
     "subtitle": "Canales de comunicación directa",
     "items": [
-        {
-            "label": "EMAIL",
-            "value": "gianlivioiemolo@gmail.com",
-            "href": "mailto:gianlivioiemolo@gmail.com",
-            "type": "email",
-            "copyable": true
-        },
-        {
-            "label": "TELEFONO",
-            "value": "+39 331 946 2396",
-            "href": "tel:+393319462396",
-            "type": "phone",
-            "copyable": true
-        },
-        {
-            "label": "LINKEDIN",
-            "value": "gianlivio-iemolo",
-            "href": "https://www.linkedin.com/in/gianlivio-iemolo/",
-            "type": "linkedin",
-            "copyable": false
-        },
-        {
-            "label": "GITHUB",
-            "value": "gianlivio",
-            "href": "https://github.com/gianlivio/",
-            "type": "github",
-            "copyable": false
-        }
+      {
+        "label": "EMAIL",
+        "value": "gianlivioiemolo@gmail.com",
+        "href": "mailto:gianlivioiemolo@gmail.com",
+        "type": "email",
+        "copyable": true
+      },
+      {
+        "label": "TELEFONO",
+        "value": "+39 331 946 2396",
+        "href": "tel:+393319462396",
+        "type": "phone",
+        "copyable": true
+      },
+      {
+        "label": "LINKEDIN",
+        "value": "gianlivio-iemolo",
+        "href": "https://www.linkedin.com/in/gianlivio-iemolo/",
+        "type": "linkedin",
+        "copyable": false
+      },
+      {
+        "label": "GITHUB",
+        "value": "gianlivio",
+        "href": "https://github.com/gianlivio/",
+        "type": "github",
+        "copyable": false
+      }
     ]
-    },
-    "cta": {
+  },
+  "cta": {
     "title": "DESCARGAR_CURRÍCULUM",
     "subtitle": "Documento técnico completo",
     "button": "DESCARGAR CV.PDF",
-    "filesize": "~150KB",
+    "filesize": "~290KB",
     "availability": {
-        "status": "DISPONIBLE INMEDIATAMENTE",
-        "type": "Remote Full-Time",
-        "timezone": "EU (CET/CEST)"
+      "status": "DISPONIBLE INMEDIATAMENTE",
+      "type": "Freelance · Remote",
+      "timezone": "EU (CET/CEST)"
     }
-    },
-    "timeline": {
+  },
+  "timeline": {
     "title": "CAMINO_EVOLUTIVO",
     "subtitle": "Del pensamiento a la sintaxis",
     "items": [
-        {
-          "year": "2026",
-          "role": "CO-FUNDADOR & DESARROLLADOR FULL STACK",
-          "company": "Futura Blog",
-          "location": "Remoto",
-          "highlights": [
-            "Desarrollo de plataforma Next.js/TypeScript para gestión autónoma de blogs empresariales",
-            "Integración y entrenamiento de agentes IA para optimización SEO/GEO y automatización editorial",
-            "Planificación editorial, análisis GSC, gestión de campañas e informes para clientes",
-            "Proyecto en fase inicial: desde la definición del producto al deploy, en equipo reducido"
-          ]
-        },
-        {
-          "year": "2026",
-          "role": "DESARROLLADOR FULL STACK — QA & INTEGRACIÓN",
-          "company": "Beauty Broker World",
-          "location": "Remoto",
-          "highlights": [
-            "QA testing estructurado: 22+ escenarios end-to-end en flujos críticos (OTP, IBAN, checkout, referral médico)",
-            "Issue tracking en GitHub: apertura, documentación y regression testing post-fix",
-            "Equipo internacional (Italia, Brasil, EE.UU.), coordinación via GitHub (ramas, PRs, code review)",
-            "CTO: Bibop Gresta — colaboración en entorno startup internacional"
-          ]
-        },
-        {
-          "year": "2024–hoy",
-          "role": "DESARROLLADOR FULL STACK",
-          "company": "Punto Luce / EDIF",
-          "location": "Sasso Marconi (BO)",
-          "highlights": [
-            "Desarrollo y gestión de shop.puntoluce.net (51.240 SKU, 13.102 categorías, 300+ proveedores)",
-            "20+ integraciones API: Open2B, Brevo, GTM/GA4, Feedaty, Kelkoo, Trovaprezzi, VIES, Cerved",
-            "Rendimiento: Lighthouse 40→80, LCP 12s→4s, refactoring CSS mobile-first 15k→10k líneas",
-            "Conformidad GDPR: Cookiebot + Consent Mode v2, auditoría de tracking completa",
-            "Sincronización bidireccional Open2B ↔ Brevo: 58.000 contactos, 23.550 productos",
-            "15+ apps PHP internas: KPIs logística, feeds comparadores, archivo automático de facturas"
-          ]
-        },
-        {
-          "year": "2024",
-          "role": "JUNIOR WEB DEVELOPER TRAINEE",
-          "company": "Boolean Academy",
-          "location": "Milán / Remoto",
-          "highlights": [
-            "Bootcamp intensivo 700 horas: HTML, CSS, JavaScript, Vue.js, PHP, Laravel, MySQL",
-            "Clon WhatsApp en Vue.js con API Laravel personalizada, testing con Postman",
-            "Dashboard gestión apartamentos: RDBMS, CRUD completo, Bootstrap + SCSS",
-            "Git workflow colaborativo y metodología Agile/Scrum"
-          ]
-        },
-        {
-          "year": "2023",
-          "role": "DESARROLLADOR FRONT END & WEB CONTENT MANAGER",
-          "company": "Copystudio",
-          "location": "Ragusa / Remoto",
-          "highlights": [
-            "Desarrollo frontend para sitios web empresariales: HTML, CSS, JavaScript, WordPress",
-            "Producción de contenidos digitales, análisis semiótico y de competencia, consultoría SEO"
-          ]
-        },
-        {
-          "year": "2023",
-          "role": "SEO COPYWRITER & WEB CONTENT MANAGER",
-          "company": "Hetaweb",
-          "location": "Lucca / Remoto",
-          "highlights": [
-            "Gestión de sitios WordPress para clientes de la agencia: clínicas, Federación Italiana de Rugby, joyerías",
-            "Producción de contenidos SEO, optimización de meta tags y posicionamiento orgánico"
-          ]
-        },
-        {
-          "year": "2020",
-          "role": "MÁSTER UNIVERSITARIO",
-          "company": "Universidad de Bolonia",
-          "location": "Bolonia",
-          "highlights": [
-            "Semiótica y Filosofía del Lenguaje (110/110 con matrícula de honor)",
-            "Tesis: prácticas semióticas de administración del espacio, los discursos y los sujetos",
-            "Directores: Prof. Marsciani, Prof. Frixa"
-          ]
-        },
-        {
-          "year": "2017",
-          "role": "GRADO UNIVERSITARIO",
-          "company": "Universidad de Bolonia",
-          "location": "Bolonia",
-          "highlights": [
-            "Filosofía (110/110 con matrícula de honor)",
-            "Especialización: Lógica, Filosofía del Lenguaje, Epistemología"
-          ]
-        }
-      ]
-    },
+      {
+        "year": "2026",
+        "role": "DESARROLLADOR WEB FULL STACK",
+        "company": "Futura Blog",
+        "location": "Remoto",
+        "highlights": [
+          "Desarrollo de plataforma Next.js/TypeScript para gestión autónoma de blogs empresariales",
+          "Integración y entrenamiento de agentes IA para optimización SEO/GEO y automatización editorial",
+          "Planificación editorial, análisis GSC, gestión de campañas e informes para clientes",
+          "Proyecto en fase inicial: desde la definición del producto al deploy, en equipo reducido"
+        ]
+      },
+      {
+        "year": "2026",
+        "role": "DESARROLLADOR FULL STACK — QA & INTEGRACIÓN",
+        "company": "Beauty Broker World",
+        "location": "Remoto",
+        "highlights": [
+          "QA testing estructurado: 22+ escenarios end-to-end en flujos críticos (OTP, IBAN, checkout, referral médico)",
+          "Issue tracking en GitHub: apertura, documentación y regression testing post-fix",
+          "Equipo internacional (Italia, Brasil, EE.UU.), coordinación via GitHub (ramas, PRs, code review)",
+          "CTO: Bibop Gresta — colaboración en entorno startup internacional"
+        ]
+      },
+      {
+        "year": "2024–2026",
+        "role": "DESARROLLADOR FULL STACK",
+        "company": "Punto Luce / EDIF",
+        "location": "Sasso Marconi (BO)",
+        "highlights": [
+          "Desarrollo y gestión de shop.puntoluce.net (51.240 SKU, 13.102 categorías, 300+ proveedores)",
+          "20+ integraciones API: Open2B, Brevo, GTM/GA4, Feedaty, Kelkoo, Trovaprezzi, VIES, Cerved",
+          "Rendimiento: Lighthouse 40→80, LCP 12s→4s, refactoring CSS mobile-first 15k→10k líneas",
+          "Conformidad GDPR: Cookiebot + Consent Mode v2, auditoría de tracking completa",
+          "Sincronización bidireccional Open2B ↔ Brevo: 58.000 contactos, 23.550 productos",
+          "15+ apps PHP internas: KPIs logística, feeds comparadores, archivo automático de facturas"
+        ]
+      },
+      {
+        "year": "2024",
+        "role": "JUNIOR WEB DEVELOPER TRAINEE",
+        "company": "Boolean Academy",
+        "location": "Milán / Remoto",
+        "highlights": [
+          "Bootcamp intensivo 700 horas: HTML, CSS, JavaScript, Vue.js, PHP, Laravel, MySQL",
+          "Clon WhatsApp en Vue.js con API Laravel personalizada, testing con Postman",
+          "Dashboard gestión apartamentos: RDBMS, CRUD completo, Bootstrap + SCSS",
+          "Git workflow colaborativo y metodología Agile/Scrum"
+        ]
+      },
+      {
+        "year": "2023",
+        "role": "COPYWRITER & BRAND IDENTITY",
+        "company": "Copystudio",
+        "location": "Ragusa / Remoto",
+        "highlights": [
+          "Copywriting e identidad de marca para sitios corporativos, incluidas empresas con contratos públicos multimillonarios en el sector sanitario",
+          "Entrevistas estratégicas con el cliente para definir tono de voz, target y posicionamiento antes de escribir"
+        ]
+      },
+      {
+        "year": "2023",
+        "role": "SEO COPYWRITER & WEB CONTENT MANAGER",
+        "company": "Hetaweb",
+        "location": "Lucca / Remoto",
+        "highlights": [
+          "Gestión editorial de los blogs de 30+ realidades heterogéneas: Selección Italiana de Rugby, clínica dental en Albania, clínica de injerto capilar en Turquía, joyero de Lucca, peluquería de Pisa",
+          "Creación y optimización de artículos SEO con análisis continuo del rendimiento en Google Search Console"
+        ]
+      },
+      {
+        "year": "2020",
+        "role": "MÁSTER UNIVERSITARIO",
+        "company": "Universidad de Bolonia",
+        "location": "Bolonia",
+        "highlights": [
+          "Semiótica y Filosofía del Lenguaje (110/110 con matrícula de honor)",
+          "Tesis: prácticas semióticas de administración del espacio, los discursos y los sujetos",
+          "Directores: Prof. Marsciani, Prof. Frixa"
+        ]
+      },
+      {
+        "year": "2017",
+        "role": "GRADO UNIVERSITARIO",
+        "company": "Universidad de Bolonia",
+        "location": "Bolonia",
+        "highlights": [
+          "Filosofía (110/110 con matrícula de honor)",
+          "Especialización: Lógica, Filosofía del Lenguaje, Epistemología"
+        ]
+      }
+    ]
+  },
   "footer": {
     "philosophy": ""
   }
