@@ -2,71 +2,63 @@
   "hero": {
     "title": "GIANLIVIO IEMOLO",
     "sub": "Full Stack Web Developer · Freelance",
-    "desc": "Sviluppo e integro sistemi e-commerce complessi. Automatizzo processi, connetto API, ottimizzo performance. Laurea magistrale in semiotica — approccio analitico applicato alla struttura del codice e delle interfacce."
+    "desc": "Sviluppo piattaforme web, integro API, lavoro sui dati e sui contenuti. E-commerce, automazione, SEO/GEO. Laurea magistrale in semiotica — approccio analitico applicato alla struttura del codice e delle interfacce. Da remoto, in italiano, inglese e spagnolo."
   },
   "stats": {
-    "units": "SKU GESTITI",
-    "desc": "Catalogo e-commerce attivo su shop.puntoluce.net. 13.102 categorie, 300+ fornitori, aggiornamento in tempo reale."
+    "units": "RECORD PUBBLICI",
+    "desc": "Archivio ANAC 2015-2025 sui contratti per l'accoglienza migranti. Tre dataset uniti ed elaborati in Python, pubblicati su osservatorioaccoglienza.org."
   },
   "automations": {
     "title": "AUTOMAZIONI & INTEGRAZIONI",
     "subtitle": "Integrazioni API, automazioni e tracking sviluppati su shop.puntoluce.net",
     "items": [
       {
-        "title": "Sincronizzazione contatti Open2B ↔ Brevo",
-        "desc": "Flusso bidirezionale tra gestionale e piattaforma email. 60.000+ contatti sincronizzati con segmentazione automatica B2B/B2C. Webhook real-time per iscrizioni e cancellazioni, gestione rate limiting e retry."
+        "title": "Pipeline dati ANAC — 18.000 record",
+        "desc": "Ingestione di tre dataset pubblici ANAC in Python: download mensili, normalizzazione, filtro a due livelli con indice di confidenza. Archivio 2015-2025 su 18.000 righe, versionato nel repo."
       },
       {
-        "title": "GDPR & Consent Mode v2",
-        "desc": "Layer di consenso con Cookiebot e Consent Mode v2. Blocco cookie pre-consenso, audit trail GTM completo. Conformità verificata tramite Network tab su tutti i tag attivi."
+        "title": "Parser di 90 PDF ministeriali",
+        "desc": "Estrazione con pdfplumber delle serie sui minori stranieri non accompagnati dai report del Ministero: 84 report mensili dal 2016 al 2022, più i semestrali fino al 2025. Limiti della fonte dichiarati nella pagina di metodologia."
       },
       {
-        "title": "Tracking GA4 / GTM",
-        "desc": "Configurazione eventi e-commerce GA4 completi: view_item, add_to_cart, purchase. Facebook Pixel con url_passthrough. Microsoft UET Enhanced Conversion. Debugging tramite GTM preview e Network tab."
+        "title": "Sito statico e automazione",
+        "desc": "Next.js/TypeScript su Vercel, CSS a variabili scritto a mano, nessun framework UI. Workflow GitHub Actions per il promemoria mensile di aggiornamento dati. SEO tecnica e structured data. Codice e dati open source."
+      },
+      {
+        "title": "Piattaforma editoriale Futura Blog",
+        "desc": "Sviluppo in Next.js/TypeScript con Supabase: architettura, deploy, iterazione continua su funzionalità e UX. Progetto costruito in due, dalla definizione del prodotto al lancio."
+      },
+      {
+        "title": "Agenti AI per la redazione",
+        "desc": "Scrittura e messa a punto dei prompt per gli agenti che generano e revisionano i contenuti. Calibrazione del tono di voce per ciascun cliente, revisione umana su ogni articolo pubblicato."
+      },
+      {
+        "title": "SEO/GEO e piani editoriali",
+        "desc": "Analisi Google Search Console, piani editoriali mensili, ottimizzazione per motori di ricerca e risposte generative. Due clienti attivi: edilizia e alloggi per studenti."
       },
       {
         "title": "Template e-commerce Open2B",
         "desc": "Sviluppo completo del tema su piattaforma Open2B/Scriggo: struttura mobile-first, dark mode, checkout multi-step, filtri dinamici AJAX, schede prodotto con badge, SKU e disponibilità in tempo reale."
       },
       {
-        "title": "Validazione fiscale europea",
-        "desc": "API unificata Cerved (IT) + VIES (EU) per verifica partita IVA in 28 paesi. Cache su filesystem, smart soft-fail, auto-compilazione dati aziendali al checkout. Hard-blocking su P.IVA non valida."
-      },
-      {
-        "title": "Segmentazione clienti B2B / B2C",
-        "desc": "Classificazione automatica via presenza P.IVA e Tax Area. Webhook-driven su Open2B, smistamento in gruppi fiscali IT/EU/Extra-EU senza intervento manuale."
-      },
-      {
-        "title": "Ottimizzazione performance",
-        "desc": "LCP da 12s a 4s su mobile tramite lazy-loading, preload, JS differito, eliminazione forced-reflow. TBT ridotto del 40%. CSS refactoring mobile-first: 15.000 righe ridotte a 10.000, utilities centralizzate."
-      },
-      {
-        "title": "KPI logistica — tempi di consegna",
-        "desc": "Dashboard interna che calcola media, mediana e P90 sui tempi di consegna reali per corriere e area geografica. Batch processing su 1.000+ ordini/step. Grafici Chart.js con filtri per paese e provincia."
-      },
-      {
-        "title": "Social login OAuth 2.0",
-        "desc": "Login e registrazione con Google Identity Services (JWT lato client) e Facebook SDK v18.0. Gestione sicura dei tre scenari: nuovo utente, account esistente, collegamento account preesistente."
-      },
-      {
-        "title": "Sincronizzazione prodotti verso Brevo",
-        "desc": "23.550 prodotti sincronizzati da Open2B verso Brevo eCommerce. Batch da 100 SKU per chiamata, webhook real-time per create/update/delete, gestione automatica rate limiting 429."
-      },
-      {
-        "title": "Feed automatici Kelkoo e Trovaprezzi",
-        "desc": "Generazione feed XML per Kelkoo IT/FR e Trovaprezzi. Filtri disponibilità server-side, calcolo costi spedizione per peso, parametri UTM per tracciamento conversioni. Aggiornamento automatico."
-      },
-      {
         "title": "Gestione 20+ integrazioni attive",
         "desc": "Brevo, Feedaty, Kelkoo, Trovaprezzi, Doofinder, Cerved, VIES, DocFinance, Facebook Graph API, Google Identity. Retry automatico, rate limiting, fallback intelligenti, log JSON per ogni webhook."
       },
       {
-        "title": "Dark mode — sistema a variabili CSS",
-        "desc": "Dark mode via CSS custom properties e localStorage. Toggle dinamico senza reload, variabili data-theme applicati a root. Persistenza sessione. Transizioni fluide su oltre 200 componenti."
+        "title": "Sincronizzazione Open2B ↔ Brevo",
+        "desc": "Flusso bidirezionale tra gestionale e piattaforma email: 58.000 contatti con segmentazione automatica B2B/B2C e 23.550 prodotti verso Brevo eCommerce. Batch da 100 SKU, webhook real-time, gestione del rate limiting 429."
       },
       {
-        "title": "Ricerca prodotti con filtri server-side",
-        "desc": "Proxy search con Shadow DOM isolato. Filtri per produttore, reparto e prezzo elaborati server-side. Esclusione reparti obsoleti client-side. Overlay responsive dedicato, reconciliazione dati live Open2B."
+        "title": "Validazione fiscale europea",
+        "desc": "API unificata Cerved (IT) + VIES (EU) per verifica partita IVA in 28 paesi. Cache su filesystem, smart soft-fail, auto-compilazione dati aziendali al checkout. Hard-blocking su P.IVA non valida."
+      },
+      {
+        "title": "Tracking GA4 / GTM e GDPR",
+        "desc": "Eventi e-commerce GA4 completi, Facebook Pixel con url_passthrough, Microsoft UET. Layer di consenso Cookiebot e Consent Mode v2, blocco dei cookie prima del consenso, audit trail su tutti i tag attivi."
+      },
+      {
+        "title": "Ottimizzazione performance",
+        "desc": "LCP da 12s a 4s su mobile tramite lazy-loading, preload, JS differito, eliminazione forced-reflow. TBT ridotto del 40%. CSS refactoring mobile-first: 15.000 righe ridotte a 10.000, utilities centralizzate."
       }
     ]
   },
@@ -238,7 +230,7 @@
     "title": "DOWNLOAD_CURRICULUM",
     "subtitle": "Documento tecnico completo",
     "button": "SCARICA CV.PDF",
-    "filesize": "~290KB",
+    "filesize": "~65KB",
     "availability": {
       "status": "DISPONIBILE IMMEDIATAMENTE",
       "type": "Freelance · Remote",
@@ -251,14 +243,15 @@
     "items": [
       {
         "year": "2026",
-        "role": "FULL STACK WEB DEVELOPER",
+        "role": "FULL STACK DEVELOPER · EDITORE · SEO/GEO",
         "company": "Futura Blog",
-        "location": "Remote",
+        "location": "Remoto",
         "highlights": [
-          "Sviluppo piattaforma Next.js/TypeScript per gestione autonoma di blog aziendali",
-          "Integrazione e addestramento agenti AI per ottimizzazione SEO/GEO e flusso editoriale",
-          "Pianificazione editoriale, analisi GSC, gestione campagne e reportistica clienti",
-          "Progetto early-stage: dalla definizione del prodotto al deploy, in team ristretto"
+          "Sviluppo della piattaforma in Next.js/TypeScript",
+          "Prompt per gli agenti AI che generano i contenuti",
+          "Revisione editoriale, calibrazione del tono di voce, ottimizzazione SEO/GEO",
+          "Piani editoriali e analisi Google Search Console",
+          "Due clienti attivi: NDN Luxury (edilizia) ed ESH Housing (alloggi per studenti Erasmus)"
         ]
       },
       {
