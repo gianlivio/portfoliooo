@@ -1,344 +1,128 @@
 {
-  "hero": {
-    "title": "GIANLIVIO IEMOLO",
-    "sub": "Full Stack Web Developer · Freelance",
-    "desc": "Sviluppo piattaforme web, integro API, lavoro sui dati e sui contenuti. E-commerce, automazione, SEO/GEO. Laurea magistrale in semiotica — approccio analitico applicato alla struttura del codice e delle interfacce. Da remoto, in italiano, inglese e spagnolo."
+  "meta": {
+    "titolo": "Gianlivio Iemolo — Full Stack Web Developer",
+    "descrizione": "Sviluppo web, dati pubblici e contenuti editoriali. Piattaforme, integrazioni API, automazione, SEO. Da remoto, in italiano, inglese e spagnolo."
   },
-  "stats": {
-    "units": "RECORD PUBBLICI",
-    "desc": "Archivio ANAC 2015-2025 sui contratti per l'accoglienza migranti. Tre dataset uniti ed elaborati in Python, pubblicati su osservatorioaccoglienza.org."
-  },
-  "automations": {
-    "title": "AUTOMAZIONI & INTEGRAZIONI",
-    "subtitle": "Progetti di sviluppo, dati e contenuti editoriali",
-    "items": [
-      {
-        "title": "Pipeline dati ANAC — 18.000 record",
-        "desc": "Ingestione di tre dataset pubblici ANAC in Python: download mensili, normalizzazione, filtro a due livelli con indice di confidenza. Archivio 2015-2025 su 18.000 righe, versionato nel repo."
-      },
-      {
-        "title": "Parser di 90 PDF ministeriali",
-        "desc": "Estrazione con pdfplumber delle serie sui minori stranieri non accompagnati dai report del Ministero: 84 report mensili dal 2016 al 2022, più i semestrali fino al 2025. Limiti della fonte dichiarati nella pagina di metodologia."
-      },
-      {
-        "title": "Sito statico e automazione",
-        "desc": "Next.js/TypeScript su Vercel, CSS a variabili scritto a mano, nessun framework UI. Workflow GitHub Actions per il promemoria mensile di aggiornamento dati. SEO tecnica e structured data. Codice e dati open source."
-      },
-      {
-        "title": "Piattaforma editoriale Futura Blog",
-        "desc": "Sviluppo in Next.js/TypeScript con Supabase: architettura, deploy, iterazione continua su funzionalità e UX. Progetto costruito in due, dalla definizione del prodotto al lancio."
-      },
-      {
-        "title": "Agenti AI per la redazione",
-        "desc": "Scrittura e messa a punto dei prompt per gli agenti che generano e revisionano i contenuti. Calibrazione del tono di voce per ciascun cliente, revisione umana su ogni articolo pubblicato."
-      },
-      {
-        "title": "SEO/GEO e piani editoriali",
-        "desc": "Analisi Google Search Console, piani editoriali mensili, ottimizzazione per motori di ricerca e risposte generative. Due clienti attivi: edilizia e alloggi per studenti."
-      },
-      {
-        "title": "Template e-commerce Open2B",
-        "desc": "Sviluppo completo del tema su piattaforma Open2B/Scriggo: struttura mobile-first, dark mode, checkout multi-step, filtri dinamici AJAX, schede prodotto con badge, SKU e disponibilità in tempo reale."
-      },
-      {
-        "title": "Gestione 20+ integrazioni attive",
-        "desc": "Brevo, Feedaty, Kelkoo, Trovaprezzi, Doofinder, Cerved, VIES, DocFinance, Facebook Graph API, Google Identity. Retry automatico, rate limiting, fallback intelligenti, log JSON per ogni webhook."
-      },
-      {
-        "title": "Sincronizzazione Open2B ↔ Brevo",
-        "desc": "Flusso bidirezionale tra gestionale e piattaforma email: 58.000 contatti con segmentazione automatica B2B/B2C e 23.550 prodotti verso Brevo eCommerce. Batch da 100 SKU, webhook real-time, gestione del rate limiting 429."
-      },
-      {
-        "title": "Validazione fiscale europea",
-        "desc": "API unificata Cerved (IT) + VIES (EU) per verifica partita IVA in 28 paesi. Cache su filesystem, smart soft-fail, auto-compilazione dati aziendali al checkout. Hard-blocking su P.IVA non valida."
-      },
-      {
-        "title": "Tracking GA4 / GTM e GDPR",
-        "desc": "Eventi e-commerce GA4 completi, Facebook Pixel con url_passthrough, Microsoft UET. Layer di consenso Cookiebot e Consent Mode v2, blocco dei cookie prima del consenso, audit trail su tutti i tag attivi."
-      },
-      {
-        "title": "Ottimizzazione performance",
-        "desc": "LCP da 12s a 4s su mobile tramite lazy-loading, preload, JS differito, eliminazione forced-reflow. TBT ridotto del 40%. CSS refactoring mobile-first: 15.000 righe ridotte a 10.000, utilities centralizzate."
-      }
+  "nav": { "contatti": "Contatti" },
+  "apertura": {
+    "nome": "Gianlivio Iemolo",
+    "tesi": [
+      { "t": "Sviluppo piattaforme web, lavoro sui " },
+      { "t": "dati pubblici", "e": true },
+      { "t": " e sui " },
+      { "t": "contenuti editoriali", "e": true },
+      { "t": "." }
+    ],
+    "sommario": [
+      "Costruisco siti e applicazioni, integro API, automatizzo processi che oggi qualcuno fa a mano. Quando i dati sono sporchi o chiusi dentro dei PDF, li estraggo e li rendo leggibili.",
+      "Freelance con partita IVA. Lavoro da remoto per clienti in Italia e all'estero."
+    ],
+    "apparato": [
+      { "dt": "Base", "dd": "Bologna, Italia — da remoto" },
+      { "dt": "Lingue", "dd": "Italiano, inglese, spagnolo" },
+      { "dt": "Formazione", "dd": "Semiotica e filosofia, Università di Bologna" }
     ]
   },
-  "certifications": {
-    "title": "FORMAZIONE & CERTIFICAZIONI",
+  "archivio": {
+    "apparato": [
+      { "dt": "Che cos'è", "dd": "Ogni punto è un contratto pubblico per l'accoglienza. Undici anni, 18.104 righe, dal database ANAC." },
+      { "dt": "Assi", "dd": "Orizzontale: anno. Verticale: importo, scala logaritmica." },
+      { "dt": "Campione", "dd": "5.000 contratti estratti sui 18.104 dell'archivio." }
+    ],
+    "legenda": { "diretto": "affidamento diretto", "gara": "con gara" }
+  },
+  "lavori": {
+    "occhiello": "Lavori",
+    "vedi": "Vedi",
     "items": [
       {
-        "name": "Laurea Magistrale Semiotica",
-        "year": "2020",
-        "icon": "https://www.unibo.it/it/++theme++unibotheme.portale/img/header/sigillo1x_xl.png?v=2"
-      },
-      {
-        "name": "Laurea Triennale Filosofia",
-        "year": "2017",
-        "icon": "https://www.unibo.it/it/++theme++unibotheme.portale/img/header/sigillo1x_xl.png?v=2"
-      },
-      {
-        "name": "Boolean - Full Stack Developer",
-        "year": "2023",
-        "icon": "https://static-media.hotmart.com/L87A84c8-Hn-IpF9DpvZW26ETxA=/0x120/https://uploads.teachablecdn.com/attachments/TjVQNjOSQy7nfBipUsFc_Logo-RGB-1920-BLUE.png"
-      },
-      {
-        "name": "Google Analytics Certified",
-        "year": "2025",
-        "icon": "https://cdn.simpleicons.org/googleanalytics/E37400"
-      },
-      {
-        "name": "Google Skillshop GA4 Advanced",
-        "year": "2025",
-        "icon": "https://cdn.simpleicons.org/google/4285F4"
-      },
-      {
-        "name": "Usercentrics Consent Mode v2",
-        "year": "2025",
-        "icon": "https://images.seeklogo.com/logo-png/62/1/usercentrics-logo-png_seeklogo-622613.png"
-      },
-      {
-        "name": "JavaScript - Learnn",
-        "year": "2025",
-        "icon": "https://cdn.simpleicons.org/javascript/F7DF1E"
-      },
-      {
-        "name": "Digital Copywriter",
-        "year": "2022",
-        "icon": "https://img.shields.io/badge/Dante_Alighieri-990000?style=flat&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTEyIDJjNS41MiAwIDEwIDQuNDggMTAgMTBzLTQuNDggMTAtMTAgMTBTMiAxNy41MiAyIDEyIDYuNDggMiAxMiAyem0wIDE4YzQuNDEgMCA4LTMuNTkgOC04cy0zLjU5LTgtOC04LTggMy41OS04IDggMy41OSA4IDggOHoiIGZpbGw9IiNmZmYiLz48L3N2Zz4="
-      }
-    ]
-  },
-  "techstack": {
-    "title": "TECH STACK",
-    "items": [
-      {
-        "name": "Vue.js",
-        "icon": "https://cdn.simpleicons.org/vuedotjs/4FC08D"
-      },
-      {
-        "name": "TypeScript",
-        "icon": "https://cdn.simpleicons.org/typescript/3178C6"
-      },
-      {
-        "name": "Python",
-        "icon": "https://cdn.simpleicons.org/python/3776AB"
-      },
-      {
-        "name": "JavaScript",
-        "icon": "https://cdn.simpleicons.org/javascript/F7DF1E"
-      },
-      {
-        "name": "React",
-        "icon": "https://cdn.simpleicons.org/react/61DAFB"
-      },
-      {
-        "name": "Next.js",
-        "icon": "https://cdn.simpleicons.org/nextdotjs/000000"
-      },
-      {
-        "name": "Tailwind CSS",
-        "icon": "https://cdn.simpleicons.org/tailwindcss/06B6D4"
-      },
-      {
-        "name": "Bootstrap",
-        "icon": "https://cdn.simpleicons.org/bootstrap/7952B3"
-      },
-      {
-        "name": "SASS",
-        "icon": "https://cdn.simpleicons.org/sass/CC6699"
-      },
-      {
-        "name": "PHP",
-        "icon": "https://cdn.simpleicons.org/php/777BB4"
-      },
-      {
-        "name": "Laravel",
-        "icon": "https://cdn.simpleicons.org/laravel/FF2D20"
-      },
-      {
-        "name": "MySQL",
-        "icon": "https://cdn.simpleicons.org/mysql/4479A1"
-      },
-      {
-        "name": "WordPress",
-        "icon": "https://cdn.simpleicons.org/wordpress/21759B"
-      },
-      {
-        "name": "Prisma",
-        "icon": "https://cdn.simpleicons.org/prisma/2D3748"
-      },
-      {
-        "name": "Supabase",
-        "icon": "https://cdn.simpleicons.org/supabase/3FCF8E"
-      },
-      {
-        "name": "Git",
-        "icon": "https://cdn.simpleicons.org/git/F05032"
-      },
-      {
-        "name": "GitHub",
-        "icon": "https://cdn.simpleicons.org/github/181717"
-      },
-      {
-        "name": "Google Tag Manager",
-        "icon": "https://cdn.simpleicons.org/googletagmanager/246FDB"
-      },
-      {
-        "name": "Google Analytics",
-        "icon": "https://cdn.simpleicons.org/googleanalytics/E37400"
-      },
-      {
-        "name": "Postman",
-        "icon": "https://cdn.simpleicons.org/postman/FF6C37"
-      },
-      {
-        "name": "Figma",
-        "icon": "https://cdn.simpleicons.org/figma/F24E1E"
-      }
-    ]
-  },
-  "contact": {
-    "title": "INTERFACCIA DI CONTATTO",
-    "subtitle": "Da remoto, in italiano, inglese e spagnolo",
-    "items": [
-      {
-        "label": "EMAIL",
-        "value": "gianlivioiemolo@gmail.com",
-        "href": "mailto:gianlivioiemolo@gmail.com",
-        "type": "email",
-        "copyable": true
-      },
-      {
-        "label": "TELEFONO",
-        "value": "+39 331 946 2396",
-        "href": "tel:+393319462396",
-        "type": "phone",
-        "copyable": true
-      },
-      {
-        "label": "LINKEDIN",
-        "value": "gianlivio-iemolo",
-        "href": "https://www.linkedin.com/in/gianlivio-iemolo/",
-        "type": "linkedin",
-        "copyable": false
-      },
-      {
-        "label": "GITHUB",
-        "value": "gianlivio",
-        "href": "https://github.com/gianlivio/",
-        "type": "github",
-        "copyable": false
-      }
-    ]
-  },
-  "cta": {
-    "title": "DOWNLOAD_CURRICULUM",
-    "subtitle": "Documento tecnico completo",
-    "button": "SCARICA CV.PDF",
-    "filesize": "~65KB",
-    "availability": {
-      "status": "DISPONIBILE IMMEDIATAMENTE",
-      "type": "Freelance · Remote",
-      "timezone": "EU (CET/CEST)"
-    }
-  },
-  "timeline": {
-    "title": "PERCORSO_EVOLUTIVO",
-    "subtitle": "Dal pensiero alla sintassi",
-    "items": [
-      {
-        "year": "2026",
-        "role": "FULL STACK DEVELOPER · EDITORE · SEO/GEO",
-        "company": "Futura Blog",
-        "location": "Remoto",
-        "highlights": [
-          "Sviluppo della piattaforma in Next.js/TypeScript",
-          "Prompt per gli agenti AI che generano i contenuti",
-          "Revisione editoriale, calibrazione del tono di voce, ottimizzazione SEO/GEO",
-          "Piani editoriali e analisi Google Search Console",
-          "Due clienti attivi: NDN Luxury (edilizia) ed ESH Housing (alloggi per studenti Erasmus)"
+        "id": "osservatorio",
+        "titolo": "Osservatorio Accoglienza",
+        "sottotitolo": "Archivio pubblico sui contratti per l'accoglienza dei migranti in Italia. Costruito da zero: raccolta dei dati, pulizia, sito, automazione.",
+        "apparato": [
+          { "dt": "Anno", "dd": "2026" },
+          { "dt": "Tipo", "dd": "Progetto personale, open source" },
+          { "dt": "Strumenti", "dd": "Python · pdfplumber · Next.js · TypeScript · GitHub Actions" },
+          { "dt": "Fonti", "dd": "ANAC, Ministero dell'Interno" }
+        ],
+        "limite": "I limiti dei dati sono dichiarati nella pagina di metodologia: copertura incompleta, importi non sommabili, costo pro capite non ricavabile.",
+        "voci": [
+          { "h": "Undici anni di contratti, 18.000 record", "p": "Tre dataset ANAC uniti in Python: download mensili, normalizzazione, filtro a due livelli con indice di confidenza. Archivio 2015–2025 versionato nel repository." },
+          { "h": "Novanta PDF ministeriali, leggibili", "p": "Le serie sui minori stranieri non accompagnati esistevano solo dentro i report del Ministero. Estratte con pdfplumber: 84 report mensili dal 2016 al 2022, più i semestrali fino al 2025." },
+          { "h": "Sito e aggiornamento automatico", "p": "Next.js e TypeScript su Vercel, CSS scritto a mano. Un workflow GitHub Actions apre ogni mese il promemoria di aggiornamento. SEO tecnica e dati strutturati." }
         ]
       },
       {
-        "year": "2026",
-        "role": "FULL STACK DEVELOPER — QA & INTEGRATION",
-        "company": "Beauty Broker World",
-        "location": "Remote",
-        "highlights": [
-          "QA testing strutturato: 22+ scenari end-to-end su flussi critici (OTP, IBAN, checkout, referral medico)",
-          "Issue tracking su GitHub: apertura, documentazione e regression testing post-fix",
-          "Team internazionale (Italia, Brasile, USA), coordinamento via GitHub (branch, PR, code review)",
-          "Rilevamento errori server (502, 409) e inviti duplicati silenti"
+        "id": "futura",
+        "titolo": "Futura Blog",
+        "sottotitolo": "Piattaforma che fa scrivere i blog aziendali ad agenti AI, con una redazione umana sopra. Dalla definizione del prodotto al lancio.",
+        "apparato": [
+          { "dt": "Anno", "dd": "2026 — in corso" },
+          { "dt": "Tipo", "dd": "Prodotto, costruito in due" },
+          { "dt": "Ruolo", "dd": "Sviluppo, redazione, SEO" },
+          { "dt": "Strumenti", "dd": "Next.js · TypeScript · Supabase · Claude API · Search Console" },
+          { "dt": "Clienti", "dd": "NDN Luxury (edilizia) · ESH Housing (alloggi per studenti)" }
+        ],
+        "voci": [
+          { "h": "La piattaforma", "p": "Architettura, sviluppo e deploy in Next.js e TypeScript con Supabase. Iterazione continua su funzionalità e interfaccia." },
+          { "h": "Gli agenti che scrivono", "p": "Scrittura e messa a punto dei prompt per generazione e revisione. Il tono di voce si calibra cliente per cliente; ogni articolo pubblicato passa da una revisione umana." },
+          { "h": "Piani editoriali e ricerca", "p": "Analisi Search Console, piani mensili, ottimizzazione per i motori di ricerca e per le risposte generative." }
         ]
       },
       {
-        "year": "2024–2026",
-        "role": "FULL STACK DEVELOPER",
-        "company": "Punto Luce / EDIF",
-        "location": "Sasso Marconi (BO)",
-        "highlights": [
-          "Sviluppo e gestione shop.puntoluce.net (51.240 SKU, 13.102 categorie, 300+ fornitori)",
-          "20+ integrazioni API: Open2B, Brevo, GTM/GA4, Feedaty, Kelkoo, Trovaprezzi, VIES, Cerved",
-          "Performance: Lighthouse 40→80, LCP 12s→4s, CSS refactoring mobile-first 15k→10k righe",
-          "GDPR compliance: Cookiebot + Consent Mode v2, audit tracking completo",
-          "Sincronizzazione bidirezionale Open2B ↔ Brevo: 58.000 contatti, 23.550 prodotti",
-          "15+ app PHP interne: KPI logistica, feed comparatori, archiviazione automatica fatture"
-        ]
-      },
-      {
-        "year": "2024",
-        "role": "JUNIOR WEB DEVELOPER TRAINEE",
-        "company": "Boolean Academy",
-        "location": "Milano / Remote",
-        "highlights": [
-          "Bootcamp intensivo 700 ore: HTML, CSS, JavaScript, Vue.js, PHP, Laravel, MySQL",
-          "Clone WhatsApp in Vue.js con API Laravel custom, testing con Postman",
-          "Dashboard gestione appartamenti: RDBMS, CRUD completo, Bootstrap + SCSS",
-          "Git workflow collaborativo e metodologia Agile/Scrum"
-        ]
-      },
-      {
-        "year": "2023",
-        "role": "COPYWRITER & BRAND IDENTITY",
-        "company": "Copystudio",
-        "location": "Ragusa / Remote",
-        "highlights": [
-          "Copywriting e identità di brand per siti aziendali, incluse realtà con appalti pubblici multimilionari in ambito sanitario",
-          "Interviste strategiche con la committenza per definire tono di voce, target e posizionamento prima della scrittura"
-        ]
-      },
-      {
-        "year": "2023",
-        "role": "SEO COPYWRITER & WEB CONTENT MANAGER",
-        "company": "Hetaweb",
-        "location": "Lucca / Remote",
-        "highlights": [
-          "Gestione editoriale dei blog di 30+ realtà eterogenee: Nazionale Italiana Rugby, clinica dentale in Albania, clinica di chirurgia dei capelli in Turchia, gioielliere di Lucca, parrucchiere di Pisa",
-          "Creazione e ottimizzazione di articoli SEO con analisi continua delle performance su Google Search Console"
-        ]
-      },
-      {
-        "year": "2020",
-        "role": "LAUREA MAGISTRALE",
-        "company": "Università di Bologna",
-        "location": "Bologna",
-        "highlights": [
-          "Semiotica e Filosofia del Linguaggio (110/110)",
-          "Tesi: pratiche semiotiche di amministrazione dello spazio, dei discorsi e dei soggetti"
-        ]
-      },
-      {
-        "year": "2017",
-        "role": "LAUREA TRIENNALE",
-        "company": "Università di Bologna",
-        "location": "Bologna",
-        "highlights": [
-          "Filosofia (110/110)",
-          "Focus: Logica, Filosofia del Linguaggio, Epistemologia"
+        "id": "puntoluce",
+        "titolo": "shop.puntoluce.net",
+        "sottotitolo": "Due anni su un e-commerce di materiale elettrico: tema, integrazioni, tracciamento, performance.",
+        "apparato": [
+          { "dt": "Anni", "dd": "2024 — 2026" },
+          { "dt": "Tipo", "dd": "E-commerce B2B e B2C" },
+          { "dt": "Scala", "dd": "51.240 SKU · 13.102 categorie · 300+ fornitori" },
+          { "dt": "Strumenti", "dd": "PHP · JavaScript · MySQL · Open2B/Scriggo · GTM/GA4 · Brevo · Cloudflare" }
+        ],
+        "voci": [
+          { "h": "Il tema, da zero", "p": "Template completo su Open2B/Scriggo: mobile-first, tema scuro, checkout in più passaggi, filtri dinamici." },
+          { "h": "Venti integrazioni, sempre accese", "p": "Brevo, Feedaty, Kelkoo, Doofinder, DocFinance, Facebook Graph, Google Identity. Retry automatico, gestione del rate limiting, log per ogni webhook." },
+          { "h": "Gestionale e piattaforma email in sincrono", "p": "58.000 contatti con segmentazione B2B/B2C automatica e 23.550 prodotti verso Brevo. Batch da 100 SKU, webhook in tempo reale." },
+          { "h": "Partite IVA verificate in 28 paesi", "p": "API unica sopra Cerved e VIES: dati aziendali compilati da soli al checkout, blocco se la partita IVA non è valida." },
+          { "h": "Dodici secondi diventati quattro", "p": "LCP da 12s a 4s su mobile, TBT −40%. CSS rifatto mobile-first, da 15.000 a 10.000 righe." },
+          { "h": "Tracciamento e consenso", "p": "GA4 e-commerce completo, Pixel, Microsoft UET. Cookiebot e Consent Mode v2, cookie bloccati prima del consenso, audit su tutti i tag attivi." }
         ]
       }
     ]
   },
-  "footer": {
-    "philosophy": ""
+  "percorso": {
+    "occhiello": "Percorso",
+    "titolo": "Dal pensiero alla sintassi",
+    "apparato": [
+      { "dt": "Prima del codice", "dd": "Filosofia, poi semiotica. Copywriting e strategia di contenuto. Un anno da educatore con minori stranieri non accompagnati — da lì viene l'Osservatorio." },
+      { "dt": "Certificazioni", "dd": "Google Analytics · GA4 Advanced · Consent Mode v2" }
+    ],
+    "tappe": [
+      { "anno": "2026 →", "cosa": "Futura Blog", "dove": "Sviluppo, redazione, SEO — da remoto" },
+      { "anno": "2026", "cosa": "Beauty Broker World", "dove": "QA e integrazione — team fra Italia, Brasile e Stati Uniti" },
+      { "anno": "2024–26", "cosa": "Punto Luce / EDIF", "dove": "Full stack — Sasso Marconi, Bologna" },
+      { "anno": "2024", "cosa": "Boolean", "dove": "Master full stack, 700 ore — Milano" },
+      { "anno": "2023–24", "cosa": "Copystudio", "dove": "Copywriting e identità di marca" },
+      { "anno": "2023", "cosa": "Hetaweb", "dove": "SEO e gestione editoriale per 30+ committenti" },
+      { "anno": "2020", "cosa": "Laurea magistrale in semiotica", "dove": "Università di Bologna — tesi sulle pratiche semiotiche di amministrazione dello spazio" },
+      { "anno": "2019", "cosa": "Erasmus+", "dove": "Universidad de Granada" },
+      { "anno": "2017", "cosa": "Laurea triennale in filosofia", "dove": "Università di Bologna — logica, filosofia del linguaggio, epistemologia" }
+    ]
+  },
+  "contatti": {
+    "occhiello": "Contatti",
+    "titolo": "Scrivimi",
+    "sottotitolo": "Se hai un progetto, raccontamelo com'è adesso: cosa esiste già, cosa non funziona, entro quando serve.",
+    "apparato": [
+      { "dt": "Disponibilità", "dd": "Da remoto, in italiano, inglese e spagnolo" },
+      { "dt": "Fatturazione", "dd": "Partita IVA italiana" },
+      { "dt": "Curriculum", "dd": "PDF, ~65 KB" }
+    ],
+    "etichette": { "email": "Email", "telefono": "Telefono", "linkedin": "LinkedIn", "github": "GitHub" },
+    "cv": { "it": "Curriculum, italiano", "en": "English", "es": "Español" }
+  },
+  "piede": {
+    "sinistra": "Gianlivio Iemolo — 2026",
+    "destra": "Next.js · TypeScript · CSS scritto a mano"
   }
 }

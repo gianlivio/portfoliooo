@@ -1,217 +1,171 @@
-"use client";
-import { motion, useMotionValue, useSpring, useScroll, useTransform } from "framer-motion";
-import { useEffect, useState, use } from "react";
-import LanguagePicker from '../../components/LanguagePicker';
-import InfiniteSlider from '../../components/InfiniteSlider';
-import ContactCard from '../../components/ContactCard';
-import DownloadCV from '../../components/DownloadCV';
-import ExperienceTimeline from '../../components/ExperienceTimeline';
-import WorkSlider from '../../components/WorkSlider';
-import TerminalIntro from '../../components/TerminalIntro';
+import { getDizionario } from "@/dictionaries";
+import { collegamentiLavoro, recapiti, curriculum } from "@/content/collegamenti";
+import Apparato from "@/components/Apparato";
+import Archivio from "@/components/Archivio";
+import Rivela from "@/components/Rivela";
+import SelettoreLingua from "@/components/SelettoreLingua";
 
-import it from '../../dictionaries/it.json';
-import en from '../../dictionaries/en.json';
-import es from '../../dictionaries/es.json';
+export default async function Pagina({
+  params,
+}: {
+  params: Promise<{ lang: string }>;
+}) {
+  const { lang: lingua } = await params;
+  const d = getDizionario(lingua);
 
-const dictionaries: any = { it, en, es };
+  const elenco = [
+    ["email", recapiti.email],
+    ["telefono", recapiti.telefono],
+    ["linkedin", recapiti.linkedin],
+    ["github", recapiti.github],
+  ] as const;
 
-export default function Home({ params }: { params: Promise<{ lang: string }> }) {
-  const { lang } = use(params);
-  const dict = dictionaries[lang] || dictionaries.it;
-
-  const [introVisible, setIntroVisible] = useState(true);
-
-  const mouseX = useMotionValue(-500);
-  const mouseY = useMotionValue(-500);
-  const springX = useSpring(mouseX, { damping: 30, stiffness: 200 });
-  const springY = useSpring(mouseY, { damping: 30, stiffness: 200 });
-
-  const { scrollYProgress } = useScroll();
-  const skew = useTransform(scrollYProgress, [0, 1], [0, 20]);
-  const opacityLog = useTransform(scrollYProgress, [0, 0.2], [0.15, 0]);
-
-  useEffect(() => {
-    const handleMove = (e: MouseEvent | TouchEvent) => {
-      const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
-      const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
-      mouseX.set(clientX);
-      mouseY.set(clientY);
-    };
-    window.addEventListener("mousemove", handleMove);
-    window.addEventListener("touchmove", handleMove);
-    return () => {
-      window.removeEventListener("mousemove", handleMove);
-      window.removeEventListener("touchmove", handleMove);
-    };
-  }, [mouseX, mouseY]);
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    name: d.apertura.nome,
+    jobTitle: d.meta.titolo.split(" — ")[1] ?? d.meta.titolo,
+    url: `${baseUrl}/${lingua}`,
+    sameAs: [recapiti.linkedin.href, recapiti.github.href],
+  };
 
   return (
-    <>
-      {/* ── TERMINAL INTRO ── */}
-      {introVisible && (
-        <TerminalIntro onDone={() => setIntroVisible(false)} />
-      )}
+    <div className="cornice">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <header className="testata">
+        <SelettoreLingua attiva={lingua} />
+        <a href="#contatti" className="verso-contatti">
+          {d.nav.contatti} ↓
+        </a>
+      </header>
 
-      <main className="relative min-h-[400vh] bg-[#ff3e00] overflow-x-hidden select-none cursor-none font-sans">
-
-        <motion.div
-          className="fixed top-0 left-0 w-64 h-64 md:w-96 md:h-96 bg-white rounded-full pointer-events-none z-[100] mix-blend-difference"
-          style={{ x: springX, y: springY, translateX: "-50%", translateY: "-50%" }}
-        />
-
-        {/* BACKGROUND LOGS */}
-        <motion.div
-          style={{ opacity: opacityLog }}
-          className="fixed top-0 left-0 w-full h-full pointer-events-none font-mono text-[8px] leading-tight break-all p-4 z-0 overflow-hidden"
-        >
-          <motion.div
-            className="flex flex-col gap-1"
-            animate={{ y: [-800, 0] }}
-            transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
-          >
-            {[...Array(3)].flatMap((_, setIdx) =>
-              Array.from({ length: 30 }).map((_, i) => (
-                <p key={`${setIdx}-${i}`} style={{ color: 'rgba(0, 0, 0, 0.8)' }}>
-                  ERR_NO_SEMANTIC_NOISE_RECORDS_18000_DATASETS_3_CWV_OPTIMIZED_STATUS_OK_
-                </p>
-              ))
+      <section className="blocco blocco--primo">
+        <Apparato voci={d.apertura.apparato} />
+        <div className="contenuto">
+          <h1 className="nome">{d.apertura.nome}</h1>
+          <p className="tesi">
+            {d.apertura.tesi.map((pezzo, i) =>
+              "e" in pezzo && pezzo.e ? (
+                <em key={i}>{pezzo.t}</em>
+              ) : (
+                <span key={i}>{pezzo.t}</span>
+              )
             )}
-          </motion.div>
-        </motion.div>
-
-        <nav className="fixed top-0 left-0 w-full p-6 md:p-12 flex justify-between items-start z-[110] mix-blend-difference text-white">
-          <div className="text-3xl font-[1000] leading-[0.7] tracking-tighter">
-            PORTFOLIO
-          </div>
-          <LanguagePicker currentLang={lang} />
-        </nav>
-
-        {/* HERO */}
-        <section className="relative z-10 h-screen flex flex-col justify-center px-6 md:px-12 pointer-events-none text-white">
-          <motion.h1
-            style={{ skewX: skew }}
-            className="text-[10vw] font-[1000] leading-[0.82] tracking-[-0.06em] mb-10"
-          >
-            {dict.hero.title.split(' ')[0]}<br/>
-            {dict.hero.title.split(' ')[1] || ""}
-          </motion.h1>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-20">
-            <h2 className="text-5xl md:text-[7vw] font-[1000] tracking-tighter leading-[0.8] uppercase">
-              {dict.hero.sub}
-            </h2>
-            <div className="self-end text-xl md:text-2xl font-normal leading-relaxed tracking-normal max-w-xl text-white/80">
-              {dict.hero.desc}
-            </div>
-          </div>
-        </section>
-
-        {/* WORK SLIDER */}
-        <WorkSlider
-          statsUnits={dict.stats.units}
-          statsDesc={dict.stats.desc}
-          items={dict.automations.items}
-        />
-
-        {/* CERTIFICATIONS */}
-        <section className="relative z-10 mt-16 md:mt-40 px-6 md:px-12 text-white">
-          <div className="mb-20">
-            <h3 className="font-[1000] leading-[0.8] tracking-tighter mb-4 underline decoration-[4px] text-contrast-high uppercase break-words">
-              {dict.certifications.title}
-            </h3>
-          </div>
-          <InfiniteSlider
-            items={dict.certifications.items}
-            speed={0.8}
-            itemWidth={120}
-            itemHeight={120}
-          />
-        </section>
-
-        {/* TECH STACK */}
-        <section className="relative z-10 mt-16 md:mt-40 px-6 md:px-12 text-white">
-          <div className="mb-20">
-            <h3 className="font-[1000] leading-[0.8] tracking-tighter mb-4 underline decoration-[4px] text-contrast-high uppercase break-words">
-              {dict.techstack.title}
-            </h3>
-          </div>
-          <InfiniteSlider
-            items={dict.techstack.items}
-            speed={1.2}
-            itemWidth={80}
-            itemHeight={80}
-          />
-        </section>
-
-        {/* CONTACT */}
-        <section className="relative z-10 mt-16 md:mt-40 px-6 md:px-12 text-white">
-          <div className="mb-20">
-            <h3 className="font-[1000] leading-[0.8] tracking-tighter mb-4 underline decoration-[4px] text-contrast-high uppercase break-words">
-              {dict.contact.title}
-            </h3>
-            <p className="font-mono text-xl md:text-2xl text-white/80 uppercase tracking-widest italic">
-              {dict.contact.subtitle}
+          </p>
+          {d.apertura.sommario.map((p, i) => (
+            <p key={i} className="sommario">
+              {p}
             </p>
+          ))}
+        </div>
+      </section>
+
+      <section className="blocco archivio">
+        <Apparato voci={d.archivio.apparato}>
+          <p className="legenda">
+            <span>
+              <i className="pallino-blu" />
+              {d.archivio.legenda.diretto}
+            </span>
+            <span>
+              <i className="pallino-grigio" />
+              {d.archivio.legenda.gara}
+            </span>
+          </p>
+        </Apparato>
+        <div className="contenuto">
+          <Archivio />
+          <p className="assi">
+            <span>2015</span>
+            <span>2020</span>
+            <span>2025</span>
+          </p>
+        </div>
+      </section>
+
+      {d.lavori.items.map((lavoro, i) => (
+        <Rivela key={lavoro.id} className="blocco">
+          <Apparato
+            voci={lavoro.apparato}
+            limite={"limite" in lavoro ? lavoro.limite : undefined}
+            collegamenti={collegamentiLavoro[lavoro.id]}
+            etichettaCollegamenti={d.lavori.vedi}
+          />
+          <div className="contenuto">
+            <p className="occhiello">
+              {d.lavori.occhiello} — {String(i + 1).padStart(2, "0")}
+            </p>
+            <h2 className="titolo">{lavoro.titolo}</h2>
+            <p className="sottotitolo">{lavoro.sottotitolo}</p>
+            <ul className="voci">
+              {lavoro.voci.map((v) => (
+                <li key={v.h}>
+                  <h3>{v.h}</h3>
+                  <p>{v.p}</p>
+                </li>
+              ))}
+            </ul>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {dict.contact.items.map((item: any, idx: number) => (
-              <ContactCard
-                key={idx}
-                label={item.label}
-                value={item.value}
-                href={item.href}
-                type={item.type}
-                copyable={item.copyable}
-                icon={item.icon}
-              />
+        </Rivela>
+      ))}
+
+      <Rivela className="blocco">
+        <Apparato voci={d.percorso.apparato} />
+        <div className="contenuto">
+          <p className="occhiello">{d.percorso.occhiello}</p>
+          <h2 className="titolo">{d.percorso.titolo}</h2>
+          <ul className="tappe">
+            {d.percorso.tappe.map((t) => (
+              <li key={t.cosa}>
+                <span className="anno">{t.anno}</span>
+                <span>
+                  <strong>{t.cosa}</strong>
+                  <br />
+                  <span className="dove">{t.dove}</span>
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </Rivela>
+
+      <Rivela className="blocco">
+        <span id="contatti" />
+        <Apparato voci={d.contatti.apparato} />
+        <div className="contenuto">
+          <p className="occhiello">{d.contatti.occhiello}</p>
+          <h2 className="titolo">{d.contatti.titolo}</h2>
+          <p className="sottotitolo">{d.contatti.sottotitolo}</p>
+
+          <ul className="recapiti">
+            {elenco.map(([chiave, r]) => (
+              <li key={chiave}>
+                <a href={r.href}>
+                  <span className="etichetta">{d.contatti.etichette[chiave]}</span>
+                  <span className="valore">{r.valore}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+
+          <div className="scarica">
+            {(["it", "en", "es"] as const).map((l) => (
+              <a key={l} href={curriculum[l]} download>
+                ↓ {d.contatti.cv[l]}
+              </a>
             ))}
           </div>
-        </section>
+        </div>
+      </Rivela>
 
-        {/* DOWNLOAD CV */}
-        <section className="relative z-10 mt-16 md:mt-40 px-6 md:px-12 text-white">
-          <div className="mb-16">
-            <h3 className="font-[1000] leading-[0.8] tracking-tighter mb-4 underline decoration-[4px] text-contrast-high uppercase break-words">
-              {dict.cta.title}
-            </h3>
-            <p className="font-mono text-xl md:text-2xl text-white/80 uppercase tracking-widest italic">
-              {dict.cta.subtitle}
-            </p>
-          </div>
-          <div className="flex justify-center">
-            <DownloadCV
-              buttonText={dict.cta.button}
-              filesize={dict.cta.filesize}
-              lang={lang}
-            />
-          </div>
-        </section>
-
-        {/* EXPERIENCE TIMELINE */}
-        <section className="relative z-10 mt-16 md:mt-40 px-6 md:px-12 text-white">
-          <div className="mb-20">
-            <h3 className="font-[1000] leading-[0.8] tracking-tighter mb-4 underline decoration-[4px] text-contrast-high uppercase break-words">
-              {dict.timeline.title}
-            </h3>
-            <p className="font-mono text-xl md:text-2xl text-white/80 uppercase tracking-widest italic">
-              {dict.timeline.subtitle}
-            </p>
-          </div>
-          <ExperienceTimeline items={dict.timeline.items} />
-        </section>
-
-        {/* FOOTER */}
-        <footer className="mt-16 md:mt-40 p-6 md:p-12 flex flex-col md:flex-row justify-between items-end gap-10 text-white pb-20">
-          <div className="max-w-md">
-            <p className="font-mono text-xs opacity-40 tracking-widest uppercase">
-              {dict.footer.philosophy}
-            </p>
-          </div>
-          <div className="text-[15vw] font-[1000] leading-[0.7] opacity-20">
-            2026
-          </div>
-        </footer>
-      </main>
-    </>
+      <footer className="piede">
+        <span>{d.piede.sinistra}</span>
+        <span>{d.piede.destra}</span>
+      </footer>
+    </div>
   );
 }

@@ -1,32 +1,74 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Newsreader, IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
+import { getDizionario, lingue } from "@/dictionaries";
 import "../globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const serif = Newsreader({
   subsets: ["latin"],
+  weight: ["300", "400"],
+  style: ["normal", "italic"],
+  variable: "--font-serif",
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const sans = IBM_Plex_Sans({
   subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  variable: "--font-sans",
+  display: "swap",
 });
 
-export const metadata: Metadata = {
-  title: "Gianlivio Iemolo — Full Stack Web Developer",
-  description: "Sviluppo web, dati e contenuti. Piattaforme, integrazioni API, automazione, SEO/GEO. Da remoto, in italiano, inglese e spagnolo.",
-};
+const mono = IBM_Plex_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500"],
+  variable: "--font-mono",
+  display: "swap",
+});
 
-export default function RootLayout({
+export function generateStaticParams() {
+  return lingue.map((lang) => ({ lang }));
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ lang: string }>;
+}): Promise<Metadata> {
+  const { lang } = await params;
+  const d = getDizionario(lang);
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  return {
+    metadataBase: new URL(baseUrl),
+    title: d.meta.titolo,
+    description: d.meta.descrizione,
+    alternates: {
+      canonical: `/${lang}`,
+      languages: {
+        it: "/it",
+        en: "/en",
+        es: "/es",
+      },
+    },
+    openGraph: {
+      title: d.meta.titolo,
+      description: d.meta.descrizione,
+      type: "profile",
+      locale: lang,
+    },
+  };
+}
+
+export default async function Layout({
   children,
-}: Readonly<{
+  params,
+}: {
   children: React.ReactNode;
-}>) {
+  params: Promise<{ lang: string }>;
+}) {
+  const { lang } = await params;
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+    <html lang={lang}>
+      <body className={`${serif.variable} ${sans.variable} ${mono.variable}`}>
         {children}
       </body>
     </html>
