@@ -1,9 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(python3 -c ' *)",
-      "Bash(python3 \"/private/tmp/claude-501/-Users-juanlee-Desktop-DIGITAL-NOMAD-portfoliooo/0a6cf18f-a01a-4c90-9020-74fd29831c4e/scratchpad/genera_archivio.py\")",
-      "Bash(npx --yes chromium-cli --help)"
-    ]
-  }
-}
