@@ -72,7 +72,7 @@ export default function Home({ params }: { params: Promise<{ lang: string }> }) 
             {[...Array(3)].flatMap((_, setIdx) =>
               Array.from({ length: 30 }).map((_, i) => (
                 <p key={`${setIdx}-${i}`} style={{ color: 'rgba(0, 0, 0, 0.8)' }}>
-                  ERR_NO_SEMANTIC_NOISE_SKU_51240_CATEGORIES_13102_CWV_OPTIMIZED_STATUS_OK_
+                  ERR_NO_SEMANTIC_NOISE_RECORDS_18000_DATASETS_3_CWV_OPTIMIZED_STATUS_OK_
                 </p>
               ))
             )}

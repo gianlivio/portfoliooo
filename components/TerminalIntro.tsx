@@ -7,7 +7,7 @@ const LINES = [
   { text: "> loading modules...",        delay: 400 },
   { text: "> semiotics.init()",          delay: 750 },
   { text: "> api_integrations: 20+",     delay: 1050 },
-  { text: "> sku_catalog: 51.240",       delay: 1300 },
+  { text: "> public_records: 18.000",    delay: 1300 },
   { text: "> lighthouse_score: 80/100",  delay: 1550 },
   { text: "> status: ALL_SYSTEMS_OK",    delay: 1800 },
   { text: "$ launching in...",           delay: 2200 },

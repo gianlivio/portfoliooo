@@ -10,7 +10,7 @@
   },
   "automations": {
     "title": "AUTOMAZIONI & INTEGRAZIONI",
-    "subtitle": "Integrazioni API, automazioni e tracking sviluppati su shop.puntoluce.net",
+    "subtitle": "Progetti di sviluppo, dati e contenuti editoriali",
     "items": [
       {
         "title": "Pipeline dati ANAC — 18.000 record",
@@ -119,6 +119,10 @@
         "icon": "https://cdn.simpleicons.org/typescript/3178C6"
       },
       {
+        "name": "Python",
+        "icon": "https://cdn.simpleicons.org/python/3776AB"
+      },
+      {
         "name": "JavaScript",
         "icon": "https://cdn.simpleicons.org/javascript/F7DF1E"
       },
@@ -194,7 +198,7 @@
   },
   "contact": {
     "title": "INTERFACCIA DI CONTATTO",
-    "subtitle": "Canali di comunicazione diretta",
+    "subtitle": "Da remoto, in italiano, inglese e spagnolo",
     "items": [
       {
         "label": "EMAIL",
@@ -263,7 +267,7 @@
           "QA testing strutturato: 22+ scenari end-to-end su flussi critici (OTP, IBAN, checkout, referral medico)",
           "Issue tracking su GitHub: apertura, documentazione e regression testing post-fix",
           "Team internazionale (Italia, Brasile, USA), coordinamento via GitHub (branch, PR, code review)",
-          "CTO: Bibop Gresta — collaborazione in ambiente startup internazionale"
+          "Rilevamento errori server (502, 409) e inviti duplicati silenti"
         ]
       },
       {
@@ -319,8 +323,7 @@
         "location": "Bologna",
         "highlights": [
           "Semiotica e Filosofia del Linguaggio (110/110)",
-          "Tesi: pratiche semiotiche di amministrazione dello spazio, dei discorsi e dei soggetti",
-          "Relatori: Prof. Marsciani, Prof. Frixa"
+          "Tesi: pratiche semiotiche di amministrazione dello spazio, dei discorsi e dei soggetti"
         ]
       },
       {

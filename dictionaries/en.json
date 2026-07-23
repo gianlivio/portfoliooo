@@ -10,7 +10,7 @@
   },
   "automations": {
     "title": "AUTOMATIONS & INTEGRATIONS",
-    "subtitle": "API integrations, automations and tracking built for shop.puntoluce.net",
+    "subtitle": "Development, data and editorial projects",
     "items": [
       {
         "title": "ANAC data pipeline — 18,000 records",
@@ -119,6 +119,10 @@
         "icon": "https://cdn.simpleicons.org/typescript/3178C6"
       },
       {
+        "name": "Python",
+        "icon": "https://cdn.simpleicons.org/python/3776AB"
+      },
+      {
         "name": "JavaScript",
         "icon": "https://cdn.simpleicons.org/javascript/F7DF1E"
       },
@@ -194,7 +198,7 @@
   },
   "contact": {
     "title": "CONTACT INTERFACE",
-    "subtitle": "Direct communication channels",
+    "subtitle": "Remote, in Italian, English and Spanish",
     "items": [
       {
         "label": "EMAIL",
@@ -263,7 +267,7 @@
           "Structured QA testing: 22+ end-to-end scenarios on critical flows (OTP, IBAN, checkout, medical referral)",
           "GitHub issue tracking: reporting, documentation and post-fix regression testing",
           "International team (Italy, Brazil, USA), coordination via GitHub (branches, PRs, code review)",
-          "CTO: Bibop Gresta — collaboration in an international startup environment"
+          "Server error detection (502, 409) and silent duplicate invites"
         ]
       },
       {
@@ -319,8 +323,7 @@
         "location": "Bologna, Italy",
         "highlights": [
           "Semiotics and Philosophy of Language (110/110)",
-          "Thesis: semiotic practices of administration of space, discourses and subjects",
-          "Advisors: Prof. Marsciani, Prof. Frixa"
+          "Thesis: semiotic practices of administration of space, discourses and subjects"
         ]
       },
       {

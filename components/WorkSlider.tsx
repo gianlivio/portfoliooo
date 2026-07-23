@@ -83,7 +83,7 @@ function FloatingNumber({ units, desc }: { units: string; desc: string }) {
                 filter: "blur(1px)",
               }}
             >
-              51<span style={{ color: "rgba(255,0,80,0.7)" }}>.</span>240
+              18<span style={{ color: "rgba(255,0,80,0.7)" }}>.</span>000
             </div>
             <div
               className="absolute inset-0 font-[1000] leading-[0.82] select-none"
@@ -95,7 +95,7 @@ function FloatingNumber({ units, desc }: { units: string; desc: string }) {
                 filter: "blur(1px)",
               }}
             >
-              51<span style={{ color: "rgba(0,255,220,0.7)" }}>.</span>240
+              18<span style={{ color: "rgba(0,255,220,0.7)" }}>.</span>000
             </div>
           </>
         )}
@@ -122,7 +122,7 @@ function FloatingNumber({ units, desc }: { units: string; desc: string }) {
             className="font-[1000] text-white leading-[0.82]"
             style={{ fontSize: "clamp(48px, 7vw, 88px)" }}
           >
-            51<span style={{ color: "#ff3e00", textShadow: "0 0 20px #ff3e00, 0 0 40px #ff3e00" }}>.</span>240
+            18<span style={{ color: "#ff3e00", textShadow: "0 0 20px #ff3e00, 0 0 40px #ff3e00" }}>.</span>000
           </div>
         </motion.div>
 

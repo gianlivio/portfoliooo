@@ -8,7 +8,7 @@
 
 ## Stack
 
-- **Next.js 14** — App Router, i18n routing (IT/EN)
+- **Next.js 14** — App Router, i18n routing (IT/EN/ES)
 - **TypeScript**
 - **Framer Motion** — animazioni e transizioni
 - **CSS custom** — nessun framework UI, scritto a mano
