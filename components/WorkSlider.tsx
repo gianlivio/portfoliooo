@@ -9,7 +9,7 @@ interface WorkSliderProps {
   items: Item[];
 }
 
-const MARQUEE = "E-COMMERCE · FULL STACK · 51.240 SKU · 20+ API · PERFORMANCE · GDPR · AUTOMATION ·  ";
+const MARQUEE = "FULL STACK · DATA · E-COMMERCE · AI · SEO/GEO · API · AUTOMATION ·  ";
 
 const NEON_STYLE: React.CSSProperties = {
   color: "#fff",
@@ -430,7 +430,8 @@ export default function WorkSlider({ statsUnits, statsDesc, items }: WorkSliderP
       <div className="px-6 md:px-12 mt-3 md:mt-6 flex flex-col sm:flex-row gap-3">
         {[
           { label: "SHOP", sub: "shop.puntoluce.net", href: "https://shop.puntoluce.net/" },
-          { label: "BLOG", sub: "puntoluce.net/comefare", href: "https://www.puntoluce.net/comefare/" },
+          { label: "OSSERVATORIO", sub: "osservatorioaccoglienza.org", href: "https://osservatorioaccoglienza.org/" },
+          { label: "GITHUB", sub: "github.com/gianlivio", href: "https://github.com/gianlivio/osservatorio-accoglienza" },
         ].map((link) => (
           <a
             key={link.href}
