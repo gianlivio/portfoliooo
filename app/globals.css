@@ -52,6 +52,36 @@ a:focus-visible{outline:2px solid var(--blu);outline-offset:3px}
 }
 
 /* grana: trattamento all-over, un SVG in linea, zero richieste di rete */
+/* ---------- respiro dello sfondo ---------- */
+/* Sfondo che vira su sei tinte diverse, un respiro ogni 5s (ciclo 30s). */
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:-1;
+  pointer-events:none;
+  background:#FBFAF7;
+  animation:respiro 30s ease-in-out infinite;
+}
+@keyframes respiro{
+  0%     { background:#FBFAF7 }
+  8.33%  { background:#D8D1C0 }
+  16.67% { background:#FBFAF7 }
+  25%    { background:#CBD6C9 }
+  33.33% { background:#FBFAF7 }
+  41.67% { background:#C7D2DA }
+  50%    { background:#FBFAF7 }
+  58.33% { background:#DBCBD0 }
+  66.67% { background:#FBFAF7 }
+  75%    { background:#D2CFBE }
+  83.33% { background:#FBFAF7 }
+  91.67% { background:#CDCBD6 }
+  100%   { background:#FBFAF7 }
+}
+@media (prefers-reduced-motion:reduce){
+  body::before{ animation:none; background:#FBFAF7 }
+}
+
 body::after{
   content:"";
   position:fixed;
