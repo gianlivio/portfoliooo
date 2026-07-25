@@ -3,33 +3,68 @@
     "titolo": "Gianlivio Iemolo — Full Stack Web Developer",
     "descrizione": "Desarrollo web, datos públicos y contenidos editoriales. Plataformas, integraciones API, automatización, SEO. En remoto, en italiano, inglés y español."
   },
-  "nav": { "contatti": "Contacto" },
+  "nav": {
+    "contatti": "Contacto"
+  },
   "apertura": {
     "nome": "Gianlivio Iemolo",
     "tesi": [
-      { "t": "Desarrollo plataformas web y trabajo con " },
-      { "t": "datos públicos", "e": true },
-      { "t": " y " },
-      { "t": "contenidos editoriales", "e": true },
-      { "t": "." }
+      {
+        "t": "Desarrollo plataformas web y trabajo con "
+      },
+      {
+        "t": "datos públicos",
+        "e": true
+      },
+      {
+        "t": " y "
+      },
+      {
+        "t": "contenidos editoriales",
+        "e": true
+      },
+      {
+        "t": "."
+      }
     ],
     "sommario": [
-      "Construyo sitios y aplicaciones, integro API y automatizo procesos que hoy alguien hace a mano. Cuando los datos están sucios o encerrados en PDF, los extraigo y los vuelvo legibles.",
+      "Construyo sitios y aplicaciones, integro API y convierto en automáticas tareas antes hechas a mano. Cuando los datos están sucios o encerrados en PDF, los extraigo y los vuelvo legibles.",
       "Autónomo, dado de alta en Italia. Trabajo en remoto para clientes en Italia y fuera."
     ],
     "apparato": [
-      { "dt": "Base", "dd": "Bolonia, Italia — en remoto" },
-      { "dt": "Idiomas", "dd": "Italiano, inglés, español" },
-      { "dt": "Formación", "dd": "Semiótica y filosofía, Universidad de Bolonia" }
+      {
+        "dt": "Base",
+        "dd": "Bolonia, Italia — en remoto"
+      },
+      {
+        "dt": "Idiomas",
+        "dd": "Italiano, inglés, español"
+      },
+      {
+        "dt": "Formación",
+        "dd": "Semiótica y filosofía, Universidad de Bolonia"
+      }
     ]
   },
   "archivio": {
     "apparato": [
-      { "dt": "Qué es", "dd": "Cada punto es un contrato público de acogida. Once años, 18.104 filas, del banco de datos de ANAC." },
-      { "dt": "Ejes", "dd": "Horizontal: año. Vertical: importe, escala logarítmica." },
-      { "dt": "Muestra", "dd": "5.000 contratos extraídos de los 18.104 del archivo." }
+      {
+        "dt": "Qué es",
+        "dd": "Cada punto es un contrato público de acogida. Once años, 18.104 filas, del banco de datos de ANAC."
+      },
+      {
+        "dt": "Ejes",
+        "dd": "Horizontal: año. Vertical: importe, escala logarítmica."
+      },
+      {
+        "dt": "Muestra",
+        "dd": "5.000 contratos extraídos de los 18.104 del archivo."
+      }
     ],
-    "legenda": { "diretto": "adjudicación directa", "gara": "con licitación" }
+    "legenda": {
+      "diretto": "adjudicación directa",
+      "gara": "con licitación"
+    }
   },
   "lavori": {
     "occhiello": "Trabajos",
@@ -38,54 +73,137 @@
       {
         "id": "osservatorio",
         "titolo": "Osservatorio Accoglienza",
-        "sottotitolo": "Archivo público sobre los contratos de acogida de migrantes en Italia. Construido desde cero: recogida de datos, limpieza, sitio, automatización.",
+        "sottotitolo": "Archivo público de los contratos de acogida de migrantes en Italia. Datos que recogí, limpié y puse en línea.",
         "apparato": [
-          { "dt": "Año", "dd": "2026" },
-          { "dt": "Tipo", "dd": "Proyecto personal, código abierto" },
-          { "dt": "Herramientas", "dd": "Python · pdfplumber · Next.js · TypeScript · GitHub Actions" },
-          { "dt": "Fuentes", "dd": "ANAC, Ministerio del Interior italiano" }
+          {
+            "dt": "Año",
+            "dd": "2026"
+          },
+          {
+            "dt": "Tipo",
+            "dd": "Proyecto personal, código abierto"
+          },
+          {
+            "dt": "Herramientas",
+            "dd": "Python · pdfplumber · Next.js · TypeScript · GitHub Actions"
+          },
+          {
+            "dt": "Fuentes",
+            "dd": "ANAC, Ministerio del Interior italiano"
+          }
         ],
         "limite": "Los límites de los datos están declarados en la página de metodología: cobertura incompleta, importes que no se pueden sumar, coste por persona no derivable.",
         "voci": [
-          { "h": "Once años de contratos, 18.000 registros", "p": "Tres conjuntos de datos de ANAC unidos en Python: descargas mensuales, normalización, filtrado en dos niveles con índice de confianza. El archivo 2015–2025 está versionado en el repositorio." },
-          { "h": "Noventa PDF ministeriales, legibles", "p": "Las series sobre menores extranjeros no acompañados solo existían dentro de los informes del Ministerio. Extraídas con pdfplumber: 84 informes mensuales de 2016 a 2022, más los semestrales hasta 2025." },
-          { "h": "Sitio y actualización automática", "p": "Next.js y TypeScript en Vercel, CSS escrito a mano. Un workflow de GitHub Actions abre cada mes el recordatorio de actualización. SEO técnico y datos estructurados." }
+          {
+            "h": "Once años de contratos, 18.104 filas",
+            "p": "Tres conjuntos de datos de ANAC unidos en Python: descargas mensuales, normalización, un filtro en dos niveles con índice de confianza. Un archivo 2015–2025, versionado en el repositorio."
+          },
+          {
+            "h": "Noventa PDF ministeriales, leídos por una máquina",
+            "p": "Las series sobre menores extranjeros no acompañados solo existían dentro de los informes del Ministerio. pdfplumber las extrae: 84 informes mensuales de 2016 a 2022, luego los semestrales hasta 2025."
+          },
+          {
+            "h": "Sitio estático, actualización automática",
+            "p": "Next.js y TypeScript en Vercel, CSS a mano. Un workflow de GitHub Actions abre cada mes el recordatorio de actualización. SEO técnico, datos estructurados, todo de código abierto."
+          }
         ]
       },
       {
         "id": "futura",
         "titolo": "Futura Blog",
-        "sottotitolo": "Plataforma donde agentes de IA escriben los blogs de empresa, con una redacción humana por encima. De la definición del producto al lanzamiento.",
+        "sottotitolo": "Herramienta empresarial para el crecimiento y la autoridad online: un equipo de agentes de IA produce contenidos orientados a geo/EO, autoblog y análisis de negocio. Co-fundador, del producto al lanzamiento.",
         "apparato": [
-          { "dt": "Año", "dd": "2026 — en curso" },
-          { "dt": "Tipo", "dd": "Producto, construido entre dos" },
-          { "dt": "Rol", "dd": "Desarrollo, redacción, SEO" },
-          { "dt": "Herramientas", "dd": "Next.js · TypeScript · Supabase · Claude API · Search Console" },
-          { "dt": "Clientes", "dd": "NDN Luxury (construcción) · ESH Housing (alojamiento para estudiantes)" }
+          {
+            "dt": "Año",
+            "dd": "2026 — en curso"
+          },
+          {
+            "dt": "Tipo",
+            "dd": "Producto, construido entre dos"
+          },
+          {
+            "dt": "Rol",
+            "dd": "Desarrollo, redacción, SEO"
+          },
+          {
+            "dt": "Herramientas",
+            "dd": "Next.js · TypeScript · Supabase · Claude API · Search Console"
+          },
+          {
+            "dt": "Clientes",
+            "dd": "NDN Luxury (construcción) · ESH Housing (alojamiento para estudiantes)"
+          }
         ],
         "voci": [
-          { "h": "La plataforma", "p": "Arquitectura, desarrollo y despliegue en Next.js y TypeScript con Supabase. Iteración continua sobre funcionalidades e interfaz." },
-          { "h": "Los agentes que escriben", "p": "Redacción y ajuste de los prompts de generación y revisión. El tono de voz se calibra cliente por cliente; cada artículo publicado pasa por una revisión humana." },
-          { "h": "Planes editoriales y búsqueda", "p": "Análisis de Search Console, planes mensuales, optimización para motores de búsqueda y para respuestas generativas." }
+          {
+            "h": "La plataforma",
+            "p": "Next.js y TypeScript, base de datos Supabase. Como co-fundador: arquitectura, despliegue y las funciones que llevan un artículo del borrador a la publicación."
+          },
+          {
+            "h": "El equipo de agentes",
+            "p": "Agentes de IA especializados: contenidos optimizados para búsqueda geográfica y generativa, autoblog programado, análisis del negocio del cliente. Escribo los prompts; el tono cambia de cliente a cliente."
+          },
+          {
+            "h": "Crecimiento y búsqueda",
+            "p": "Planes editoriales leídos contra Search Console, medición de la autoridad ganada. Optimizo para quien busca en Google y para quien pregunta a un modelo. Ningún artículo sale sin revisión humana."
+          }
         ]
       },
       {
         "id": "puntoluce",
         "titolo": "shop.puntoluce.net",
-        "sottotitolo": "Dos años en un e-commerce de material eléctrico: tema, integraciones, tracking, rendimiento.",
+        "sottotitolo": "Dos años en un e-commerce de material eléctrico y de fontanería: 25.000 productos, 60.000 pedidos, tema, integraciones, tracking.",
         "apparato": [
-          { "dt": "Años", "dd": "2024 — 2026" },
-          { "dt": "Tipo", "dd": "E-commerce B2B y B2C" },
-          { "dt": "Escala", "dd": "51.240 SKU · 13.102 categorías · 300+ proveedores" },
-          { "dt": "Herramientas", "dd": "PHP · JavaScript · MySQL · Open2B/Scriggo · GTM/GA4 · Brevo · Cloudflare" }
+          {
+            "dt": "Años",
+            "dd": "2024 — 2026"
+          },
+          {
+            "dt": "Tipo",
+            "dd": "E-commerce B2B y B2C"
+          },
+          {
+            "dt": "Escala",
+            "dd": "51.240 SKU · 13.102 categorías · 300+ proveedores"
+          },
+          {
+            "dt": "Herramientas",
+            "dd": "PHP · JavaScript · MySQL · Open2B/Scriggo · GTM/GA4 · Brevo · Cloudflare"
+          }
         ],
         "voci": [
-          { "h": "El tema, desde cero", "p": "Plantilla completa en Open2B/Scriggo: mobile-first, tema oscuro, checkout en varios pasos, filtros dinámicos." },
-          { "h": "Veinte integraciones, siempre activas", "p": "Brevo, Feedaty, Kelkoo, Doofinder, DocFinance, Facebook Graph, Google Identity. Reintentos automáticos, gestión del rate limiting, un log por cada webhook." },
-          { "h": "Gestor y plataforma de email sincronizados", "p": "58.000 contactos con segmentación B2B/B2C automática y 23.550 productos hacia Brevo. Lotes de 100 SKU, webhooks en tiempo real." },
-          { "h": "NIF/IVA verificados en 28 países", "p": "Una sola API sobre Cerved y VIES: los datos de empresa se rellenan solos en el checkout y un número no válido bloquea el pedido." },
-          { "h": "Doce segundos convertidos en cuatro", "p": "LCP de 12s a 4s en móvil, TBT −40%. CSS rehecho mobile-first, de 15.000 a 10.000 líneas." },
-          { "h": "Tracking y consentimiento", "p": "GA4 e-commerce completo, Pixel, Microsoft UET. Cookiebot y Consent Mode v2, cookies bloqueadas antes del consentimiento, auditoría de todas las etiquetas activas." }
+          {
+            "h": "Frontend y tema",
+            "p": "Plantilla completa en Open2B/Scriggo, reconstruida mobile-first. Checkout reducido de tres páginas a una, filtros de búsqueda dinámicos, tema oscuro, mega-menú de departamentos, página de producto con fichas técnicas, reseñas y disponibilidad en tiempo real."
+          },
+          {
+            "h": "Integraciones y feeds",
+            "p": "Sincronización Open2B ↔ Brevo para contactos y catálogo. Feeds de productos generados para Trovaprezzi, Kelkoo, Google Merchant y Doofinder, filtrados por disponibilidad y con precios calculados por franja de peso."
+          },
+          {
+            "h": "Automatizaciones internas",
+            "p": "Aplicaciones sobre la API de Open2B para el trabajo que la oficina hacía a mano: extracción de pedidos y clientes, clasificación por área fiscal, verificación de cantidades enviadas, archivado automático de recibos, generación de descripciones de producto."
+          },
+          {
+            "h": "Tracking y analítica",
+            "p": "GA4 e-commerce vía GTM, Facebook Pixel, Microsoft UET y Clarity. Eventos del embudo de compra mapeados uno a uno, de la vista de producto a la compra, leyendo datos del DOM y no de variables frágiles."
+          },
+          {
+            "h": "Consentimiento y cumplimiento",
+            "p": "Cookiebot y Consent Mode v2: ninguna cookie antes del consentimiento, etiquetas que se activan solo con la categoría correcta, tracking anónimo previo al consentimiento para no perder el dato agregado. Cookies clasificadas en cuatro idiomas."
+          },
+          {
+            "h": "Datos fiscales y checkout",
+            "p": "Validación del IVA sobre Cerved y VIES para 28 países de la UE, con autocompletado en el checkout. Autocompletado del código postal sobre municipios italianos, reglas de envío y pago interdependientes gestionadas en el cliente."
+          },
+          {
+            "h": "Rendimiento",
+            "p": "LCP reducido a la mitad en móvil. CSS reescrito mobile-first y dividido por sección, media queries en un archivo aparte, imágenes y puntuaciones Lighthouse revisadas. Aplicaciones optimizadas para soportar decenas de miles de productos y pedidos."
+          },
+          {
+            "h": "SEO, accesibilidad, seguridad",
+            "p": "Estructura de encabezados rehecha para SEO, datos estructurados Feedaty validados para las estrellas en las SERP. Auditorías de accesibilidad WAVE y axe, viewport de nuevo ampliable. Cloudflare para CDN y protección, A+ en las cabeceras de seguridad."
+          }
         ]
       }
     ]
@@ -94,19 +212,61 @@
     "occhiello": "Trayectoria",
     "titolo": "Del pensamiento a la sintaxis",
     "apparato": [
-      { "dt": "Antes del código", "dd": "Filosofía, después semiótica. Copywriting y estrategia de contenidos. Un año como educador con menores extranjeros no acompañados — de ahí viene el Osservatorio." },
-      { "dt": "Certificaciones", "dd": "Google Analytics · GA4 Advanced · Consent Mode v2" }
+      {
+        "dt": "Antes del código",
+        "dd": "Filosofía, después semiótica. Copywriting y estrategia de contenidos. Un año como educador con menores extranjeros no acompañados — de ahí viene el Osservatorio."
+      },
+      {
+        "dt": "Certificaciones",
+        "dd": "Google Analytics · GA4 Advanced · Consent Mode v2"
+      }
     ],
     "tappe": [
-      { "anno": "2026 →", "cosa": "Futura Blog", "dove": "Desarrollo, redacción, SEO — en remoto" },
-      { "anno": "2026", "cosa": "Beauty Broker World", "dove": "QA e integración — equipo entre Italia, Brasil y EE. UU." },
-      { "anno": "2024–26", "cosa": "Punto Luce / EDIF", "dove": "Full stack — Sasso Marconi, Bolonia" },
-      { "anno": "2024", "cosa": "Boolean", "dove": "Programa full stack, 700 horas — Milán" },
-      { "anno": "2023–24", "cosa": "Copystudio", "dove": "Copywriting e identidad de marca" },
-      { "anno": "2023", "cosa": "Hetaweb", "dove": "SEO y gestión editorial para 30+ clientes" },
-      { "anno": "2020", "cosa": "Máster en semiótica", "dove": "Universidad de Bolonia — tesis sobre las prácticas semióticas de administración del espacio" },
-      { "anno": "2019", "cosa": "Erasmus+", "dove": "Universidad de Granada" },
-      { "anno": "2017", "cosa": "Grado en filosofía", "dove": "Universidad de Bolonia — lógica, filosofía del lenguaje, epistemología" }
+      {
+        "anno": "2026 →",
+        "cosa": "Futura Blog",
+        "dove": "Desarrollo, redacción, SEO — en remoto"
+      },
+      {
+        "anno": "2026",
+        "cosa": "Beauty Broker World",
+        "dove": "QA e integración — equipo entre Italia, Brasil y EE. UU."
+      },
+      {
+        "anno": "2024–26",
+        "cosa": "Punto Luce / EDIF",
+        "dove": "Full stack — Sasso Marconi, Bolonia"
+      },
+      {
+        "anno": "2024",
+        "cosa": "Boolean",
+        "dove": "Programa full stack, 700 horas — Milán"
+      },
+      {
+        "anno": "2023–24",
+        "cosa": "Copystudio",
+        "dove": "Copywriting e identidad de marca"
+      },
+      {
+        "anno": "2023",
+        "cosa": "Hetaweb",
+        "dove": "SEO y gestión editorial para 30+ clientes"
+      },
+      {
+        "anno": "2020",
+        "cosa": "Máster en semiótica",
+        "dove": "Universidad de Bolonia — tesis sobre las prácticas semióticas de administración del espacio"
+      },
+      {
+        "anno": "2019",
+        "cosa": "Erasmus+",
+        "dove": "Universidad de Granada"
+      },
+      {
+        "anno": "2017",
+        "cosa": "Grado en filosofía",
+        "dove": "Universidad de Bolonia — lógica, filosofía del lenguaje, epistemología"
+      }
     ]
   },
   "contatti": {
@@ -114,15 +274,33 @@
     "titolo": "Escríbeme",
     "sottotitolo": "Si tienes un proyecto, cuéntame cómo está ahora: qué existe ya, qué no funciona, para cuándo lo necesitas.",
     "apparato": [
-      { "dt": "Disponibilidad", "dd": "En remoto, en italiano, inglés y español" },
-      { "dt": "Facturación", "dd": "Alta como autónomo en Italia" },
-      { "dt": "Curriculum", "dd": "PDF, ~65 KB" }
+      {
+        "dt": "Disponibilidad",
+        "dd": "En remoto, en italiano, inglés y español"
+      },
+      {
+        "dt": "Facturación",
+        "dd": "Alta como autónomo en Italia"
+      },
+      {
+        "dt": "Curriculum",
+        "dd": "PDF, ~65 KB"
+      }
     ],
-    "etichette": { "email": "Email", "telefono": "Teléfono", "linkedin": "LinkedIn", "github": "GitHub" },
-    "cv": { "it": "Curriculum, italiano", "en": "English", "es": "Español" }
+    "etichette": {
+      "email": "Email",
+      "telefono": "Teléfono",
+      "linkedin": "LinkedIn",
+      "github": "GitHub"
+    },
+    "cv": {
+      "it": "Curriculum, italiano",
+      "en": "English",
+      "es": "Español"
+    }
   },
   "piede": {
     "sinistra": "Gianlivio Iemolo — 2026",
-    "destra": "Next.js · TypeScript · CSS escrito a mano"
+    "destra": "Next.js · TypeScript · Vercel"
   }
 }

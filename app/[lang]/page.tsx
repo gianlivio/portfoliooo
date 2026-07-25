@@ -2,6 +2,7 @@ import { getDizionario } from "@/dictionaries";
 import { collegamentiLavoro, recapiti, curriculum } from "@/content/collegamenti";
 import Apparato from "@/components/Apparato";
 import Archivio from "@/components/Archivio";
+import Composto from "@/components/Composto";
 import Rivela from "@/components/Rivela";
 import SelettoreLingua from "@/components/SelettoreLingua";
 
@@ -46,7 +47,7 @@ export default async function Pagina({
       <section className="blocco blocco--primo">
         <Apparato voci={d.apertura.apparato} />
         <div className="contenuto">
-          <h1 className="nome">{d.apertura.nome}</h1>
+          <Composto tag="h1" className="nome" testo={d.apertura.nome} />
           <p className="tesi">
             {d.apertura.tesi.map((pezzo, i) =>
               "e" in pezzo && pezzo.e ? (
@@ -99,7 +100,7 @@ export default async function Pagina({
             <p className="occhiello">
               {d.lavori.occhiello} — {String(i + 1).padStart(2, "0")}
             </p>
-            <h2 className="titolo">{lavoro.titolo}</h2>
+            <Composto tag="h2" className="titolo" testo={lavoro.titolo} />
             <p className="sottotitolo">{lavoro.sottotitolo}</p>
             <ul className="voci">
               {lavoro.voci.map((v) => (
@@ -117,7 +118,7 @@ export default async function Pagina({
         <Apparato voci={d.percorso.apparato} />
         <div className="contenuto">
           <p className="occhiello">{d.percorso.occhiello}</p>
-          <h2 className="titolo">{d.percorso.titolo}</h2>
+          <Composto tag="h2" className="titolo" testo={d.percorso.titolo} />
           <ul className="tappe">
             {d.percorso.tappe.map((t) => (
               <li key={t.cosa}>
@@ -138,7 +139,7 @@ export default async function Pagina({
         <Apparato voci={d.contatti.apparato} />
         <div className="contenuto">
           <p className="occhiello">{d.contatti.occhiello}</p>
-          <h2 className="titolo">{d.contatti.titolo}</h2>
+          <Composto tag="h2" className="titolo" testo={d.contatti.titolo} />
           <p className="sottotitolo">{d.contatti.sottotitolo}</p>
 
           <ul className="recapiti">
