@@ -201,6 +201,118 @@
             "p": "Heading structure rebuilt for SEO, Feedaty structured data validated for stars in the SERPs. WAVE and axe accessibility audits, viewport made zoomable again. Cloudflare for CDN and protection, A+ on security headers."
           }
         ]
+      },
+      {
+        "id": "livellozero",
+        "titolo": "Livello Zero",
+        "sottotitolo": "Editorial website about video games, with its own management system. Built to commission, live at livellozero.games.",
+        "apparato": [
+          {
+            "dt": "Year",
+            "dd": "June–October 2026"
+          },
+          {
+            "dt": "Type",
+            "dd": "Editorial website built to commission, with custom CMS"
+          },
+          {
+            "dt": "Role",
+            "dd": "Development, software architecture, maintenance"
+          },
+          {
+            "dt": "Tools",
+            "dd": "Next.js · TypeScript · Vercel"
+          }
+        ],
+        "voci": [
+          {
+            "h": "The site",
+            "p": "Next.js (App Router) and TypeScript, deployed on Vercel. Built from scratch on the livellozero.games domain."
+          },
+          {
+            "h": "The management system",
+            "p": "A CMS written for this project: the client writes articles, customises sections, uploads images and manages the site's back end without touching the code."
+          },
+          {
+            "h": "After delivery",
+            "p": "Ongoing maintenance of the site and the management system."
+          }
+        ]
+      },
+      {
+        "id": "allstudios",
+        "titolo": "All Studios",
+        "sottotitolo": "Application for teams of graphic designers: a shared workspace with advanced tools and artificial intelligence. Launching soon.",
+        "apparato": [
+          {
+            "dt": "Year",
+            "dd": "2026"
+          },
+          {
+            "dt": "Type",
+            "dd": "Web application, pre-launch"
+          },
+          {
+            "dt": "Role",
+            "dd": "Structure, copy, pages, testing"
+          }
+        ],
+        "voci": [
+          {
+            "h": "Structure and testing",
+            "p": "Design of the site and app structure: pages, sections, organisation of content within the virtual space. Copywriting, development of some pages, testing before launch."
+          }
+        ]
+      },
+      {
+        "id": "ndnluxury",
+        "titolo": "NDN Luxury",
+        "sottotitolo": "Website of a construction brand: resin and microcement.",
+        "apparato": [
+          {
+            "dt": "Year",
+            "dd": "2026"
+          },
+          {
+            "dt": "Type",
+            "dd": "Business website, freelance"
+          },
+          {
+            "dt": "Role",
+            "dd": "Web development, maintenance"
+          }
+        ],
+        "voci": [
+          {
+            "h": "Pages, maintenance, animations",
+            "p": "New pages, maintenance and care of the existing site, analysis and improvement work, 3D animations."
+          }
+        ]
+      },
+      {
+        "id": "eshhousing",
+        "titolo": "ESH – Erasmus Student Housing",
+        "sottotitolo": "Rental housing for Erasmus students.",
+        "apparato": [
+          {
+            "dt": "Year",
+            "dd": "2026"
+          },
+          {
+            "dt": "Type",
+            "dd": "Business website, freelance"
+          },
+          {
+            "dt": "Role",
+            "dd": "Web development, maintenance"
+          }
+        ],
+        "voci": [
+          {
+            "h": "Pages and maintenance",
+            "p": "Creation of some site pages and maintenance."
+          }
+        ]
       }
     ]
   },
@@ -240,7 +352,7 @@
       },
       {
         "anno": "2026",
-        "cosa": "ESH Housing",
+        "cosa": "ESH – Erasmus Student Housing",
         "dove": "Web developer — pages and maintenance, freelance"
       },
       {
@@ -300,7 +412,7 @@
       },
       {
         "dt": "Curriculum",
-        "dd": "PDF, ~65 KB"
+        "dd": "PDF, ~70 KB"
       }
     ],
     "etichette": {

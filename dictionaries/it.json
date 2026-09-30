@@ -201,6 +201,118 @@
             "p": "Struttura dei heading rifatta in ottica SEO, dati strutturati Feedaty validati per le stelle nelle SERP. Audit di accessibilità WAVE e axe, viewport reso di nuovo ingrandibile. Cloudflare per CDN e protezione, A+ sui security header."
           }
         ]
+      },
+      {
+        "id": "livellozero",
+        "titolo": "Livello Zero",
+        "sottotitolo": "Sito editoriale sui videogiochi, con gestionale proprio. Sviluppato su commissione, online su livellozero.games.",
+        "apparato": [
+          {
+            "dt": "Anno",
+            "dd": "Giugno–ottobre 2026"
+          },
+          {
+            "dt": "Tipo",
+            "dd": "Sito editoriale su commissione, con CMS custom"
+          },
+          {
+            "dt": "Ruolo",
+            "dd": "Sviluppo, architettura del software, manutenzione"
+          },
+          {
+            "dt": "Strumenti",
+            "dd": "Next.js · TypeScript · Vercel"
+          }
+        ],
+        "voci": [
+          {
+            "h": "Il sito",
+            "p": "Next.js (App Router) e TypeScript, deploy su Vercel. Costruito da zero sul dominio livellozero.games."
+          },
+          {
+            "h": "Il gestionale",
+            "p": "Un CMS scritto per questo progetto: il committente scrive gli articoli, personalizza le sezioni, carica le immagini e gestisce il back-end del sito senza intervenire sul codice."
+          },
+          {
+            "h": "Dopo la consegna",
+            "p": "Manutenzione continuativa del sito e del gestionale."
+          }
+        ]
+      },
+      {
+        "id": "allstudios",
+        "titolo": "All Studios",
+        "sottotitolo": "Applicazione per team di grafici: uno spazio di lavoro condiviso con strumenti avanzati e intelligenza artificiale. In uscita a breve.",
+        "apparato": [
+          {
+            "dt": "Anno",
+            "dd": "2026"
+          },
+          {
+            "dt": "Tipo",
+            "dd": "Applicazione web, in fase di lancio"
+          },
+          {
+            "dt": "Ruolo",
+            "dd": "Struttura, copy, pagine, test"
+          }
+        ],
+        "voci": [
+          {
+            "h": "Struttura e test",
+            "p": "Progettazione della struttura del sito e dell'app: pagine, sezioni, organizzazione dei contenuti nello spazio virtuale. Copy, sviluppo di alcune pagine, test prima del lancio."
+          }
+        ]
+      },
+      {
+        "id": "ndnluxury",
+        "titolo": "NDN Luxury",
+        "sottotitolo": "Sito di un marchio di edilizia: resina e microcemento.",
+        "apparato": [
+          {
+            "dt": "Anno",
+            "dd": "2026"
+          },
+          {
+            "dt": "Tipo",
+            "dd": "Sito aziendale, freelance"
+          },
+          {
+            "dt": "Ruolo",
+            "dd": "Sviluppo web, manutenzione"
+          }
+        ],
+        "voci": [
+          {
+            "h": "Pagine, manutenzione, animazioni",
+            "p": "Nuove pagine, manutenzione e cura del sito esistente, analisi e interventi di miglioramento, animazioni 3D."
+          }
+        ]
+      },
+      {
+        "id": "eshhousing",
+        "titolo": "ESH – Erasmus Student Housing",
+        "sottotitolo": "Alloggi in affitto per studenti Erasmus.",
+        "apparato": [
+          {
+            "dt": "Anno",
+            "dd": "2026"
+          },
+          {
+            "dt": "Tipo",
+            "dd": "Sito aziendale, freelance"
+          },
+          {
+            "dt": "Ruolo",
+            "dd": "Sviluppo web, manutenzione"
+          }
+        ],
+        "voci": [
+          {
+            "h": "Pagine e manutenzione",
+            "p": "Creazione di alcune pagine del sito e manutenzione."
+          }
+        ]
       }
     ]
   },
@@ -240,7 +352,7 @@
       },
       {
         "anno": "2026",
-        "cosa": "ESH Housing",
+        "cosa": "ESH – Erasmus Student Housing",
         "dove": "Web developer — pagine e manutenzione, freelance"
       },
       {
@@ -300,7 +412,7 @@
       },
       {
         "dt": "Curriculum",
-        "dd": "PDF, ~65 KB"
+        "dd": "PDF, ~70 KB"
       }
     ],
     "etichette": {

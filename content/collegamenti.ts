@@ -15,6 +15,9 @@ export const collegamentiLavoro: Record<string, Collegamento[]> = {
   puntoluce: [
     { etichetta: "shop.puntoluce.net", href: "https://shop.puntoluce.net/" },
   ],
+  livellozero: [
+    { etichetta: "livellozero.games", href: "https://livellozero.games" },
+  ],
 };
 
 /** Recapiti. Le etichette visibili ("Email", "Telefono"…) stanno nei dizionari. */

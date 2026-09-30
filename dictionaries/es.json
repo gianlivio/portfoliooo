@@ -201,6 +201,118 @@
             "p": "Estructura de encabezados rehecha para SEO, datos estructurados Feedaty validados para las estrellas en las SERP. Auditorías de accesibilidad WAVE y axe, viewport de nuevo ampliable. Cloudflare para CDN y protección, A+ en las cabeceras de seguridad."
           }
         ]
+      },
+      {
+        "id": "livellozero",
+        "titolo": "Livello Zero",
+        "sottotitolo": "Sitio editorial sobre videojuegos, con gestor propio. Desarrollado por encargo, en línea en livellozero.games.",
+        "apparato": [
+          {
+            "dt": "Año",
+            "dd": "Junio–octubre 2026"
+          },
+          {
+            "dt": "Tipo",
+            "dd": "Sitio editorial por encargo, con CMS a medida"
+          },
+          {
+            "dt": "Rol",
+            "dd": "Desarrollo, arquitectura del software, mantenimiento"
+          },
+          {
+            "dt": "Herramientas",
+            "dd": "Next.js · TypeScript · Vercel"
+          }
+        ],
+        "voci": [
+          {
+            "h": "El sitio",
+            "p": "Next.js (App Router) y TypeScript, despliegue en Vercel. Construido desde cero en el dominio livellozero.games."
+          },
+          {
+            "h": "El gestor",
+            "p": "Un CMS escrito para este proyecto: el cliente redacta los artículos, personaliza las secciones, sube las imágenes y gestiona el back-end del sitio sin tocar el código."
+          },
+          {
+            "h": "Tras la entrega",
+            "p": "Mantenimiento continuo del sitio y del gestor."
+          }
+        ]
+      },
+      {
+        "id": "allstudios",
+        "titolo": "All Studios",
+        "sottotitolo": "Aplicación para equipos de diseñadores gráficos: un espacio de trabajo compartido con herramientas avanzadas e inteligencia artificial. De próximo lanzamiento.",
+        "apparato": [
+          {
+            "dt": "Año",
+            "dd": "2026"
+          },
+          {
+            "dt": "Tipo",
+            "dd": "Aplicación web, en fase de lanzamiento"
+          },
+          {
+            "dt": "Rol",
+            "dd": "Estructura, copy, páginas, pruebas"
+          }
+        ],
+        "voci": [
+          {
+            "h": "Estructura y pruebas",
+            "p": "Diseño de la estructura del sitio y de la app: páginas, secciones, organización de los contenidos en el espacio virtual. Copy, desarrollo de algunas páginas, pruebas antes del lanzamiento."
+          }
+        ]
+      },
+      {
+        "id": "ndnluxury",
+        "titolo": "NDN Luxury",
+        "sottotitolo": "Sitio de una marca de construcción: resina y microcemento.",
+        "apparato": [
+          {
+            "dt": "Año",
+            "dd": "2026"
+          },
+          {
+            "dt": "Tipo",
+            "dd": "Sitio corporativo, freelance"
+          },
+          {
+            "dt": "Rol",
+            "dd": "Desarrollo web, mantenimiento"
+          }
+        ],
+        "voci": [
+          {
+            "h": "Páginas, mantenimiento, animaciones",
+            "p": "Nuevas páginas, mantenimiento y cuidado del sitio existente, análisis e intervenciones de mejora, animaciones 3D."
+          }
+        ]
+      },
+      {
+        "id": "eshhousing",
+        "titolo": "ESH – Erasmus Student Housing",
+        "sottotitolo": "Alquiler de alojamientos para estudiantes Erasmus.",
+        "apparato": [
+          {
+            "dt": "Año",
+            "dd": "2026"
+          },
+          {
+            "dt": "Tipo",
+            "dd": "Sitio corporativo, freelance"
+          },
+          {
+            "dt": "Rol",
+            "dd": "Desarrollo web, mantenimiento"
+          }
+        ],
+        "voci": [
+          {
+            "h": "Páginas y mantenimiento",
+            "p": "Creación de algunas páginas del sitio y mantenimiento."
+          }
+        ]
       }
     ]
   },
@@ -240,7 +352,7 @@
       },
       {
         "anno": "2026",
-        "cosa": "ESH Housing",
+        "cosa": "ESH – Erasmus Student Housing",
         "dove": "Web developer — páginas y mantenimiento, freelance"
       },
       {
@@ -300,7 +412,7 @@
       },
       {
         "dt": "Curriculum",
-        "dd": "PDF, ~65 KB"
+        "dd": "PDF, ~70 KB"
       }
     ],
     "etichette": {
