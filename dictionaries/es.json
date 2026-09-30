@@ -128,10 +128,6 @@
           {
             "dt": "Herramientas",
             "dd": "Next.js · TypeScript · Supabase · Claude API · Search Console"
-          },
-          {
-            "dt": "Clientes",
-            "dd": "NDN Luxury (construcción) · ESH Housing (alojamiento para estudiantes)"
           }
         ],
         "voci": [
@@ -226,6 +222,26 @@
         "anno": "2026 →",
         "cosa": "Futura Blog",
         "dove": "Desarrollo, redacción, SEO — en remoto"
+      },
+      {
+        "anno": "2026",
+        "cosa": "Livello Zero",
+        "dove": "Desarrollador full stack — sitio editorial y CMS a medida, freelance"
+      },
+      {
+        "anno": "2026",
+        "cosa": "All Studios",
+        "dove": "Web developer — estructura y pruebas de una app para equipos de diseñadores gráficos, freelance"
+      },
+      {
+        "anno": "2026",
+        "cosa": "NDN Luxury",
+        "dove": "Web developer — páginas, mantenimiento y animaciones 3D, freelance"
+      },
+      {
+        "anno": "2026",
+        "cosa": "ESH Housing",
+        "dove": "Web developer — páginas y mantenimiento, freelance"
       },
       {
         "anno": "2026",
