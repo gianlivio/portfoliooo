@@ -100,5 +100,13 @@
     "titolo": "Lavori",
     "recapiti": "Recapiti",
     "cv": "Curriculum (PDF)"
+  },
+  "tema": {
+    "versoChiaro": "Passa al tema chiaro",
+    "versoScuro": "Passa al tema scuro"
+  },
+  "tastiera": {
+    "ruolo": "galleria",
+    "etichetta": "Lavori. Frecce sinistra e destra per scorrere, Invio per aprire."
   }
 }

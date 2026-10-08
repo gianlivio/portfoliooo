@@ -100,5 +100,13 @@
     "titolo": "Projects",
     "recapiti": "Contact",
     "cv": "Résumé (PDF)"
+  },
+  "tema": {
+    "versoChiaro": "Switch to light theme",
+    "versoScuro": "Switch to dark theme"
+  },
+  "tastiera": {
+    "ruolo": "gallery",
+    "etichetta": "Projects. Left and right arrows to browse, Enter to open."
   }
 }

@@ -8,27 +8,68 @@ import { disegnaCopertina, type DatiCopertina, type Famiglie } from "./copertina
 
 /**
  * La scena: chi visita sta al centro di un anello di carte, una per lavoro.
- * Intorno, oltre le carte, la nuvola dei contratti ANAC dell'Osservatorio.
- * Si trascina per guardarsi intorno, si clicca una carta per avvicinarla.
+ * Sopra ogni carta, in filigrana, il testo che sta dietro quel lavoro.
+ * Oltre le carte, la polvere dei contratti ANAC dell'Osservatorio.
+ * Si trascina per guardarsi intorno, si clicca (o Invio) per avvicinare una carta.
  */
 
-export type Carta = { id: string; dati: Omit<DatiCopertina, "immagine">; immagine: string | null };
+export type Tema = "scuro" | "chiaro";
+
+export type Carta = {
+  id: string;
+  dati: Omit<DatiCopertina, "immagine">;
+  immagine: string | null;
+  frammento: string;
+};
 
 type Props = {
   carte: Carta[];
   selezionato: string | null;
+  focale: number | null;
   onSeleziona: (id: string | null) => void;
   onInteragisci: () => void;
   onPronta: () => void;
   ridotto: boolean;
   stretto: boolean;
+  tema: Tema;
+  conIngresso: boolean;
 };
+
+/* Ogni tema cambia più dei colori: luce, densità, peso dei segni. */
+export const PALETTE = {
+  scuro: {
+    fondo: "#0B0C10",
+    nebbia: 0.042,
+    carta: "#F3F1EB",
+    filigrana: "#E9E6DD",
+    filigranaRiposo: 0.1,
+    punti: "#6E706A",
+    puntiOpacita: 0.55,
+    puntiDim: 0.05,
+    orizzonte: "#2E3038",
+    segno: "#F3F1EB",
+    ombra: 0,
+  },
+  chiaro: {
+    fondo: "#EFEDE6",
+    nebbia: 0.034,
+    carta: "#FFFFFF",
+    filigrana: "#16171A",
+    filigranaRiposo: 0.12,
+    punti: "#16171A",
+    puntiOpacita: 0.3,
+    puntiDim: 0.04,
+    orizzonte: "#C9C6BC",
+    segno: "#1B3FD1",
+    ombra: 0.1,
+  },
+} as const;
 
 const RAGGIO = 6;
 const LARGO = 2.4;
 const ALTO = 1.65;
-const FONDO = "#0B0C10";
-const QUOTE = [0.3, -0.28, 0.45, -0.38, 0.12, -0.12];
+const QUOTE = [0.3, -0.22, 0.42, -0.34, 0.12, -0.1];
+const SUOLO = -1.55;
 
 const angoloDi = (i: number, n: number) => (i / n) * Math.PI * 2;
 const quotaDi = (i: number) => QUOTE[i % QUOTE.length];
@@ -59,17 +100,56 @@ function caricaImmagine(src: string) {
   });
 }
 
+/** Il frammento è disegnato in bianco: il colore lo dà il materiale, secondo il tema. */
+function disegnaFrammento(testo: string, mono: string) {
+  const tela = document.createElement("canvas");
+  tela.width = 1024;
+  tela.height = 440;
+  const ctx = tela.getContext("2d");
+  if (ctx) {
+    ctx.fillStyle = "#FFFFFF";
+    ctx.font = `400 25px ${mono}`;
+    ctx.textBaseline = "top";
+    testo.split("\n").slice(0, 10).forEach((riga, i) => ctx.fillText(riga, 8, 8 + i * 40));
+  }
+  const t = new THREE.CanvasTexture(tela);
+  t.colorSpace = THREE.SRGBColorSpace;
+  return t;
+}
+
+/** Ombra morbida, una sola texture per tutte le carte. */
+function disegnaOmbra() {
+  const tela = document.createElement("canvas");
+  tela.width = tela.height = 128;
+  const ctx = tela.getContext("2d");
+  if (ctx) {
+    const g = ctx.createRadialGradient(64, 64, 0, 64, 64, 64);
+    g.addColorStop(0, "rgba(0,0,0,1)");
+    g.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, 128, 128);
+  }
+  return new THREE.CanvasTexture(tela);
+}
+
 /* ------------------------------------------------------------------ carte */
 
+type Grafica = { copertine: THREE.CanvasTexture[]; frammenti: THREE.CanvasTexture[]; ombra: THREE.CanvasTexture };
+
 function Carte({
-  carte, selezionato, onSeleziona, ridotto, onPronta,
-}: Pick<Props, "carte" | "selezionato" | "onSeleziona" | "ridotto" | "onPronta">) {
-  const [texture, setTexture] = useState<THREE.CanvasTexture[] | null>(null);
+  carte, selezionato, focale, onSeleziona, ridotto, onPronta, tema, conIngresso,
+}: Omit<Props, "onInteragisci" | "stretto">) {
+  const [grafica, setGrafica] = useState<Grafica | null>(null);
   const [sopra, setSopra] = useState<string | null>(null);
   const gruppi = useRef<(THREE.Group | null)[]>([]);
+  const lastre = useRef<(THREE.Mesh | null)[]>([]);
   const materiali = useRef<(THREE.MeshBasicMaterial | null)[]>([]);
+  const filigrane = useRef<(THREE.MeshBasicMaterial | null)[]>([]);
+  const ombre = useRef<(THREE.MeshBasicMaterial | null)[]>([]);
+  const puntatore = useRef(new THREE.Vector2());
   const inizio = useRef<number | null>(null);
   const gl = useThree((s) => s.gl);
+  const p = PALETTE[tema];
 
   useEffect(() => {
     let annullato = false;
@@ -85,25 +165,37 @@ function Carte({
       );
       if (annullato) return;
       const anis = gl.capabilities.getMaxAnisotropy();
-      const fatte = carte.map((c, i) => {
+      const copertine = carte.map((c, i) => {
         const tela = document.createElement("canvas");
-        disegnaCopertina(tela, { ...c.dati, immagine: immagini[i] }, f, 1000 + i * 97);
+        disegnaCopertina(tela, { ...c.dati, immagine: immagini[i] }, f, 1000 + i * 97, PALETTE[tema].carta);
         const t = new THREE.CanvasTexture(tela);
         t.colorSpace = THREE.SRGBColorSpace;
         t.anisotropy = anis;
         return t;
       });
-      setTexture(fatte);
+      const frammenti = carte.map((c) => {
+        const t = disegnaFrammento(c.frammento, f.mono);
+        t.anisotropy = anis;
+        return t;
+      });
+      setGrafica({ copertine, frammenti, ombra: disegnaOmbra() });
       onPronta();
     })();
     return () => {
       annullato = true;
     };
-    // le carte cambiano solo con la lingua, e allora la scena si rimonta
+    // la grafica dipende da lingua e tema: quando cambiano la scena si rimonta
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => () => texture?.forEach((t) => t.dispose()), [texture]);
+  useEffect(
+    () => () => {
+      grafica?.copertine.forEach((t) => t.dispose());
+      grafica?.frammenti.forEach((t) => t.dispose());
+      grafica?.ombra.dispose();
+    },
+    [grafica]
+  );
 
   useEffect(() => {
     document.body.style.cursor = sopra ? "pointer" : "";
@@ -113,64 +205,126 @@ function Carte({
   }, [sopra]);
 
   useFrame((stato, dt) => {
-    if (!texture) return;
+    if (!grafica) return;
     if (inizio.current === null) inizio.current = stato.clock.elapsedTime;
     const t = stato.clock.elapsedTime - inizio.current;
-    const k = 1 - Math.exp(-dt * 8);
+    const k = 1 - Math.exp(-dt * (ridotto ? 60 : 7));
+    const n = carte.length;
     carte.forEach((c, i) => {
       const g = gruppi.current[i];
+      const lastra = lastre.current[i];
       const m = materiali.current[i];
-      if (!g || !m) return;
-      // montaggio: le carte salgono e compaiono una dopo l'altra in 1,6 s
-      const entrata = ridotto ? 1 : THREE.MathUtils.smoothstep(t, i * 0.09, i * 0.09 + 0.7);
-      const fluttua = ridotto ? 0 : Math.sin(stato.clock.elapsedTime * 0.6 + i * 1.7) * 0.05;
-      g.position.y = quotaDi(i) + fluttua - (1 - entrata) * 0.8;
-      const scala = c.id === sopra && !selezionato ? 1.07 : 1;
-      g.scale.setScalar(THREE.MathUtils.lerp(g.scale.x, scala, k));
-      const opaca = selezionato && selezionato !== c.id ? 0.18 : 1;
-      m.opacity = THREE.MathUtils.lerp(m.opacity, opaca * entrata, k);
+      const fil = filigrane.current[i];
+      const om = ombre.current[i];
+      if (!g || !lastra || !m || !fil) return;
+
+      // ingresso: le carte compaiono una dopo l'altra, salendo dal suolo
+      const entrata = ridotto || !conIngresso ? 1 : THREE.MathUtils.smoothstep(t, 0.3 + i * 0.08, 0.3 + i * 0.08 + 0.9);
+      const attiva = c.id === selezionato || (!selezionato && (c.id === sopra || focale === i));
+      const altra = !!selezionato && c.id !== selezionato;
+
+      // posizione: la carta attiva si stacca dall'anello verso chi guarda
+      const a = angoloDi(i, n);
+      const r = RAGGIO - (attiva && !selezionato ? 0.35 : 0);
+      g.position.x = THREE.MathUtils.lerp(g.position.x, Math.sin(a) * r, k);
+      g.position.z = THREE.MathUtils.lerp(g.position.z, -Math.cos(a) * r, k);
+      g.position.y = quotaDi(i) - (1 - entrata) * 0.9;
+
+      // inclinazione verso il puntatore, solo sulla carta sotto il mouse
+      const inclina = c.id === sopra && !selezionato && !ridotto;
+      const rx = inclina ? -puntatore.current.y * 0.12 : 0;
+      const ry = inclina ? puntatore.current.x * 0.16 : 0;
+      lastra.rotation.x = THREE.MathUtils.lerp(lastra.rotation.x, rx, k);
+      lastra.rotation.y = THREE.MathUtils.lerp(lastra.rotation.y, ry, k);
+
+      m.opacity = THREE.MathUtils.lerp(m.opacity, (altra ? 0.02 : 1) * entrata, k);
+      const filB = c.id === selezionato ? 0.72 : attiva ? 0.42 : altra ? 0 : p.filigranaRiposo;
+      fil.opacity = THREE.MathUtils.lerp(fil.opacity, filB * entrata, k * 0.6);
+      if (om) om.opacity = THREE.MathUtils.lerp(om.opacity, p.ombra * (altra ? 0.3 : 1) * entrata * (attiva ? 0.7 : 1), k);
     });
   });
 
-  if (!texture) return null;
+  if (!grafica) return null;
 
   return (
     <>
       {carte.map((c, i) => {
         const a = angoloDi(i, carte.length);
-        const p = direzione(a).multiplyScalar(RAGGIO);
+        const pos = direzione(a).multiplyScalar(RAGGIO);
         return (
-          <group
-            key={c.id}
-            ref={(g) => {
-              gruppi.current[i] = g;
-            }}
-            position={[p.x, quotaDi(i), p.z]}
-            rotation={[0, -a, 0]}
-          >
-            <mesh
-              onPointerOver={(e: ThreeEvent<PointerEvent>) => {
-                e.stopPropagation();
-                setSopra(c.id);
+          <group key={c.id}>
+            <group
+              ref={(g) => {
+                gruppi.current[i] = g;
               }}
-              onPointerOut={() => setSopra((s) => (s === c.id ? null : s))}
-              onClick={(e: ThreeEvent<MouseEvent>) => {
-                e.stopPropagation();
-                if (e.delta > 6) return; // era un trascinamento
-                onSeleziona(c.id);
-              }}
+              position={[pos.x, quotaDi(i), pos.z]}
+              rotation={[0, -a, 0]}
             >
-              <planeGeometry args={[LARGO, ALTO]} />
-              <meshBasicMaterial
-                ref={(m) => {
-                  materiali.current[i] = m;
+              <mesh
+                ref={(l) => {
+                  lastre.current[i] = l;
                 }}
-                map={texture[i]}
-                transparent
-                opacity={0}
-                toneMapped={false}
-              />
-            </mesh>
+                renderOrder={2}
+                onPointerOver={(e: ThreeEvent<PointerEvent>) => {
+                  e.stopPropagation();
+                  setSopra(c.id);
+                }}
+                onPointerMove={(e: ThreeEvent<PointerEvent>) => {
+                  if (e.uv) puntatore.current.set(e.uv.x * 2 - 1, e.uv.y * 2 - 1);
+                }}
+                onPointerOut={() => setSopra((s) => (s === c.id ? null : s))}
+                onClick={(e: ThreeEvent<MouseEvent>) => {
+                  e.stopPropagation();
+                  if (e.delta > 6) return; // era un trascinamento
+                  onSeleziona(c.id);
+                }}
+              >
+                <planeGeometry args={[LARGO, ALTO]} />
+                <meshBasicMaterial
+                  ref={(m) => {
+                    materiali.current[i] = m;
+                  }}
+                  map={grafica.copertine[i]}
+                  transparent
+                  opacity={0}
+                  toneMapped={false}
+                />
+              </mesh>
+              {/* filigrana: il testo dietro il lavoro, sopra la carta e un passo indietro */}
+              <mesh position={[-0.25, ALTO / 2 + 0.62, -0.9]} raycast={() => null} renderOrder={1}>
+                <planeGeometry args={[2.9, 2.9 * (440 / 1024)]} />
+                <meshBasicMaterial
+                  ref={(m) => {
+                    filigrane.current[i] = m;
+                  }}
+                  map={grafica.frammenti[i]}
+                  color={p.filigrana}
+                  transparent
+                  opacity={0}
+                  depthWrite={false}
+                  toneMapped={false}
+                />
+              </mesh>
+            </group>
+            {p.ombra > 0 && (
+              <mesh
+                position={[pos.x * 0.98, SUOLO + 0.01, pos.z * 0.98]}
+                rotation={[-Math.PI / 2, 0, -a]}
+                raycast={() => null}
+              >
+                <planeGeometry args={[LARGO * 0.95, 0.42]} />
+                <meshBasicMaterial
+                  ref={(m) => {
+                    ombre.current[i] = m;
+                  }}
+                  map={grafica.ombra}
+                  color="#000000"
+                  transparent
+                  opacity={0}
+                  depthWrite={false}
+                />
+              </mesh>
+            )}
           </group>
         );
       })}
@@ -178,11 +332,12 @@ function Carte({
   );
 }
 
-/* ----------------------------------------------------------------- nuvola */
+/* ----------------------------------------------------------------- polvere */
 
-function Nuvola({ ridotto, stretto }: { ridotto: boolean; stretto: boolean }) {
+function Polvere({ ridotto, stretto, tema }: { ridotto: boolean; stretto: boolean; tema: Tema }) {
   const punti = useRef<THREE.Points>(null);
   const materiale = useRef<THREE.PointsMaterial>(null);
+  const p = PALETTE[tema];
 
   const geometria = useMemo(() => {
     const righe = (archivio as { punti: [number, number, number][] }).punti;
@@ -197,34 +352,26 @@ function Nuvola({ ridotto, stretto }: { ridotto: boolean; stretto: boolean }) {
       return s / 2147483647;
     };
     const pos = new Float32Array(scelte.length * 3);
-    const col = new Float32Array(scelte.length * 3);
-    const blu = new THREE.Color("#4C6BFF");
-    const grigio = new THREE.Color("#8C8E88");
     scelte.forEach((r, i) => {
       // anno → angolo intorno a chi guarda, importo → distanza
       const a = ((r[0] - 2015 + rnd()) / 11) * Math.PI * 2;
-      const d = 9 + ((log[i] - min) / (max - min || 1)) * 7 + rnd() * 0.6;
+      const d = 9.5 + ((log[i] - min) / (max - min || 1)) * 7 + rnd() * 0.6;
       pos[i * 3] = Math.sin(a) * d;
-      pos[i * 3 + 1] = (rnd() - 0.5) * 7 + (rnd() - 0.5) * 2;
+      pos[i * 3 + 1] = SUOLO + Math.pow(rnd(), 1.6) * 6.5;
       pos[i * 3 + 2] = -Math.cos(a) * d;
-      const c = r[2] ? blu : grigio;
-      col[i * 3] = c.r;
-      col[i * 3 + 1] = c.g;
-      col[i * 3 + 2] = c.b;
     });
     const g = new THREE.BufferGeometry();
     g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
-    g.setAttribute("color", new THREE.BufferAttribute(col, 3));
     return g;
   }, [stretto]);
 
   useEffect(() => () => geometria.dispose(), [geometria]);
 
-  useFrame((stato, dt) => {
-    if (punti.current && !ridotto) punti.current.rotation.y += dt * 0.012;
+  useFrame((_, dt) => {
+    if (punti.current && !ridotto) punti.current.rotation.y += dt * 0.006;
     if (materiale.current) {
       materiale.current.opacity = THREE.MathUtils.lerp(
-        materiale.current.opacity, 0.85, 1 - Math.exp(-dt * 1.2)
+        materiale.current.opacity, p.puntiOpacita, 1 - Math.exp(-dt * 0.8)
       );
     }
   });
@@ -233,49 +380,80 @@ function Nuvola({ ridotto, stretto }: { ridotto: boolean; stretto: boolean }) {
     <points ref={punti} geometry={geometria} raycast={() => null}>
       <pointsMaterial
         ref={materiale}
-        size={0.07}
+        color={p.punti}
+        size={p.puntiDim}
         sizeAttenuation
-        vertexColors
         transparent
         opacity={0}
         depthWrite={false}
-        blending={THREE.AdditiveBlending}
       />
     </points>
   );
 }
 
-/** Un orizzonte: un cerchio sottile sotto le carte, per dare un suolo allo spazio. */
-function Orizzonte() {
-  const linea = useMemo(() => {
-    const pts: number[] = [];
-    for (let i = 0; i <= 256; i++) {
-      const a = (i / 256) * Math.PI * 2;
-      pts.push(Math.sin(a) * RAGGIO, -1.55, -Math.cos(a) * RAGGIO);
-    }
-    const g = new THREE.BufferGeometry();
-    g.setAttribute("position", new THREE.Float32BufferAttribute(pts, 3));
-    const m = new THREE.LineBasicMaterial({ color: "#1B3FD1", transparent: true, opacity: 0.55 });
-    return new THREE.Line(g, m);
-  }, []);
+/* ------------------------------------------------------------- orizzonte */
+
+/** Il rigo sotto le carte e un segno breve che lo percorre, un giro al minuto. */
+function Orizzonte({ tema, ridotto }: { tema: Tema; ridotto: boolean }) {
+  const p = PALETTE[tema];
+  const segno = useRef<THREE.Group>(null);
+
+  const [rigo, arco] = useMemo(() => {
+    const cerchio = (da: number, a: number, passi: number) => {
+      const pts: number[] = [];
+      for (let i = 0; i <= passi; i++) {
+        const t = da + ((a - da) * i) / passi;
+        pts.push(Math.sin(t) * RAGGIO, SUOLO, -Math.cos(t) * RAGGIO);
+      }
+      const g = new THREE.BufferGeometry();
+      g.setAttribute("position", new THREE.Float32BufferAttribute(pts, 3));
+      return g;
+    };
+    const l1 = new THREE.Line(
+      cerchio(0, Math.PI * 2, 256),
+      new THREE.LineBasicMaterial({ color: p.orizzonte, transparent: true, opacity: 0.9 })
+    );
+    const l2 = new THREE.Line(
+      cerchio(0, 0.32, 24),
+      new THREE.LineBasicMaterial({ color: p.segno, transparent: true, opacity: 0.85 })
+    );
+    return [l1, l2];
+  }, [p.orizzonte, p.segno]);
+
   useEffect(
     () => () => {
-      linea.geometry.dispose();
-      (linea.material as THREE.Material).dispose();
+      [rigo, arco].forEach((l) => {
+        l.geometry.dispose();
+        (l.material as THREE.Material).dispose();
+      });
     },
-    [linea]
+    [rigo, arco]
   );
-  return <primitive object={linea} raycast={() => null} />;
+
+  useFrame((_, dt) => {
+    if (segno.current && !ridotto) segno.current.rotation.y -= dt * ((Math.PI * 2) / 60);
+  });
+
+  return (
+    <>
+      <primitive object={rigo} raycast={() => null} />
+      <group ref={segno}>
+        <primitive object={arco} raycast={() => null} />
+      </group>
+    </>
+  );
 }
 
 /* ----------------------------------------------------------------- camera */
 
 function Regia({
-  carte, selezionato, onSeleziona, onInteragisci, ridotto, stretto,
-}: Omit<Props, "onPronta">) {
+  carte, selezionato, focale, onSeleziona, onInteragisci, ridotto, stretto, conIngresso,
+}: Omit<Props, "onPronta" | "tema">) {
   const { camera, gl } = useThree();
   const s = useRef({
-    yaw: 0, pitch: 0, vy: 0, vp: 0,
+    yaw: 0,
+    pitch: conIngresso && !ridotto ? -0.22 : 0,
+    vy: 0,
     trascina: false, lx: 0, ly: 0, ultimo: -1e9,
   });
   const selRif = useRef(selezionato);
@@ -301,9 +479,8 @@ function Regia({
       if (selRif.current && Math.abs(dx) > 4) onSeleziona(null);
       const k = e.pointerType === "touch" ? 0.006 : 0.0042;
       st.vy = -dx * k;
-      st.vp = dy * k * 0.6;
       st.yaw += st.vy;
-      st.pitch = THREE.MathUtils.clamp(st.pitch + st.vp, -0.32, 0.32);
+      st.pitch = THREE.MathUtils.clamp(st.pitch + dy * k * 0.6, -0.3, 0.3);
       st.ultimo = performance.now();
       onInteragisci();
     };
@@ -331,17 +508,16 @@ function Regia({
     };
   }, [gl, onSeleziona, onInteragisci]);
 
-  // la camera parte già girata verso la prima carta
   useEffect(() => {
-    camera.position.set(0, 0, 0);
-  }, [camera]);
+    camera.position.set(0, conIngresso && !ridotto ? 0.9 : 0, 0);
+  }, [camera, conIngresso, ridotto]);
 
   const bersaglio = useRef(new THREE.Vector3());
   const sguardo = useRef(new THREE.Vector3());
 
   useFrame((_, dt) => {
     const st = s.current;
-    const posBersaglio = bersaglio.current;
+    const posB = bersaglio.current;
     const guarda = sguardo.current;
     const n = carte.length;
     const i = selezionato ? carte.findIndex((c) => c.id === selezionato) : -1;
@@ -349,31 +525,33 @@ function Regia({
 
     if (i >= 0) {
       const a = angoloDi(i, n);
-      const yawB = piuVicino(st.yaw, a);
-      st.yaw = THREE.MathUtils.lerp(st.yaw, yawB, ease(3.2));
-      const pitchB = stretto ? -0.2 : 0;
-      st.pitch = THREE.MathUtils.lerp(st.pitch, pitchB, ease(3.2));
+      st.yaw = THREE.MathUtils.lerp(st.yaw, piuVicino(st.yaw, a), ease(3));
+      st.pitch = THREE.MathUtils.lerp(st.pitch, 0, ease(3));
       st.vy = 0;
-      const dist = stretto ? 4.3 : 3.1;
-      posBersaglio.copy(direzione(a)).multiplyScalar(RAGGIO - dist);
+      const dist = stretto ? 4.3 : 3.5;
+      posB.copy(direzione(a)).multiplyScalar(RAGGIO - dist);
       // la vignetta copre il lato destro: la camera scivola a destra e la carta resta a sinistra, di fronte
-      const lato = stretto ? 0 : 0.95;
-      posBersaglio.x += Math.cos(a) * lato;
-      posBersaglio.z += Math.sin(a) * lato;
-      posBersaglio.y = quotaDi(i) * 0.8;
+      const lato = stretto ? 0 : 1.05;
+      posB.x += Math.cos(a) * lato;
+      posB.z += Math.sin(a) * lato;
+      // un po' più in alto della carta, per inquadrare anche il testo che le sta sopra
+      posB.y = quotaDi(i) + (stretto ? -0.55 : 0.38);
     } else {
-      if (!st.trascina) {
+      if (focale !== null && !st.trascina) {
+        // da tastiera: la camera si gira verso la carta col fuoco
+        st.yaw = THREE.MathUtils.lerp(st.yaw, piuVicino(st.yaw, angoloDi(focale, n)), ease(3.5));
+        st.vy = 0;
+      } else if (!st.trascina) {
         st.yaw += st.vy;
         st.vy *= Math.pow(0.92, dt * 60);
-        st.vp *= 0.9;
-        const fermo = performance.now() - st.ultimo > 2500;
-        if (fermo) st.pitch = THREE.MathUtils.lerp(st.pitch, 0, ease(0.8));
-        if (fermo && !ridotto) st.yaw += dt * 0.035;
+        const fermo = performance.now() - st.ultimo > 3000;
+        if (fermo && !ridotto) st.yaw += dt * 0.018;
       }
-      posBersaglio.set(0, 0, 0);
+      if (!st.trascina) st.pitch = THREE.MathUtils.lerp(st.pitch, 0, ease(1.1));
+      posB.set(0, 0, 0);
     }
 
-    camera.position.lerp(posBersaglio, ease(2.4));
+    camera.position.lerp(posB, ease(i >= 0 ? 2.4 : 1.4));
     guarda
       .set(
         Math.sin(st.yaw) * Math.cos(st.pitch),
@@ -390,16 +568,18 @@ function Regia({
 /* ------------------------------------------------------------------ scena */
 
 export default function Scena(props: Props) {
-  const { stretto } = props;
+  const { stretto, tema } = props;
+  const p = PALETTE[tema];
   return (
     <Canvas
       className="tela"
+      aria-hidden="true"
       dpr={[1, 1.75]}
       gl={{ antialias: true, powerPreference: "high-performance" }}
       camera={{ fov: stretto ? 72 : 55, near: 0.05, far: 60, position: [0, 0, 0] }}
       onCreated={({ scene }) => {
-        scene.background = new THREE.Color(FONDO);
-        scene.fog = new THREE.FogExp2(FONDO, 0.045);
+        scene.background = new THREE.Color(p.fondo);
+        scene.fog = new THREE.FogExp2(p.fondo, p.nebbia);
       }}
       onPointerMissed={(e) => {
         if (e.type === "click") props.onSeleziona(null);
@@ -409,12 +589,15 @@ export default function Scena(props: Props) {
       <Carte
         carte={props.carte}
         selezionato={props.selezionato}
+        focale={props.focale}
         onSeleziona={props.onSeleziona}
         ridotto={props.ridotto}
         onPronta={props.onPronta}
+        tema={tema}
+        conIngresso={props.conIngresso}
       />
-      <Nuvola ridotto={props.ridotto} stretto={stretto} />
-      <Orizzonte />
+      <Polvere ridotto={props.ridotto} stretto={stretto} tema={tema} />
+      <Orizzonte tema={tema} ridotto={props.ridotto} />
     </Canvas>
   );
 }

@@ -5,26 +5,50 @@
    ============================================================= */
 
 :root{
-  --notte:#0B0C10;
-  --notte-alta:#111218;
   --carta:#FBFAF7;
-  --carta-tenue:#CFCDC6;
   --inchiostro:#16171A;
   --blu:#1B3FD1;
   --blu-chiaro:#3556E6;
   --rosso:#C6462F;
-  --grigio:#9A9B94;
   --rigo:#E2E0D8;
-  --bordo:rgba(251,250,247,0.12);
+
+  /* tema scuro (predefinito) */
+  --fondo:#0B0C10;
+  --fondo-alto:#111218;
+  --testo:#F3F1EB;
+  --testo-tenue:#C9C7C0;
+  --grigio:#9A9B94;
+  --bordo:rgba(243,241,235,0.13);
+  --velo-vignetta:rgba(17,18,24,.84);
+  --velo-modulo:rgba(5,6,8,.62);
+  --bottone-chiaro:#F3F1EB;
+  --bottone-chiaro-testo:#16171A;
 
   --serif:var(--font-serif),Georgia,serif;
   --sans:var(--font-sans),system-ui,sans-serif;
   --mono:var(--font-mono),ui-monospace,monospace;
+
+  --curva:cubic-bezier(.2,.7,.2,1);
+}
+
+html[data-tema="chiaro"]{
+  --fondo:#EFEDE6;
+  --fondo-alto:#FBFAF7;
+  --testo:#16171A;
+  --testo-tenue:#3F4044;
+  --grigio:#64655F;
+  --bordo:rgba(22,23,26,0.14);
+  --velo-vignetta:rgba(251,250,247,.9);
+  --velo-modulo:rgba(30,31,35,.28);
+  --bottone-chiaro:#16171A;
+  --bottone-chiaro-testo:#FBFAF7;
 }
 
 *{box-sizing:border-box;margin:0;padding:0}
 
-html,body{background:var(--notte);color:var(--carta)}
+html,body{background:var(--fondo);color:var(--testo)}
+html{color-scheme:dark}
+html[data-tema="chiaro"]{color-scheme:light}
 body{
   font-family:var(--sans);
   font-size:16px;
@@ -49,8 +73,8 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .elenco h3{font-family:var(--serif);font-weight:300;font-size:1.5rem}
 .elenco ul{list-style:none}
 .elenco li{padding:1rem 0;border-top:1px solid var(--bordo)}
-.elenco li p{color:var(--carta-tenue)}
-.elenco a{color:var(--carta)}
+.elenco li p{color:var(--testo-tenue)}
+.elenco a{color:var(--testo)}
 
 /* con la scena attiva l'elenco esce dallo schermo, ma torna se lo si raggiunge da tastiera */
 html.con-scena .elenco{
@@ -69,17 +93,22 @@ html.con-scena .elenco:focus-within{
   z-index:60;
   padding:2rem;
   max-width:none;
-  background:var(--notte-alta);
+  background:var(--fondo-alto);
   border:1px solid var(--bordo);
   border-radius:16px;
 }
 
+.solo-schermo{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+
 /* ---------- scena ---------- */
+.palco{position:fixed;inset:0}
+.palco:focus-visible{outline:none}
+.palco:focus-visible::after{content:"";position:absolute;inset:6px;border:2px solid var(--blu-chiaro);border-radius:14px;pointer-events:none;z-index:1}
 .esperienza .tela{
   position:fixed !important;
   inset:0;
   opacity:0;
-  transition:opacity 1.2s ease;
+  transition:opacity 1.4s var(--curva);
 }
 .esperienza--pronta .tela{opacity:1}
 .esperienza .tela canvas{touch-action:none}
@@ -100,10 +129,14 @@ html.con-scena .elenco:focus-within{
 .firma-ruolo{font-family:var(--mono);font-size:.72rem;text-transform:uppercase;letter-spacing:.09em;color:var(--grigio);margin-top:.35rem}
 .comandi{display:flex;align-items:center;gap:1rem;font-family:var(--mono);font-size:.8rem}
 .comandi a{text-decoration:none;color:var(--grigio);transition:color .2s}
-.comandi a:hover,.comandi a[aria-current="true"]{color:var(--carta)}
+.comandi a:hover,.comandi a[aria-current="true"]{color:var(--testo)}
 .comandi a[aria-current="true"]{text-decoration:underline;text-underline-offset:4px}
-.comandi .cv{white-space:nowrap;border:1px solid var(--bordo);border-radius:999px;padding:.35rem .8rem;color:var(--carta)}
-.comandi .cv:hover{border-color:var(--carta)}
+.comandi .cv{white-space:nowrap;border:1px solid var(--bordo);border-radius:999px;padding:.35rem .8rem;color:var(--testo)}
+.comandi .cv:hover{border-color:var(--testo)}
+.tema{display:grid;place-items:center;width:2rem;height:2rem;border:1px solid var(--bordo);border-radius:50%;transition:border-color .2s}
+.tema:hover{border-color:var(--testo)}
+.tema-segno{width:.8rem;height:.8rem;border-radius:50%;border:1.5px solid var(--testo);background:linear-gradient(90deg,var(--testo) 50%,transparent 50%);transition:transform .6s var(--curva)}
+.tema-segno--chiaro{transform:rotate(180deg)}
 
 /* ---------- guida e invito ---------- */
 .guida{
@@ -113,7 +146,7 @@ html.con-scena .elenco:focus-within{
   font-family:var(--mono);
   font-size:.75rem;
   letter-spacing:.04em;
-  color:rgba(251,250,247,.6);
+  color:var(--grigio);
   white-space:nowrap;
   pointer-events:none;
   transition:opacity .8s ease;
@@ -145,7 +178,9 @@ html.con-scena .elenco:focus-within{
   transform:translateY(-50%);
   width:min(24rem,calc(100% - 3.5rem));
   padding:1.75rem 1.75rem 1.5rem;
-  background:rgba(17,18,24,.86);
+  background:var(--velo-vignetta);
+  color:var(--testo);
+  box-shadow:0 30px 80px -40px rgba(0,0,0,.45);
   -webkit-backdrop-filter:blur(14px);
   backdrop-filter:blur(14px);
   border:1px solid var(--bordo);
@@ -159,12 +194,12 @@ html.con-scena .elenco:focus-within{
 }
 .vignetta-occhiello{font-family:var(--mono);font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--grigio);padding-right:2rem}
 .vignetta-titolo{font-family:var(--serif);font-weight:300;font-size:2.2rem;line-height:1.08;margin:.7rem 0 .9rem}
-.vignetta-riga{color:var(--carta-tenue)}
+.vignetta-riga{color:var(--testo-tenue)}
 .vignetta-anno{font-family:var(--mono);font-size:.75rem;color:var(--grigio);margin-top:.9rem}
 .vignetta-azioni{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-top:1.4rem}
 .visita{
-  background:var(--carta);
-  color:var(--inchiostro);
+  background:var(--bottone-chiaro);
+  color:var(--bottone-chiaro-testo);
   text-decoration:none;
   font-weight:500;
   font-size:.9rem;
@@ -172,7 +207,7 @@ html.con-scena .elenco:focus-within{
   border-radius:999px;
   transition:background .2s;
 }
-.visita:hover{background:var(--rigo)}
+.visita:hover{opacity:.85}
 .senza-link{font-family:var(--mono);font-size:.75rem;color:var(--grigio)}
 .frecce{display:flex;gap:.4rem}
 .frecce button{
@@ -181,7 +216,7 @@ html.con-scena .elenco:focus-within{
   border-radius:50%;
   transition:border-color .2s;
 }
-.frecce button:hover{border-color:var(--carta)}
+.frecce button:hover{border-color:var(--testo)}
 .chiudi{
   position:absolute;
   top:.9rem;right:1rem;
@@ -190,7 +225,7 @@ html.con-scena .elenco:focus-within{
   line-height:1;
   color:var(--grigio);
 }
-.chiudi:hover{color:var(--carta)}
+.chiudi:hover{color:var(--testo)}
 
 /* ---------- modulo ---------- */
 .velo{
@@ -201,7 +236,7 @@ html.con-scena .elenco:focus-within{
   align-items:center;
   justify-content:center;
   padding:.75rem;
-  background:rgba(5,6,8,.62);
+  background:var(--velo-modulo);
   -webkit-backdrop-filter:blur(6px);
   backdrop-filter:blur(6px);
   animation:appare .3s ease;
@@ -275,3 +310,17 @@ html.con-scena .elenco:focus-within{
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation:none !important;transition:none !important}
 }
+
+/* ---------- ingresso dell'interfaccia, dopo la scena ---------- */
+.esperienza .testata,
+.esperienza .scrivimi,
+.esperienza .guida{
+  opacity:0;
+  translate:0 -6px;
+  transition:opacity .9s var(--curva) .9s, translate .9s var(--curva) .9s, background .2s, transform .2s;
+}
+.esperienza .scrivimi{translate:0 8px}
+.esperienza--pronta .testata,
+.esperienza--pronta .scrivimi,
+.esperienza--pronta .guida{opacity:1;translate:0 0}
+.esperienza--pronta .guida.guida--via{opacity:0;transition-delay:0s}

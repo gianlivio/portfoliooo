@@ -35,6 +35,8 @@ const mono = localFont({
   display: "swap",
 });
 
+const SCEGLI_TEMA = `try{var t=localStorage.getItem("tema");if(t!=="chiaro"&&t!=="scuro")t=matchMedia("(prefers-color-scheme: light)").matches?"chiaro":"scuro";document.documentElement.dataset.tema=t}catch(e){}`;
+
 export function generateStaticParams() {
   return lingue.map((lang) => ({ lang }));
 }
@@ -77,7 +79,16 @@ export default async function Layout({
 }) {
   const { lang } = await params;
   return (
-    <html lang={lang} className={`${serif.variable} ${sans.variable} ${mono.variable}`}>
+    <html
+      lang={lang}
+      className={`${serif.variable} ${sans.variable} ${mono.variable}`}
+      data-tema="scuro"
+      suppressHydrationWarning
+    >
+      <head>
+        {/* tema scelto prima del primo disegno: preferenza salvata, altrimenti quella del sistema */}
+        <script dangerouslySetInnerHTML={{ __html: SCEGLI_TEMA }} />
+      </head>
       <body>
         {children}
       </body>

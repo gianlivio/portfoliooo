@@ -162,7 +162,8 @@ export function disegnaCopertina(
   tela: HTMLCanvasElement,
   dati: DatiCopertina,
   famiglie: Famiglie,
-  seme: number
+  seme: number,
+  fondoCarta: string = CARTA
 ) {
   tela.width = LARGHEZZA;
   tela.height = ALTEZZA;
@@ -170,7 +171,7 @@ export function disegnaCopertina(
   if (!ctx) return;
   ctx.clearRect(0, 0, LARGHEZZA, ALTEZZA);
 
-  const fondo = dati.contatto ? BLU : CARTA;
+  const fondo = dati.contatto ? BLU : fondoCarta;
   const testo = dati.contatto ? CARTA : INCHIOSTRO;
   const tenue = dati.contatto ? "rgba(251,250,247,0.72)" : GRIGIO;
 
@@ -236,7 +237,7 @@ export function disegnaCopertina(
   ctx.fillText(adatta(ctx, dati.titolo, LARGHEZZA - 2 * m - 8), m, y0 + 104);
 
   ctx.font = `400 22px ${famiglie.mono}`;
-  ctx.fillStyle = dati.contatto ? CARTA : BLU;
+  ctx.fillStyle = dati.contatto ? CARTA : GRIGIO;
   ctx.fillText(dati.dominio, m + 4, ALTEZZA - m - 6);
 
   ctx.restore();

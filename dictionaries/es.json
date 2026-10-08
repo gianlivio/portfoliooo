@@ -100,5 +100,13 @@
     "titolo": "Proyectos",
     "recapiti": "Contacto",
     "cv": "Currículum (PDF)"
+  },
+  "tema": {
+    "versoChiaro": "Cambiar al tema claro",
+    "versoScuro": "Cambiar al tema oscuro"
+  },
+  "tastiera": {
+    "ruolo": "galería",
+    "etichetta": "Proyectos. Flechas izquierda y derecha para recorrer, Intro para abrir."
   }
 }
