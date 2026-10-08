@@ -4,7 +4,6 @@ import { Canvas, useFrame, useThree, type ThreeEvent } from "@react-three/fiber"
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import Cielo from "./Cielo";
-import Orbita from "./Orbita";
 import Suolo, { CieloDiGiorno } from "./Suolo";
 import { disegnaCopertina, FINESTRA, FLUO, LARGHEZZA, ALTEZZA, type DatiCopertina, type Famiglie } from "./copertina";
 
@@ -734,14 +733,6 @@ export default function Scena(props: Props) {
         ridotto={props.ridotto}
         stretto={stretto}
         mono={mono}
-      />
-      <Orbita
-        colore={p.costellazione}
-        opacita={tema === "scuro" ? 0.42 : 0.5}
-        mono={mono}
-        attiva={attiva}
-        ridotto={props.ridotto}
-        stretto={stretto}
       />
     </Canvas>
   );

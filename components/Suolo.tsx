@@ -8,21 +8,13 @@ import { Reflector } from "three/examples/jsm/objects/Reflector.js";
 /**
  * Il pavimento della stanza.
  * Di notte: una superficie d'acqua che riflette carte e cielo, con increspature leggere.
- * Di giorno: un campo di grano che si piega al vento, a onde lente.
+ * Di giorno: un pavimento di marmo chiaro e lucido, con venature morbide, che riflette le carte.
  */
 
-const SUOLO = -1.55;
 /** l'acqua sta più in alto del campo: appena sotto la carta più bassa, così i riflessi le stanno vicini */
 const PELO_ACQUA = -1.22;
 
-/** Numeri pseudo-casuali con seme: il campo esce sempre uguale. */
-function generatore(seme: number) {
-  let s = seme;
-  return () => {
-    s = (s * 16807) % 2147483647;
-    return s / 2147483647;
-  };
-}
+
 
 /* -------------------------------------------------------------------- acqua */
 
@@ -61,7 +53,11 @@ void main(){
   #include <colorspace_fragment>
 }`;
 
-function Acqua({ fondo, stretto, ridotto }: { fondo: string; stretto: boolean; ridotto: boolean }) {
+function Specchio({
+  fondo, stretto, ridotto, frammento, quota, colore,
+}: {
+  fondo: string; stretto: boolean; ridotto: boolean; frammento: string; quota: number; colore: string;
+}) {
   const { size, viewport } = useThree();
   const acqua = useMemo(() => {
     const scala = stretto ? 0.5 : 0.6;
@@ -69,9 +65,9 @@ function Acqua({ fondo, stretto, ridotto }: { fondo: string; stretto: boolean; r
       textureWidth: Math.round(size.width * viewport.dpr * scala),
       textureHeight: Math.round(size.height * viewport.dpr * scala),
       clipBias: 0.003,
-      color: new THREE.Color(fondo),
+      color: new THREE.Color(colore),
       shader: {
-        name: "Acqua",
+        name: "Specchio",
         uniforms: {
           color: { value: null },
           tDiffuse: { value: null },
@@ -79,16 +75,16 @@ function Acqua({ fondo, stretto, ridotto }: { fondo: string; stretto: boolean; r
           uTempo: { value: 0 },
         },
         vertexShader: ACQUA_VERT,
-        fragmentShader: ACQUA_FRAG,
+        fragmentShader: frammento,
       },
     });
     r.rotation.x = -Math.PI / 2;
-    r.position.y = PELO_ACQUA;
+    r.position.y = quota;
     r.raycast = () => undefined;
     return r;
     // dimensioni della texture fissate al montaggio: la scena si rimonta se cambia il layout
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fondo, stretto]);
+  }, [fondo, stretto, frammento, quota, colore]);
 
   useEffect(() => () => acqua.dispose(), [acqua]);
 
@@ -114,130 +110,47 @@ function Acqua({ fondo, stretto, ridotto }: { fondo: string; stretto: boolean; r
   return <primitive ref={rif} object={acqua} />;
 }
 
-/* --------------------------------------------------------------------- grano */
+/* --------------------------------------------------------------------- marmo */
 
-const GRANO_VERT = `
-attribute float aTinta;
-uniform float uTempo;
-varying float vH;
-varying float vTinta;
-varying float vOnda;
-varying float vDist;
+const MARMO_FRAG = `
+uniform vec3 color;
+uniform sampler2D tDiffuse;
+varying vec4 vUv;
+varying vec3 vMondo;
+float h(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+float rumore(vec2 p){
+  vec2 i = floor(p), f = fract(p);
+  vec2 u = f * f * (3.0 - 2.0 * f);
+  return mix(mix(h(i), h(i + vec2(1, 0)), u.x), mix(h(i + vec2(0, 1)), h(i + vec2(1, 1)), u.x), u.y);
+}
+float fbm(vec2 p){
+  float v = 0.0, a = 0.5;
+  for (int k = 0; k < 5; k++){ v += a * rumore(p); p = p * 2.03 + 17.0; a *= 0.5; }
+  return v;
+}
 void main(){
-  vec3 p = position;
-  float h = uv.y;
-  // la spiga si assottiglia verso la punta e si ingrossa appena in cima
-  p.x *= (1.0 - h * 0.55) + smoothstep(0.78, 0.9, h) * 0.6 * (1.0 - smoothstep(0.9, 1.0, h));
-  vec4 mondo = modelMatrix * instanceMatrix * vec4(p, 1.0);
-  // vento: un'onda lunga che attraversa il campo, più un tremito corto
-  float onda = sin(dot(mondo.xz, vec2(0.33, 0.21)) - uTempo * 1.05);
-  float tremito = sin(uTempo * 2.7 + mondo.x * 3.1 + mondo.z * 2.3) * 0.25;
-  float piega = (onda * 0.75 + 0.45 + tremito) * h * h * 0.16;
-  mondo.x += piega * 0.82;
-  mondo.z += piega * 0.57;
-  mondo.y -= abs(piega) * 0.25 * h;
-  vH = h;
-  vTinta = aTinta;
-  vOnda = onda;
-  vec4 mv = viewMatrix * mondo;
-  vDist = length(mondo.xz);
-  gl_Position = projectionMatrix * mv;
-}`;
-
-const GRANO_FRAG = `
-uniform vec3 uRadice;
-uniform vec3 uPunta;
-uniform vec3 uOrizzonte;
-varying float vH;
-varying float vTinta;
-varying float vOnda;
-varying float vDist;
-void main(){
-  vec3 c = mix(uRadice, uPunta, smoothstep(0.0, 1.0, vH));
-  c *= 0.9 + vTinta * 0.2;
-  // dove passa l'onda il grano si piega e prende luce: il riflesso del campo al vento
-  c += vec3(0.07, 0.06, 0.03) * smoothstep(0.3, 1.0, vOnda) * vH;
-  // in lontananza sfuma nel cielo
-  c = mix(c, uOrizzonte, smoothstep(9.0, 30.0, vDist));
+  vec2 p = vMondo.xz;
+  // venature: linee sottili deformate dal rumore, come nel marmo di Carrara
+  float d = fbm(p * 0.35);
+  float vena = abs(sin((p.x * 0.55 + p.y * 0.22 + d * 5.5) * 1.6));
+  vena = 1.0 - smoothstep(0.0, 0.07, vena);
+  float vena2 = 1.0 - smoothstep(0.0, 0.035, abs(sin((p.x * -0.3 + p.y * 0.8 + fbm(p * 0.7 + 3.0) * 4.0) * 2.4)));
+  vec3 pietra = color * (0.96 + fbm(p * 1.4) * 0.06);
+  pietra = mix(pietra, vec3(0.62, 0.63, 0.66), vena * 0.45 + vena2 * 0.22);
+  // lastre: fughe sottilissime ogni due metri e mezzo
+  vec2 l = abs(fract(p / 2.5) - 0.5);
+  float fuga = smoothstep(0.497, 0.5, max(l.x, l.y));
+  pietra = mix(pietra, pietra * 0.88, fuga);
+  vec3 riflesso = texture2D(tDiffuse, vUv.xy / vUv.w).rgb;
+  float r = length(p);
+  float vicino = smoothstep(32.0, 5.0, r);
+  // pietra lucida: riflette poco da vicino, di più verso l'orizzonte
+  float lucido = (0.16 + 0.22 * smoothstep(3.0, 18.0, r)) * vicino;
+  vec3 c = mix(pietra, riflesso, lucido);
+  c = mix(c, color, smoothstep(14.0, 34.0, r));
   gl_FragColor = vec4(c, 1.0);
   #include <colorspace_fragment>
 }`;
-
-function Grano({ orizzonte, stretto, ridotto }: { orizzonte: string; stretto: boolean; ridotto: boolean }) {
-  const campo = useMemo(() => {
-    const n = stretto ? 9000 : 26000;
-    const g = new THREE.PlaneGeometry(0.03, 1, 1, 5);
-    g.translate(0, 0.5, 0);
-    const tinta = new Float32Array(n);
-    const m = new THREE.ShaderMaterial({
-      vertexShader: GRANO_VERT,
-      fragmentShader: GRANO_FRAG,
-      uniforms: {
-        uTempo: { value: 0 },
-        uRadice: { value: new THREE.Color("#8C7740") },
-        uPunta: { value: new THREE.Color("#E4CD8C") },
-        uOrizzonte: { value: new THREE.Color(orizzonte) },
-      },
-      side: THREE.DoubleSide,
-    });
-    const mesh = new THREE.InstancedMesh(g, m, n);
-    const rnd = generatore(3);
-    const o = new THREE.Object3D();
-    for (let i = 0; i < n; i++) {
-      // più fitto vicino, più rado lontano; nessuno spigolo sotto i piedi
-      let r = 1.2 + Math.pow(rnd(), 0.62) * 30;
-      // un sentiero falciato sotto l'anello delle carte, perché il grano non le copra
-      if (r > 5.0 && r < 7.0) r = rnd() < 0.5 ? 5.0 - rnd() * 0.6 : 7.0 + rnd() * 0.8;
-      const a = rnd() * Math.PI * 2;
-      o.position.set(Math.sin(a) * r, SUOLO - 0.02, -Math.cos(a) * r);
-      o.rotation.set((rnd() - 0.5) * 0.25, rnd() * Math.PI, (rnd() - 0.5) * 0.25);
-      const h = 0.42 + rnd() * 0.36;
-      o.scale.set(1 + rnd() * 0.6, h, 1);
-      o.updateMatrix();
-      mesh.setMatrixAt(i, o.matrix);
-      tinta[i] = rnd();
-    }
-    g.setAttribute("aTinta", new THREE.InstancedBufferAttribute(tinta, 1));
-    mesh.raycast = () => undefined;
-    mesh.frustumCulled = false;
-    return mesh;
-  }, [orizzonte, stretto]);
-
-  // il terreno sotto il grano, perché fra le spighe non si veda il vuoto
-  const terra = useMemo(() => {
-    const t = new THREE.Mesh(
-      new THREE.CircleGeometry(60, 48),
-      new THREE.MeshBasicMaterial({ color: "#B59E62", toneMapped: false })
-    );
-    t.rotation.x = -Math.PI / 2;
-    t.position.y = SUOLO - 0.03;
-    t.raycast = () => undefined;
-    return t;
-  }, []);
-
-  useEffect(
-    () => () => {
-      campo.geometry.dispose();
-      (campo.material as THREE.Material).dispose();
-      terra.geometry.dispose();
-      (terra.material as THREE.Material).dispose();
-    },
-    [campo, terra]
-  );
-
-  const rif = useRef<THREE.InstancedMesh>(null);
-  useFrame((stato) => {
-    const m = rif.current?.material as THREE.ShaderMaterial | undefined;
-    if (m) m.uniforms.uTempo.value = ridotto ? 0 : stato.clock.elapsedTime;
-  });
-
-  return (
-    <>
-      <primitive object={terra} />
-      <primitive ref={rif} object={campo} />
-    </>
-  );
-}
 
 /* --------------------------------------------------------------- cielo di giorno */
 
@@ -279,8 +192,8 @@ export default function Suolo({
   ridotto: boolean;
 }) {
   return notte ? (
-    <Acqua fondo={fondo} stretto={stretto} ridotto={ridotto} />
+    <Specchio fondo={fondo} colore={fondo} stretto={stretto} ridotto={ridotto} frammento={ACQUA_FRAG} quota={PELO_ACQUA} />
   ) : (
-    <Grano orizzonte={fondo} stretto={stretto} ridotto={ridotto} />
+    <Specchio fondo={fondo} colore="#EEEDEA" stretto={stretto} ridotto={ridotto} frammento={MARMO_FRAG} quota={PELO_ACQUA} />
   );
 }
