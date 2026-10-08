@@ -316,6 +316,19 @@ html.con-scena .elenco:focus-within{
 
 /* ---------- schermi stretti ---------- */
 @media (max-width:759px){
+  /* modulo più compatto: intorno deve restare spazio per le fiamme e il vapore */
+  .velo{padding:1.5rem}
+  .modulo{width:calc(100% - 1.6rem);padding:1.15rem 1.1rem 1.2rem;border-radius:16px;max-height:70dvh}
+  .modulo h2{font-size:1.45rem}
+  .modulo-sotto{font-size:.82rem;line-height:1.45;margin:.4rem 0 .8rem}
+  .modulo form{gap:.65rem}
+  .modulo label span,.servizi legend{font-size:.64rem}
+  .modulo input,.modulo textarea{font-size:16px;padding:.5rem .65rem;border-radius:8px}
+  .modulo textarea{height:5.2rem}
+  .servizi-voci{gap:.3rem}
+  .modulo .servizio span{font-size:.74rem;padding:.28rem .6rem}
+  .invia{padding:.6rem 1.3rem}
+  .modulo .chiudi{top:.55rem;right:.6rem}
   .testata{padding:1rem 1rem}
   .firma-nome{font-size:1.3rem}
   .comandi{gap:.7rem}
@@ -352,3 +365,5 @@ html.con-scena .elenco:focus-within{
 .esperienza--pronta .scrivimi,
 .esperienza--pronta .guida{opacity:1;translate:0 0}
 .esperienza--pronta .guida.guida--via{opacity:0;transition-delay:0s}
+/* con il modulo aperto restano solo il modulo e l'energia intorno */
+.esperienza--modulo .scrivimi,.esperienza--modulo .guida{opacity:0;pointer-events:none;transition-delay:0s}

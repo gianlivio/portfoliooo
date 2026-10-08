@@ -208,7 +208,7 @@ export default function Esperienza({ d, lingua }: { d: Dizionario; lingua: Lingu
 
   return (
     <div
-      className={`esperienza${pronta ? " esperienza--pronta" : ""}${selezionato ? " esperienza--aperta" : ""}`}
+      className={`esperienza${pronta ? " esperienza--pronta" : ""}${selezionato ? " esperienza--aperta" : ""}${modulo ? " esperienza--modulo" : ""}`}
     >
       <div
         ref={palco}

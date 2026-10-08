@@ -7,8 +7,8 @@ import { competenze, competenzeDi, nomeCompetenza } from "@/content/competenze";
 
 /**
  * Il cielo della stanza.
- * Di notte: stelle vere (posizioni reali, cielo d'autunno visto dalla Sicilia) con le linee
- * delle costellazioni appena accennate, e qualche centinaio di stelle deboli.
+ * Di notte: stelle vere (posizioni reali, cielo d'autunno visto dalla Sicilia)
+ * e qualche centinaio di stelle deboli.
  * Sempre: la costellazione delle competenze. Quando una carta è attiva, dalla carta
  * salgono fili verso le competenze usate in quel lavoro.
  */
@@ -36,18 +36,6 @@ const STELLE: Stella[] = [
   ["Markab", 23.079, 15.21, 2.5], ["Scheat", 23.063, 28.08, 2.4], ["Algenib", 0.22, 15.18, 2.8],
 ];
 
-const LINEE: [string, string][] = [
-  ["Dubhe", "Merak"], ["Merak", "Phecda"], ["Phecda", "Megrez"], ["Megrez", "Dubhe"], ["Megrez", "Alioth"], ["Alioth", "Mizar"], ["Mizar", "Alkaid"],
-  ["Polaris", "Yildun"], ["Yildun", "epsUMi"], ["epsUMi", "zetUMi"], ["zetUMi", "etaUMi"], ["etaUMi", "Pherkad"], ["Pherkad", "Kochab"], ["Kochab", "zetUMi"],
-  ["Caph", "Schedar"], ["Schedar", "gamCas"], ["gamCas", "Ruchbah"], ["Ruchbah", "Segin"],
-  ["Deneb", "Sadr"], ["Sadr", "Albireo"], ["delCyg", "Sadr"], ["Sadr", "Gienah"],
-  ["Vega", "zetLyr"], ["zetLyr", "Sheliak"], ["Sheliak", "Sulafat"], ["Sulafat", "delLyr"], ["delLyr", "zetLyr"],
-  ["Tarazed", "Altair"], ["Altair", "Alshain"],
-  ["Betelgeuse", "Bellatrix"], ["Betelgeuse", "Alnitak"], ["Bellatrix", "Mintaka"], ["Mintaka", "Alnilam"], ["Alnilam", "Alnitak"],
-  ["Alnitak", "Saiph"], ["Mintaka", "Rigel"],
-  ["Alpheratz", "Mirach"], ["Mirach", "Almach"],
-  ["Markab", "Scheat"], ["Scheat", "Alpheratz"], ["Alpheratz", "Algenib"], ["Algenib", "Markab"],
-];
 
 const RAD = Math.PI / 180;
 
@@ -142,17 +130,15 @@ export default function Cielo({
 }) {
   const dpr = typeof window === "undefined" ? 1 : Math.min(window.devicePixelRatio, 1.75);
 
-  /* ------------------------------ stelle vere e deboli, linee delle costellazioni */
+  /* ------------------------------------------------- stelle vere e stelle deboli */
   const notturno = useMemo(() => {
     if (!notte) return null;
     const pos: number[] = [];
     const dim: number[] = [];
     const fase: number[] = [];
-    const indice: Record<string, THREE.Vector3> = {};
-    STELLE.forEach(([nome, ar, dec, mag]) => {
+    STELLE.forEach(([, ar, dec, mag]) => {
       const { alt, p } = sullaVolta(ar, dec, R_CIELO);
       if (alt < 4 * RAD) return;
-      indice[nome] = p;
       pos.push(p.x, p.y, p.z);
       dim.push(THREE.MathUtils.clamp(5.2 - mag * 1.05, 1.6, 5.4));
       fase.push(Math.random());
@@ -176,20 +162,7 @@ export default function Cielo({
     const punti = new THREE.Points(g, materialeStelle("#FFFFFF", dpr));
     punti.raycast = () => undefined;
 
-    const seg: number[] = [];
-    LINEE.forEach(([a, b]) => {
-      const pa = indice[a];
-      const pb = indice[b];
-      if (pa && pb) seg.push(pa.x, pa.y, pa.z, pb.x, pb.y, pb.z);
-    });
-    const gl = new THREE.BufferGeometry();
-    gl.setAttribute("position", new THREE.Float32BufferAttribute(seg, 3));
-    const linee = new THREE.LineSegments(
-      gl,
-      new THREE.LineBasicMaterial({ color: "#FFFFFF", transparent: true, opacity: 0.09, depthWrite: false, fog: false })
-    );
-    linee.raycast = () => undefined;
-    return { punti, linee };
+    return { punti };
   }, [notte, stretto, dpr]);
 
   /* ------------------------------------------- la costellazione delle competenze */
@@ -310,8 +283,6 @@ export default function Cielo({
     () => () => {
       notturno?.punti.geometry.dispose();
       (notturno?.punti.material as THREE.Material | undefined)?.dispose();
-      notturno?.linee.geometry.dispose();
-      (notturno?.linee.material as THREE.Material | undefined)?.dispose();
     },
     [notturno]
   );
@@ -378,7 +349,6 @@ export default function Cielo({
   return (
     <group>
       {notturno && <primitive object={notturno.punti} />}
-      {notturno && <primitive object={notturno.linee} />}
       <primitive object={grafica.punti} />
       {grafica.etichette.map((e, i) => (
         <primitive key={i} object={e} />
