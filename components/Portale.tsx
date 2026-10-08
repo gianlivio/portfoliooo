@@ -6,7 +6,8 @@ import * as THREE from "three";
 
 /**
  * Il portale: prende il posto della carta "Scrivimi".
- * Un arco più alto delle carte, con una luce che vortica dentro, un bordo che brilla,
+ * Un portale gotico, sul modello di quelli di Chartres: arco a sesto acuto con le ghiere
+ * degli archivolti, una luce che vortica dentro, un bordo che brilla,
  * raggi lenti dietro e scintille risucchiate verso il centro. Cliccandolo si apre il modulo.
  */
 
@@ -14,19 +15,37 @@ import * as THREE from "three";
 export const schermoPortale = { x: 0, y: -1.2, visibile: false };
 
 const LARGO = 1.9;
-const ALTO = 2.7;
+const ALTO = 3.0;
 const R_ARCO = LARGO / 2;
 const BASE = -ALTO / 2;
-const IMPOSTA = ALTO / 2 - R_ARCO; // dove comincia l'arco
+/** arco gotico a sesto acuto (equilatero): ogni metà è un arco di raggio pari alla luce */
+const IMPOSTA = ALTO / 2 - Math.sqrt(3) * R_ARCO; // dove comincia l'arco
+const CENTRO_Y = BASE + (ALTO / 2 - BASE) * 0.56; // il cuore del vortice
+/** gli archivolti: le ghiere concentriche dei portali gotici, una dentro l'altra */
+const ARCHIVOLTI = [0.1, 0.2, 0.3, 0.4];
 
-function forma() {
+/** La sagoma ogivale, allargata di `e` per gli archivolti. */
+function forma(e = 0) {
+  const r = R_ARCO + e;
   const s = new THREE.Shape();
-  s.moveTo(-R_ARCO, BASE);
-  s.lineTo(R_ARCO, BASE);
-  s.lineTo(R_ARCO, IMPOSTA);
-  s.absarc(0, IMPOSTA, R_ARCO, 0, Math.PI, false);
-  s.lineTo(-R_ARCO, BASE);
+  s.moveTo(-r, BASE);
+  s.lineTo(r, BASE);
+  s.lineTo(r, IMPOSTA);
+  // metà destra: centro sull'imposta sinistra, raggio 2r, da 0° a 60°
+  s.absarc(-r, IMPOSTA, 2 * r, 0, Math.PI / 3, false);
+  // metà sinistra: centro sull'imposta destra, da 120° a 180°
+  s.absarc(r, IMPOSTA, 2 * r, (2 * Math.PI) / 3, Math.PI, false);
+  s.lineTo(-r, BASE);
   return s;
+}
+
+/** Il contorno come linea, senza il tratto di base. */
+function contorno(e: number, colore: string) {
+  const pts = forma(e).getPoints(48).filter((p) => p.y > BASE + 0.001 || Math.abs(p.x) > R_ARCO + e - 0.001);
+  const g = new THREE.BufferGeometry().setFromPoints(pts.map((p) => new THREE.Vector3(p.x, p.y, 0.01 - e * 0.15)));
+  const l = new THREE.Line(g, new THREE.LineBasicMaterial({ color: colore, transparent: true, opacity: 0, toneMapped: false }));
+  l.raycast = () => undefined;
+  return l;
 }
 
 const VORTICE_VERT = `
@@ -53,7 +72,7 @@ float fbm(vec2 p){
   return v;
 }
 void main(){
-  vec2 c = vec2(0.0, ${(IMPOSTA * 0.55).toFixed(3)});
+  vec2 c = vec2(0.0, ${CENTRO_Y.toFixed(3)});
   vec2 q = (vP - c) / vec2(${R_ARCO.toFixed(3)}, ${(ALTO * 0.5).toFixed(3)});
   float d = length(q);
   float a = atan(q.y, q.x);
@@ -166,6 +185,20 @@ export default function Portale({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const archivolti = useMemo(
+    () => ARCHIVOLTI.map((e) => contorno(e, colori.bordo)),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
+  );
+  useEffect(
+    () => () =>
+      archivolti.forEach((l) => {
+        l.geometry.dispose();
+        (l.material as THREE.Material).dispose();
+      }),
+    [archivolti]
+  );
+
   // le scintille: punti che spiraleggiano verso il centro del portale
   const N = 70;
   const scintille = useMemo(() => {
@@ -227,7 +260,7 @@ export default function Portale({
     const t = ridotto ? 0 : stato.clock.elapsedTime;
     if (radice.current) {
       // centro del vortice proiettato sullo schermo
-      radice.current.localToWorld(centro.set(0, IMPOSTA * 0.55, 0));
+      radice.current.localToWorld(centro.set(0, CENTRO_Y, 0));
       const davanti = centro.clone().sub(stato.camera.position).dot(stato.camera.getWorldDirection(new THREE.Vector3())) > 0;
       centro.project(stato.camera);
       schermoPortale.x = centro.x;
@@ -244,6 +277,11 @@ export default function Portale({
     }
     const bm = bordoRif.current?.material as THREE.LineBasicMaterial | undefined;
     if (bm) bm.opacity = o * (0.65 + 0.35 * Math.sin(t * 2.2)) * (0.8 + forza.current * 0.4);
+    // la luce corre verso l'esterno, una ghiera dopo l'altra
+    archivolti.forEach((l, k) => {
+      (l.material as THREE.LineBasicMaterial).opacity =
+        o * (0.62 - k * 0.11) * (0.55 + 0.45 * Math.sin(t * 2.2 - k * 0.9)) * (0.85 + forza.current * 0.4);
+    });
     if (raggi.current) {
       raggi.current.rotation.z = t * 0.06;
       raggioMat.opacity = o * (notte ? 0.22 : 0.16) * (1 + forza.current * 0.8);
@@ -258,7 +296,7 @@ export default function Portale({
         const r = (1 - ciclo) * 1.15;
         const ang = s.a + ciclo * 5.5;
         arr[i * 3] = Math.cos(ang) * r * R_ARCO;
-        arr[i * 3 + 1] = IMPOSTA * 0.55 + Math.sin(ang) * r * ALTO * 0.5;
+        arr[i * 3 + 1] = CENTRO_Y + Math.sin(ang) * r * ALTO * 0.5;
         arr[i * 3 + 2] = 0.05 + ciclo * 0.05;
       });
       sp.geometry.attributes.position.needsUpdate = true;
@@ -268,7 +306,7 @@ export default function Portale({
 
   return (
     <group ref={radice} position={posizione} rotation={[0, rotazione, 0]}>
-      <group ref={raggi} position={[0, IMPOSTA * 0.55, -0.05]}>
+      <group ref={raggi} position={[0, CENTRO_Y, -0.05]}>
         {Array.from({ length: 7 }, (_, k) => (
           <mesh key={k} rotation={[0, 0, (k / 7) * Math.PI]} material={raggioMat} raycast={() => null}>
             <planeGeometry args={[0.35, 6.2]} />
@@ -291,6 +329,9 @@ export default function Portale({
         }}
       />
       <primitive ref={bordoRif} object={bordo} />
+      {archivolti.map((l, k) => (
+        <primitive key={k} object={l} />
+      ))}
       <primitive ref={scintilleRif} object={scintille} />
       <mesh position={[0, ALTO / 2 + 0.34, 0.02]} raycast={() => null}>
         <planeGeometry args={[2.6, 2.6 * (200 / 1024)]} />

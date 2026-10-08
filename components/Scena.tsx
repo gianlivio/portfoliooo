@@ -466,7 +466,7 @@ function Carte({
           return (
             <Portale
               key={c.id}
-              posizione={[pp.x, 0.16, pp.z]}
+              posizione={[pp.x, 0.3, pp.z]}
               rotazione={-a}
               notte={tema === "scuro"}
               titolo={c.dati.titolo}
