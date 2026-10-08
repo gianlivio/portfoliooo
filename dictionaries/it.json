@@ -1,438 +1,104 @@
 {
   "meta": {
     "titolo": "Gianlivio Iemolo — Full Stack Web Developer",
-    "descrizione": "Sviluppo web, dati pubblici e contenuti editoriali. Piattaforme, integrazioni API, automazione, SEO. Da remoto, in italiano, inglese e spagnolo."
+    "descrizione": "Sviluppatore full stack freelance: e-commerce Open2B, siti e applicazioni in Next.js, integrazioni, dati pubblici. Da remoto, in italiano, inglese e spagnolo."
   },
-  "nav": {
-    "contatti": "Contatti"
+  "nome": "Gianlivio Iemolo",
+  "ruolo": "Full stack web developer · freelance",
+  "testata": {
+    "cv": "CV",
+    "scrivimi": "Scrivimi",
+    "lingua": "Lingua"
   },
-  "apertura": {
-    "nome": "Gianlivio Iemolo",
-    "tesi": [
-      {
-        "t": "Sviluppo piattaforme web, lavoro sui "
-      },
-      {
-        "t": "dati pubblici",
-        "e": true
-      },
-      {
-        "t": " e sui "
-      },
-      {
-        "t": "contenuti editoriali",
-        "e": true
-      },
-      {
-        "t": "."
-      }
-    ],
-    "sommario": [
-      "Costruisco siti e applicazioni, integro API, rendo automatiche attività prima svolte a mano. Quando i dati sono sporchi o chiusi dentro dei PDF, li estraggo e li rendo leggibili.",
-      "Freelance con partita IVA. Lavoro da remoto per clienti in Italia e all'estero."
-    ],
-    "apparato": [
-      {
-        "dt": "Base",
-        "dd": "Italia — da remoto"
-      },
-      {
-        "dt": "Lingue",
-        "dd": "Italiano, inglese, spagnolo"
-      },
-      {
-        "dt": "Formazione",
-        "dd": "Semiotica e filosofia, Università di Bologna"
-      }
-    ]
-  },
-  "archivio": {
-    "apparato": [
-      {
-        "dt": "Che cos'è",
-        "dd": "Ogni punto è un contratto pubblico per l'accoglienza. Undici anni, 18.104 righe, dal database ANAC."
-      },
-      {
-        "dt": "Assi",
-        "dd": "Orizzontale: anno. Verticale: importo, scala logaritmica."
-      },
-      {
-        "dt": "Campione",
-        "dd": "5.000 contratti estratti sui 18.104 dell'archivio."
-      }
-    ],
-    "legenda": {
-      "diretto": "affidamento diretto",
-      "gara": "con gara"
-    }
+  "guida": {
+    "mouse": "Trascina per guardarti intorno · clicca un lavoro",
+    "tocco": "Scorri col dito · tocca un lavoro"
   },
   "lavori": {
-    "occhiello": "Lavori",
-    "vedi": "Vedi",
-    "items": [
-      {
-        "id": "osservatorio",
-        "titolo": "Osservatorio Accoglienza",
-        "sottotitolo": "Archivio pubblico dei contratti per l'accoglienza dei migranti in Italia. Dati raccolti, puliti e messi online da me.",
-        "apparato": [
-          {
-            "dt": "Anno",
-            "dd": "2026"
-          },
-          {
-            "dt": "Tipo",
-            "dd": "Progetto personale, open source"
-          },
-          {
-            "dt": "Strumenti",
-            "dd": "Python · pdfplumber · Next.js · TypeScript · GitHub Actions"
-          },
-          {
-            "dt": "Fonti",
-            "dd": "ANAC, Ministero dell'Interno"
-          }
-        ],
-        "limite": "I limiti dei dati sono dichiarati nella pagina di metodologia: copertura incompleta, importi non sommabili, costo pro capite non ricavabile.",
-        "voci": [
-          {
-            "h": "Undici anni di contratti, 18.104 righe",
-            "p": "Tre dataset ANAC uniti in Python: download mensili, normalizzazione, un filtro a due livelli con indice di confidenza. Archivio 2015–2025, versionato nel repository."
-          },
-          {
-            "h": "Novanta PDF ministeriali, letti da una macchina",
-            "p": "Le serie sui minori stranieri non accompagnati stavano solo dentro i report del Ministero. pdfplumber le estrae: 84 report mensili dal 2016 al 2022, poi i semestrali fino al 2025."
-          },
-          {
-            "h": "Sito statico, aggiornamento automatico",
-            "p": "Next.js e TypeScript su Vercel, CSS a mano. Un workflow GitHub Actions apre ogni mese il promemoria di aggiornamento. SEO tecnica, dati strutturati, tutto open source."
-          }
-        ]
-      },
-      {
-        "id": "futura",
-        "titolo": "Futura Blog",
-        "sottotitolo": "Tool aziendale per la crescita e l'autorevolezza online: un team di agenti AI produce contenuti mirati geo/EO, autoblog e analisi di business. Co-fondatore, dal prodotto al lancio.",
-        "apparato": [
-          {
-            "dt": "Anno",
-            "dd": "2026 — in corso"
-          },
-          {
-            "dt": "Tipo",
-            "dd": "Prodotto, costruito in due"
-          },
-          {
-            "dt": "Ruolo",
-            "dd": "Sviluppo, redazione, SEO"
-          },
-          {
-            "dt": "Strumenti",
-            "dd": "Next.js · TypeScript · Supabase · Claude API · Search Console"
-          }
-        ],
-        "voci": [
-          {
-            "h": "La piattaforma",
-            "p": "Next.js e TypeScript, database Supabase. Come co-fondatore: architettura, deploy e le funzioni che portano un articolo dalla bozza alla pubblicazione."
-          },
-          {
-            "h": "Il team di agenti",
-            "p": "Agenti AI specializzati: contenuti ottimizzati per ricerca geografica e generativa, autoblog programmato, analisi del business del cliente. Scrivo i prompt; il tono cambia da cliente a cliente."
-          },
-          {
-            "h": "Crescita e ricerca",
-            "p": "Piani editoriali letti contro Search Console, misura dell'autorevolezza acquisita. Ottimizzo per chi cerca su Google e per chi chiede a un modello. Nessun articolo esce senza una revisione umana."
-          }
-        ]
-      },
-      {
-        "id": "puntoluce",
-        "titolo": "shop.puntoluce.net",
-        "sottotitolo": "Due anni su un e-commerce di materiale elettrico e termoidraulico da circa 20.000 € di fatturato al giorno: tema costruito da zero su Open2B, integrazioni, applicazioni interne, tracciamento.",
-        "apparato": [
-          {
-            "dt": "Anni",
-            "dd": "Ottobre 2024 — giugno 2026"
-          },
-          {
-            "dt": "Rapporto",
-            "dd": "Dipendente, tempo indeterminato"
-          },
-          {
-            "dt": "Tipo",
-            "dd": "E-commerce B2B e B2C"
-          },
-          {
-            "dt": "Scala",
-            "dd": "51.240 SKU · 13.102 categorie · 300+ fornitori"
-          },
-          {
-            "dt": "Strumenti",
-            "dd": "PHP · JavaScript · MySQL · Open2B/Scriggo · GTM/GA4 · Brevo · Cloudflare"
-          }
-        ],
-        "voci": [
-          {
-            "h": "Frontend e tema",
-            "p": "Template completo su Open2B/Scriggo, ricostruito mobile-first. Checkout ridotto da tre pagine a una, filtri di ricerca dinamici, tema scuro, mega-menu dei reparti, pagina prodotto con schede tecniche, recensioni e disponibilità in tempo reale."
-          },
-          {
-            "h": "Integrazioni e feed",
-            "p": "Sincronizzazione Open2B ↔ Brevo per contatti e catalogo. Feed prodotti generati per Trovaprezzi, Kelkoo, Google Merchant e Doofinder, filtrati per disponibilità e con prezzi calcolati per fascia di peso."
-          },
-          {
-            "h": "Automazioni interne",
-            "p": "Applicazioni su API Open2B per il lavoro che l'ufficio faceva a mano: estrazione di ordini e clienti, smistamento per area fiscale, verifica delle quantità spedite, archiviazione automatica delle ricevute, generazione di descrizioni prodotto."
-          },
-          {
-            "h": "Tracciamento e analisi",
-            "p": "GA4 e-commerce via GTM, Facebook Pixel, Microsoft UET e Clarity. Eventi dell'imbuto d'acquisto mappati uno a uno, dalla vista prodotto all'acquisto, con dati letti dal DOM e non da variabili fragili."
-          },
-          {
-            "h": "Consenso e conformità",
-            "p": "Cookiebot e Consent Mode v2: nessun cookie prima del consenso, tag che si attivano solo con la categoria giusta, tracciamento anonimo pre-consenso per non perdere il dato aggregato. Cookie classificati in quattro lingue."
-          },
-          {
-            "h": "Dati fiscali e checkout",
-            "p": "Validazione della partita IVA su Cerved e VIES per 28 paesi UE, con compilazione automatica al checkout. Autocomplete del CAP sui comuni italiani, regole di spedizione e pagamento interdipendenti gestite lato client."
-          },
-          {
-            "h": "Performance",
-            "p": "LCP da 12 a 4 secondi, TBT ridotto del 40%. CSS riscritto mobile-first e diviso per sezione, media query in un file a parte, immagini e punteggi Lighthouse rivisti. Applicazioni ottimizzate per reggere decine di migliaia di prodotti e ordini."
-          },
-          {
-            "h": "SEO, accessibilità, sicurezza",
-            "p": "Struttura dei heading rifatta in ottica SEO, dati strutturati Feedaty validati per le stelle nelle SERP. Audit di accessibilità WAVE e axe, viewport reso di nuovo ingrandibile. Cloudflare per CDN e protezione, A+ sui security header."
-          }
-        ]
-      },
-      {
-        "id": "livellozero",
-        "titolo": "Livello Zero",
-        "sottotitolo": "Sito editoriale sui videogiochi, con gestionale proprio. Sviluppato su commissione, online su livellozero.games.",
-        "apparato": [
-          {
-            "dt": "Anno",
-            "dd": "Giugno 2026 — in corso"
-          },
-          {
-            "dt": "Tipo",
-            "dd": "Sito editoriale su commissione, con CMS custom"
-          },
-          {
-            "dt": "Ruolo",
-            "dd": "Sviluppo, architettura del software, manutenzione"
-          },
-          {
-            "dt": "Strumenti",
-            "dd": "Next.js · TypeScript · Vercel"
-          }
-        ],
-        "voci": [
-          {
-            "h": "Il sito",
-            "p": "Next.js (App Router) e TypeScript, deploy su Vercel. Costruito da zero sul dominio livellozero.games."
-          },
-          {
-            "h": "Il gestionale",
-            "p": "Un CMS scritto per questo progetto: il committente scrive gli articoli, personalizza le sezioni, carica le immagini e gestisce il back-end del sito senza intervenire sul codice."
-          },
-          {
-            "h": "Dopo la consegna",
-            "p": "Manutenzione continuativa del sito e del gestionale, con canone annuale."
-          }
-        ]
-      },
-      {
-        "id": "allstudios",
-        "titolo": "All Studios",
-        "sottotitolo": "Applicazione per team di grafici: uno spazio di lavoro condiviso con strumenti avanzati e intelligenza artificiale.",
-        "apparato": [
-          {
-            "dt": "Anno",
-            "dd": "2026"
-          },
-          {
-            "dt": "Tipo",
-            "dd": "Applicazione web"
-          },
-          {
-            "dt": "Ruolo",
-            "dd": "Struttura, copy, pagine, test"
-          }
-        ],
-        "voci": [
-          {
-            "h": "Struttura e test",
-            "p": "Progettazione della struttura del sito e dell'app: pagine, sezioni, organizzazione dei contenuti nello spazio virtuale. Copy, sviluppo di alcune pagine, test prima del lancio."
-          }
-        ]
-      },
-      {
-        "id": "ndnluxury",
-        "titolo": "NDN Luxury",
-        "sottotitolo": "Sito di un marchio di rivestimenti in resina e microcemento.",
-        "apparato": [
-          {
-            "dt": "Anno",
-            "dd": "2026"
-          },
-          {
-            "dt": "Tipo",
-            "dd": "Sito aziendale, freelance"
-          },
-          {
-            "dt": "Ruolo",
-            "dd": "Sviluppo web, manutenzione"
-          }
-        ],
-        "voci": [
-          {
-            "h": "Pagine, manutenzione, animazioni",
-            "p": "Nuove pagine, manutenzione e interventi di miglioramento sul sito esistente, animazioni 3D."
-          }
-        ]
-      },
-      {
-        "id": "eshhousing",
-        "titolo": "ESH – Erasmus Student Housing",
-        "sottotitolo": "Alloggi in affitto per studenti Erasmus.",
-        "apparato": [
-          {
-            "dt": "Anno",
-            "dd": "2026"
-          },
-          {
-            "dt": "Tipo",
-            "dd": "Sito aziendale, freelance"
-          },
-          {
-            "dt": "Ruolo",
-            "dd": "Sviluppo web, manutenzione"
-          }
-        ],
-        "voci": [
-          {
-            "h": "Pagine e manutenzione",
-            "p": "Nuove pagine del sito e manutenzione."
-          }
-        ]
-      }
-    ]
-  },
-  "percorso": {
-    "occhiello": "Percorso",
-    "titolo": "Dal pensiero alla sintassi",
-    "apparato": [
-      {
-        "dt": "Prima del codice",
-        "dd": "Filosofia, poi semiotica. Copywriting e strategia di contenuto. Un anno da educatore con minori stranieri non accompagnati — da lì viene l'Osservatorio."
-      },
-      {
-        "dt": "Certificazioni",
-        "dd": "Google Analytics · GA4 Advanced · Consent Mode v2"
-      }
-    ],
-    "tappe": [
-      {
-        "anno": "2026 →",
-        "cosa": "Futura Blog",
-        "dove": "Sviluppo, redazione, SEO — da remoto"
-      },
-      {
-        "anno": "2026",
-        "cosa": "Livello Zero",
-        "dove": "Full stack developer — sito editoriale e CMS custom, freelance"
-      },
-      {
-        "anno": "2026",
-        "cosa": "All Studios",
-        "dove": "Web developer — struttura e test di un'app per team di grafici, freelance"
-      },
-      {
-        "anno": "2026",
-        "cosa": "NDN Luxury",
-        "dove": "Web developer — pagine, manutenzione e animazioni 3D, freelance"
-      },
-      {
-        "anno": "2026",
-        "cosa": "ESH – Erasmus Student Housing",
-        "dove": "Web developer — pagine e manutenzione, freelance"
-      },
-      {
-        "anno": "2026",
-        "cosa": "Beauty Broker World",
-        "dove": "QA — team fra Italia, Brasile e Stati Uniti"
-      },
-      {
-        "anno": "2024–26",
-        "cosa": "Punto Luce / EDIF",
-        "dove": "Full stack, dipendente — Sasso Marconi, Bologna"
-      },
-      {
-        "anno": "2024",
-        "cosa": "Boolean",
-        "dove": "Master full stack, 700 ore — Milano"
-      },
-      {
-        "anno": "2023–24",
-        "cosa": "Copystudio",
-        "dove": "Copywriting e identità di marca"
-      },
-      {
-        "anno": "2023",
-        "cosa": "Hetaweb",
-        "dove": "SEO e gestione editoriale per 30+ committenti"
-      },
-      {
-        "anno": "2020",
-        "cosa": "Laurea magistrale in semiotica",
-        "dove": "Università di Bologna — tesi sulle pratiche semiotiche di amministrazione dello spazio"
-      },
-      {
-        "anno": "2019",
-        "cosa": "Erasmus+",
-        "dove": "Universidad de Granada"
-      },
-      {
-        "anno": "2017",
-        "cosa": "Laurea triennale in filosofia",
-        "dove": "Università di Bologna — logica, filosofia del linguaggio, epistemologia"
-      }
-    ]
-  },
-  "contatti": {
-    "occhiello": "Contatti",
-    "titolo": "Scrivimi",
-    "sottotitolo": "Se hai un progetto, raccontamelo com'è adesso: cosa esiste già, cosa non funziona, entro quando serve.",
-    "apparato": [
-      {
-        "dt": "Disponibilità",
-        "dd": "Da remoto, in italiano, inglese e spagnolo"
-      },
-      {
-        "dt": "Fatturazione",
-        "dd": "Partita IVA italiana"
-      },
-      {
-        "dt": "Curriculum",
-        "dd": "PDF, ~70 KB"
-      }
-    ],
-    "etichette": {
-      "email": "Email",
-      "telefono": "Telefono",
-      "linkedin": "LinkedIn",
-      "github": "GitHub"
+    "shop": {
+      "tipo": "E-commerce · Open2B",
+      "titolo": "shop.puntoluce.net",
+      "riga": "Tema costruito da zero su Open2B per un e-commerce di materiale elettrico da circa 20.000 € al giorno. Checkout, integrazioni, applicazioni interne, tracciamento."
     },
-    "cv": {
-      "it": "Curriculum, italiano",
-      "en": "English",
-      "es": "Español"
+    "osservatorio": {
+      "tipo": "Dati pubblici · open source",
+      "titolo": "Osservatorio Accoglienza",
+      "riga": "Undici anni di contratti pubblici per l'accoglienza, 18.104 righe ANAC lette e pulite in Python. I punti che vedi intorno sono quei contratti."
+    },
+    "livellozero": {
+      "tipo": "Sito editoriale · CMS su misura",
+      "titolo": "Livello Zero",
+      "riga": "Sito sui videogiochi costruito da zero in Next.js, con un gestionale con cui il committente pubblica da solo. Manutenzione in corso."
+    },
+    "futura": {
+      "tipo": "Piattaforma · agenti AI",
+      "titolo": "Futura Blog",
+      "riga": "Piattaforma editoriale in cui agenti AI producono contenuti per la ricerca su Google e sui modelli generativi. Sviluppo, prompt, revisione."
+    },
+    "ndnluxury": {
+      "tipo": "Sito aziendale",
+      "titolo": "NDN Luxury",
+      "riga": "Sito di un marchio di rivestimenti in resina e microcemento: nuove pagine, manutenzione, animazioni 3D."
+    },
+    "esh": {
+      "tipo": "Sito aziendale",
+      "titolo": "ESH – Erasmus Student Housing",
+      "riga": "Alloggi in affitto per studenti Erasmus: nuove pagine e manutenzione del sito."
+    },
+    "blog": {
+      "tipo": "Blog · WordPress",
+      "titolo": "Come fare — Punto Luce",
+      "riga": "Il blog tecnico di Punto Luce su WordPress, separato dallo shop: impaginazione degli articoli e collegamento con il negozio."
+    },
+    "allstudios": {
+      "tipo": "Applicazione web",
+      "titolo": "All Studios",
+      "riga": "Spazio di lavoro condiviso per team di grafici, con strumenti di intelligenza artificiale. Struttura, copy, alcune pagine, test."
+    },
+    "jointoyou": {
+      "tipo": "Blog · contenuti",
+      "titolo": "jointoyou.it",
+      "riga": "Il blog del sito e una serie di articoli."
+    },
+    "copystudio": {
+      "tipo": "Copywriting · brand",
+      "titolo": "Copystudio",
+      "riga": "Testi e identità di marca per i siti dei clienti dell'agenzia, partendo da interviste su tono, pubblico e posizionamento."
+    },
+    "hetaweb": {
+      "tipo": "SEO · editoria",
+      "titolo": "Hetaweb",
+      "riga": "Gestione editoriale e SEO dei blog di oltre 30 clienti dell'agenzia, tra cui la Nazionale Italiana Rugby."
     }
   },
-  "piede": {
-    "sinistra": "Gianlivio Iemolo — 2026",
-    "destra": "Next.js · TypeScript · Vercel"
+  "contatto": {
+    "tipo": "Il prossimo lavoro",
+    "titolo": "Scrivimi",
+    "riga": "Raccontami di cosa hai bisogno."
+  },
+  "vignetta": {
+    "visita": "Visita il sito",
+    "senzaLink": "Non ancora pubblico",
+    "chiudi": "Chiudi",
+    "precedente": "Lavoro precedente",
+    "successivo": "Lavoro successivo"
+  },
+  "modulo": {
+    "titolo": "Di cosa hai bisogno?",
+    "sottotitolo": "Un sito, un e-commerce da sistemare, un'integrazione, una manutenzione. Raccontami com'è la situazione adesso.",
+    "nome": "Nome",
+    "email": "Email",
+    "messaggio": "Messaggio",
+    "segnaposto": "Cosa esiste già, cosa non funziona, entro quando serve…",
+    "invia": "Invia",
+    "invio": "Invio…",
+    "ok": "Messaggio arrivato. Ti rispondo presto.",
+    "errore": "Il messaggio non è partito. Scrivimi direttamente a",
+    "chiudi": "Chiudi"
+  },
+  "elenco": {
+    "titolo": "Lavori",
+    "recapiti": "Recapiti",
+    "cv": "Curriculum (PDF)"
   }
 }

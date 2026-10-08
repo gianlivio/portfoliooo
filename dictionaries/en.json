@@ -1,438 +1,104 @@
 {
   "meta": {
     "titolo": "Gianlivio Iemolo — Full Stack Web Developer",
-    "descrizione": "Web development, public data and editorial content. Platforms, API integrations, automation, SEO. Remote, in Italian, English and Spanish."
+    "descrizione": "Freelance full stack developer: Open2B e-commerce, websites and applications in Next.js, integrations, public data. Working remotely in Italian, English and Spanish."
   },
-  "nav": {
-    "contatti": "Contact"
+  "nome": "Gianlivio Iemolo",
+  "ruolo": "Full stack web developer · freelance",
+  "testata": {
+    "cv": "CV",
+    "scrivimi": "Get in touch",
+    "lingua": "Language"
   },
-  "apertura": {
-    "nome": "Gianlivio Iemolo",
-    "tesi": [
-      {
-        "t": "I build web platforms and work with "
-      },
-      {
-        "t": "public data",
-        "e": true
-      },
-      {
-        "t": " and "
-      },
-      {
-        "t": "editorial content",
-        "e": true
-      },
-      {
-        "t": "."
-      }
-    ],
-    "sommario": [
-      "I build sites and applications, integrate APIs, and turn work once done by hand into automatic processes. When data is messy or locked inside PDFs, I pull it out and make it readable.",
-      "Freelance, registered in Italy. I work remotely for clients in Italy and abroad."
-    ],
-    "apparato": [
-      {
-        "dt": "Based in",
-        "dd": "Italy — working remotely"
-      },
-      {
-        "dt": "Languages",
-        "dd": "Italian, English, Spanish"
-      },
-      {
-        "dt": "Education",
-        "dd": "Semiotics and philosophy, University of Bologna"
-      }
-    ]
-  },
-  "archivio": {
-    "apparato": [
-      {
-        "dt": "What this is",
-        "dd": "Each dot is a public contract for migrant reception. Eleven years, 18,104 rows, from the ANAC database."
-      },
-      {
-        "dt": "Axes",
-        "dd": "Horizontal: year. Vertical: amount, logarithmic scale."
-      },
-      {
-        "dt": "Sample",
-        "dd": "5,000 contracts drawn from the 18,104 in the archive."
-      }
-    ],
-    "legenda": {
-      "diretto": "direct award",
-      "gara": "open tender"
-    }
+  "guida": {
+    "mouse": "Drag to look around · click a project",
+    "tocco": "Swipe to look around · tap a project"
   },
   "lavori": {
-    "occhiello": "Work",
-    "vedi": "See",
-    "items": [
-      {
-        "id": "osservatorio",
-        "titolo": "Osservatorio Accoglienza",
-        "sottotitolo": "A public archive of contracts for migrant reception services in Italy. Data I collected, cleaned and put online.",
-        "apparato": [
-          {
-            "dt": "Year",
-            "dd": "2026"
-          },
-          {
-            "dt": "Type",
-            "dd": "Personal project, open source"
-          },
-          {
-            "dt": "Tools",
-            "dd": "Python · pdfplumber · Next.js · TypeScript · GitHub Actions"
-          },
-          {
-            "dt": "Sources",
-            "dd": "ANAC, Italian Ministry of the Interior"
-          }
-        ],
-        "limite": "The limits of the data are stated on the methodology page: incomplete coverage, amounts that cannot be summed, per-person cost not derivable.",
-        "voci": [
-          {
-            "h": "Eleven years of contracts, 18,104 rows",
-            "p": "Three ANAC datasets merged in Python: monthly downloads, normalisation, a two-level filter with a confidence index. A 2015–2025 archive, versioned in the repository."
-          },
-          {
-            "h": "Ninety ministerial PDFs, read by a machine",
-            "p": "The series on unaccompanied foreign minors lived only inside ministry reports. pdfplumber extracts them: 84 monthly reports from 2016 to 2022, then half-yearly ones through 2025."
-          },
-          {
-            "h": "Static site, automatic updates",
-            "p": "Next.js and TypeScript on Vercel, hand-written CSS. A GitHub Actions workflow opens the update reminder each month. Technical SEO, structured data, all open source."
-          }
-        ]
-      },
-      {
-        "id": "futura",
-        "titolo": "Futura Blog",
-        "sottotitolo": "A business tool for growth and online authority: a team of AI agents produces geo/EO-targeted content, autoblogging and business analysis. Co-founder, from product to launch.",
-        "apparato": [
-          {
-            "dt": "Year",
-            "dd": "2026 — ongoing"
-          },
-          {
-            "dt": "Type",
-            "dd": "Product, built by two people"
-          },
-          {
-            "dt": "Role",
-            "dd": "Development, editing, SEO"
-          },
-          {
-            "dt": "Tools",
-            "dd": "Next.js · TypeScript · Supabase · Claude API · Search Console"
-          }
-        ],
-        "voci": [
-          {
-            "h": "The platform",
-            "p": "Next.js and TypeScript, Supabase database. As co-founder: architecture, deployment, and the functions that move an article from draft to publication."
-          },
-          {
-            "h": "The agent team",
-            "p": "Specialised AI agents: content tuned for geographic and generative search, scheduled autoblogging, analysis of the client's business. I write the prompts; tone shifts from client to client."
-          },
-          {
-            "h": "Growth and search",
-            "p": "Editorial plans read against Search Console, measuring the authority gained. I optimise for people searching Google and for people asking a model. No article ships without human review."
-          }
-        ]
-      },
-      {
-        "id": "puntoluce",
-        "titolo": "shop.puntoluce.net",
-        "sottotitolo": "Two years on an electrical and plumbing supplies e-commerce turning over around €20,000 a day: theme built from scratch on Open2B, integrations, internal applications, tracking.",
-        "apparato": [
-          {
-            "dt": "Years",
-            "dd": "October 2024 — June 2026"
-          },
-          {
-            "dt": "Contract",
-            "dd": "Employee, permanent"
-          },
-          {
-            "dt": "Type",
-            "dd": "B2B and B2C e-commerce"
-          },
-          {
-            "dt": "Scale",
-            "dd": "51,240 SKUs · 13,102 categories · 300+ suppliers"
-          },
-          {
-            "dt": "Tools",
-            "dd": "PHP · JavaScript · MySQL · Open2B/Scriggo · GTM/GA4 · Brevo · Cloudflare"
-          }
-        ],
-        "voci": [
-          {
-            "h": "Frontend and theme",
-            "p": "A complete Open2B/Scriggo template, rebuilt mobile-first. Checkout cut from three pages to one, dynamic search filters, dark theme, a department mega-menu, a product page with spec sheets, reviews and real-time stock."
-          },
-          {
-            "h": "Integrations and feeds",
-            "p": "Open2B ↔ Brevo sync for contacts and catalogue. Product feeds generated for Trovaprezzi, Kelkoo, Google Merchant and Doofinder, filtered by availability and priced by weight band."
-          },
-          {
-            "h": "Internal automation",
-            "p": "Apps on the Open2B API for the work the office did by hand: pulling orders and customers, sorting by tax area, checking shipped quantities, archiving receipts, generating product descriptions."
-          },
-          {
-            "h": "Tracking and analytics",
-            "p": "GA4 e-commerce via GTM, Facebook Pixel, Microsoft UET and Clarity. Purchase-funnel events mapped one by one, from product view to purchase, reading data from the DOM rather than fragile variables."
-          },
-          {
-            "h": "Consent and compliance",
-            "p": "Cookiebot and Consent Mode v2: no cookies before consent, tags that fire only with the right category, anonymous pre-consent tracking to keep the aggregate data. Cookies classified in four languages."
-          },
-          {
-            "h": "Tax data and checkout",
-            "p": "VAT validation over Cerved and VIES across 28 EU countries, with auto-fill at checkout. Postcode autocomplete over Italian towns, interdependent shipping and payment rules handled client-side."
-          },
-          {
-            "h": "Performance",
-            "p": "LCP from 12 to 4 seconds, TBT down 40%. CSS rewritten mobile-first and split by section, media queries in a separate file, images and Lighthouse scores gone through. Apps optimised to handle tens of thousands of products and orders."
-          },
-          {
-            "h": "SEO, accessibility, security",
-            "p": "Heading structure rebuilt for SEO, Feedaty structured data validated for stars in the SERPs. WAVE and axe accessibility audits, viewport made zoomable again. Cloudflare for CDN and protection, A+ on security headers."
-          }
-        ]
-      },
-      {
-        "id": "livellozero",
-        "titolo": "Livello Zero",
-        "sottotitolo": "Editorial website about video games, with its own management system. Built to commission, live at livellozero.games.",
-        "apparato": [
-          {
-            "dt": "Year",
-            "dd": "June 2026 — present"
-          },
-          {
-            "dt": "Type",
-            "dd": "Editorial website built to commission, with custom CMS"
-          },
-          {
-            "dt": "Role",
-            "dd": "Development, software architecture, maintenance"
-          },
-          {
-            "dt": "Tools",
-            "dd": "Next.js · TypeScript · Vercel"
-          }
-        ],
-        "voci": [
-          {
-            "h": "The site",
-            "p": "Next.js (App Router) and TypeScript, deployed on Vercel. Built from scratch on the livellozero.games domain."
-          },
-          {
-            "h": "The management system",
-            "p": "A CMS written for this project: the client writes articles, customises sections, uploads images and manages the site's back end without touching the code."
-          },
-          {
-            "h": "After delivery",
-            "p": "Ongoing maintenance of the site and the management system, on an annual fee."
-          }
-        ]
-      },
-      {
-        "id": "allstudios",
-        "titolo": "All Studios",
-        "sottotitolo": "Application for teams of graphic designers: a shared workspace with advanced tools and artificial intelligence.",
-        "apparato": [
-          {
-            "dt": "Year",
-            "dd": "2026"
-          },
-          {
-            "dt": "Type",
-            "dd": "Web application"
-          },
-          {
-            "dt": "Role",
-            "dd": "Structure, copy, pages, testing"
-          }
-        ],
-        "voci": [
-          {
-            "h": "Structure and testing",
-            "p": "Design of the site and app structure: pages, sections, organisation of content within the virtual space. Copywriting, development of some pages, testing before launch."
-          }
-        ]
-      },
-      {
-        "id": "ndnluxury",
-        "titolo": "NDN Luxury",
-        "sottotitolo": "Website of a resin and microcement finishes brand.",
-        "apparato": [
-          {
-            "dt": "Year",
-            "dd": "2026"
-          },
-          {
-            "dt": "Type",
-            "dd": "Business website, freelance"
-          },
-          {
-            "dt": "Role",
-            "dd": "Web development, maintenance"
-          }
-        ],
-        "voci": [
-          {
-            "h": "Pages, maintenance, animations",
-            "p": "New pages, maintenance and improvements to the existing site, 3D animations."
-          }
-        ]
-      },
-      {
-        "id": "eshhousing",
-        "titolo": "ESH – Erasmus Student Housing",
-        "sottotitolo": "Rental housing for Erasmus students.",
-        "apparato": [
-          {
-            "dt": "Year",
-            "dd": "2026"
-          },
-          {
-            "dt": "Type",
-            "dd": "Business website, freelance"
-          },
-          {
-            "dt": "Role",
-            "dd": "Web development, maintenance"
-          }
-        ],
-        "voci": [
-          {
-            "h": "Pages and maintenance",
-            "p": "New site pages and maintenance."
-          }
-        ]
-      }
-    ]
-  },
-  "percorso": {
-    "occhiello": "Path",
-    "titolo": "From thought to syntax",
-    "apparato": [
-      {
-        "dt": "Before the code",
-        "dd": "Philosophy, then semiotics. Copywriting and content strategy. A year as an educator working with unaccompanied foreign minors — the Osservatorio comes from there."
-      },
-      {
-        "dt": "Certifications",
-        "dd": "Google Analytics · GA4 Advanced · Consent Mode v2"
-      }
-    ],
-    "tappe": [
-      {
-        "anno": "2026 →",
-        "cosa": "Futura Blog",
-        "dove": "Development, editing, SEO — remote"
-      },
-      {
-        "anno": "2026",
-        "cosa": "Livello Zero",
-        "dove": "Full stack developer — editorial website and custom CMS, freelance"
-      },
-      {
-        "anno": "2026",
-        "cosa": "All Studios",
-        "dove": "Web developer — structure and testing of an app for graphic design teams, freelance"
-      },
-      {
-        "anno": "2026",
-        "cosa": "NDN Luxury",
-        "dove": "Web developer — pages, maintenance and 3D animations, freelance"
-      },
-      {
-        "anno": "2026",
-        "cosa": "ESH – Erasmus Student Housing",
-        "dove": "Web developer — pages and maintenance, freelance"
-      },
-      {
-        "anno": "2026",
-        "cosa": "Beauty Broker World",
-        "dove": "QA — team across Italy, Brazil and the US"
-      },
-      {
-        "anno": "2024–26",
-        "cosa": "Punto Luce / EDIF",
-        "dove": "Full stack, employee — Sasso Marconi, Bologna"
-      },
-      {
-        "anno": "2024",
-        "cosa": "Boolean",
-        "dove": "Full stack programme, 700 hours — Milan"
-      },
-      {
-        "anno": "2023–24",
-        "cosa": "Copystudio",
-        "dove": "Copywriting and brand identity"
-      },
-      {
-        "anno": "2023",
-        "cosa": "Hetaweb",
-        "dove": "SEO and editorial management for 30+ clients"
-      },
-      {
-        "anno": "2020",
-        "cosa": "Master's degree in semiotics",
-        "dove": "University of Bologna — thesis on the semiotic practices of administering space"
-      },
-      {
-        "anno": "2019",
-        "cosa": "Erasmus+",
-        "dove": "Universidad de Granada"
-      },
-      {
-        "anno": "2017",
-        "cosa": "Bachelor's degree in philosophy",
-        "dove": "University of Bologna — logic, philosophy of language, epistemology"
-      }
-    ]
-  },
-  "contatti": {
-    "occhiello": "Contact",
-    "titolo": "Write to me",
-    "sottotitolo": "If you have a project, tell me how it stands now: what already exists, what isn't working, when you need it by.",
-    "apparato": [
-      {
-        "dt": "Availability",
-        "dd": "Remote, in Italian, English and Spanish"
-      },
-      {
-        "dt": "Invoicing",
-        "dd": "Italian VAT number"
-      },
-      {
-        "dt": "Curriculum",
-        "dd": "PDF, ~70 KB"
-      }
-    ],
-    "etichette": {
-      "email": "Email",
-      "telefono": "Phone",
-      "linkedin": "LinkedIn",
-      "github": "GitHub"
+    "shop": {
+      "tipo": "E-commerce · Open2B",
+      "titolo": "shop.puntoluce.net",
+      "riga": "Theme built from scratch on Open2B for an electrical supplies e-commerce turning over around €20,000 a day. Checkout, integrations, internal applications, tracking."
     },
-    "cv": {
-      "it": "Curriculum, Italian",
-      "en": "English",
-      "es": "Español"
+    "osservatorio": {
+      "tipo": "Public data · open source",
+      "titolo": "Osservatorio Accoglienza",
+      "riga": "Eleven years of public contracts for migrant reception, 18,104 ANAC records read and cleaned in Python. The points around you are those contracts."
+    },
+    "livellozero": {
+      "tipo": "Editorial site · custom CMS",
+      "titolo": "Livello Zero",
+      "riga": "Video game website built from scratch in Next.js, with a management system the client uses to publish on his own. Ongoing maintenance."
+    },
+    "futura": {
+      "tipo": "Platform · AI agents",
+      "titolo": "Futura Blog",
+      "riga": "Editorial platform where AI agents produce content for Google search and generative models. Development, prompts, review."
+    },
+    "ndnluxury": {
+      "tipo": "Business website",
+      "titolo": "NDN Luxury",
+      "riga": "Website of a resin and microcement finishes brand: new pages, maintenance, 3D animations."
+    },
+    "esh": {
+      "tipo": "Business website",
+      "titolo": "ESH – Erasmus Student Housing",
+      "riga": "Rental housing for Erasmus students: new pages and site maintenance."
+    },
+    "blog": {
+      "tipo": "Blog · WordPress",
+      "titolo": "Come fare — Punto Luce",
+      "riga": "Punto Luce's technical blog on WordPress, separate from the shop: article layout and connection with the store."
+    },
+    "allstudios": {
+      "tipo": "Web application",
+      "titolo": "All Studios",
+      "riga": "Shared workspace for teams of graphic designers, with artificial intelligence tools. Structure, copy, some pages, testing."
+    },
+    "jointoyou": {
+      "tipo": "Blog · content",
+      "titolo": "jointoyou.it",
+      "riga": "The site's blog and a series of articles."
+    },
+    "copystudio": {
+      "tipo": "Copywriting · brand",
+      "titolo": "Copystudio",
+      "riga": "Copy and brand identity for the agency's client websites, starting from interviews on tone, audience and positioning."
+    },
+    "hetaweb": {
+      "tipo": "SEO · editorial",
+      "titolo": "Hetaweb",
+      "riga": "Editorial management and SEO for the blogs of 30+ agency clients, including the Italian National Rugby Team."
     }
   },
-  "piede": {
-    "sinistra": "Gianlivio Iemolo — 2026",
-    "destra": "Next.js · TypeScript · Vercel"
+  "contatto": {
+    "tipo": "The next project",
+    "titolo": "Get in touch",
+    "riga": "Tell me what you need."
+  },
+  "vignetta": {
+    "visita": "Visit the site",
+    "senzaLink": "Not public yet",
+    "chiudi": "Close",
+    "precedente": "Previous project",
+    "successivo": "Next project"
+  },
+  "modulo": {
+    "titolo": "What do you need?",
+    "sottotitolo": "A website, an e-commerce to fix, an integration, ongoing maintenance. Tell me where things stand now.",
+    "nome": "Name",
+    "email": "Email",
+    "messaggio": "Message",
+    "segnaposto": "What already exists, what doesn't work, when you need it…",
+    "invia": "Send",
+    "invio": "Sending…",
+    "ok": "Message received. I'll get back to you soon.",
+    "errore": "The message didn't go through. Write to me directly at",
+    "chiudi": "Close"
+  },
+  "elenco": {
+    "titolo": "Projects",
+    "recapiti": "Contact",
+    "cv": "Résumé (PDF)"
   }
 }

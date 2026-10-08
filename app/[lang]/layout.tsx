@@ -1,27 +1,36 @@
 import type { Metadata } from "next";
-import { Newsreader, IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
+import localFont from "next/font/local";
 import { getDizionario, lingue } from "@/dictionaries";
 import "../globals.css";
 import { urlSito } from "@/content/sito";
 
-const serif = Newsreader({
-  subsets: ["latin"],
-  weight: ["300", "400"],
-  style: ["normal", "italic"],
+/* Font auto-ospitati in app/fonts: il build non dipende da Google Fonts. */
+const serif = localFont({
+  src: [
+    { path: "../fonts/newsreader-latin-300-normal.woff2", weight: "300", style: "normal" },
+    { path: "../fonts/newsreader-latin-300-italic.woff2", weight: "300", style: "italic" },
+    { path: "../fonts/newsreader-latin-400-normal.woff2", weight: "400", style: "normal" },
+    { path: "../fonts/newsreader-latin-400-italic.woff2", weight: "400", style: "italic" },
+  ],
   variable: "--font-serif",
   display: "swap",
 });
 
-const sans = IBM_Plex_Sans({
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
+const sans = localFont({
+  src: [
+    { path: "../fonts/ibm-plex-sans-latin-400-normal.woff2", weight: "400", style: "normal" },
+    { path: "../fonts/ibm-plex-sans-latin-500-normal.woff2", weight: "500", style: "normal" },
+    { path: "../fonts/ibm-plex-sans-latin-600-normal.woff2", weight: "600", style: "normal" },
+  ],
   variable: "--font-sans",
   display: "swap",
 });
 
-const mono = IBM_Plex_Mono({
-  subsets: ["latin"],
-  weight: ["400", "500"],
+const mono = localFont({
+  src: [
+    { path: "../fonts/ibm-plex-mono-latin-400-normal.woff2", weight: "400", style: "normal" },
+    { path: "../fonts/ibm-plex-mono-latin-500-normal.woff2", weight: "500", style: "normal" },
+  ],
   variable: "--font-mono",
   display: "swap",
 });
@@ -68,8 +77,8 @@ export default async function Layout({
 }) {
   const { lang } = await params;
   return (
-    <html lang={lang}>
-      <body className={`${serif.variable} ${sans.variable} ${mono.variable}`}>
+    <html lang={lang} className={`${serif.variable} ${sans.variable} ${mono.variable}`}>
+      <body>
         {children}
       </body>
     </html>
