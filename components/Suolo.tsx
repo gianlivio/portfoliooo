@@ -11,8 +11,7 @@ import { Reflector } from "three/examples/jsm/objects/Reflector.js";
  * Di giorno: un pavimento di marmo chiaro e lucido, con venature morbide, che riflette le carte.
  */
 
-/** l'acqua sta più in alto del campo: appena sotto la carta più bassa, così i riflessi le stanno vicini */
-const PELO_ACQUA = -1.22;
+import { PELO_ACQUA, scia } from "./condivisi";
 
 
 
@@ -32,6 +31,8 @@ const ACQUA_FRAG = `
 uniform vec3 color;
 uniform sampler2D tDiffuse;
 uniform float uTempo;
+uniform vec4 uScia;
+uniform float uSciaForza;
 varying vec4 vUv;
 varying vec3 vMondo;
 void main(){
@@ -42,6 +43,18 @@ void main(){
     sin(p.x * 1.9 + t * 0.7) + sin((p.x + p.y) * 3.3 - t * 1.1) * 0.5,
     sin(p.y * 2.3 - t * 0.9) + sin((p.x - p.y) * 2.7 + t * 1.3) * 0.5
   ) * 0.0045;
+  // la scia a V di chi nuota: onde che si aprono dietro la testa e si spengono allontanandosi
+  float cresta = 0.0;
+  if (uSciaForza > 0.001) {
+    vec2 q = p - uScia.xy;
+    float dietro = dot(q, -uScia.zw);
+    float lato = abs(dot(q, vec2(-uScia.w, uScia.z)));
+    float v = smoothstep(-0.2, 0.3, dietro) * (1.0 - smoothstep(0.0, 0.25, lato - dietro * 0.36 - 0.12));
+    float onda = sin((dietro * 0.5 + lato) * 22.0 - t * 7.0);
+    float spegni = exp(-max(dietro, 0.0) * 1.3) * uSciaForza;
+    d += normalize(q + 0.0001) * onda * 0.0028 * v * spegni;
+    cresta = max(onda, 0.0) * v * spegni;
+  }
   vec2 uv = vUv.xy / vUv.w + d;
   vec3 riflesso = texture2D(tDiffuse, uv).rgb;
   float r = length(p);
@@ -49,6 +62,7 @@ void main(){
   // la riflessione si fa più forte verso l'orizzonte (Fresnel di comodo) e si spegne in lontananza
   float fresnel = 0.42 + 0.3 * smoothstep(3.0, 16.0, r);
   vec3 c = mix(color, riflesso, fresnel * vicino);
+  c += vec3(0.025, 0.03, 0.035) * cresta;
   gl_FragColor = vec4(c, 1.0);
   #include <colorspace_fragment>
 }`;
@@ -73,6 +87,8 @@ function Specchio({
           tDiffuse: { value: null },
           textureMatrix: { value: null },
           uTempo: { value: 0 },
+          uScia: { value: new THREE.Vector4() },
+          uSciaForza: { value: 0 },
         },
         vertexShader: ACQUA_VERT,
         fragmentShader: frammento,
@@ -102,7 +118,12 @@ function Specchio({
   useFrame((stato) => {
     const r = rif.current;
     if (!r) return;
-    (r.material as THREE.ShaderMaterial).uniforms.uTempo.value = ridotto ? 0 : stato.clock.elapsedTime;
+    const u = (r.material as THREE.ShaderMaterial).uniforms;
+    u.uTempo.value = ridotto ? 0 : stato.clock.elapsedTime;
+    if (u.uScia) {
+      u.uScia.value.set(scia.pos.x, scia.pos.y, scia.dir.x, scia.dir.y);
+      u.uSciaForza.value = scia.forza;
+    }
     const g = stato.gl;
     riflessione.current?.(g, stato.scene, stato.camera, null as never, r.material as never, null as never);
   });

@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import Cielo from "./Cielo";
 import Portale from "./Portale";
+import Fauna from "./Fauna";
 import Suolo, { CieloDiGiorno } from "./Suolo";
 import { disegnaCopertina, FINESTRA, FLUO, LARGHEZZA, ALTEZZA, type DatiCopertina, type Famiglie } from "./copertina";
 
@@ -753,6 +754,7 @@ export default function Scena(props: Props) {
         attiva={attiva}
       />
       {tema === "chiaro" && <CieloDiGiorno orizzonte={p.fondo} />}
+      <Fauna notte={tema === "scuro"} ridotto={props.ridotto} stretto={stretto} />
       <Suolo notte={tema === "scuro"} fondo={p.fondo} stretto={stretto} ridotto={props.ridotto} />
       <Cielo
         notte={tema === "scuro"}
