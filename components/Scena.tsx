@@ -3,8 +3,9 @@
 import { Canvas, useFrame, useThree, type ThreeEvent } from "@react-three/fiber";
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
-import archivio from "@/public/dati/archivio.json";
-import Storia from "./Storia";
+import Cielo from "./Cielo";
+import Orbita from "./Orbita";
+import Suolo, { CieloDiGiorno } from "./Suolo";
 import { disegnaCopertina, FINESTRA, LARGHEZZA, ALTEZZA, type DatiCopertina, type Famiglie } from "./copertina";
 
 /**
@@ -34,6 +35,9 @@ type Props = {
   stretto: boolean;
   tema: Tema;
   conIngresso: boolean;
+  lingua: string;
+  /** con il modulo aperto le carte affondano nel suolo, una dopo l'altra */
+  moduloAperto: boolean;
 };
 
 /* Ogni tema cambia più dei colori: luce, densità, peso dei segni. */
@@ -44,37 +48,24 @@ export const PALETTE = {
     carta: "#F3F1EB",
     filigrana: "#E9E6DD",
     filigranaRiposo: 0.1,
-    punti: "#6E706A",
-    puntiOpacita: 0.55,
-    puntiDim: 0.05,
-    orizzonte: "#2E3038",
-    segno: "#F3F1EB",
-    ombra: 0,
-    storia: "#C9C7C0",
-    storiaOpacita: 0.5,
+    costellazione: "#E9E6DD",
   },
   chiaro: {
-    fondo: "#EFEDE6",
-    nebbia: 0.034,
+    fondo: "#E9ECEC",
+    nebbia: 0.022,
     carta: "#FFFFFF",
     filigrana: "#16171A",
     filigranaRiposo: 0.12,
-    punti: "#16171A",
-    puntiOpacita: 0.3,
-    puntiDim: 0.04,
-    orizzonte: "#C9C6BC",
-    segno: "#1B3FD1",
-    ombra: 0.1,
-    storia: "#16171A",
-    storiaOpacita: 0.45,
+    costellazione: "#16171A",
   },
 } as const;
 
 const RAGGIO = 6;
+/** a riposo lo sguardo scende appena: si vede il suolo, e lo specchio d'acqua non degenera in orizzontale */
+const SGUARDO = -0.06;
 const LARGO = 2.4;
 const ALTO = 1.65;
 const QUOTE = [0.3, -0.22, 0.42, -0.34, 0.12, -0.1];
-const SUOLO = -1.55;
 
 /* Il faro: il segno sull'orizzonte fa un giro al minuto; quando passa sotto una carta,
    un fascio di luce la attraversa in diagonale. */
@@ -160,28 +151,12 @@ function disegnaFrammento(testo: string, mono: string) {
   return t;
 }
 
-/** Ombra morbida, una sola texture per tutte le carte. */
-function disegnaOmbra() {
-  const tela = document.createElement("canvas");
-  tela.width = tela.height = 128;
-  const ctx = tela.getContext("2d");
-  if (ctx) {
-    const g = ctx.createRadialGradient(64, 64, 0, 64, 64, 64);
-    g.addColorStop(0, "rgba(0,0,0,1)");
-    g.addColorStop(1, "rgba(0,0,0,0)");
-    ctx.fillStyle = g;
-    ctx.fillRect(0, 0, 128, 128);
-  }
-  return new THREE.CanvasTexture(tela);
-}
-
 /* ------------------------------------------------------------------ carte */
 
 type Grafica = {
   copertine: THREE.CanvasTexture[];
   frammenti: THREE.CanvasTexture[];
   schermi: (THREE.Texture | null)[];
-  ombra: THREE.CanvasTexture;
 };
 
 type Riflesso = THREE.ShaderMaterial & {
@@ -203,15 +178,14 @@ function quotaVisibile(img: HTMLImageElement) {
 }
 
 function Carte({
-  carte, selezionato, focale, onSeleziona, ridotto, onPronta, tema, conIngresso,
-}: Omit<Props, "onInteragisci" | "stretto">) {
+  carte, selezionato, focale, onSeleziona, ridotto, onPronta, tema, conIngresso, moduloAperto, attiva,
+}: Omit<Props, "onInteragisci" | "stretto" | "lingua"> & { attiva: React.MutableRefObject<string | null> }) {
   const [grafica, setGrafica] = useState<Grafica | null>(null);
   const [sopra, setSopra] = useState<string | null>(null);
   const gruppi = useRef<(THREE.Group | null)[]>([]);
   const lastre = useRef<(THREE.Mesh | null)[]>([]);
   const materiali = useRef<(THREE.MeshBasicMaterial | null)[]>([]);
   const filigrane = useRef<(THREE.MeshBasicMaterial | null)[]>([]);
-  const ombre = useRef<(THREE.MeshBasicMaterial | null)[]>([]);
   const vetri = useRef<(THREE.MeshBasicMaterial | null)[]>([]);
   const riflessi = useMemo(
     () =>
@@ -239,6 +213,8 @@ function Carte({
   useEffect(() => () => riflessi.forEach((r) => r.dispose()), [riflessi]);
   const scorrimento = useRef<{ p: number; verso: number }[]>([]);
   const puntatore = useRef(new THREE.Vector2());
+  const moduloRif = useRef(false);
+  const cambio = useRef(-1e9);
   const inizio = useRef<number | null>(null);
   const gl = useThree((s) => s.gl);
   const p = PALETTE[tema];
@@ -286,7 +262,7 @@ function Carte({
         t.needsUpdate = true;
         return t;
       });
-      setGrafica({ copertine, frammenti, schermi, ombra: disegnaOmbra() });
+      setGrafica({ copertine, frammenti, schermi });
       onPronta();
     })();
     return () => {
@@ -301,7 +277,6 @@ function Carte({
       grafica?.copertine.forEach((t) => t.dispose());
       grafica?.schermi.forEach((t) => t?.dispose());
       grafica?.frammenti.forEach((t) => t.dispose());
-      grafica?.ombra.dispose();
     },
     [grafica]
   );
@@ -319,25 +294,43 @@ function Carte({
     const t = stato.clock.elapsedTime - inizio.current;
     const k = 1 - Math.exp(-dt * (ridotto ? 60 : 7));
     const n = carte.length;
+
+    // la carta attiva, per il cielo: aperta, sotto il mouse o col fuoco da tastiera
+    attiva.current = moduloAperto
+      ? null
+      : selezionato ?? sopra ?? (focale !== null ? carte[focale]?.id ?? null : null);
+
+    // il modulo aperto fa affondare le carte una dopo l'altra; alla chiusura riemergono
+    if (moduloRif.current !== moduloAperto) {
+      moduloRif.current = moduloAperto;
+      cambio.current = stato.clock.elapsedTime;
+    }
+    const dalCambio = stato.clock.elapsedTime - cambio.current;
+
     carte.forEach((c, i) => {
       const g = gruppi.current[i];
       const lastra = lastre.current[i];
       const m = materiali.current[i];
       const fil = filigrane.current[i];
-      const om = ombre.current[i];
       if (!g || !lastra || !m || !fil) return;
 
       // ingresso: le carte compaiono una dopo l'altra, salendo dal suolo
       const entrata = ridotto || !conIngresso ? 1 : THREE.MathUtils.smoothstep(t, 0.3 + i * 0.08, 0.3 + i * 0.08 + 0.9);
-      const attiva = c.id === selezionato || (!selezionato && (c.id === sopra || focale === i));
+      const accesa = c.id === selezionato || (!selezionato && (c.id === sopra || focale === i));
       const altra = !!selezionato && c.id !== selezionato;
 
-      // posizione: la carta attiva si stacca dall'anello verso chi guarda
+      // posizione: la carta accesa si stacca dall'anello verso chi guarda
       const a = angoloDi(i, n);
-      const r = RAGGIO - (attiva && !selezionato ? 0.35 : 0);
+      const r = RAGGIO - (accesa && !selezionato ? 0.35 : 0);
       g.position.x = THREE.MathUtils.lerp(g.position.x, Math.sin(a) * r, k);
       g.position.z = THREE.MathUtils.lerp(g.position.z, -Math.cos(a) * r, k);
-      g.position.y = quotaDi(i) - (1 - entrata) * 0.9;
+      const affondo = ridotto
+        ? (moduloAperto ? 1 : 0)
+        : moduloAperto
+          ? THREE.MathUtils.smoothstep(dalCambio, i * 0.09, i * 0.09 + 1.6)
+          : 1 - THREE.MathUtils.smoothstep(dalCambio, 0.15 + i * 0.06, 0.15 + i * 0.06 + 1.3);
+      g.position.y = quotaDi(i) - (1 - entrata) * 0.9 - affondo * affondo * 2.6;
+      g.rotation.z = affondo * (i % 2 ? 0.06 : -0.06);
 
       // inclinazione verso il puntatore, solo sulla carta sotto il mouse
       const inclina = c.id === sopra && !selezionato && !ridotto;
@@ -346,17 +339,17 @@ function Carte({
       lastra.rotation.x = THREE.MathUtils.lerp(lastra.rotation.x, rx, k);
       lastra.rotation.y = THREE.MathUtils.lerp(lastra.rotation.y, ry, k);
 
-      m.opacity = THREE.MathUtils.lerp(m.opacity, (altra ? 0 : 1) * entrata, k);
+      m.opacity = THREE.MathUtils.lerp(m.opacity, (altra ? 0 : 1) * entrata * (1 - affondo * 0.85), k);
       lastra.visible = m.opacity > 0.015; // spenta del tutto, con schermo e riflesso
 
-      // la pagina del sito scorre nella finestra: avanti finché la carta è attiva, poi torna su
+      // la pagina del sito scorre nella finestra: avanti finché la carta è accesa, poi torna su
       const schermo = grafica.schermi[i];
       const vetro = vetri.current[i];
       if (schermo && vetro) {
         vetro.opacity = m.opacity;
         const corsa = 1 - schermo.repeat.y;
         const sc = (scorrimento.current[i] ??= { p: 0, verso: 1 });
-        if (attiva && corsa > 0 && !ridotto) {
+        if (accesa && corsa > 0 && !ridotto) {
           sc.p += dt * 0.045 * sc.verso;
           if (sc.p >= corsa) { sc.p = corsa; sc.verso = -1; }
           if (sc.p <= 0) { sc.p = 0; sc.verso = 1; }
@@ -380,9 +373,8 @@ function Carte({
         rf.uniforms.uPuntatore.value.set((puntatore.current.x + 1) / 2, (puntatore.current.y + 1) / 2);
         rf.uniforms.uOpacita.value = m.opacity;
       }
-      const filB = c.id === selezionato ? 0.72 : attiva ? 0.42 : altra ? 0 : p.filigranaRiposo;
+      const filB = c.id === selezionato ? 0.72 : accesa ? 0.42 : altra ? 0 : p.filigranaRiposo;
       fil.opacity = THREE.MathUtils.lerp(fil.opacity, filB * entrata, k * 0.6);
-      if (om) om.opacity = THREE.MathUtils.lerp(om.opacity, p.ombra * (altra ? 0.3 : 1) * entrata * (attiva ? 0.7 : 1), k);
     });
   });
 
@@ -465,141 +457,9 @@ function Carte({
                 />
               </mesh>
             </group>
-            {p.ombra > 0 && (
-              <mesh
-                position={[pos.x * 0.98, SUOLO + 0.01, pos.z * 0.98]}
-                rotation={[-Math.PI / 2, 0, -a]}
-                raycast={() => null}
-              >
-                <planeGeometry args={[LARGO * 0.95, 0.42]} />
-                <meshBasicMaterial
-                  ref={(m) => {
-                    ombre.current[i] = m;
-                  }}
-                  map={grafica.ombra}
-                  color="#000000"
-                  transparent
-                  opacity={0}
-                  depthWrite={false}
-                />
-              </mesh>
-            )}
           </group>
         );
       })}
-    </>
-  );
-}
-
-/* ----------------------------------------------------------------- polvere */
-
-function Polvere({ ridotto, stretto, tema }: { ridotto: boolean; stretto: boolean; tema: Tema }) {
-  const punti = useRef<THREE.Points>(null);
-  const materiale = useRef<THREE.PointsMaterial>(null);
-  const p = PALETTE[tema];
-
-  const geometria = useMemo(() => {
-    const righe = (archivio as { punti: [number, number, number][] }).punti;
-    const passo = stretto ? 2 : 1;
-    const scelte = righe.filter((_, i) => i % passo === 0);
-    const log = scelte.map((r) => Math.log10(Math.max(r[1], 1)));
-    const min = Math.min(...log);
-    const max = Math.max(...log);
-    let s = 7;
-    const rnd = () => {
-      s = (s * 16807) % 2147483647;
-      return s / 2147483647;
-    };
-    const pos = new Float32Array(scelte.length * 3);
-    scelte.forEach((r, i) => {
-      // anno → angolo intorno a chi guarda, importo → distanza
-      const a = ((r[0] - 2015 + rnd()) / 11) * Math.PI * 2;
-      const d = 9.5 + ((log[i] - min) / (max - min || 1)) * 7 + rnd() * 0.6;
-      pos[i * 3] = Math.sin(a) * d;
-      pos[i * 3 + 1] = SUOLO + Math.pow(rnd(), 1.6) * 6.5;
-      pos[i * 3 + 2] = -Math.cos(a) * d;
-    });
-    const g = new THREE.BufferGeometry();
-    g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
-    return g;
-  }, [stretto]);
-
-  useEffect(() => () => geometria.dispose(), [geometria]);
-
-  useFrame((_, dt) => {
-    if (punti.current && !ridotto) punti.current.rotation.y += dt * 0.006;
-    if (materiale.current) {
-      materiale.current.opacity = THREE.MathUtils.lerp(
-        materiale.current.opacity, p.puntiOpacita, 1 - Math.exp(-dt * 0.8)
-      );
-    }
-  });
-
-  return (
-    <points ref={punti} geometry={geometria} raycast={() => null}>
-      <pointsMaterial
-        ref={materiale}
-        color={p.punti}
-        size={p.puntiDim}
-        sizeAttenuation
-        transparent
-        opacity={0}
-        depthWrite={false}
-      />
-    </points>
-  );
-}
-
-/* ------------------------------------------------------------- orizzonte */
-
-/** Il rigo sotto le carte e un segno breve che lo percorre, un giro al minuto. */
-function Orizzonte({ tema, ridotto }: { tema: Tema; ridotto: boolean }) {
-  const p = PALETTE[tema];
-  const segno = useRef<THREE.Group>(null);
-
-  const [rigo, arco] = useMemo(() => {
-    const cerchio = (da: number, a: number, passi: number) => {
-      const pts: number[] = [];
-      for (let i = 0; i <= passi; i++) {
-        const t = da + ((a - da) * i) / passi;
-        pts.push(Math.sin(t) * RAGGIO, SUOLO, -Math.cos(t) * RAGGIO);
-      }
-      const g = new THREE.BufferGeometry();
-      g.setAttribute("position", new THREE.Float32BufferAttribute(pts, 3));
-      return g;
-    };
-    const l1 = new THREE.Line(
-      cerchio(0, Math.PI * 2, 256),
-      new THREE.LineBasicMaterial({ color: p.orizzonte, transparent: true, opacity: 0.9 })
-    );
-    const l2 = new THREE.Line(
-      cerchio(0, 0.32, 24),
-      new THREE.LineBasicMaterial({ color: p.segno, transparent: true, opacity: 0.85 })
-    );
-    return [l1, l2];
-  }, [p.orizzonte, p.segno]);
-
-  useEffect(
-    () => () => {
-      [rigo, arco].forEach((l) => {
-        l.geometry.dispose();
-        (l.material as THREE.Material).dispose();
-      });
-    },
-    [rigo, arco]
-  );
-
-  useFrame((stato) => {
-    // stesso orologio dei fasci sulle carte: il segno è il faro
-    if (segno.current && !ridotto) segno.current.rotation.y = ARCO_FARO / 2 - faroAl(stato.clock.elapsedTime);
-  });
-
-  return (
-    <>
-      <primitive object={rigo} raycast={() => null} />
-      <group ref={segno}>
-        <primitive object={arco} raycast={() => null} />
-      </group>
     </>
   );
 }
@@ -612,7 +472,7 @@ function Regia({
   const { camera, gl } = useThree();
   const s = useRef({
     yaw: 0,
-    pitch: conIngresso && !ridotto ? -0.22 : 0,
+    pitch: conIngresso && !ridotto ? -0.22 : SGUARDO,
     vy: 0,
     trascina: false, lx: 0, ly: 0, ultimo: -1e9,
   });
@@ -640,7 +500,7 @@ function Regia({
       const k = e.pointerType === "touch" ? 0.006 : 0.0042;
       st.vy = -dx * k;
       st.yaw += st.vy;
-      st.pitch = THREE.MathUtils.clamp(st.pitch + dy * k * 0.6, -0.3, 0.3);
+      st.pitch = THREE.MathUtils.clamp(st.pitch + dy * k * 0.6, -0.25, 0.75);
       st.ultimo = performance.now();
       onInteragisci();
     };
@@ -686,7 +546,7 @@ function Regia({
     if (i >= 0) {
       const a = angoloDi(i, n);
       st.yaw = THREE.MathUtils.lerp(st.yaw, piuVicino(st.yaw, a), ease(3));
-      st.pitch = THREE.MathUtils.lerp(st.pitch, 0, ease(3));
+      st.pitch = THREE.MathUtils.lerp(st.pitch, SGUARDO, ease(3));
       st.vy = 0;
       const dist = stretto ? 4.3 : 3.5;
       posB.copy(direzione(a)).multiplyScalar(RAGGIO - dist);
@@ -707,7 +567,7 @@ function Regia({
         const fermo = performance.now() - st.ultimo > 3000;
         if (fermo && !ridotto) st.yaw += dt * 0.018;
       }
-      if (!st.trascina) st.pitch = THREE.MathUtils.lerp(st.pitch, 0, ease(1.1));
+      if (!st.trascina) st.pitch = THREE.MathUtils.lerp(st.pitch, SGUARDO, ease(1.1));
       posB.set(0, 0, 0);
     }
 
@@ -728,8 +588,19 @@ function Regia({
 /* ------------------------------------------------------------------ scena */
 
 export default function Scena(props: Props) {
-  const { stretto, tema } = props;
+  const { stretto, tema, carte } = props;
   const p = PALETTE[tema];
+  const attiva = useRef<string | null>(null);
+  const [angoli, quote] = useMemo(() => {
+    const an: Record<string, number> = {};
+    const qu: Record<string, number> = {};
+    carte.forEach((c, i) => {
+      an[c.id] = angoloDi(i, carte.length);
+      qu[c.id] = quotaDi(i);
+    });
+    return [an, qu];
+  }, [carte]);
+  const mono = useMemo(() => leggiFamiglie().mono, []);
   return (
     <Canvas
       className="tela"
@@ -755,10 +626,30 @@ export default function Scena(props: Props) {
         onPronta={props.onPronta}
         tema={tema}
         conIngresso={props.conIngresso}
+        moduloAperto={props.moduloAperto}
+        attiva={attiva}
       />
-      <Polvere ridotto={props.ridotto} stretto={stretto} tema={tema} />
-      <Orizzonte tema={tema} ridotto={props.ridotto} />
-      <Storia colore={p.storia} opacita={p.storiaOpacita} ridotto={props.ridotto} attenuata={!!props.selezionato} />
+      {tema === "chiaro" && <CieloDiGiorno orizzonte={p.fondo} />}
+      <Suolo notte={tema === "scuro"} fondo={p.fondo} stretto={stretto} ridotto={props.ridotto} />
+      <Cielo
+        notte={tema === "scuro"}
+        colore={p.costellazione}
+        lingua={props.lingua}
+        angoli={angoli}
+        quote={quote}
+        attiva={attiva}
+        ridotto={props.ridotto}
+        stretto={stretto}
+        mono={mono}
+      />
+      <Orbita
+        colore={p.costellazione}
+        opacita={tema === "scuro" ? 0.42 : 0.5}
+        mono={mono}
+        attiva={attiva}
+        ridotto={props.ridotto}
+        stretto={stretto}
+      />
     </Canvas>
   );
 }

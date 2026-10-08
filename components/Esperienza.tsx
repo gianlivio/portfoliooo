@@ -234,6 +234,8 @@ export default function Esperienza({ d, lingua }: { d: Dizionario; lingua: Lingu
           stretto={ambiente.stretto}
           tema={tema}
           conIngresso={montaggi === 0}
+          lingua={lingua}
+          moduloAperto={modulo}
         />
       </div>
 

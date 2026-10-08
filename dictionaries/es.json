@@ -23,7 +23,7 @@
     "osservatorio": {
       "tipo": "Datos públicos · código abierto",
       "titolo": "Osservatorio Accoglienza",
-      "riga": "Once años de contratos públicos de acogida, 18.104 registros de ANAC leídos y limpiados en Python. Los puntos que ves alrededor son esos contratos."
+      "riga": "Once años de contratos públicos de acogida, 18.104 registros de ANAC leídos y limpiados en Python."
     },
     "livellozero": {
       "tipo": "Sitio editorial · CMS a medida",

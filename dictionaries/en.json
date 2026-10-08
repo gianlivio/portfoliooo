@@ -23,7 +23,7 @@
     "osservatorio": {
       "tipo": "Public data · open source",
       "titolo": "Osservatorio Accoglienza",
-      "riga": "Eleven years of public contracts for migrant reception, 18,104 ANAC records read and cleaned in Python. The points around you are those contracts."
+      "riga": "Eleven years of public contracts for migrant reception, 18,104 ANAC records read and cleaned in Python."
     },
     "livellozero": {
       "tipo": "Editorial site · custom CMS",

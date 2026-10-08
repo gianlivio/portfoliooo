@@ -20,7 +20,7 @@
   --grigio:#9A9B94;
   --bordo:rgba(243,241,235,0.13);
   --velo-vignetta:rgba(17,18,24,.84);
-  --velo-modulo:rgba(5,6,8,.62);
+  --velo-modulo:rgba(5,6,8,.28);
   --bottone-chiaro:#F3F1EB;
   --bottone-chiaro-testo:#16171A;
 
@@ -32,14 +32,14 @@
 }
 
 html[data-tema="chiaro"]{
-  --fondo:#EFEDE6;
+  --fondo:#E9ECEC;
   --fondo-alto:#FBFAF7;
   --testo:#16171A;
   --testo-tenue:#3F4044;
   --grigio:#64655F;
   --bordo:rgba(22,23,26,0.14);
   --velo-vignetta:rgba(251,250,247,.9);
-  --velo-modulo:rgba(30,31,35,.28);
+  --velo-modulo:rgba(30,31,35,.1);
   --bottone-chiaro:#16171A;
   --bottone-chiaro-testo:#FBFAF7;
 }
@@ -236,14 +236,16 @@ html.con-scena .elenco:focus-within{
   align-items:center;
   justify-content:center;
   padding:.75rem;
-  background:var(--velo-modulo);
-  -webkit-backdrop-filter:blur(6px);
-  backdrop-filter:blur(6px);
-  animation:appare .3s ease;
+  /* niente sfocatura: dietro il modulo sono le carte ad affondare, una dopo l'altra */
+  background:radial-gradient(ellipse at center, transparent 30%, var(--velo-modulo) 100%);
+  animation:appare .6s ease;
 }
 @keyframes appare{from{opacity:0}to{opacity:1}}
+@keyframes emerge{from{opacity:0;transform:translateY(24px) scale(.98)}to{opacity:1;transform:none}}
 .modulo{
   position:relative;
+  animation:emerge .7s cubic-bezier(.2,.7,.2,1) .25s both;
+  box-shadow:0 40px 120px -40px rgba(0,0,0,.55);
   width:min(32rem,100%);
   max-height:calc(100dvh - 1.5rem);
   overflow:auto;
