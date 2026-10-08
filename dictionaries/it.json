@@ -1,7 +1,7 @@
 {
   "meta": {
     "titolo": "Gianlivio Iemolo — Full Stack Web Developer",
-    "descrizione": "Sviluppatore full stack freelance: siti da zero, e-commerce Open2B, gestionali su misura, integrazioni, tracciamento e GDPR, accessibilità. Da remoto, in italiano, inglese e spagnolo."
+    "descrizione": "Sviluppatore full stack freelance: siti da zero, e-commerce Open2B, gestionali su misura, tracciamento GA4, Meta e Google Ads, GDPR, accessibilità, SEO e GEO. Da remoto, in italiano, inglese e spagnolo."
   },
   "nome": "Gianlivio Iemolo",
   "ruolo": "Full stack web developer · freelance",
@@ -80,7 +80,7 @@
   },
   "modulo": {
     "titolo": "Di cosa hai bisogno?",
-    "sottotitolo": "Siti da zero, vetrine, e-commerce, gestionali e software su misura, tracciamento e GDPR, accessibilità: quello che serve per portare online un'azienda o un profilo personale. Raccontami com'è la situazione adesso.",
+    "sottotitolo": "Siti da zero, vetrine, e-commerce, gestionali e software su misura. Tracciamento GA4, Meta e Google Ads, GDPR, accessibilità, SEO e GEO per visibilità e autorevolezza online: quello che serve per portare online un'azienda o un profilo personale. Raccontami com'è la situazione adesso.",
     "nome": "Nome",
     "email": "Email",
     "messaggio": "Messaggio",
@@ -98,9 +98,11 @@
         "E-commerce",
         "Gestionale o software su misura",
         "Manutenzione e sviluppo",
-        "Tracciamento e GDPR",
+        "Tracciamento GA4, Meta e Google Ads",
+        "GDPR e consenso",
         "Accessibilità",
-        "SEO e contenuti",
+        "SEO e GEO",
+        "Visibilità e autorevolezza online",
         "Digitalizzazione dell'azienda",
         "Altro"
       ]

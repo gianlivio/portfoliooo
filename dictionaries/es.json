@@ -1,7 +1,7 @@
 {
   "meta": {
     "titolo": "Gianlivio Iemolo — Full Stack Web Developer",
-    "descrizione": "Desarrollador full stack freelance: sitios desde cero, e-commerce en Open2B, software de gestión a medida, integraciones, seguimiento y RGPD, accesibilidad. En remoto, en italiano, inglés y español."
+    "descrizione": "Desarrollador full stack freelance: sitios desde cero, e-commerce en Open2B, software de gestión a medida, seguimiento GA4, Meta y Google Ads, RGPD, accesibilidad, SEO y GEO. En remoto, en italiano, inglés y español."
   },
   "nome": "Gianlivio Iemolo",
   "ruolo": "Full stack web developer · freelance",
@@ -80,7 +80,7 @@
   },
   "modulo": {
     "titolo": "¿Qué necesitas?",
-    "sottotitolo": "Sitios desde cero, webs corporativas, e-commerce, software de gestión a medida, seguimiento y RGPD, accesibilidad: lo que haga falta para llevar online una empresa o un perfil personal. Cuéntame cómo están las cosas ahora.",
+    "sottotitolo": "Sitios desde cero, webs corporativas, e-commerce, software de gestión a medida. Seguimiento GA4, Meta y Google Ads, RGPD, accesibilidad, SEO y GEO para la visibilidad y la autoridad online: lo que haga falta para llevar online una empresa o un perfil personal. Cuéntame cómo están las cosas ahora.",
     "nome": "Nombre",
     "email": "Email",
     "messaggio": "Mensaje",
@@ -98,9 +98,11 @@
         "E-commerce",
         "Software de gestión a medida",
         "Mantenimiento y desarrollo",
-        "Seguimiento y RGPD",
+        "Seguimiento GA4, Meta y Google Ads",
+        "RGPD y consentimiento",
         "Accesibilidad",
-        "SEO y contenidos",
+        "SEO y GEO",
+        "Visibilidad y autoridad online",
         "Digitalización de la empresa",
         "Otro"
       ]

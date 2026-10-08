@@ -4,6 +4,7 @@ import { Canvas, useFrame, useThree, type ThreeEvent } from "@react-three/fiber"
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import archivio from "@/public/dati/archivio.json";
+import Storia from "./Storia";
 import { disegnaCopertina, FINESTRA, LARGHEZZA, ALTEZZA, type DatiCopertina, type Famiglie } from "./copertina";
 
 /**
@@ -49,6 +50,8 @@ export const PALETTE = {
     orizzonte: "#2E3038",
     segno: "#F3F1EB",
     ombra: 0,
+    storia: "#C9C7C0",
+    storiaOpacita: 0.5,
   },
   chiaro: {
     fondo: "#EFEDE6",
@@ -62,6 +65,8 @@ export const PALETTE = {
     orizzonte: "#C9C6BC",
     segno: "#1B3FD1",
     ombra: 0.1,
+    storia: "#16171A",
+    storiaOpacita: 0.45,
   },
 } as const;
 
@@ -753,6 +758,7 @@ export default function Scena(props: Props) {
       />
       <Polvere ridotto={props.ridotto} stretto={stretto} tema={tema} />
       <Orizzonte tema={tema} ridotto={props.ridotto} />
+      <Storia colore={p.storia} opacita={p.storiaOpacita} ridotto={props.ridotto} attenuata={!!props.selezionato} />
     </Canvas>
   );
 }

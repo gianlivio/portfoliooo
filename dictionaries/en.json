@@ -1,7 +1,7 @@
 {
   "meta": {
     "titolo": "Gianlivio Iemolo — Full Stack Web Developer",
-    "descrizione": "Freelance full stack developer: websites from scratch, Open2B e-commerce, custom management software, integrations, tracking and GDPR, accessibility. Working remotely in Italian, English and Spanish."
+    "descrizione": "Freelance full stack developer: websites from scratch, Open2B e-commerce, custom management software, GA4, Meta and Google Ads tracking, GDPR, accessibility, SEO and GEO. Working remotely in Italian, English and Spanish."
   },
   "nome": "Gianlivio Iemolo",
   "ruolo": "Full stack web developer · freelance",
@@ -80,7 +80,7 @@
   },
   "modulo": {
     "titolo": "What do you need?",
-    "sottotitolo": "Websites from scratch, showcase sites, e-commerce, custom management software, tracking and GDPR, accessibility: whatever it takes to bring a business or a personal profile online. Tell me where things stand now.",
+    "sottotitolo": "Websites from scratch, showcase sites, e-commerce, custom management software. GA4, Meta and Google Ads tracking, GDPR, accessibility, SEO and GEO for online visibility and authority: whatever it takes to bring a business or a personal profile online. Tell me where things stand now.",
     "nome": "Name",
     "email": "Email",
     "messaggio": "Message",
@@ -98,9 +98,11 @@
         "E-commerce",
         "Custom management software",
         "Maintenance and development",
-        "Tracking and GDPR",
+        "GA4, Meta and Google Ads tracking",
+        "GDPR and consent",
         "Accessibility",
-        "SEO and content",
+        "SEO and GEO",
+        "Online visibility and authority",
         "Business digitalisation",
         "Other"
       ]
