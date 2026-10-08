@@ -10,6 +10,11 @@ import type { Motivo } from "@/content/lavori";
 export const LARGHEZZA = 1024;
 export const ALTEZZA = 704;
 
+/** La finestra della carta: dove sta la schermata del sito (in pixel della tela). */
+const MARGINE = 22;
+const ALTA = Math.round(ALTEZZA * 0.64);
+export const FINESTRA = { x: MARGINE, y: MARGINE, w: LARGHEZZA - 2 * MARGINE, h: ALTA - MARGINE };
+
 const CARTA = "#FBFAF7";
 const INCHIOSTRO = "#16171A";
 const GRIGIO = "#77786F";
@@ -27,6 +32,8 @@ export type DatiCopertina = {
   motivo: Motivo;
   immagine: HTMLImageElement | null;
   contatto: boolean;
+  /** la finestra resta trasparente: dietro c'è il piano con la schermata che scorre */
+  finestraVuota: boolean;
 };
 
 /** Generatore pseudo-casuale con seme: la stessa carta esce sempre uguale. */
@@ -181,8 +188,8 @@ export function disegnaCopertina(
   ctx.save();
   ctx.clip();
 
-  const m = 30;
-  const altaH = ALTEZZA * 0.56;
+  const m = MARGINE;
+  const altaH = ALTA;
 
   if (dati.contatto) {
     // carta del contatto: niente finestra, una freccia grande
@@ -197,6 +204,16 @@ export function disegnaCopertina(
     ctx.stroke();
   } else {
     rettangoloArrotondato(ctx, m, m, LARGHEZZA - 2 * m, altaH - m, 14);
+    if (dati.finestraVuota) {
+      ctx.save();
+      ctx.globalCompositeOperation = "destination-out";
+      ctx.fill();
+      ctx.restore();
+      // filo sottile intorno alla finestra
+      ctx.strokeStyle = "rgba(22,23,26,0.12)";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    } else {
     ctx.fillStyle = dati.tinta;
     ctx.fill();
     ctx.save();
@@ -210,10 +227,11 @@ export function disegnaCopertina(
       motivo(ctx, dati.motivo, m, m, LARGHEZZA - 2 * m, altaH - m, seme);
     }
     ctx.restore();
+    }
   }
 
   // apparato in basso
-  const y0 = altaH + 40;
+  const y0 = altaH + 42;
   ctx.textBaseline = "alphabetic";
   ctx.fillStyle = tenue;
   ctx.font = `500 21px ${famiglie.mono}`;
@@ -228,13 +246,13 @@ export function disegnaCopertina(
   }
 
   ctx.fillStyle = testo;
-  let corpo = 76;
+  let corpo = 64;
   ctx.font = `300 ${corpo}px ${famiglie.serif}`;
   while (ctx.measureText(dati.titolo).width > LARGHEZZA - 2 * m - 8 && corpo > 44) {
     corpo -= 2;
     ctx.font = `300 ${corpo}px ${famiglie.serif}`;
   }
-  ctx.fillText(adatta(ctx, dati.titolo, LARGHEZZA - 2 * m - 8), m, y0 + 104);
+  ctx.fillText(adatta(ctx, dati.titolo, LARGHEZZA - 2 * m - 8), m, y0 + 86);
 
   ctx.font = `400 22px ${famiglie.mono}`;
   ctx.fillStyle = dati.contatto ? CARTA : GRIGIO;

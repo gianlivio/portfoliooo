@@ -4,7 +4,7 @@ import { Canvas, useFrame, useThree, type ThreeEvent } from "@react-three/fiber"
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import archivio from "@/public/dati/archivio.json";
-import { disegnaCopertina, type DatiCopertina, type Famiglie } from "./copertina";
+import { disegnaCopertina, FINESTRA, LARGHEZZA, ALTEZZA, type DatiCopertina, type Famiglie } from "./copertina";
 
 /**
  * La scena: chi visita sta al centro di un anello di carte, una per lavoro.
@@ -17,7 +17,7 @@ export type Tema = "scuro" | "chiaro";
 
 export type Carta = {
   id: string;
-  dati: Omit<DatiCopertina, "immagine">;
+  dati: Omit<DatiCopertina, "immagine" | "finestraVuota">;
   immagine: string | null;
   frammento: string;
 };
@@ -134,7 +134,23 @@ function disegnaOmbra() {
 
 /* ------------------------------------------------------------------ carte */
 
-type Grafica = { copertine: THREE.CanvasTexture[]; frammenti: THREE.CanvasTexture[]; ombra: THREE.CanvasTexture };
+type Grafica = {
+  copertine: THREE.CanvasTexture[];
+  frammenti: THREE.CanvasTexture[];
+  schermi: (THREE.Texture | null)[];
+  ombra: THREE.CanvasTexture;
+};
+
+/* La finestra della carta in unità della scena, ricavata da FINESTRA in pixel. */
+const FIN_L = (FINESTRA.w / LARGHEZZA) * LARGO;
+const FIN_A = (FINESTRA.h / ALTEZZA) * ALTO;
+const FIN_X = ((FINESTRA.x + FINESTRA.w / 2) / LARGHEZZA) * LARGO - LARGO / 2;
+const FIN_Y = ALTO / 2 - ((FINESTRA.y + FINESTRA.h / 2) / ALTEZZA) * ALTO;
+
+/** Quanta parte della pagina entra nella finestra (0–1, in altezza). */
+function quotaVisibile(img: HTMLImageElement) {
+  return Math.min(1, (FIN_A / FIN_L) * (img.naturalWidth / img.naturalHeight));
+}
 
 function Carte({
   carte, selezionato, focale, onSeleziona, ridotto, onPronta, tema, conIngresso,
@@ -146,6 +162,8 @@ function Carte({
   const materiali = useRef<(THREE.MeshBasicMaterial | null)[]>([]);
   const filigrane = useRef<(THREE.MeshBasicMaterial | null)[]>([]);
   const ombre = useRef<(THREE.MeshBasicMaterial | null)[]>([]);
+  const vetri = useRef<(THREE.MeshBasicMaterial | null)[]>([]);
+  const scorrimento = useRef<{ p: number; verso: number }[]>([]);
   const puntatore = useRef(new THREE.Vector2());
   const inizio = useRef<number | null>(null);
   const gl = useThree((s) => s.gl);
@@ -167,7 +185,12 @@ function Carte({
       const anis = gl.capabilities.getMaxAnisotropy();
       const copertine = carte.map((c, i) => {
         const tela = document.createElement("canvas");
-        disegnaCopertina(tela, { ...c.dati, immagine: immagini[i] }, f, 1000 + i * 97, PALETTE[tema].carta);
+        const conSchermo = !!immagini[i];
+        disegnaCopertina(
+          tela,
+          { ...c.dati, immagine: null, finestraVuota: conSchermo },
+          f, 1000 + i * 97, PALETTE[tema].carta
+        );
         const t = new THREE.CanvasTexture(tela);
         t.colorSpace = THREE.SRGBColorSpace;
         t.anisotropy = anis;
@@ -178,7 +201,18 @@ function Carte({
         t.anisotropy = anis;
         return t;
       });
-      setGrafica({ copertine, frammenti, ombra: disegnaOmbra() });
+      const schermi = immagini.map((img) => {
+        if (!img) return null;
+        const t = new THREE.Texture(img);
+        t.colorSpace = THREE.SRGBColorSpace;
+        t.anisotropy = anis;
+        const q = quotaVisibile(img);
+        t.repeat.set(1, q);
+        t.offset.set(0, 1 - q); // si parte dall'alto della pagina
+        t.needsUpdate = true;
+        return t;
+      });
+      setGrafica({ copertine, frammenti, schermi, ombra: disegnaOmbra() });
       onPronta();
     })();
     return () => {
@@ -191,6 +225,7 @@ function Carte({
   useEffect(
     () => () => {
       grafica?.copertine.forEach((t) => t.dispose());
+      grafica?.schermi.forEach((t) => t?.dispose());
       grafica?.frammenti.forEach((t) => t.dispose());
       grafica?.ombra.dispose();
     },
@@ -238,6 +273,24 @@ function Carte({
       lastra.rotation.y = THREE.MathUtils.lerp(lastra.rotation.y, ry, k);
 
       m.opacity = THREE.MathUtils.lerp(m.opacity, (altra ? 0.02 : 1) * entrata, k);
+
+      // la pagina del sito scorre nella finestra: avanti finché la carta è attiva, poi torna su
+      const schermo = grafica.schermi[i];
+      const vetro = vetri.current[i];
+      if (schermo && vetro) {
+        vetro.opacity = m.opacity;
+        const corsa = 1 - schermo.repeat.y;
+        const sc = (scorrimento.current[i] ??= { p: 0, verso: 1 });
+        if (attiva && corsa > 0 && !ridotto) {
+          sc.p += dt * 0.045 * sc.verso;
+          if (sc.p >= corsa) { sc.p = corsa; sc.verso = -1; }
+          if (sc.p <= 0) { sc.p = 0; sc.verso = 1; }
+        } else {
+          sc.p = THREE.MathUtils.lerp(sc.p, 0, 1 - Math.exp(-dt * 2.5));
+          sc.verso = 1;
+        }
+        schermo.offset.y = corsa - sc.p;
+      }
       const filB = c.id === selezionato ? 0.72 : attiva ? 0.42 : altra ? 0 : p.filigranaRiposo;
       fil.opacity = THREE.MathUtils.lerp(fil.opacity, filB * entrata, k * 0.6);
       if (om) om.opacity = THREE.MathUtils.lerp(om.opacity, p.ombra * (altra ? 0.3 : 1) * entrata * (attiva ? 0.7 : 1), k);
@@ -264,7 +317,7 @@ function Carte({
                 ref={(l) => {
                   lastre.current[i] = l;
                 }}
-                renderOrder={2}
+                renderOrder={3}
                 onPointerOver={(e: ThreeEvent<PointerEvent>) => {
                   e.stopPropagation();
                   setSopra(c.id);
@@ -280,6 +333,20 @@ function Carte({
                 }}
               >
                 <planeGeometry args={[LARGO, ALTO]} />
+                {grafica.schermi[i] && (
+                  <mesh position={[FIN_X, FIN_Y, -0.004]} raycast={() => null} renderOrder={2}>
+                    <planeGeometry args={[FIN_L + 0.02, FIN_A + 0.02]} />
+                    <meshBasicMaterial
+                      ref={(v) => {
+                        vetri.current[i] = v;
+                      }}
+                      map={grafica.schermi[i]}
+                      transparent
+                      opacity={0}
+                      toneMapped={false}
+                    />
+                  </mesh>
+                )}
                 <meshBasicMaterial
                   ref={(m) => {
                     materiali.current[i] = m;
