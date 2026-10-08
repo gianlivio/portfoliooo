@@ -84,7 +84,7 @@ export default function Esperienza({ d, lingua }: { d: Dizionario; lingua: Lingu
       return {
         id: l.id,
         immagine: (schermate as string[]).includes(l.id) ? `/lavori/${l.id}.jpg` : null,
-        frammento: frammenti[l.id] ?? "",
+        frammento: frammenti[lingua][l.id] ?? "",
         dati: {
           numero: String(i + 1).padStart(2, "0"),
           tipo: t.tipo,
@@ -114,7 +114,7 @@ export default function Esperienza({ d, lingua }: { d: Dizionario; lingua: Lingu
       },
     });
     return elenco;
-  }, [d]);
+  }, [d, lingua]);
 
   const seleziona = useCallback((id: string | null) => {
     if (id === ID_CONTATTO) {
