@@ -36,6 +36,7 @@ export default function Modulo({
           nome: f.get("nome"),
           email: f.get("email"),
           messaggio: f.get("messaggio"),
+          servizi: f.getAll("servizi"),
           sito: f.get("sito"),
           lingua,
         }),
@@ -76,6 +77,17 @@ export default function Modulo({
               <span>{m.email}</span>
               <input name="email" type="email" required maxLength={200} autoComplete="email" />
             </label>
+            <fieldset className="servizi">
+              <legend>{m.servizi.legenda}</legend>
+              <div className="servizi-voci">
+                {m.servizi.voci.map((v) => (
+                  <label key={v} className="servizio">
+                    <input type="checkbox" name="servizi" value={v} />
+                    <span>{v}</span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
             <label>
               <span>{m.messaggio}</span>
               <textarea

@@ -30,6 +30,9 @@ export async function POST(richiesta: Request) {
   const email = testo(corpo.email, 200);
   const messaggio = testo(corpo.messaggio, 5000);
   const lingua = testo(corpo.lingua, 5);
+  const servizi = Array.isArray(corpo.servizi)
+    ? corpo.servizi.slice(0, 12).map((v) => testo(v, 60)).filter(Boolean)
+    : [];
 
   if (!nome || !EMAIL.test(email) || messaggio.length < 10) {
     return Response.json({ ok: false, errore: "dati" }, { status: 422 });
@@ -46,7 +49,9 @@ export async function POST(richiesta: Request) {
       to: [process.env.CONTATTI_DESTINATARIO ?? "gianlivioiemolo@gmail.com"],
       reply_to: email,
       subject: `Dal sito: ${nome}`,
-      text: `${messaggio}\n\n— ${nome} <${email}>\nLingua del sito: ${lingua || "?"}`,
+      text:
+        (servizi.length ? `Di cosa si tratta: ${servizi.join(", ")}\n\n` : "") +
+        `${messaggio}\n\n— ${nome} <${email}>\nLingua del sito: ${lingua || "?"}`,
     }),
   });
 

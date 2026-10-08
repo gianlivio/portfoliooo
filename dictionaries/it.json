@@ -1,7 +1,7 @@
 {
   "meta": {
     "titolo": "Gianlivio Iemolo — Full Stack Web Developer",
-    "descrizione": "Sviluppatore full stack freelance: e-commerce Open2B, siti e applicazioni in Next.js, integrazioni, dati pubblici. Da remoto, in italiano, inglese e spagnolo."
+    "descrizione": "Sviluppatore full stack freelance: siti da zero, e-commerce Open2B, gestionali su misura, integrazioni, tracciamento e GDPR, accessibilità. Da remoto, in italiano, inglese e spagnolo."
   },
   "nome": "Gianlivio Iemolo",
   "ruolo": "Full stack web developer · freelance",
@@ -30,11 +30,6 @@
       "titolo": "Livello Zero",
       "riga": "Sito sui videogiochi costruito da zero in Next.js, con un gestionale con cui il committente pubblica da solo. Manutenzione in corso."
     },
-    "futura": {
-      "tipo": "Piattaforma · agenti AI",
-      "titolo": "Futura Blog",
-      "riga": "Piattaforma editoriale in cui agenti AI producono contenuti per la ricerca su Google e sui modelli generativi. Sviluppo, prompt, revisione."
-    },
     "ndnluxury": {
       "tipo": "Sito aziendale",
       "titolo": "NDN Luxury",
@@ -56,9 +51,9 @@
       "riga": "Spazio di lavoro condiviso per team di grafici, con strumenti di intelligenza artificiale. Struttura, copy, alcune pagine, test."
     },
     "jointoyou": {
-      "tipo": "Blog · contenuti",
+      "tipo": "Blog WordPress · contenuti · dati",
       "titolo": "jointoyou.it",
-      "riga": "Il blog del sito e una serie di articoli."
+      "riga": "Il blog creato da zero su WordPress, la scrittura degli articoli, il caricamento e la pulizia dei dati."
     },
     "copystudio": {
       "tipo": "Copywriting · brand",
@@ -85,7 +80,7 @@
   },
   "modulo": {
     "titolo": "Di cosa hai bisogno?",
-    "sottotitolo": "Un sito, un e-commerce da sistemare, un'integrazione, una manutenzione. Raccontami com'è la situazione adesso.",
+    "sottotitolo": "Siti da zero, vetrine, e-commerce, gestionali e software su misura, tracciamento e GDPR, accessibilità: quello che serve per portare online un'azienda o un profilo personale. Raccontami com'è la situazione adesso.",
     "nome": "Nome",
     "email": "Email",
     "messaggio": "Messaggio",
@@ -94,7 +89,22 @@
     "invio": "Invio…",
     "ok": "Messaggio arrivato. Ti rispondo presto.",
     "errore": "Il messaggio non è partito. Scrivimi direttamente a",
-    "chiudi": "Chiudi"
+    "chiudi": "Chiudi",
+    "servizi": {
+      "legenda": "Di cosa si tratta? (facoltativo)",
+      "voci": [
+        "Sito da zero",
+        "Sito vetrina",
+        "E-commerce",
+        "Gestionale o software su misura",
+        "Manutenzione e sviluppo",
+        "Tracciamento e GDPR",
+        "Accessibilità",
+        "SEO e contenuti",
+        "Digitalizzazione dell'azienda",
+        "Altro"
+      ]
+    }
   },
   "elenco": {
     "titolo": "Lavori",

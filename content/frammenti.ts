@@ -23,11 +23,6 @@ salvaArticolo({ titolo, sezione, corpo, immagini })
 pubblica("/articoli/" + slug)
 // sito pubblico | pannello di amministrazione`,
 
-  futura: `agente: redattore
-fonte: Search Console
-tono: quello del cliente
-revisione: umana, sempre`,
-
   ndnluxury: `pagine nuove
 resina, microcemento
 animazioni 3D
@@ -46,8 +41,9 @@ pagine, sezioni, contenuti
 copy
 test prima del lancio`,
 
-  jointoyou: `blog
-articoli`,
+  jointoyou: `WordPress, da zero
+articoli
+caricamento e pulizia dei dati`,
 
   copystudio: `intervista → tono → pubblico
 → posizionamento → testo`,

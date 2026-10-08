@@ -1,7 +1,7 @@
 {
   "meta": {
     "titolo": "Gianlivio Iemolo — Full Stack Web Developer",
-    "descrizione": "Freelance full stack developer: Open2B e-commerce, websites and applications in Next.js, integrations, public data. Working remotely in Italian, English and Spanish."
+    "descrizione": "Freelance full stack developer: websites from scratch, Open2B e-commerce, custom management software, integrations, tracking and GDPR, accessibility. Working remotely in Italian, English and Spanish."
   },
   "nome": "Gianlivio Iemolo",
   "ruolo": "Full stack web developer · freelance",
@@ -30,11 +30,6 @@
       "titolo": "Livello Zero",
       "riga": "Video game website built from scratch in Next.js, with a management system the client uses to publish on his own. Ongoing maintenance."
     },
-    "futura": {
-      "tipo": "Platform · AI agents",
-      "titolo": "Futura Blog",
-      "riga": "Editorial platform where AI agents produce content for Google search and generative models. Development, prompts, review."
-    },
     "ndnluxury": {
       "tipo": "Business website",
       "titolo": "NDN Luxury",
@@ -56,9 +51,9 @@
       "riga": "Shared workspace for teams of graphic designers, with artificial intelligence tools. Structure, copy, some pages, testing."
     },
     "jointoyou": {
-      "tipo": "Blog · content",
+      "tipo": "WordPress blog · content · data",
       "titolo": "jointoyou.it",
-      "riga": "The site's blog and a series of articles."
+      "riga": "The blog built from scratch on WordPress, the writing of the articles, data upload and cleaning."
     },
     "copystudio": {
       "tipo": "Copywriting · brand",
@@ -85,7 +80,7 @@
   },
   "modulo": {
     "titolo": "What do you need?",
-    "sottotitolo": "A website, an e-commerce to fix, an integration, ongoing maintenance. Tell me where things stand now.",
+    "sottotitolo": "Websites from scratch, showcase sites, e-commerce, custom management software, tracking and GDPR, accessibility: whatever it takes to bring a business or a personal profile online. Tell me where things stand now.",
     "nome": "Name",
     "email": "Email",
     "messaggio": "Message",
@@ -94,7 +89,22 @@
     "invio": "Sending…",
     "ok": "Message received. I'll get back to you soon.",
     "errore": "The message didn't go through. Write to me directly at",
-    "chiudi": "Close"
+    "chiudi": "Close",
+    "servizi": {
+      "legenda": "What is it about? (optional)",
+      "voci": [
+        "Website from scratch",
+        "Showcase website",
+        "E-commerce",
+        "Custom management software",
+        "Maintenance and development",
+        "Tracking and GDPR",
+        "Accessibility",
+        "SEO and content",
+        "Business digitalisation",
+        "Other"
+      ]
+    }
   },
   "elenco": {
     "titolo": "Projects",

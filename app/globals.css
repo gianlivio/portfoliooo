@@ -270,6 +270,19 @@ html.con-scena .elenco:focus-within{
   resize:vertical;
 }
 .modulo input:focus,.modulo textarea:focus{outline:none;border-color:var(--blu)}
+.servizi{border:0;display:flex;flex-direction:column;gap:.5rem}
+.servizi legend{font-family:var(--mono);font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:#77786F;margin-bottom:.5rem}
+.servizi-voci{display:flex;flex-wrap:wrap;gap:.4rem}
+.modulo label.servizio{display:inline-flex;flex-direction:row;position:relative;gap:0}
+.servizio input{position:absolute;opacity:0;width:1px;height:1px}
+.modulo .servizio span{
+  font-family:var(--sans);font-size:.85rem;text-transform:none;letter-spacing:0;color:var(--inchiostro);
+  border:1px solid var(--rigo);border-radius:999px;padding:.4rem .8rem;background:#fff;cursor:pointer;
+  transition:background .2s,border-color .2s,color .2s;
+}
+.modulo .servizio:hover span{border-color:#B9B8B0}
+.modulo .servizio input:checked + span{background:var(--inchiostro);border-color:var(--inchiostro);color:var(--carta)}
+.modulo .servizio input:focus-visible + span{outline:2px solid var(--blu);outline-offset:2px}
 .trappola{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
 .invia{
   align-self:flex-start;

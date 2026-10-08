@@ -41,13 +41,6 @@ export const lavori: Lavoro[] = [
     link: { href: "https://livellozero.games", etichetta: "livellozero.games" },
   },
   {
-    id: "futura",
-    anno: "2026 →",
-    motivo: "app",
-    tinta: "#CDCBD6",
-    link: null,
-  },
-  {
     id: "ndnluxury",
     anno: "2026",
     motivo: "sito",
