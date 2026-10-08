@@ -444,8 +444,8 @@ export class Drago implements Ospite {
       P(17 + j(), -8.5 + j(), 4.8 + j() * 0.4),
       P(13.5 + j(), -2 + j() * 1.5, 3.7 + j() * 0.3),
       P(13 + j(), 3.5 + j(), 3.9 + j() * 0.4),
-      P(16.5 + j(), 9.5 + j(), 5.4 + j() * 0.5),
-      P(27 + j() * 2, 18 + j() * 2, 9.5 + j()),
+      P(16.5 + j(), 9.5 + j(), 4.7 + j() * 0.4),
+      P(27 + j() * 2, 18 + j() * 2, 7.5 + j()),
     ], false, "centripetal");
     this.stato.L = this.curva.getLength();
     this.stato.uFuoco = casuale(0.38, 0.5);
