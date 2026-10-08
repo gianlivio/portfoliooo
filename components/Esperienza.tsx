@@ -1,7 +1,6 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Dizionario, Lingua } from "@/dictionaries";
 import { lingue } from "@/dictionaries";
@@ -252,15 +251,11 @@ export default function Esperienza({ d, lingua }: { d: Dizionario; lingua: Lingu
           <p className="firma-ruolo">{d.ruolo}</p>
         </div>
         <nav className="comandi" aria-label={d.testata.lingua}>
+          {/* cambio lingua con un caricamento vero: la scena, il cielo e le texture ripartono da capo */}
           {lingue.map((l) => (
-            <Link
-              key={l}
-              href={`/${l}`}
-              hrefLang={l}
-              aria-current={l === lingua ? "true" : undefined}
-            >
+            <a key={l} href={`/${l}`} hrefLang={l} lang={l} aria-current={l === lingua ? "true" : undefined}>
               {l.toUpperCase()}
-            </Link>
+            </a>
           ))}
           <button
             className="tema"

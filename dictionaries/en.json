@@ -73,7 +73,7 @@
     "beautybroker": {
       "tipo": "Software · development and testing",
       "titolo": "Beauty Broker World",
-      "riga": "Development and user testing of the platform, in collaboration with Bibop Gresta: 22+ end-to-end scenarios on OTP, invites, IBAN, referral and checkout, server errors found and reported, regression testing after every fix."
+      "riga": "Development and user testing of the platform: 22+ end-to-end scenarios on OTP, invites, IBAN, referral and checkout, server errors found and reported, regression testing after every fix."
     }
   },
   "contatto": {

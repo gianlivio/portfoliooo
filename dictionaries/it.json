@@ -73,7 +73,7 @@
     "beautybroker": {
       "tipo": "Software · sviluppo e test",
       "titolo": "Beauty Broker World",
-      "riga": "Sviluppo e test da utente della piattaforma, in collaborazione con Bibop Gresta: 22+ scenari end-to-end su OTP, inviti, IBAN, referral e checkout, errori server trovati e segnalati, regression test dopo ogni correzione."
+      "riga": "Sviluppo e test da utente della piattaforma: 22+ scenari end-to-end su OTP, inviti, IBAN, referral e checkout, errori server trovati e segnalati, regression test dopo ogni correzione."
     }
   },
   "contatto": {
