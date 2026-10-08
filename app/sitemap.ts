@@ -1,8 +1,9 @@
 import type { MetadataRoute } from "next";
 import { lingue } from "@/dictionaries";
+import { urlSito } from "@/content/sito";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  const baseUrl = urlSito;
 
   return lingue.map((lang) => ({
     url: `${baseUrl}/${lang}`,

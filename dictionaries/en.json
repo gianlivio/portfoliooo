@@ -34,7 +34,7 @@
     "apparato": [
       {
         "dt": "Based in",
-        "dd": "Bologna, Italy — working remotely"
+        "dd": "Italy — working remotely"
       },
       {
         "dt": "Languages",
@@ -148,11 +148,15 @@
       {
         "id": "puntoluce",
         "titolo": "shop.puntoluce.net",
-        "sottotitolo": "Two years on an electrical and plumbing supplies e-commerce: 25,000 products, 60,000 orders, theme, integrations, tracking.",
+        "sottotitolo": "Two years on an electrical and plumbing supplies e-commerce turning over around €20,000 a day: theme built from scratch on Open2B, integrations, internal applications, tracking.",
         "apparato": [
           {
             "dt": "Years",
-            "dd": "2024 — 2026"
+            "dd": "October 2024 — June 2026"
+          },
+          {
+            "dt": "Contract",
+            "dd": "Employee, permanent"
           },
           {
             "dt": "Type",
@@ -194,7 +198,7 @@
           },
           {
             "h": "Performance",
-            "p": "LCP halved on mobile. CSS rewritten mobile-first and split by section, media queries in a separate file, images and Lighthouse scores gone through. Apps optimised to handle tens of thousands of products and orders."
+            "p": "LCP from 12 to 4 seconds, TBT down 40%. CSS rewritten mobile-first and split by section, media queries in a separate file, images and Lighthouse scores gone through. Apps optimised to handle tens of thousands of products and orders."
           },
           {
             "h": "SEO, accessibility, security",
@@ -209,7 +213,7 @@
         "apparato": [
           {
             "dt": "Year",
-            "dd": "June–October 2026"
+            "dd": "June 2026 — present"
           },
           {
             "dt": "Type",
@@ -235,14 +239,14 @@
           },
           {
             "h": "After delivery",
-            "p": "Ongoing maintenance of the site and the management system."
+            "p": "Ongoing maintenance of the site and the management system, on an annual fee."
           }
         ]
       },
       {
         "id": "allstudios",
         "titolo": "All Studios",
-        "sottotitolo": "Application for teams of graphic designers: a shared workspace with advanced tools and artificial intelligence. Launching soon.",
+        "sottotitolo": "Application for teams of graphic designers: a shared workspace with advanced tools and artificial intelligence.",
         "apparato": [
           {
             "dt": "Year",
@@ -250,7 +254,7 @@
           },
           {
             "dt": "Type",
-            "dd": "Web application, pre-launch"
+            "dd": "Web application"
           },
           {
             "dt": "Role",
@@ -267,7 +271,7 @@
       {
         "id": "ndnluxury",
         "titolo": "NDN Luxury",
-        "sottotitolo": "Website of a construction brand: resin and microcement.",
+        "sottotitolo": "Website of a resin and microcement finishes brand.",
         "apparato": [
           {
             "dt": "Year",
@@ -285,7 +289,7 @@
         "voci": [
           {
             "h": "Pages, maintenance, animations",
-            "p": "New pages, maintenance and care of the existing site, analysis and improvement work, 3D animations."
+            "p": "New pages, maintenance and improvements to the existing site, 3D animations."
           }
         ]
       },
@@ -310,7 +314,7 @@
         "voci": [
           {
             "h": "Pages and maintenance",
-            "p": "Creation of some site pages and maintenance."
+            "p": "New site pages and maintenance."
           }
         ]
       }
@@ -358,12 +362,12 @@
       {
         "anno": "2026",
         "cosa": "Beauty Broker World",
-        "dove": "QA and integration — team across Italy, Brazil and the US"
+        "dove": "QA — team across Italy, Brazil and the US"
       },
       {
         "anno": "2024–26",
         "cosa": "Punto Luce / EDIF",
-        "dove": "Full stack — Sasso Marconi, Bologna"
+        "dove": "Full stack, employee — Sasso Marconi, Bologna"
       },
       {
         "anno": "2024",

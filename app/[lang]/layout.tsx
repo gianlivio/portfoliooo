@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Newsreader, IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
 import { getDizionario, lingue } from "@/dictionaries";
 import "../globals.css";
+import { urlSito } from "@/content/sito";
 
 const serif = Newsreader({
   subsets: ["latin"],
@@ -36,7 +37,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { lang } = await params;
   const d = getDizionario(lang);
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  const baseUrl = urlSito;
   return {
     metadataBase: new URL(baseUrl),
     title: d.meta.titolo,

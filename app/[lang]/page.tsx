@@ -5,6 +5,7 @@ import Archivio from "@/components/Archivio";
 import Composto from "@/components/Composto";
 import Rivela from "@/components/Rivela";
 import SelettoreLingua from "@/components/SelettoreLingua";
+import { urlSito } from "@/content/sito";
 
 export default async function Pagina({
   params,
@@ -21,7 +22,7 @@ export default async function Pagina({
     ["github", recapiti.github],
   ] as const;
 
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  const baseUrl = urlSito;
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Person",

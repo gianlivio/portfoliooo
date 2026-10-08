@@ -34,7 +34,7 @@
     "apparato": [
       {
         "dt": "Base",
-        "dd": "Bologna, Italia — da remoto"
+        "dd": "Italia — da remoto"
       },
       {
         "dt": "Lingue",
@@ -148,11 +148,15 @@
       {
         "id": "puntoluce",
         "titolo": "shop.puntoluce.net",
-        "sottotitolo": "Due anni su un e-commerce di materiale elettrico e termoidraulico: 25.000 prodotti, 60.000 ordini, tema, integrazioni, tracciamento.",
+        "sottotitolo": "Due anni su un e-commerce di materiale elettrico e termoidraulico da circa 20.000 € di fatturato al giorno: tema costruito da zero su Open2B, integrazioni, applicazioni interne, tracciamento.",
         "apparato": [
           {
             "dt": "Anni",
-            "dd": "2024 — 2026"
+            "dd": "Ottobre 2024 — giugno 2026"
+          },
+          {
+            "dt": "Rapporto",
+            "dd": "Dipendente, tempo indeterminato"
           },
           {
             "dt": "Tipo",
@@ -194,7 +198,7 @@
           },
           {
             "h": "Performance",
-            "p": "LCP dimezzato su mobile. CSS riscritto mobile-first e diviso per sezione, media query in un file a parte, immagini e punteggi Lighthouse rivisti. Applicazioni ottimizzate per reggere decine di migliaia di prodotti e ordini."
+            "p": "LCP da 12 a 4 secondi, TBT ridotto del 40%. CSS riscritto mobile-first e diviso per sezione, media query in un file a parte, immagini e punteggi Lighthouse rivisti. Applicazioni ottimizzate per reggere decine di migliaia di prodotti e ordini."
           },
           {
             "h": "SEO, accessibilità, sicurezza",
@@ -209,7 +213,7 @@
         "apparato": [
           {
             "dt": "Anno",
-            "dd": "Giugno–ottobre 2026"
+            "dd": "Giugno 2026 — in corso"
           },
           {
             "dt": "Tipo",
@@ -235,14 +239,14 @@
           },
           {
             "h": "Dopo la consegna",
-            "p": "Manutenzione continuativa del sito e del gestionale."
+            "p": "Manutenzione continuativa del sito e del gestionale, con canone annuale."
           }
         ]
       },
       {
         "id": "allstudios",
         "titolo": "All Studios",
-        "sottotitolo": "Applicazione per team di grafici: uno spazio di lavoro condiviso con strumenti avanzati e intelligenza artificiale. In uscita a breve.",
+        "sottotitolo": "Applicazione per team di grafici: uno spazio di lavoro condiviso con strumenti avanzati e intelligenza artificiale.",
         "apparato": [
           {
             "dt": "Anno",
@@ -250,7 +254,7 @@
           },
           {
             "dt": "Tipo",
-            "dd": "Applicazione web, in fase di lancio"
+            "dd": "Applicazione web"
           },
           {
             "dt": "Ruolo",
@@ -267,7 +271,7 @@
       {
         "id": "ndnluxury",
         "titolo": "NDN Luxury",
-        "sottotitolo": "Sito di un marchio di edilizia: resina e microcemento.",
+        "sottotitolo": "Sito di un marchio di rivestimenti in resina e microcemento.",
         "apparato": [
           {
             "dt": "Anno",
@@ -285,7 +289,7 @@
         "voci": [
           {
             "h": "Pagine, manutenzione, animazioni",
-            "p": "Nuove pagine, manutenzione e cura del sito esistente, analisi e interventi di miglioramento, animazioni 3D."
+            "p": "Nuove pagine, manutenzione e interventi di miglioramento sul sito esistente, animazioni 3D."
           }
         ]
       },
@@ -310,7 +314,7 @@
         "voci": [
           {
             "h": "Pagine e manutenzione",
-            "p": "Creazione di alcune pagine del sito e manutenzione."
+            "p": "Nuove pagine del sito e manutenzione."
           }
         ]
       }
@@ -358,12 +362,12 @@
       {
         "anno": "2026",
         "cosa": "Beauty Broker World",
-        "dove": "QA e integrazione — team fra Italia, Brasile e Stati Uniti"
+        "dove": "QA — team fra Italia, Brasile e Stati Uniti"
       },
       {
         "anno": "2024–26",
         "cosa": "Punto Luce / EDIF",
-        "dove": "Full stack — Sasso Marconi, Bologna"
+        "dove": "Full stack, dipendente — Sasso Marconi, Bologna"
       },
       {
         "anno": "2024",

@@ -20,11 +20,6 @@ export default function Rivela({
     const nodo = rif.current;
     if (!nodo) return;
 
-    if (typeof IntersectionObserver === "undefined") {
-      setDentro(true);
-      return;
-    }
-
     const osservatore = new IntersectionObserver(
       (voci) => {
         if (voci[0].isIntersecting) {
