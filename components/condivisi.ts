@@ -4,7 +4,8 @@ import * as THREE from "three";
 export const PELO_ACQUA = -1.22;
 
 /**
- * La scia di chi nuota: la scrive il coccodrillo, la legge l'acqua.
- * pos e dir sul piano xz; forza 0–1 (0 = nessuna scia).
+ * Le gocce cadute sull'acqua: le scrive Fauna, le legge lo shader dell'acqua.
+ * Per ognuna: x, z, istante dell'impatto (sull'orologio della scena), forza (0 = libera).
  */
-export const scia = { pos: new THREE.Vector2(), dir: new THREE.Vector2(1, 0), forza: 0 };
+export const MAX_GOCCE = 4;
+export const gocce: THREE.Vector4[] = Array.from({ length: MAX_GOCCE }, () => new THREE.Vector4(0, 0, -100, 0));
