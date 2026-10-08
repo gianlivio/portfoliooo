@@ -71,6 +71,44 @@ const ALTO = 1.65;
 const QUOTE = [0.3, -0.22, 0.42, -0.34, 0.12, -0.1];
 const SUOLO = -1.55;
 
+/* Il faro: il segno sull'orizzonte fa un giro al minuto; quando passa sotto una carta,
+   un fascio di luce la attraversa in diagonale. */
+const GIRO_FARO = 60;
+const ARCO_FARO = 0.32;
+const faroAl = (t: number) => ARCO_FARO / 2 + (t * Math.PI * 2) / GIRO_FARO;
+const DURATA_FASCIO = 0.34; // in radianti di giro del faro: circa 3,2 secondi
+
+const RIFLESSO_VERT = `
+varying vec2 vUv;
+void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`;
+
+const RIFLESSO_FRAG = `
+uniform float uFascia;
+uniform float uForza;
+uniform float uAlone;
+uniform float uOpacita;
+uniform vec2 uPuntatore;
+uniform vec3 uColore;
+varying vec2 vUv;
+float rettangolo(vec2 p, vec2 b, float r){
+  vec2 q = abs(p) - b + r;
+  return length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - r;
+}
+void main(){
+  // sagoma della carta con gli angoli arrotondati, in coordinate con le proporzioni vere
+  vec2 p = (vUv - 0.5) * vec2(1.4545, 1.0);
+  float dentro = 1.0 - smoothstep(-0.004, 0.004, rettangolo(p, vec2(0.7272, 0.5), 0.037));
+  // fascio diagonale: un alone largo e un filo più netto al centro
+  float d = vUv.x - vUv.y * 0.55;
+  float x = d - uFascia;
+  float fascio = exp(-pow(x / 0.12, 2.0)) * 0.6 + exp(-pow(x / 0.022, 2.0)) * 0.28;
+  // riflesso che segue il puntatore
+  vec2 dp = (vUv - uPuntatore) * vec2(1.4545, 1.0);
+  float alone = exp(-dot(dp, dp) / 0.05) * uAlone;
+  float luce = (fascio * uForza + alone * 0.16) * dentro * uOpacita;
+  gl_FragColor = vec4(uColore * luce, 1.0);
+}`;
+
 const angoloDi = (i: number, n: number) => (i / n) * Math.PI * 2;
 const quotaDi = (i: number) => QUOTE[i % QUOTE.length];
 const direzione = (yaw: number) => new THREE.Vector3(Math.sin(yaw), 0, -Math.cos(yaw));
@@ -141,6 +179,13 @@ type Grafica = {
   ombra: THREE.CanvasTexture;
 };
 
+type Riflesso = THREE.ShaderMaterial & {
+  uniforms: Record<"uFascia" | "uForza" | "uAlone" | "uOpacita", { value: number }> & {
+    uPuntatore: { value: THREE.Vector2 };
+    uColore: { value: THREE.Color };
+  };
+};
+
 /* La finestra della carta in unità della scena, ricavata da FINESTRA in pixel. */
 const FIN_L = (FINESTRA.w / LARGHEZZA) * LARGO;
 const FIN_A = (FINESTRA.h / ALTEZZA) * ALTO;
@@ -163,6 +208,30 @@ function Carte({
   const filigrane = useRef<(THREE.MeshBasicMaterial | null)[]>([]);
   const ombre = useRef<(THREE.MeshBasicMaterial | null)[]>([]);
   const vetri = useRef<(THREE.MeshBasicMaterial | null)[]>([]);
+  const riflessi = useMemo(
+    () =>
+      carte.map(
+        () =>
+          new THREE.ShaderMaterial({
+            vertexShader: RIFLESSO_VERT,
+            fragmentShader: RIFLESSO_FRAG,
+            uniforms: {
+              uFascia: { value: -1 },
+              uForza: { value: 0 },
+              uAlone: { value: 0 },
+              uOpacita: { value: 0 },
+              uPuntatore: { value: new THREE.Vector2(0.5, 0.5) },
+              uColore: { value: new THREE.Color(tema === "scuro" ? "#FFFFFF" : "#FFF8EC") },
+            },
+            transparent: true,
+            depthWrite: false,
+            blending: THREE.AdditiveBlending,
+            toneMapped: false,
+          }) as Riflesso
+      ),
+    [carte, tema]
+  );
+  useEffect(() => () => riflessi.forEach((r) => r.dispose()), [riflessi]);
   const scorrimento = useRef<{ p: number; verso: number }[]>([]);
   const puntatore = useRef(new THREE.Vector2());
   const inizio = useRef<number | null>(null);
@@ -291,6 +360,20 @@ function Carte({
         }
         schermo.offset.y = corsa - sc.p;
       }
+
+      // luce: il fascio del faro quando passa sotto la carta, e il riflesso del puntatore
+      const rf = riflessi[i];
+      if (rf) {
+        const giro = Math.PI * 2;
+        const fase = (((faroAl(stato.clock.elapsedTime) - a) % giro) + giro) % giro;
+        const inCorso = !ridotto && fase < DURATA_FASCIO;
+        rf.uniforms.uFascia.value = inCorso ? -0.65 + (fase / DURATA_FASCIO) * 1.9 : -1;
+        rf.uniforms.uForza.value = inCorso ? (tema === "scuro" ? 0.3 : 0.24) : 0;
+        const alone = c.id === sopra && !selezionato && !ridotto ? 1 : 0;
+        rf.uniforms.uAlone.value = THREE.MathUtils.lerp(rf.uniforms.uAlone.value, alone, k);
+        rf.uniforms.uPuntatore.value.set((puntatore.current.x + 1) / 2, (puntatore.current.y + 1) / 2);
+        rf.uniforms.uOpacita.value = m.opacity;
+      }
       const filB = c.id === selezionato ? 0.72 : attiva ? 0.42 : altra ? 0 : p.filigranaRiposo;
       fil.opacity = THREE.MathUtils.lerp(fil.opacity, filB * entrata, k * 0.6);
       if (om) om.opacity = THREE.MathUtils.lerp(om.opacity, p.ombra * (altra ? 0.3 : 1) * entrata * (attiva ? 0.7 : 1), k);
@@ -333,6 +416,9 @@ function Carte({
                 }}
               >
                 <planeGeometry args={[LARGO, ALTO]} />
+                <mesh position={[0, 0, 0.004]} raycast={() => null} renderOrder={4} material={riflessi[i]}>
+                  <planeGeometry args={[LARGO, ALTO]} />
+                </mesh>
                 {grafica.schermi[i] && (
                   <mesh position={[FIN_X, FIN_Y, -0.004]} raycast={() => null} renderOrder={2}>
                     <planeGeometry args={[FIN_L + 0.02, FIN_A + 0.02]} />
@@ -497,8 +583,9 @@ function Orizzonte({ tema, ridotto }: { tema: Tema; ridotto: boolean }) {
     [rigo, arco]
   );
 
-  useFrame((_, dt) => {
-    if (segno.current && !ridotto) segno.current.rotation.y -= dt * ((Math.PI * 2) / 60);
+  useFrame((stato) => {
+    // stesso orologio dei fasci sulle carte: il segno è il faro
+    if (segno.current && !ridotto) segno.current.rotation.y = ARCO_FARO / 2 - faroAl(stato.clock.elapsedTime);
   });
 
   return (
