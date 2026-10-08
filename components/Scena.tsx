@@ -341,7 +341,8 @@ function Carte({
       lastra.rotation.x = THREE.MathUtils.lerp(lastra.rotation.x, rx, k);
       lastra.rotation.y = THREE.MathUtils.lerp(lastra.rotation.y, ry, k);
 
-      m.opacity = THREE.MathUtils.lerp(m.opacity, (altra ? 0.02 : 1) * entrata, k);
+      m.opacity = THREE.MathUtils.lerp(m.opacity, (altra ? 0 : 1) * entrata, k);
+      lastra.visible = m.opacity > 0.015; // spenta del tutto, con schermo e riflesso
 
       // la pagina del sito scorre nella finestra: avanti finché la carta è attiva, poi torna su
       const schermo = grafica.schermi[i];
