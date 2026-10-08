@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { Dizionario } from "@/dictionaries";
 import { recapiti } from "@/content/collegamenti";
+import Aura from "./Aura";
 
 type Stato = "pronto" | "invio" | "ok" | "errore";
 
@@ -16,6 +17,7 @@ export default function Modulo({
 }) {
   const [stato, setStato] = useState<Stato>("pronto");
   const primo = useRef<HTMLInputElement>(null);
+  const scheda = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     primo.current?.focus();
@@ -50,7 +52,9 @@ export default function Modulo({
   const m = d.modulo;
   return (
     <div className="velo" onClick={onChiudi}>
+      <Aura bersaglio={scheda} />
       <div
+        ref={scheda}
         className="modulo"
         role="dialog"
         aria-modal="true"

@@ -10,6 +10,9 @@ import * as THREE from "three";
  * raggi lenti dietro e scintille risucchiate verso il centro. Cliccandolo si apre il modulo.
  */
 
+/** Dove sta il portale sullo schermo (coordinate normalizzate −1…1): il modulo ci fa partire l'energia. */
+export const schermoPortale = { x: 0, y: -1.2, visibile: false };
+
 const LARGO = 1.9;
 const ALTO = 2.7;
 const R_ARCO = LARGO / 2;
@@ -126,7 +129,7 @@ export default function Portale({
 
   const colori = notte
     ? { fondo: "#060A24", luce: "#4F7BFF", cuore: "#EAF0FF", bordo: "#8FB0FF", scritta: "#F3F1EB" }
-    : { fondo: "#C7D3F5", luce: "#1B3FD1", cuore: "#FFFFFF", bordo: "#1B3FD1", scritta: "#16171A" };
+    : { fondo: "#120708", luce: "#FF5A4E", cuore: "#FFE1D6", bordo: "#FF6F61", scritta: "#16171A" };
 
   const vortice = useMemo(
     () =>
@@ -215,11 +218,22 @@ export default function Portale({
   }, [sopra]);
 
   const vorticeRif = useRef<THREE.Mesh>(null);
+  const radice = useRef<THREE.Group>(null);
+  const centro = useMemo(() => new THREE.Vector3(), []);
   const bordoRif = useRef<THREE.Line>(null);
   const scintilleRif = useRef<THREE.Points>(null);
 
   useFrame((stato, dt) => {
     const t = ridotto ? 0 : stato.clock.elapsedTime;
+    if (radice.current) {
+      // centro del vortice proiettato sullo schermo
+      radice.current.localToWorld(centro.set(0, IMPOSTA * 0.55, 0));
+      const davanti = centro.clone().sub(stato.camera.position).dot(stato.camera.getWorldDirection(new THREE.Vector3())) > 0;
+      centro.project(stato.camera);
+      schermoPortale.x = centro.x;
+      schermoPortale.y = centro.y;
+      schermoPortale.visibile = davanti && Math.abs(centro.x) < 1.3 && Math.abs(centro.y) < 1.3;
+    }
     forza.current = THREE.MathUtils.lerp(forza.current, sopra ? 1 : 0, 1 - Math.exp(-dt * 4));
     const o = opacita.current;
     const vm = vorticeRif.current?.material as THREE.ShaderMaterial | undefined;
@@ -253,7 +267,7 @@ export default function Portale({
   });
 
   return (
-    <group position={posizione} rotation={[0, rotazione, 0]}>
+    <group ref={radice} position={posizione} rotation={[0, rotazione, 0]}>
       <group ref={raggi} position={[0, IMPOSTA * 0.55, -0.05]}>
         {Array.from({ length: 7 }, (_, k) => (
           <mesh key={k} rotation={[0, 0, (k / 7) * Math.PI]} material={raggioMat} raycast={() => null}>
