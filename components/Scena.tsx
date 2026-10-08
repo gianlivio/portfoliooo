@@ -4,6 +4,7 @@ import { Canvas, useFrame, useThree, type ThreeEvent } from "@react-three/fiber"
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import Cielo from "./Cielo";
+import Portale from "./Portale";
 import Suolo, { CieloDiGiorno } from "./Suolo";
 import { disegnaCopertina, FINESTRA, FLUO, LARGHEZZA, ALTEZZA, type DatiCopertina, type Famiglie } from "./copertina";
 
@@ -258,6 +259,8 @@ function Carte({
   const scorrimento = useRef<{ p: number; verso: number }[]>([]);
   const puntatore = useRef(new THREE.Vector2());
   const moduloRif = useRef(false);
+  const opacitaPortale = useRef({ current: 0 });
+  const famiglie = useMemo(() => leggiFamiglie(), []);
   const cambio = useRef(-1e9);
   const inizio = useRef<number | null>(null);
   const gl = useThree((s) => s.gl);
@@ -357,6 +360,16 @@ function Carte({
     const dalCambio = stato.clock.elapsedTime - cambio.current;
 
     carte.forEach((c, i) => {
+      // il portale ha la sua grafica: qui gli si passa solo quanto deve essere visibile
+      if (c.dati.contatto) {
+        const entrataP = ridotto || !conIngresso ? 1 : THREE.MathUtils.smoothstep(t, 0.6 + i * 0.08, 1.8 + i * 0.08);
+        const affondoP = moduloAperto
+          ? THREE.MathUtils.smoothstep(dalCambio, 0, 1.2)
+          : 1 - THREE.MathUtils.smoothstep(dalCambio, 0.3, 1.5);
+        const bersaglio = entrataP * (1 - (ridotto ? (moduloAperto ? 1 : 0) : affondoP)) * (selezionato ? 0 : 1);
+        opacitaPortale.current.current = THREE.MathUtils.lerp(opacitaPortale.current.current, bersaglio, k);
+        return;
+      }
       const g = gruppi.current[i];
       const lastra = lastre.current[i];
       const m = materiali.current[i];
@@ -448,6 +461,24 @@ function Carte({
       {carte.map((c, i) => {
         const a = angoloDi(i, carte.length);
         const pos = direzione(a).multiplyScalar(RAGGIO);
+        if (c.dati.contatto) {
+          const pp = direzione(a).multiplyScalar(RAGGIO + 0.5);
+          return (
+            <Portale
+              key={c.id}
+              posizione={[pp.x, 0.16, pp.z]}
+              rotazione={-a}
+              notte={tema === "scuro"}
+              titolo={c.dati.titolo}
+              sotto={c.dati.tipo}
+              mono={famiglie.mono}
+              serif={famiglie.serif}
+              opacita={opacitaPortale.current}
+              ridotto={ridotto}
+              onApri={() => onSeleziona(c.id)}
+            />
+          );
+        }
         return (
           <group key={c.id}>
             <group
