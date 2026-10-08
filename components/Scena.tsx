@@ -6,7 +6,7 @@ import * as THREE from "three";
 import Cielo from "./Cielo";
 import Orbita from "./Orbita";
 import Suolo, { CieloDiGiorno } from "./Suolo";
-import { disegnaCopertina, FINESTRA, LARGHEZZA, ALTEZZA, type DatiCopertina, type Famiglie } from "./copertina";
+import { disegnaCopertina, FINESTRA, FLUO, LARGHEZZA, ALTEZZA, type DatiCopertina, type Famiglie } from "./copertina";
 
 /**
  * La scena: chi visita sta al centro di un anello di carte, una per lavoro.
@@ -157,7 +157,50 @@ type Grafica = {
   copertine: THREE.CanvasTexture[];
   frammenti: THREE.CanvasTexture[];
   schermi: (THREE.Texture | null)[];
+  /** nastro da cantiere che scorre, per i lavori in costruzione */
+  nastri: (THREE.CanvasTexture | null)[];
+  lampada: THREE.CanvasTexture;
 };
+
+/** Il nastro bianco e rosso dei cantieri, qui giallo fluo e nero: la scritta si ripete e scorre. */
+function disegnaNastro(testo: string, mono: string) {
+  const tela = document.createElement("canvas");
+  tela.width = 1024;
+  tela.height = 64;
+  const c = tela.getContext("2d");
+  if (c) {
+    c.fillStyle = FLUO.giallo;
+    c.fillRect(0, 0, 1024, 64);
+    c.fillStyle = FLUO.nero;
+    c.font = `500 30px ${mono}`;
+    c.textBaseline = "middle";
+    const pezzo = `▲ ${testo.toUpperCase()}   `;
+    const w = c.measureText(pezzo).width;
+    for (let x = 0; x < 1024; x += w) c.fillText(pezzo, x, 34);
+  }
+  const t = new THREE.CanvasTexture(tela);
+  t.colorSpace = THREE.SRGBColorSpace;
+  t.wrapS = THREE.RepeatWrapping;
+  return t;
+}
+
+/** La lampada che lampeggia sull'angolo del cartello. */
+function disegnaLampada() {
+  const tela = document.createElement("canvas");
+  tela.width = tela.height = 128;
+  const c = tela.getContext("2d");
+  if (c) {
+    const g = c.createRadialGradient(64, 64, 0, 64, 64, 64);
+    g.addColorStop(0, "#FFFFFF");
+    g.addColorStop(0.18, FLUO.arancio);
+    g.addColorStop(1, "rgba(255,107,0,0)");
+    c.fillStyle = g;
+    c.fillRect(0, 0, 128, 128);
+  }
+  const t = new THREE.CanvasTexture(tela);
+  t.colorSpace = THREE.SRGBColorSpace;
+  return t;
+}
 
 type Riflesso = THREE.ShaderMaterial & {
   uniforms: Record<"uFascia" | "uForza" | "uAlone" | "uOpacita", { value: number }> & {
@@ -187,6 +230,8 @@ function Carte({
   const materiali = useRef<(THREE.MeshBasicMaterial | null)[]>([]);
   const filigrane = useRef<(THREE.MeshBasicMaterial | null)[]>([]);
   const vetri = useRef<(THREE.MeshBasicMaterial | null)[]>([]);
+  const lampade = useRef<(THREE.SpriteMaterial | null)[]>([]);
+  const nastriMat = useRef<(THREE.MeshBasicMaterial | null)[]>([]);
   const riflessi = useMemo(
     () =>
       carte.map(
@@ -262,7 +307,10 @@ function Carte({
         t.needsUpdate = true;
         return t;
       });
-      setGrafica({ copertine, frammenti, schermi });
+      const nastri = carte.map((c) =>
+        c.dati.motivo === "cantiere" ? disegnaNastro(c.dati.avviso ?? "", f.mono) : null
+      );
+      setGrafica({ copertine, frammenti, schermi, nastri, lampada: disegnaLampada() });
       onPronta();
     })();
     return () => {
@@ -276,6 +324,8 @@ function Carte({
     () => () => {
       grafica?.copertine.forEach((t) => t.dispose());
       grafica?.schermi.forEach((t) => t?.dispose());
+      grafica?.nastri.forEach((t) => t?.dispose());
+      grafica?.lampada.dispose();
       grafica?.frammenti.forEach((t) => t.dispose());
     },
     [grafica]
@@ -360,6 +410,20 @@ function Carte({
         schermo.offset.y = corsa - sc.p;
       }
 
+      // cantiere: il nastro scorre, la lampada lampeggia, il cartello dondola appena
+      const nastro = grafica.nastri[i];
+      if (nastro) {
+        const tt = stato.clock.elapsedTime;
+        if (!ridotto) {
+          nastro.offset.x = (tt * 0.12) % 1;
+          lastra.rotation.z = Math.sin(tt * 1.4 + i) * 0.03;
+        }
+        const lm = lampade.current[i];
+        if (lm) lm.opacity = m.opacity * (ridotto ? 0.8 : Math.sin(tt * 7) > 0 ? 1 : 0.15);
+        const nm = nastriMat.current[i];
+        if (nm) nm.opacity = m.opacity;
+      }
+
       // luce: il fascio del faro quando passa sotto la carta, e il riflesso del puntatore
       const rf = riflessi[i];
       if (rf) {
@@ -414,6 +478,35 @@ function Carte({
                 }}
               >
                 <planeGeometry args={[LARGO, ALTO]} />
+                {grafica.nastri[i] && (
+                  <>
+                    <mesh position={[0.05, -0.12, 0.012]} rotation={[0, 0, 0.17]} raycast={() => null} renderOrder={5}>
+                      <planeGeometry args={[LARGO * 1.18, 0.15]} />
+                      <meshBasicMaterial
+                        ref={(n) => {
+                          nastriMat.current[i] = n;
+                        }}
+                        map={grafica.nastri[i]}
+                        transparent
+                        opacity={0}
+                        toneMapped={false}
+                      />
+                    </mesh>
+                    <sprite position={[-LARGO / 2 + 0.1, ALTO / 2 + 0.02, 0.02]} scale={[0.42, 0.42, 1]} raycast={() => null} renderOrder={6}>
+                      <spriteMaterial
+                        ref={(l) => {
+                          lampade.current[i] = l;
+                        }}
+                        map={grafica.lampada}
+                        transparent
+                        opacity={0}
+                        depthWrite={false}
+                        blending={THREE.AdditiveBlending}
+                        toneMapped={false}
+                      />
+                    </sprite>
+                  </>
+                )}
                 <mesh position={[0, 0, 0.004]} raycast={() => null} renderOrder={4} material={riflessi[i]}>
                   <planeGeometry args={[LARGO, ALTO]} />
                 </mesh>

@@ -34,7 +34,12 @@ export type DatiCopertina = {
   contatto: boolean;
   /** la finestra resta trasparente: dietro c'è il piano con la schermata che scorre */
   finestraVuota: boolean;
+  /** per i lavori in costruzione: la scritta del cartello */
+  avviso?: string;
 };
+
+/* Colori del cantiere: rompono di proposito la palette del sito. */
+export const FLUO = { giallo: "#E8FF3A", verde: "#39FF14", arancio: "#FF6B00", nero: "#0E0E0E" };
 
 /** Generatore pseudo-casuale con seme: la stessa carta esce sempre uguale. */
 function casuale(seme: number) {
@@ -165,6 +170,58 @@ function motivo(
   ctx.restore();
 }
 
+/** Il cartello di cantiere: nero, strisce gialle fluo, triangolo arancio, scritta verde acido. */
+function cantiere(
+  ctx: CanvasRenderingContext2D,
+  x: number, y: number, w: number, h: number, avviso: string, famiglie: Famiglie
+) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.fillStyle = FLUO.nero;
+  ctx.fillRect(0, 0, w, h);
+  const strisce = (y0: number) => {
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(0, y0, w, 40);
+    ctx.clip();
+    for (let k = -2; k < w / 40 + 2; k++) {
+      ctx.fillStyle = k % 2 ? FLUO.giallo : FLUO.nero;
+      ctx.beginPath();
+      ctx.moveTo(k * 40, y0 + 40);
+      ctx.lineTo(k * 40 + 40, y0);
+      ctx.lineTo(k * 40 + 80, y0);
+      ctx.lineTo(k * 40 + 40, y0 + 40);
+      ctx.closePath();
+      ctx.fill();
+    }
+    ctx.restore();
+  };
+  strisce(0);
+  strisce(h - 40);
+  // triangolo di pericolo
+  const cx = w / 2, cy = h / 2 - 22;
+  ctx.lineWidth = 12;
+  ctx.lineJoin = "round";
+  ctx.strokeStyle = FLUO.arancio;
+  ctx.beginPath();
+  ctx.moveTo(cx, cy - 78);
+  ctx.lineTo(cx - 88, cy + 70);
+  ctx.lineTo(cx + 88, cy + 70);
+  ctx.closePath();
+  ctx.stroke();
+  ctx.fillStyle = FLUO.arancio;
+  ctx.fillRect(cx - 7, cy - 32, 14, 62);
+  ctx.beginPath();
+  ctx.arc(cx, cy + 46, 9, 0, Math.PI * 2);
+  ctx.fill();
+  // scritta
+  ctx.fillStyle = FLUO.verde;
+  ctx.font = `500 30px ${famiglie.mono}`;
+  ctx.textAlign = "center";
+  ctx.fillText(avviso.toUpperCase(), cx, cy + 126);
+  ctx.restore();
+}
+
 export function disegnaCopertina(
   tela: HTMLCanvasElement,
   dati: DatiCopertina,
@@ -224,7 +281,8 @@ export function disegnaCopertina(
       const s = Math.max(w / iw, h / ih);
       ctx.drawImage(dati.immagine, m, m, iw * s, ih * s);
     } else {
-      motivo(ctx, dati.motivo, m, m, LARGHEZZA - 2 * m, altaH - m, seme);
+      if (dati.motivo === "cantiere") cantiere(ctx, m, m, LARGHEZZA - 2 * m, altaH - m, dati.avviso ?? "", famiglie);
+      else motivo(ctx, dati.motivo, m, m, LARGHEZZA - 2 * m, altaH - m, seme);
     }
     ctx.restore();
     }

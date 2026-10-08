@@ -8,7 +8,7 @@
  * in content/schermate.json (lo genera scripts/schermate.sh).
  */
 
-export type Motivo = "negozio" | "editoriale" | "dati" | "app" | "sito" | "testo";
+export type Motivo = "negozio" | "editoriale" | "dati" | "app" | "sito" | "testo" | "cantiere";
 
 export type Lavoro = {
   id: string;
@@ -41,6 +41,13 @@ export const lavori: Lavoro[] = [
     link: { href: "https://livellozero.games", etichetta: "livellozero.games" },
   },
   {
+    id: "futuraauthor",
+    anno: "2026 →",
+    motivo: "cantiere",
+    tinta: "#0E0E0E",
+    link: null,
+  },
+  {
     id: "ndnluxury",
     anno: "2026",
     motivo: "sito",
@@ -55,6 +62,13 @@ export const lavori: Lavoro[] = [
     link: { href: "https://www.eshousing.com", etichetta: "eshousing.com" },
   },
   {
+    id: "beautybroker",
+    anno: "2026",
+    motivo: "app",
+    tinta: "#DBCBD0",
+    link: { href: "https://www.beautybrokerworld.com", etichetta: "beautybrokerworld.com" },
+  },
+  {
     id: "blog",
     anno: "2024–2026",
     motivo: "editoriale",
@@ -64,8 +78,8 @@ export const lavori: Lavoro[] = [
   {
     id: "allstudios",
     anno: "2026",
-    motivo: "app",
-    tinta: "#D8D1C0",
+    motivo: "cantiere",
+    tinta: "#0E0E0E",
     link: null,
   },
   {

@@ -23,6 +23,16 @@ salvaArticolo({ titolo, sezione, corpo, immagini })
 pubblica("/articoli/" + slug)
 // sito pubblico | pannello di amministrazione`,
 
+  futuraauthor: `agente: redattore
+fonte: Search Console
+tono: quello del cliente
+revisione: umana, sempre`,
+
+  beautybroker: `22+ scenari end-to-end
+OTP · inviti · IBAN · referral · checkout
+502 · 409 · inviti duplicati silenti
+regression test dopo ogni fix`,
+
   ndnluxury: `pagine nuove
 resina, microcemento
 animazioni 3D

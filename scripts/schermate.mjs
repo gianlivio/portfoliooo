@@ -11,6 +11,7 @@ const lavori = {
   livellozero: "https://livellozero.games",
   ndnluxury: "https://www.ndnluxury.com",
   esh: "https://www.eshousing.com",
+  beautybroker: "https://www.beautybrokerworld.com",
   jointoyou: "https://jointoyou.it",
   copystudio: "https://www.copystudio.it",
   hetaweb: "https://hetaweb.it",

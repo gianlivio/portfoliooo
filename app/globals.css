@@ -208,6 +208,17 @@ html.con-scena .elenco:focus-within{
   transition:background .2s;
 }
 .visita:hover{opacity:.85}
+.cantiere{
+  display:inline-flex;align-items:center;gap:.5rem;
+  font-family:var(--mono);font-size:.78rem;font-weight:500;text-transform:uppercase;letter-spacing:.06em;
+  color:#0E0E0E;padding:.5rem .9rem;border-radius:4px;
+  background:repeating-linear-gradient(-45deg,#E8FF3A 0 14px,#d9f02f 14px 28px);
+  background-size:40px 40px;animation:nastro 1.2s linear infinite;
+  box-shadow:0 0 18px rgba(232,255,58,.45);
+}
+.cantiere-luce{width:.6rem;height:.6rem;border-radius:50%;background:#FF6B00;box-shadow:0 0 10px #FF6B00;animation:lampeggio .9s steps(2,jump-none) infinite}
+@keyframes nastro{to{background-position:40px 0}}
+@keyframes lampeggio{50%{opacity:.15}}
 .senza-link{font-family:var(--mono);font-size:.75rem;color:var(--grigio)}
 .frecce{display:flex;gap:.4rem}
 .frecce button{

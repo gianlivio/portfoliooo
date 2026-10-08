@@ -95,6 +95,7 @@ export default function Esperienza({ d, lingua }: { d: Dizionario; lingua: Lingu
           tinta: l.tinta,
           motivo: l.motivo,
           contatto: false,
+          avviso: l.motivo === "cantiere" ? d.vignetta.cantiere : undefined,
         },
       };
     });
@@ -299,6 +300,11 @@ export default function Esperienza({ d, lingua }: { d: Dizionario; lingua: Lingu
               <a className="visita" href={lavoro.link.href} target="_blank" rel="noopener">
                 {d.vignetta.visita} <span aria-hidden="true">↗</span>
               </a>
+            ) : lavoro.motivo === "cantiere" ? (
+              <span className="cantiere">
+                <span aria-hidden="true" className="cantiere-luce" />
+                {d.vignetta.cantiere}
+              </span>
             ) : (
               <span className="senza-link">{d.vignetta.senzaLink}</span>
             )}

@@ -64,6 +64,16 @@
       "tipo": "SEO · editorial",
       "titolo": "Hetaweb",
       "riga": "Gestión editorial y SEO de los blogs de más de 30 clientes de la agencia, entre ellos la Selección Italiana de Rugby."
+    },
+    "futuraauthor": {
+      "tipo": "Plataforma · agentes de IA",
+      "titolo": "Futura Author",
+      "riga": "Plataforma editorial en la que agentes de IA escriben contenidos para la búsqueda en Google y en los modelos generativos, con revisión humana. Desarrollo, prompts, línea editorial. En construcción."
+    },
+    "beautybroker": {
+      "tipo": "Software · desarrollo y pruebas",
+      "titolo": "Beauty Broker World",
+      "riga": "Desarrollo y pruebas como usuario de la plataforma, en colaboración con Bibop Gresta: más de 22 escenarios end-to-end sobre OTP, invitaciones, IBAN, referral y checkout, errores de servidor detectados y comunicados, regression testing tras cada corrección."
     }
   },
   "contatto": {
@@ -76,7 +86,8 @@
     "senzaLink": "Aún no es público",
     "chiudi": "Cerrar",
     "precedente": "Proyecto anterior",
-    "successivo": "Proyecto siguiente"
+    "successivo": "Proyecto siguiente",
+    "cantiere": "En construcción"
   },
   "modulo": {
     "titolo": "¿Qué necesitas?",

@@ -98,6 +98,8 @@ export const competenzeDi: Record<string, string[]> = {
   allstudios: ["ia", "copy", "qa", "html", "css"],
   jointoyou: ["wordpress", "copy", "seo", "pulizia"],
   copystudio: ["copy", "brand", "ia"],
+  futuraauthor: ["next", "react", "ts", "supabase", "claude", "openai", "prompt", "seo", "geo", "gsc", "editoriale", "copy"],
+  beautybroker: ["qa", "rest", "git", "js"],
   hetaweb: ["seo", "copy", "editoriale", "gsc"],
 };
 
