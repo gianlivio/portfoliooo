@@ -14,6 +14,13 @@ import { PELO_ACQUA, scia } from "./condivisi";
 
 const casuale = (a: number, b: number) => a + Math.random() * (b - a);
 
+/** Con ?ospiti nell'indirizzo passano tutti subito e a ripetizione: serve per guardarli senza aspettare. */
+function prova() {
+  return typeof window !== "undefined" && new URLSearchParams(window.location.search).has("ospiti");
+}
+/** Attesa prima del prossimo passaggio: normale, oppure breve in modalità prova. */
+const attesa = (a: number, b: number) => (prova() ? casuale(4, 7) : casuale(a, b));
+
 /** Direzione orizzontale verso cui guarda la camera, come angolo (0 = −z). */
 function yawCamera(camera: THREE.Camera) {
   const d = camera.getWorldDirection(new THREE.Vector3());
@@ -22,77 +29,111 @@ function yawCamera(camera: THREE.Camera) {
 
 /* ------------------------------------------------------------ stelle cadenti */
 
-const PUNTI_SCIA = 28;
+/** La scia: trasparente in coda, piena e luminosa in testa, con un alone. */
+function texturaScia() {
+  const c = document.createElement("canvas");
+  c.width = 512;
+  c.height = 64;
+  const x = c.getContext("2d");
+  if (x) {
+    for (let px = 0; px < 512; px++) {
+      const f = px / 511;
+      const g = x.createLinearGradient(0, 0, 0, 64);
+      const a = Math.pow(f, 2.2);
+      const larg = 0.08 + f * 0.1;
+      g.addColorStop(0.5 - larg, "rgba(255,255,255,0)");
+      g.addColorStop(0.5, `rgba(255,255,255,${a})`);
+      g.addColorStop(0.5 + larg, "rgba(255,255,255,0)");
+      x.fillStyle = g;
+      x.fillRect(px, 0, 1, 64);
+    }
+    const alone = x.createRadialGradient(490, 32, 0, 490, 32, 30);
+    alone.addColorStop(0, "rgba(255,255,255,1)");
+    alone.addColorStop(0.25, "rgba(220,232,255,0.7)");
+    alone.addColorStop(1, "rgba(200,220,255,0)");
+    x.fillStyle = alone;
+    x.fillRect(440, 0, 72, 64);
+  }
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  return t;
+}
 
 function StelleCadenti() {
-  const linea = useMemo(() => {
+  const tx = useMemo(() => texturaScia(), []);
+  const nastro = useMemo(() => {
     const g = new THREE.BufferGeometry();
-    g.setAttribute("position", new THREE.Float32BufferAttribute(new Float32Array(PUNTI_SCIA * 3), 3));
-    const col = new Float32Array(PUNTI_SCIA * 3);
-    g.setAttribute("color", new THREE.Float32BufferAttribute(col, 3));
-    const l = new THREE.Line(
+    g.setAttribute("position", new THREE.Float32BufferAttribute(new Float32Array(12), 3));
+    g.setAttribute("uv", new THREE.Float32BufferAttribute([0, 0, 0, 1, 1, 1, 1, 0], 2));
+    g.setIndex([0, 1, 2, 0, 2, 3]);
+    const m = new THREE.Mesh(
       g,
-      new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, fog: false, toneMapped: false })
+      new THREE.MeshBasicMaterial({
+        map: tx, transparent: true, opacity: 0, blending: THREE.AdditiveBlending,
+        depthWrite: false, fog: false, toneMapped: false, side: THREE.DoubleSide,
+      })
     );
-    l.frustumCulled = false;
-    l.raycast = () => undefined;
-    l.visible = false;
-    return l;
-  }, []);
+    m.frustumCulled = false;
+    m.raycast = () => undefined;
+    m.visible = false;
+    return m;
+  }, [tx]);
   useEffect(
     () => () => {
-      linea.geometry.dispose();
-      (linea.material as THREE.Material).dispose();
+      nastro.geometry.dispose();
+      (nastro.material as THREE.Material).dispose();
+      tx.dispose();
     },
-    [linea]
+    [nastro, tx]
   );
 
-  const rifLinea = useRef<THREE.Line>(null);
-  const stato = useRef({ prossima: 10, inizio: -1, da: new THREE.Vector3(), verso: new THREE.Vector3(), durata: 0.9 });
+  const rif = useRef<THREE.Mesh>(null);
+  const stato = useRef({ prossima: 4, inizio: -1, da: new THREE.Vector3(), verso: new THREE.Vector3(), durata: 1.2 });
+  const testa = useMemo(() => new THREE.Vector3(), []);
+  const coda = useMemo(() => new THREE.Vector3(), []);
+  const lato = useMemo(() => new THREE.Vector3(), []);
 
   useFrame(({ clock, camera }) => {
     const t = clock.elapsedTime;
     const s = stato.current;
-    const linea = rifLinea.current;
-    if (!linea) return;
+    const m = rif.current;
+    if (!m) return;
     if (s.inizio < 0 && t > s.prossima) {
       // parte in alto davanti a chi guarda e scende di traverso
-      const az = yawCamera(camera) + casuale(-0.7, 0.7);
-      const alt = casuale(0.45, 0.85);
-      const R = 38;
+      const az = yawCamera(camera) + casuale(-0.45, 0.45);
+      const alt = casuale(0.3, 0.6);
+      const R = 34;
       s.da.set(Math.sin(az) * Math.cos(alt) * R, Math.sin(alt) * R, -Math.cos(az) * Math.cos(alt) * R);
-      const lato = new THREE.Vector3(Math.cos(az), 0, Math.sin(az)).multiplyScalar(Math.random() < 0.5 ? -1 : 1);
-      s.verso.copy(lato).multiplyScalar(casuale(0.7, 1)).add(new THREE.Vector3(0, -casuale(0.35, 0.7), 0)).normalize();
-      s.durata = casuale(0.7, 1.1);
+      const l = new THREE.Vector3(Math.cos(az), 0, Math.sin(az)).multiplyScalar(Math.random() < 0.5 ? -1 : 1);
+      s.verso.copy(l).add(new THREE.Vector3(0, -casuale(0.35, 0.6), 0)).normalize();
+      s.durata = casuale(1.0, 1.4);
       s.inizio = t;
-      linea.visible = true;
+      m.visible = true;
     }
     if (s.inizio < 0) return;
     const a = (t - s.inizio) / s.durata;
     if (a >= 1) {
       s.inizio = -1;
-      s.prossima = t + casuale(14, 32);
-      linea.visible = false;
+      s.prossima = t + attesa(12, 25);
+      m.visible = false;
       return;
     }
-    const percorso = 11;
-    const coda = 4.5 * Math.sin(Math.min(a, 1) * Math.PI) + 0.2;
-    const testa = s.da.clone().addScaledVector(s.verso, percorso * a);
-    const pos = linea.geometry.attributes.position.array as Float32Array;
-    const col = linea.geometry.attributes.color.array as Float32Array;
-    const luce = Math.sin(a * Math.PI);
-    for (let k = 0; k < PUNTI_SCIA; k++) {
-      const f = k / (PUNTI_SCIA - 1);
-      const p = testa.clone().addScaledVector(s.verso, -coda * f);
-      pos.set([p.x, p.y, p.z], k * 3);
-      const v = Math.pow(1 - f, 2) * luce;
-      col.set([v, v, v * 1.05], k * 3);
-    }
-    linea.geometry.attributes.position.needsUpdate = true;
-    linea.geometry.attributes.color.needsUpdate = true;
+    // la testa corre, la coda si allunga e poi si ritira
+    testa.copy(s.da).addScaledVector(s.verso, 16 * a);
+    coda.copy(testa).addScaledVector(s.verso, -(1.5 + 7 * Math.sin(a * Math.PI)));
+    lato.copy(s.verso).cross(testa.clone().sub(camera.position)).normalize().multiplyScalar(0.28);
+    const pos = m.geometry.attributes.position.array as Float32Array;
+    pos.set([
+      coda.x - lato.x, coda.y - lato.y, coda.z - lato.z,
+      coda.x + lato.x, coda.y + lato.y, coda.z + lato.z,
+      testa.x + lato.x, testa.y + lato.y, testa.z + lato.z,
+      testa.x - lato.x, testa.y - lato.y, testa.z - lato.z,
+    ]);
+    m.geometry.attributes.position.needsUpdate = true;
+    (m.material as THREE.MeshBasicMaterial).opacity = Math.min(1, Math.sin(a * Math.PI) * 1.6);
   });
 
-  return <primitive ref={rifLinea} object={linea} />;
+  return <primitive ref={rif} object={nastro} />;
 }
 
 /* --------------------------------------------------------------------- stormo */
@@ -140,7 +181,7 @@ function Stormo({ stretto }: { stretto: boolean }) {
     g.setAttribute("position", new THREE.Float32BufferAttribute(new Float32Array(n * 3), 3));
     const p = new THREE.Points(
       g,
-      new THREE.PointsMaterial({ map: tx, color: "#16171A", size: 0.32, sizeAttenuation: true, transparent: true, opacity: 0, depthWrite: false, alphaTest: 0.05 })
+      new THREE.PointsMaterial({ map: tx, color: "#16171A", size: 0.55, sizeAttenuation: true, transparent: true, opacity: 0, depthWrite: false, alphaTest: 0.05 })
     );
     p.frustumCulled = false;
     p.raycast = () => undefined;
@@ -158,7 +199,7 @@ function Stormo({ stretto }: { stretto: boolean }) {
   );
 
   const rifPunti = useRef<THREE.Points>(null);
-  const stato = useRef({ prossima: 12, inizio: -1, az: 0, verso: 1, durata: 16 });
+  const stato = useRef({ prossima: 3, inizio: -1, az: 0, verso: 1, durata: 16 });
   const tmp = useMemo(() => new THREE.Vector3(), []);
 
   useFrame(({ clock, camera }) => {
@@ -177,16 +218,16 @@ function Stormo({ stretto }: { stretto: boolean }) {
     const a = (t - s.inizio) / s.durata;
     if (a >= 1) {
       s.inizio = -1;
-      s.prossima = t + casuale(30, 55);
+      s.prossima = t + attesa(25, 40);
       punti.visible = false;
       return;
     }
     // il centro dello stormo attraversa il cielo da un lato all'altro, dietro le carte
     const ang = s.az + s.verso * (a * 2 - 1) * 1.15;
-    const R = 15;
+    const R = 12;
     const cx = Math.sin(ang) * R;
     const cz = -Math.cos(ang) * R;
-    const cy = 3.4 + Math.sin(a * Math.PI * 2) * 0.8;
+    const cy = 2.5 + Math.sin(a * Math.PI * 2) * 0.6;
     const pos = punti.geometry.attributes.position.array as Float32Array;
     const respiro = 1 + 0.45 * Math.sin(t * 0.9);
     const torsione = t * 0.35;
@@ -206,8 +247,8 @@ function Stormo({ stretto }: { stretto: boolean }) {
 
 /* ----------------------------------------------------------------- coccodrillo */
 
-const COCCO_L = 2.3;
-const COCCO_A = 0.5;
+const COCCO_L = 3.2;
+const COCCO_A = 0.7;
 
 /** Mezza larghezza del corpo lungo l'asse (0 = punta del muso, 1 = punta della coda), in frazione dell'altezza. */
 function sagoma(x: number) {
@@ -244,7 +285,7 @@ function texturaCoccodrillo() {
 
   x.save();
   x.filter = "blur(7px)";
-  x.fillStyle = "#232B21";
+  x.fillStyle = "#2F3A2B";
   x.fill(forma);
   x.restore();
 
@@ -268,11 +309,11 @@ function texturaCoccodrillo() {
       if (Math.abs(yy - cy) > larg * 0.86) return;
       const w = (corpo ? 16 : 13) * (1 - (f - 0.22) * 0.5);
       const h = corpo ? 12 + (2 - Math.abs(j - 2.5)) * 2 : 10;
-      x.fillStyle = "#121611";
+      x.fillStyle = "#1A2018";
       x.beginPath();
       x.roundRect(f * W - w / 2, yy - h / 2, w, h, 4);
       x.fill();
-      x.strokeStyle = "rgba(150,162,128,0.6)";
+      x.strokeStyle = "rgba(186,196,160,0.75)";
       x.lineWidth = 1.6;
       x.beginPath();
       x.moveTo(f * W - w / 2 + 2, yy - h / 2 + 1);
@@ -335,7 +376,7 @@ varying vec2 vUv;
 void main(){
   vec4 c = texture2D(uMappa, vUv);
   // lucido bagnato che scorre lungo il dorso
-  float lucido = pow(max(0.0, sin(vUv.x * 40.0 - uTempo * 2.0)), 18.0) * 0.08;
+  float lucido = pow(max(0.0, sin(vUv.x * 40.0 - uTempo * 2.0)), 18.0) * 0.14;
   gl_FragColor = vec4(c.rgb + lucido, c.a * uOpacita);
   #include <colorspace_fragment>
 }`;
@@ -364,7 +405,7 @@ function Coccodrillo() {
   );
 
   const stato = useRef({
-    prossima: 16, inizio: -1, durata: 20,
+    prossima: 5, inizio: -1, durata: 20,
     da: new THREE.Vector2(), a: new THREE.Vector2(), curva: new THREE.Vector2(),
   });
   const p = useMemo(() => new THREE.Vector2(), []);
@@ -380,10 +421,10 @@ function Coccodrillo() {
       const yaw = yawCamera(camera);
       const avanti = new THREE.Vector2(Math.sin(yaw), -Math.cos(yaw));
       const lato = new THREE.Vector2(-avanti.y, avanti.x).multiplyScalar(Math.random() < 0.5 ? -1 : 1);
-      const dist = casuale(3.0, 4.2);
-      s.da.copy(avanti).multiplyScalar(dist).addScaledVector(lato, -6.5);
-      s.a.copy(avanti).multiplyScalar(dist + casuale(-0.6, 0.8)).addScaledVector(lato, 6.5);
-      s.curva.copy(avanti).multiplyScalar(dist + casuale(-1, 0.6));
+      const dist = casuale(4.2, 4.9);
+      s.da.copy(avanti).multiplyScalar(dist).addScaledVector(lato, -5.5);
+      s.a.copy(avanti).multiplyScalar(dist + casuale(-0.3, 0.3)).addScaledVector(lato, 5.5);
+      s.curva.copy(avanti).multiplyScalar(dist - casuale(0.4, 0.9));
       s.durata = casuale(17, 22);
       s.inizio = t;
     }
@@ -395,7 +436,7 @@ function Coccodrillo() {
     const a = (t - s.inizio) / s.durata;
     if (a >= 1) {
       s.inizio = -1;
-      s.prossima = t + casuale(45, 65);
+      s.prossima = t + attesa(40, 60);
       m.visible = false;
       scia.forza = 0;
       return;
@@ -505,7 +546,7 @@ function Formica() {
   );
   const corpo = useRef<THREE.Mesh>(null);
   const stato = useRef({
-    prossima: 9, inizio: -1, pos: new THREE.Vector2(), rotta: 0, meta: new THREE.Vector2(),
+    prossima: 6, inizio: -1, pos: new THREE.Vector2(), rotta: 0, meta: new THREE.Vector2(),
     pausa: 0, passo: 0, fotogramma: 0,
   });
 
@@ -519,9 +560,9 @@ function Formica() {
       const yaw = yawCamera(camera);
       const avanti = new THREE.Vector2(Math.sin(yaw), -Math.cos(yaw));
       const lato = new THREE.Vector2(-avanti.y, avanti.x).multiplyScalar(Math.random() < 0.5 ? -1 : 1);
-      const dist = casuale(2.2, 3.2);
-      s.pos.copy(avanti).multiplyScalar(dist).addScaledVector(lato, -3.2);
-      s.meta.copy(avanti).multiplyScalar(dist + casuale(-0.8, 1.2)).addScaledVector(lato, 3.6);
+      const dist = casuale(4.4, 5.0);
+      s.pos.copy(avanti).multiplyScalar(dist).addScaledVector(lato, -3.4);
+      s.meta.copy(avanti).multiplyScalar(dist + casuale(-0.4, 0.4)).addScaledVector(lato, 3.4);
       s.rotta = Math.atan2(s.meta.y - s.pos.y, s.meta.x - s.pos.x);
       s.inizio = t;
       s.pausa = 0;
@@ -536,7 +577,7 @@ function Formica() {
       let diff = verso - s.rotta;
       diff = Math.atan2(Math.sin(diff), Math.cos(diff));
       s.rotta += diff * Math.min(1, dt * 3) + Math.sin(t * 9) * dt * 2.2;
-      const v = 0.95;
+      const v = 1.25;
       s.pos.x += Math.cos(s.rotta) * v * dt;
       s.pos.y += Math.sin(s.rotta) * v * dt;
       s.passo += dt;
@@ -551,14 +592,14 @@ function Formica() {
     m.rotation.set(-Math.PI / 2, 0, -s.rotta + Math.PI);
     if (s.pos.distanceTo(s.meta) < 0.15 || t - s.inizio > 12) {
       s.inizio = -1;
-      s.prossima = t + casuale(30, 50);
+      s.prossima = t + attesa(25, 40);
       m.visible = false;
     }
   });
 
   return (
     <mesh ref={corpo} material={materiale} raycast={() => null} visible={false}>
-      <planeGeometry args={[0.16, 0.16]} />
+      <planeGeometry args={[0.34, 0.34]} />
     </mesh>
   );
 }
