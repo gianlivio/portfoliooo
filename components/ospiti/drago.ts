@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import {
-  type Ospite, RUMORE, alone, assi, attesa, casuale, fra, liberaTutto, loft, morbido, primo, segno,
+  type Anello, type Ospite, RUMORE, alone, assi, attesa, casuale, fra, liberaTutto, loft, morbido, primo, segno,
 } from "./comuni";
 
 /**
@@ -45,7 +45,7 @@ varying vec3 vLoc;
 varying vec3 vCol;
 ${RUMORE}
 void main(){
-  vec3 n = normalize(vN);
+  vec3 n = uMembrana > 0.5 ? normalize(vN) : normalize(cross(dFdx(vW), dFdy(vW)));
   vec3 v = normalize(uOcchio - vW);
   if (dot(n, v) < 0.0) n = -n;
   float lamb = max(dot(n, uLuna), 0.0);
@@ -105,6 +105,9 @@ void main(){
 }`;
 
 /* ------------------------------------------------------------------ forme */
+
+/** Sezioni a losanga: dorso e ventre a spigolo, fianchi tesi. */
+const sp = (anelli: Anello[], n = 1.5) => anelli.map((a) => ({ ...a, n: a.n ?? n }));
 
 const ventre = (soglia = -0.25) => (_k: number, ang: number) => {
   const s = Math.sin(ang);
@@ -272,19 +275,19 @@ export class Drago implements Ospite {
     const corno = new THREE.MeshBasicMaterial({ color: "#1A1B21", transparent: true, opacity: 0 });
 
     // tronco
-    this.corpo.add(new THREE.Mesh(loft([
+    this.corpo.add(new THREE.Mesh(loft(sp([
       { z: -0.9, l: 0.09, su: 0.09, y: 0.02 },
       { z: -0.62, l: 0.19, su: 0.17, giu: 0.19 },
       { z: -0.2, l: 0.27, su: 0.22, giu: 0.29 },
       { z: 0.22, l: 0.28, su: 0.23, giu: 0.3 },
       { z: 0.56, l: 0.21, su: 0.19, giu: 0.23, y: 0.03 },
       { z: 0.82, l: 0.12, su: 0.11, giu: 0.12, y: 0.07 },
-    ], { radiali: 22, passi: 4, colore: ventre() }), squame));
+    ]), { radiali: 10, passi: 3, colore: ventre() }), squame));
 
     // creste sul dorso
     const cresta = (z: number, y: number, h: number, padre: THREE.Object3D) => {
-      const c = new THREE.Mesh(new THREE.ConeGeometry(h * 0.35, h, 4), corno);
-      c.scale.set(0.35, 1, 1);
+      const c = new THREE.Mesh(new THREE.ConeGeometry(h * 0.4, h * 1.35, 3), corno);
+      c.scale.set(0.3, 1, 1);
       c.position.set(0, y + h * 0.4, z);
       c.rotation.x = -0.6;
       padre.add(c);
@@ -297,10 +300,10 @@ export class Drago implements Ospite {
       const v = new THREE.Group();
       v.position.set(0, i === 0 ? 0.08 : 0, i === 0 ? 0.74 : 0.2);
       const r0 = 0.125 - i * 0.012, r1 = r0 - 0.012;
-      v.add(new THREE.Mesh(loft([
+      v.add(new THREE.Mesh(loft(sp([
         { z: -0.02, l: r0, su: r0 * 0.95, giu: r0 * 1.05 },
         { z: 0.25, l: r1, su: r1 * 0.95, giu: r1 * 1.05 },
-      ], { radiali: 16, passi: 2, colore: ventre(-0.1) }), squame));
+      ]), { radiali: 8, passi: 1, colore: ventre(-0.1) }), squame));
       cresta(0.1, r0 * 0.9, 0.08, v);
       padre.add(v);
       this.collo.push(v);
@@ -310,22 +313,22 @@ export class Drago implements Ospite {
     // testa: cranio, mascella che si apre, corna, occhi
     this.testa.position.set(0, 0, 0.2);
     padre.add(this.testa);
-    this.testa.add(new THREE.Mesh(loft([
+    this.testa.add(new THREE.Mesh(loft(sp([
       { z: -0.05, l: 0.085, su: 0.08, giu: 0.06 },
       { z: 0.08, l: 0.11, su: 0.1, giu: 0.05 },
       { z: 0.2, l: 0.085, su: 0.066, giu: 0.03, y: -0.005 },
       { z: 0.34, l: 0.06, su: 0.045, giu: 0.022, y: -0.02 },
       { z: 0.45, l: 0.038, su: 0.03, giu: 0.016, y: -0.028 },
       { z: 0.49, l: 0.016, su: 0.014, giu: 0.008, y: -0.03 },
-    ], { radiali: 18, passi: 4, colore: ventre(-0.6) }), squame));
+    ]), { radiali: 8, passi: 2, colore: ventre(-0.6) }), squame));
     this.mascella.position.set(0, -0.045, 0.03);
     this.testa.add(this.mascella);
-    this.mascella.add(new THREE.Mesh(loft([
+    this.mascella.add(new THREE.Mesh(loft(sp([
       { z: -0.02, l: 0.07, su: 0.025, giu: 0.035 },
       { z: 0.2, l: 0.058, su: 0.018, giu: 0.03 },
       { z: 0.42, l: 0.03, su: 0.012, giu: 0.018 },
       { z: 0.45, l: 0.012, su: 0.006, giu: 0.008 },
-    ], { radiali: 14, passi: 3, colore: () => new THREE.Color(1, 0, 0) }), squame));
+    ]), { radiali: 8, passi: 2, colore: () => new THREE.Color(1, 0, 0) }), squame));
     for (const s of [-1, 1]) {
       const c = new THREE.Mesh(new THREE.ConeGeometry(0.03, 0.34, 6), corno);
       c.position.set(s * 0.06, 0.1, -0.08);
@@ -335,6 +338,32 @@ export class Drago implements Ospite {
       c2.position.set(s * 0.1, 0.03, -0.05);
       c2.rotation.set(-1.4, 0, s * 0.8);
       this.testa.add(c2);
+    }
+    const dente = new THREE.MeshBasicMaterial({ color: "#B9B4A4", transparent: true, opacity: 0 });
+    this.corpo.userData.dente = dente;
+    for (const s of [-1, 1]) {
+      for (let i = 0; i < 6; i++) {
+        const z = 0.16 + i * 0.048;
+        const l = 0.075 - i * 0.008;
+        const su = new THREE.Mesh(new THREE.ConeGeometry(0.007, 0.03 - i * 0.002, 4), dente);
+        su.position.set(s * l * 0.85, -0.03 - i * 0.003, z);
+        su.rotation.x = Math.PI;
+        this.testa.add(su);
+        const giu = new THREE.Mesh(new THREE.ConeGeometry(0.006, 0.026 - i * 0.002, 4), dente);
+        giu.position.set(s * l * 0.75, 0.018, z - 0.03);
+        this.mascella.add(giu);
+      }
+      // arcata sopra l'occhio, spine sulla guancia e sulla mascella
+      const arcata = new THREE.Mesh(new THREE.ConeGeometry(0.022, 0.12, 3), corno);
+      arcata.position.set(s * 0.07, 0.075, 0.1);
+      arcata.rotation.set(-1.35, s * 0.25, 0);
+      this.testa.add(arcata);
+      for (let i = 0; i < 3; i++) {
+        const sg = new THREE.Mesh(new THREE.ConeGeometry(0.012, 0.09 - i * 0.02, 3), corno);
+        sg.position.set(s * (0.075 - i * 0.004), -0.02 - i * 0.012, -0.02 + i * 0.05);
+        sg.rotation.set(-1.7, 0, s * 1.1);
+        this.mascella.add(sg);
+      }
     }
     const txOcchio = alone("#FFB347");
     this.texture.push(txOcchio);
@@ -354,10 +383,10 @@ export class Drago implements Ospite {
       const v = new THREE.Group();
       v.position.set(0, i === 0 ? 0.02 : 0, i === 0 ? -0.85 : -0.31);
       const r0 = 0.1 * Math.pow(0.8, i), r1 = r0 * 0.8;
-      v.add(new THREE.Mesh(loft([
+      v.add(new THREE.Mesh(loft(sp([
         { z: 0.02, l: r0, su: r0 },
         { z: -0.33, l: r1, su: r1 },
-      ], { radiali: 12, passi: 2, colore: ventre(-0.2) }), squame));
+      ]), { radiali: 6, passi: 1, colore: ventre(-0.2) }), squame));
       if (i < 7) cresta(-0.15, r0 * 0.9, 0.09 * Math.pow(0.82, i), v);
       padre.add(v);
       this.coda.push(v);
@@ -379,11 +408,11 @@ export class Drago implements Ospite {
 
     // zampe raccolte sotto il corpo
     const zampa = (x: number, y: number, z: number, l: number, r: number, inclina: number) => {
-      const g = loft([
+      const g = loft(sp([
         { z: 0, l: r, su: r },
         { z: l * 0.5, l: r * 0.75, su: r * 0.8 },
         { z: l, l: r * 0.45, su: r * 0.45 },
-      ], { radiali: 10, passi: 2, colore: ventre() });
+      ]), { radiali: 6, passi: 1, colore: ventre() });
       const m = new THREE.Mesh(g, squame);
       m.position.set(x, y, z);
       m.rotation.set(inclina, x > 0 ? 0.15 : -0.15, 0);
@@ -650,6 +679,7 @@ export class Drago implements Ospite {
     u.uVis.value = vis;
     (this.corpo.userData.osso as THREE.LineBasicMaterial).opacity = vis * 0.9;
     (this.corpo.userData.corno as THREE.MeshBasicMaterial).opacity = vis;
+    (this.corpo.userData.dente as THREE.MeshBasicMaterial).opacity = vis * (0.4 + fauci * 0.6);
     this.occhi.forEach((o) => {
       o.material.opacity = vis * (0.7 + 0.3 * Math.sin(t * 3) + u.uBrace.value * 0.5);
     });

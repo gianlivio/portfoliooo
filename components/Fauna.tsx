@@ -5,16 +5,16 @@ import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { PELO_ACQUA, gocce } from "./condivisi";
 import { type Ospite, assi, attesa, casuale, solo } from "./ospiti/comuni";
-import { Galeone } from "./ospiti/galeone";
+import { Nave } from "./ospiti/nave";
 import { Drago } from "./ospiti/drago";
-import { Volpe } from "./ospiti/volpe";
+import { Achille } from "./ospiti/achille";
 import { Icaro } from "./ospiti/icaro";
 
 /**
  * Ciò che ogni tanto passa per la stanza, davanti a dove si sta guardando.
  * Notte: stelle cadenti; gocce che cadono sull'acqua e la increspano in cerchi;
- * un galeone fantasma che attraversa l'acqua; di rado un drago nel cielo.
- * Giorno: una volpe che attraversa il marmo e si ferma a fare qualcosa; di rado Icaro.
+ * la nave di Ulisse, fantasma, che attraversa l'acqua a remi; di rado un drago nel cielo.
+ * Giorno: Achille che insegue la tartaruga senza raggiungerla mai; di rado Icaro.
  * Con "riduci movimento" non passa niente. Con ?ospiti nell'indirizzo passano subito e spesso.
  */
 
@@ -190,7 +190,7 @@ function Gocce() {
         // impatto: l'acqua comincia a fare cerchi, una piccola corona di schizzi salta su
         gm.visible = false;
         gocce[s.slot].set(s.pos.x, s.pos.z, t, casuale(0.8, 1.15));
-        s.slot = (s.slot + 1) % 4; // le altre sono della scia del galeone
+        s.slot = (s.slot + 1) % 4; // le altre sono dei remi della nave
         s.impatto = t;
         s.vel.forEach((v, k) => {
           const ang = (k / SCHIZZI) * Math.PI * 2 + casuale(-0.2, 0.2);
@@ -253,9 +253,9 @@ function Presenza({ crea }: { crea: () => Ospite }) {
   return <primitive object={o.gruppo} />;
 }
 
-const creaGaleone = () => new Galeone();
+const creaNave = () => new Nave();
 const creaDrago = () => new Drago();
-const creaVolpe = () => new Volpe();
+const creaAchille = () => new Achille();
 const creaIcaro = () => new Icaro();
 
 /* --------------------------------------------------------------------- insieme */
@@ -268,15 +268,15 @@ export default function Fauna({ notte, ridotto }: { notte: boolean; ridotto: boo
     <>
       {c("stelle") && <StelleCadenti />}
       {c("gocce") && <Gocce />}
-      {c("galeone") && <Presenza crea={creaGaleone} />}
+      {c("nave") && <Presenza crea={creaNave} />}
       {c("drago") && <Presenza crea={creaDrago} />}
     </>
   ) : (
     <>
-      {/* luce solo per la volpe e per Icaro: il resto della scena non ne usa */}
+      {/* luce solo per la tartaruga e per Icaro: il resto della scena non ne usa */}
       <hemisphereLight args={["#F6F2EA", "#B8AFA0", 1.15]} />
       <directionalLight position={[4, 9, 3]} intensity={1.7} color="#FFF6E8" />
-      {c("volpe") && <Presenza crea={creaVolpe} />}
+      {c("tartaruga") && <Presenza crea={creaAchille} />}
       {c("icaro") && <Presenza crea={creaIcaro} />}
     </>
   );
