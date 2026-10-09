@@ -4,17 +4,22 @@ import { useFrame } from "@react-three/fiber";
 import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { PELO_ACQUA, gocce } from "./condivisi";
-import { type Ospite, assi, attesa, casuale, solo } from "./ospiti/comuni";
+import { type Ospite, assi, attesa, azzeraTurni, casuale, solo } from "./ospiti/comuni";
 import { Nave } from "./ospiti/nave";
 import { Drago } from "./ospiti/drago";
 import { Achille } from "./ospiti/achille";
 import { Icaro } from "./ospiti/icaro";
+import { Falange } from "./ospiti/falange";
+import { Aereo, Jet } from "./ospiti/cieli";
+import { Tucano } from "./ospiti/tucano";
 
 /**
  * Ciò che ogni tanto passa per la stanza, davanti a dove si sta guardando.
  * Notte: stelle cadenti; gocce che cadono sull'acqua e la increspano in cerchi;
  * la nave di Ulisse, fantasma, che attraversa l'acqua a remi; di rado un drago nel cielo.
- * Giorno: Achille che insegue la tartaruga senza raggiungerla mai; di rado Icaro.
+ * e, a turno col drago, un aereo di linea con le sue luci.
+ * Giorno: Achille che insegue la tartaruga senza raggiungerla mai, poi una piccola falange oplitica;
+ * di rado Icaro e, a turno con lui, un jet con le scie; ogni tanto un tucano che passa vicinissimo.
  * Con "riduci movimento" non passa niente. Con ?ospiti nell'indirizzo passano subito e spesso.
  */
 
@@ -257,11 +262,17 @@ const creaNave = () => new Nave();
 const creaDrago = () => new Drago();
 const creaAchille = () => new Achille();
 const creaIcaro = () => new Icaro();
+const creaFalange = () => new Falange();
+const creaAereo = () => new Aereo();
+const creaJet = () => new Jet();
+const creaTucano = () => new Tucano();
 
 /* --------------------------------------------------------------------- insieme */
 
 export default function Fauna({ notte, ridotto }: { notte: boolean; ridotto: boolean; stretto?: boolean }) {
   const scelto = useMemo(() => solo(), []);
+  // la scena si rimonta a ogni cambio di tema o lingua, con l'orologio da capo: i turni pure
+  useEffect(() => azzeraTurni(), []);
   if (ridotto) return null;
   const c = (nome: string) => !scelto || scelto === nome;
   return notte ? (
@@ -270,6 +281,7 @@ export default function Fauna({ notte, ridotto }: { notte: boolean; ridotto: boo
       {c("gocce") && <Gocce />}
       {c("nave") && <Presenza crea={creaNave} />}
       {c("drago") && <Presenza crea={creaDrago} />}
+      {c("aereo") && <Presenza crea={creaAereo} />}
     </>
   ) : (
     <>
@@ -277,7 +289,10 @@ export default function Fauna({ notte, ridotto }: { notte: boolean; ridotto: boo
       <hemisphereLight args={["#F6F2EA", "#B8AFA0", 1.15]} />
       <directionalLight position={[4, 9, 3]} intensity={1.7} color="#FFF6E8" />
       {c("tartaruga") && <Presenza crea={creaAchille} />}
+      {c("falange") && <Presenza crea={creaFalange} />}
       {c("icaro") && <Presenza crea={creaIcaro} />}
+      {c("jet") && <Presenza crea={creaJet} />}
+      {c("tucano") && <Presenza crea={creaTucano} />}
     </>
   );
 }

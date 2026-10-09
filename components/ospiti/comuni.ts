@@ -234,3 +234,64 @@ float rumore(vec3 x){
 }
 float frattale(vec3 x){ return 0.5 * rumore(x) + 0.28 * rumore(x * 2.03 + 7.1) + 0.14 * rumore(x * 4.1 + 3.7) + 0.08 * rumore(x * 8.3 + 1.3); }
 `;
+
+/* -------------------------------------------------------------------- turni */
+
+/**
+ * Alcuni posti della scena ospitano una figura alla volta, a turno e in un ordine fisso:
+ * sul marmo prima la tartaruga, poi la falange; in cielo, di notte, il drago e l'aereo;
+ * di giorno Icaro e il jet. Con ?ospiti=nome il turno non conta: passa solo quello.
+ */
+const turni: Record<string, { ordine: string[]; i: number; libero: number }> = {
+  pavimento: { ordine: ["tartaruga", "falange"], i: 0, libero: 0 },
+  cieloNotte: { ordine: ["drago", "aereo"], i: 0, libero: 0 },
+  cieloGiorno: { ordine: ["icaro", "jet"], i: 0, libero: 0 },
+};
+
+/** È il turno di questo ospite, in questo posto? */
+export function tocca(posto: string, nome: string, t: number) {
+  const s = solo();
+  if (s) return s === nome;
+  const p = turni[posto];
+  return !!p && p.ordine[p.i % p.ordine.length] === nome && t >= p.libero;
+}
+
+/** L'ospite ha finito: il posto passa al successivo dopo una pausa (in secondi). */
+export function passa(posto: string, t: number, pausa: number) {
+  const p = turni[posto];
+  if (!p) return;
+  p.i++;
+  p.libero = t + pausa;
+}
+
+/** Al rimontaggio della scena (cambio tema o lingua) i turni ripartono dall'inizio. */
+export function azzeraTurni() {
+  Object.values(turni).forEach((p) => {
+    p.i = 0;
+    p.libero = 0;
+  });
+}
+
+/**
+ * La camera, a riposo, gira piano su sé stessa. Chi attraversa il pavimento a passo lento
+ * deve andare nello stesso verso, altrimenti la vista lo lascia indietro.
+ * Misura la deriva (radianti al secondo, positivo = verso "lato") e ne restituisce il verso.
+ */
+export class Deriva {
+  private prima = NaN;
+  private v = 0;
+  misura(camera: THREE.Camera, dt: number) {
+    const d = camera.getWorldDirection(new THREE.Vector3());
+    const y = Math.atan2(d.x, -d.z);
+    if (!Number.isNaN(this.prima) && dt > 0) {
+      let dy = y - this.prima;
+      if (dy > Math.PI) dy -= Math.PI * 2;
+      if (dy < -Math.PI) dy += Math.PI * 2;
+      this.v += (dy / dt - this.v) * Math.min(1, dt * 0.5);
+    }
+    this.prima = y;
+  }
+  verso() {
+    return Math.abs(this.v) > 0.003 ? Math.sign(this.v) : segno();
+  }
+}
