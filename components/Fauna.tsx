@@ -11,8 +11,8 @@ import { Achille } from "./ospiti/achille";
 import { Icaro } from "./ospiti/icaro";
 import { Aereo, Jet } from "./ospiti/cieli";
 import { Tralicci } from "./ospiti/tralicci";
-import { Metafisica } from "./ospiti/metafisica";
-import { SOLE } from "./condivisi";
+import { Sole } from "./ospiti/sole";
+import { Nuvole } from "./ospiti/nuvole";
 
 /**
  * Ciò che ogni tanto passa per la stanza, davanti a dove si sta guardando.
@@ -21,7 +21,8 @@ import { SOLE } from "./condivisi";
  * e, a turno col drago, un aereo di linea con le sue luci.
  * Giorno: Achille che insegue la tartaruga senza raggiungerla mai;
  * di rado Icaro e, a turno con lui, un jet con le scie.
- * Sempre, di notte, due elettrodotti all'orizzonte con le luci rosse in cima ai tralicci.
+ * Sempre, di notte, un elettrodotto che si allontana come un viale, con le luci rosse in cima ai tralicci;
+ * di giorno, nuvole lente e un sole che va dall'alba al tramonto, con le ombre delle carte che girano sul marmo.
  * Con "riduci movimento" non passa niente. Con ?ospiti nell'indirizzo passano subito e spesso.
  */
 
@@ -267,7 +268,8 @@ const creaIcaro = () => new Icaro();
 const creaAereo = () => new Aereo();
 const creaJet = () => new Jet();
 const creaTralicci = () => new Tralicci();
-const creaMetafisica = () => new Metafisica();
+const creaSole = () => new Sole();
+const creaNuvole = () => new Nuvole();
 
 /* --------------------------------------------------------------------- insieme */
 
@@ -288,10 +290,10 @@ export default function Fauna({ notte, ridotto }: { notte: boolean; ridotto: boo
     </>
   ) : (
     <>
-      {/* la luce bassa e dorata della piazza: illumina gli edifici e gli ospiti, le carte no */}
-      <hemisphereLight args={["#CFE0CF", "#B9946A", 0.95]} />
-      <directionalLight position={[SOLE.x * 30, SOLE.y * 30, SOLE.z * 30]} intensity={2.3} color="#FFD7A0" />
-      <Presenza crea={creaMetafisica} />
+      {/* luce per gli ospiti (le carte non ne usano): il cielo, più il sole che si muove */}
+      <hemisphereLight args={["#F6F2EA", "#B8AFA0", 1.05]} />
+      <Presenza crea={creaSole} />
+      <Presenza crea={creaNuvole} />
       {c("tartaruga") && <Presenza crea={creaAchille} />}
       {c("icaro") && <Presenza crea={creaIcaro} />}
       {c("jet") && <Presenza crea={creaJet} />}

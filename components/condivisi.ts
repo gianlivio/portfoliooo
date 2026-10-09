@@ -12,14 +12,8 @@ export const MAX_GOCCE = 8;
 export const gocce: THREE.Vector4[] = Array.from({ length: MAX_GOCCE }, () => new THREE.Vector4(0, 0, -100, 0));
 
 /**
- * Il sole del giorno: basso, da dietro a destra rispetto allo sguardo iniziale,
- * come in un tardo pomeriggio d'ottobre. Direzione verso il sole (vettore unitario).
- * Lo usano il cielo, il marmo (per le ombre delle carte) e la luce della scena.
+ * Il sole del giorno: direzione verso il sole (vettore unitario), condivisa e viva.
+ * La muove Sole (in ospiti/sole.ts) dall'alba al tramonto; la leggono il cielo,
+ * il marmo (per le ombre delle carte) e la luce della scena.
  */
-const ALZO = 0.2;
-const AZIMUT = 2.3;
-export const SOLE = new THREE.Vector3(
-  Math.sin(AZIMUT) * Math.cos(ALZO),
-  Math.sin(ALZO),
-  -Math.cos(AZIMUT) * Math.cos(ALZO)
-).normalize();
+export const SOLE = new THREE.Vector3(0.6, 0.35, 0.7).normalize();

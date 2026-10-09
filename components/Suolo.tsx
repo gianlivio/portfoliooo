@@ -103,7 +103,7 @@ function Specchio({
           uCarte: { value: Array.from({ length: MAX_CARTE }, () => new THREE.Matrix4()) },
           uOpac: { value: new Array(MAX_CARTE).fill(0) },
           uNumCarte: { value: 0 },
-          uSole: { value: SOLE.clone() },
+          uSole: { value: SOLE },
           uMisura: { value: new THREE.Vector2(2.4, 1.65) },
         },
         vertexShader: ACQUA_VERT,
@@ -189,7 +189,7 @@ void main(){
   vena = 1.0 - smoothstep(0.0, 0.07, vena);
   float vena2 = 1.0 - smoothstep(0.0, 0.035, abs(sin((p.x * -0.3 + p.y * 0.8 + fbm(p * 0.7 + 3.0) * 4.0) * 2.4)));
   vec3 pietra = color * (0.96 + fbm(p * 1.4) * 0.06);
-  pietra = mix(pietra, vec3(0.6, 0.53, 0.45), vena * 0.42 + vena2 * 0.2);
+  pietra = mix(pietra, vec3(0.62, 0.63, 0.66), vena * 0.45 + vena2 * 0.22);
   // lastre: fughe sottilissime ogni due metri e mezzo
   vec2 l = abs(fract(p / 2.5) - 0.5);
   float fuga = smoothstep(0.497, 0.5, max(l.x, l.y));
@@ -213,7 +213,8 @@ void main(){
     float dentro = 1.0 - smoothstep(-0.015, 0.015, max(e.x, e.y));
     ombra = max(ombra, dentro * uOpac[k] * (1.0 - smoothstep(4.0, 16.0, t)));
   }
-  c = mix(c, c * vec3(0.46, 0.4, 0.37), ombra * 0.8);
+  // più il sole è basso, più le ombre sono lunghe; a mezzogiorno si accorciano e si schiariscono
+  c = mix(c, c * vec3(0.58, 0.58, 0.62), ombra * 0.55 * smoothstep(0.02, 0.12, uSole.y));
   c = mix(c, color, smoothstep(14.0, 34.0, r));
   gl_FragColor = vec4(c, 1.0);
   #include <colorspace_fragment>
@@ -226,24 +227,27 @@ export function CieloDiGiorno({ orizzonte }: { orizzonte: string }) {
   const cupola = useMemo(() => {
     const m = new THREE.ShaderMaterial({
       vertexShader: `varying vec3 vDir; void main(){ vDir = normalize(position); gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
-      // il cielo di una piazza metafisica: giallo pallido all'orizzonte, poi verde acqua, poi un verde-blu profondo;
-      // dalla parte del sole basso un alone caldo
-      fragmentShader: `uniform vec3 uAlto; uniform vec3 uMedio; uniform vec3 uBasso; uniform vec3 uSole; varying vec3 vDir;
+      // il cielo chiaro di sempre, più un sole che va dall'alba al tramonto:
+      // basso, scalda l'orizzonte attorno a sé di rosa e arancio; alto, è solo un disco bianco con l'alone
+      fragmentShader: `uniform vec3 uAlto; uniform vec3 uBasso; uniform vec3 uSole; varying vec3 vDir;
         void main(){
           vec3 d = normalize(vDir);
           float h = clamp(d.y, 0.0, 1.0);
-          vec3 c = mix(uBasso, uMedio, smoothstep(0.0, 0.2, h));
-          c = mix(c, uAlto, smoothstep(0.16, 0.8, h));
+          vec3 c = mix(uBasso, uAlto, pow(h, 0.55));
           float s = max(dot(d, uSole), 0.0);
-          c += vec3(1.0, 0.82, 0.5) * (pow(s, 14.0) * 0.22 + pow(s, 90.0) * 0.35) * (1.0 - smoothstep(0.0, 0.5, h) * 0.5);
+          float basso = 1.0 - smoothstep(0.04, 0.45, uSole.y);
+          vec3 caldo = mix(vec3(1.0, 0.95, 0.86), vec3(1.0, 0.62, 0.42), basso);
+          // l'orizzonte si tinge dalla parte del sole, all'alba e al tramonto
+          float lato = pow(max(dot(normalize(vec3(d.x, 0.0, d.z)), normalize(vec3(uSole.x, 0.0, uSole.z))), 0.0), 3.0);
+          c = mix(c, c * vec3(1.06, 0.9, 0.82), basso * lato * (1.0 - smoothstep(0.0, 0.35, h)));
+          c += caldo * (pow(s, 1200.0) * 1.4 + pow(s, 70.0) * 0.32 + pow(s, 8.0) * 0.12 * (0.4 + basso));
           gl_FragColor = vec4(c, 1.0);
           #include <colorspace_fragment>
         }`,
       uniforms: {
-        uAlto: { value: new THREE.Color("#6E9C9A") },
-        uMedio: { value: new THREE.Color("#BCD2B6") },
+        uAlto: { value: new THREE.Color("#C9D6E0") },
         uBasso: { value: new THREE.Color(orizzonte) },
-        uSole: { value: SOLE.clone() },
+        uSole: { value: SOLE },
       },
       side: THREE.BackSide,
       depthWrite: false,
@@ -275,6 +279,6 @@ export default function Suolo({
   return notte ? (
     <Specchio fondo={fondo} colore={fondo} stretto={stretto} ridotto={ridotto} frammento={ACQUA_FRAG} quota={PELO_ACQUA} />
   ) : (
-    <Specchio fondo={fondo} colore="#E9DCBC" stretto={stretto} ridotto={ridotto} frammento={MARMO_FRAG} quota={PELO_ACQUA} />
+    <Specchio fondo={fondo} colore="#EEEDEA" stretto={stretto} ridotto={ridotto} frammento={MARMO_FRAG} quota={PELO_ACQUA} />
   );
 }

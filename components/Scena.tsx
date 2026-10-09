@@ -52,8 +52,7 @@ export const PALETTE = {
     costellazione: "#E9E6DD",
   },
   chiaro: {
-    // la luce di una piazza metafisica: l'orizzonte giallo pallido
-    fondo: "#E8DDB6",
+    fondo: "#E9ECEC",
     nebbia: 0.022,
     carta: "#FFFFFF",
     filigrana: "#16171A",
