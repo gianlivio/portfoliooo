@@ -7,7 +7,7 @@ import {
 /**
  * Di giorno, sul marmo: Achille e la tartaruga.
  * La tartaruga attraversa a passetti, testa che va e viene. Dietro di lei compaiono
- * le impronte di un corridore che non si vede: ogni passo dimezza la distanza che resta,
+ * sempre, in fila, le impronte di un corridore che non si vede; quando lei è in vista ogni passo dimezza la distanza che resta,
  * e accanto alle prime è inciso quanto manca (½, ¼, ⅛…). Le impronte si fanno sempre
  * più fitte e non la raggiungono mai. La tartaruga si ferma, si volta a guardare, e riparte.
  */
@@ -153,10 +153,12 @@ function texturaScritta(testo: string) {
 }
 
 const FRAZIONI = ["1", "½", "¼", "⅛", "1⁄16", "1⁄32"];
-const PASSI = 9;
+const ORME = 20;
+/** Da qui in poi (metri di percorso) ogni passo di Achille dimezza la distanza. */
+const S_DIMEZZA = 2.3;
 const GAP0 = 1.6;
 
-type Impronta = { m: THREE.Mesh; scritta: THREE.Mesh | null; t: number; polvere: THREE.Sprite[] };
+type Impronta = { m: THREE.Mesh; scritta: THREE.Mesh | null; t: number; n: number; polvere: THREE.Sprite[] };
 
 /* ------------------------------------------------------------------ tartaruga */
 
@@ -170,12 +172,13 @@ export class Achille implements Ospite {
   private zampe: { g: THREE.Group; dietro: boolean; lato: number }[] = [];
   private ombra: THREE.Mesh;
   private impronte: Impronta[] = [];
+  private scritte: THREE.Mesh[] = [];
   private texture: THREE.Texture[] = [];
   private stato = {
     prossima: primo(8, 2), inizio: -1, s: 0, L: 1,
     da: new THREE.Vector3(), a: new THREE.Vector3(), curva: new THREE.Vector3(),
-    fase: 0, imbardata: 0, tPasso: 0, passo: 0, sFermata: -1, fermata: -1, palpebraT: 0,
-    sPassi: [] as number[], verso: 0, oltre: new THREE.Vector3(),
+    fase: 0, imbardata: 0, tPasso: 0, passo: 0, prossimoPasso: 0, sFermata: -1, fermata: -1, palpebraT: 0,
+    sPassi: [] as number[], verso: 0, oltre: new THREE.Vector3(), k0: -1,
   };
   private tmp = { p: new THREE.Vector3(), q: new THREE.Vector3(), t: new THREE.Vector3() };
 
@@ -268,33 +271,34 @@ export class Achille implements Ospite {
     const txPolvere = alone("#E2D6C2");
     this.texture.push(txPiede, txPolvere);
     const gPiede = new THREE.PlaneGeometry(0.24, 0.48).rotateX(-Math.PI / 2).rotateY(Math.PI);
-    for (let n = 0; n < PASSI; n++) {
+    for (let n = 0; n < ORME; n++) {
       const m = new THREE.Mesh(gPiede, new THREE.MeshBasicMaterial({
         map: txPiede, color: "#3F362C", transparent: true, opacity: 0, depthWrite: false,
         polygonOffset: true, polygonOffsetFactor: -2,
       }));
-      if (n % 2) m.scale.x = -1;
       m.visible = false;
       this.gruppo.add(m);
-      let scritta: THREE.Mesh | null = null;
-      if (FRAZIONI[n]) {
-        const tx = texturaScritta(FRAZIONI[n]);
-        this.texture.push(tx);
-        scritta = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 0.25).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({
-          map: tx, color: "#3E352C", transparent: true, opacity: 0, depthWrite: false,
-          polygonOffset: true, polygonOffsetFactor: -2,
-        }));
-        scritta.visible = false;
-        this.gruppo.add(scritta);
-      }
       const polvere = Array.from({ length: 3 }, () => {
-        const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: txPolvere, transparent: true, opacity: 0, depthWrite: false }));
-        s.visible = false;
-        this.gruppo.add(s);
-        return s;
+        const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: txPolvere, transparent: true, opacity: 0, depthWrite: false }));
+        sp.visible = false;
+        this.gruppo.add(sp);
+        return sp;
       });
-      this.impronte.push({ m, scritta, t: -1, polvere });
+      this.impronte.push({ m, scritta: null, t: -1, n: -1, polvere });
     }
+    // le frazioni incise: una per ciascuno dei primi passi
+    FRAZIONI.forEach((f) => {
+      const tx = texturaScritta(f);
+      this.texture.push(tx);
+      const sc = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 0.25).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({
+        map: tx, color: "#3E352C", transparent: true, opacity: 0, depthWrite: false,
+        polygonOffset: true, polygonOffsetFactor: -2,
+      }));
+      sc.visible = false;
+      sc.userData.t = 0;
+      this.gruppo.add(sc);
+      this.scritte.push(sc);
+    });
 
     this.gruppo.visible = false;
     this.gruppo.traverse((o) => (o.raycast = () => undefined));
@@ -324,7 +328,8 @@ export class Achille implements Ospite {
     const d1 = casuale(2.8, 3.2), d2 = casuale(2.8, 3.3);
     s.da.copy(avanti).multiplyScalar(d1).addScaledVector(lato, -2.8 * v);
     s.a.copy(avanti).multiplyScalar(d2).addScaledVector(lato, 2.8 * v);
-    s.curva.copy(avanti).multiplyScalar((d1 + d2) / 2 + casuale(-0.7, 0.4)).addScaledVector(lato, casuale(-0.8, 0.8));
+    // quasi diritto: le orme devono restare in fila esattamente dietro di lei
+    s.curva.copy(avanti).multiplyScalar((d1 + d2) / 2 + casuale(-0.25, 0.15)).addScaledVector(lato, casuale(-0.3, 0.3));
     // lunghezza approssimata della curva (punto() con L = 1 prende k direttamente)
     s.L = 1;
     let L = 0;
@@ -346,11 +351,13 @@ export class Achille implements Ospite {
     s.sPassi = [];
     s.fermata = -1;
     s.sFermata = -1;
+    s.prossimoPasso = 0;
+    s.k0 = -1;
     this.impronte.forEach((im) => {
       im.t = -1;
       im.m.visible = false;
-      if (im.scritta) im.scritta.visible = false;
     });
+    this.scritte.forEach((sc) => (sc.visible = false));
   }
 
   aggiorna(t: number, dt: number, camera: THREE.Camera) {
@@ -364,15 +371,21 @@ export class Achille implements Ospite {
     const e = t - s.inizio;
     const { p, q } = this.tmp;
 
-    // passo dopo passo, Achille: ogni impronta dimezza la distanza dalla coda della tartaruga
-    const T0 = 12, DT = 0.62;
-    while (s.passo < PASSI && e > T0 + s.passo * DT) {
+    // passo dopo passo, Achille: ogni impronta dimezza la distanza che lo separa dalla coda
+    // della tartaruga, finché le resta attaccato ai talloni; ma non la raggiunge mai.
+    // Le orme restano tutte, in fila dietro di lei, finché non esce.
+    const DT = 1.6;
+    const ferma = s.fermata > 0 && t > s.fermata && t < s.fermata + 3.6;
+    if (e > 0.5 && t >= s.prossimoPasso && !ferma && s.s < s.L) {
       const n = s.passo;
-      const gap = GAP0 / Math.pow(2, n);
-      const sImp = s.s - 0.2 * SCALA - gap;
-      s.sPassi.push(sImp);
-      const im = this.impronte[n];
+      // finché la tartaruga non è in vista Achille le sta dietro a distanza fissa; poi dimezza
+      if (s.k0 < 0 && s.s >= S_DIMEZZA) s.k0 = n;
+      const k = s.k0 < 0 ? -1 : n - s.k0;
+      const gap = k < 0 ? GAP0 : Math.max(GAP0 / Math.pow(2, k), 0.06);
+      const sImp = s.s - 0.2 * SCALA - gap - 0.24;
+      const im = this.impronte[n % this.impronte.length];
       im.t = t;
+      im.n = n;
       this.punto(sImp, p);
       this.punto(sImp + 0.05, q);
       const dir = Math.atan2(q.x - p.x, q.z - p.z);
@@ -380,28 +393,33 @@ export class Achille implements Ospite {
       const off = new THREE.Vector3(Math.cos(dir), 0, -Math.sin(dir)).multiplyScalar(lato * 0.13);
       im.m.position.set(p.x + off.x, PELO_ACQUA + 0.003, p.z + off.z);
       im.m.rotation.y = dir;
+      im.m.scale.x = lato;
       im.m.visible = true;
-      if (im.scritta) {
+      if (im.scritta) im.scritta.visible = false;
+      const sc = k >= 0 ? this.scritte[k] : undefined;
+      if (sc) {
         // tutte dalla stessa parte, oltre la pista: si leggono in fila
-        im.scritta.position.set(p.x + s.oltre.x * 0.42, PELO_ACQUA + 0.003, p.z + s.oltre.z * 0.42);
-        im.scritta.rotation.y = s.verso;
-        im.scritta.visible = true;
+        sc.position.set(p.x + s.oltre.x * 0.42, PELO_ACQUA + 0.003, p.z + s.oltre.z * 0.42);
+        sc.rotation.y = s.verso;
+        sc.visible = true;
+        sc.userData.t = t;
       }
-      im.polvere.forEach((sp, k) => {
+      im.polvere.forEach((sp) => {
         sp.position.set(im.m.position.x + casuale(-0.08, 0.08), PELO_ACQUA + 0.03, im.m.position.z + casuale(-0.1, 0.1));
         sp.userData.v = new THREE.Vector3(casuale(-0.15, 0.15), casuale(0.08, 0.18), casuale(-0.15, 0.15));
-        sp.userData.k = k;
         sp.visible = true;
       });
       s.passo++;
-      if (s.passo === PASSI) s.fermata = t + 0.5;
+      s.prossimoPasso = t + DT;
+      if (k === 6) s.fermata = t + 0.8;
     }
-    const svanire = s.fermata > 0 ? 1 - fra(t, s.fermata + 5, s.fermata + 8) : 1;
+    if (ferma) s.prossimoPasso = Math.max(s.prossimoPasso, s.fermata + 3.6 + 0.4);
+    // svaniscono tutte insieme quando la tartaruga se ne va
+    const svanire = 1 - fra(s.s, s.L - 0.2, s.L + 0.5);
     this.impronte.forEach((im) => {
       if (im.t < 0) return;
       const ei = t - im.t;
-      (im.m.material as THREE.MeshBasicMaterial).opacity = 0.55 * fra(ei, 0, 0.12) * svanire;
-      if (im.scritta) (im.scritta.material as THREE.MeshBasicMaterial).opacity = 0.7 * fra(ei, 0.25, 0.9) * svanire;
+      (im.m.material as THREE.MeshBasicMaterial).opacity = 0.6 * fra(ei, 0, 0.12) * svanire;
       im.polvere.forEach((sp) => {
         if (!sp.visible) return;
         if (ei > 0.9) {
@@ -412,6 +430,10 @@ export class Achille implements Ospite {
         sp.scale.setScalar(0.12 + ei * 0.35);
         sp.material.opacity = 0.32 * (1 - ei / 0.9);
       });
+    });
+    this.scritte.forEach((sc) => {
+      if (!sc.visible) return;
+      (sc.material as THREE.MeshBasicMaterial).opacity = 0.7 * fra(t - (sc.userData.t as number), 0.25, 0.9) * svanire;
     });
 
     // la tartaruga: avanza a passetti; finita la rincorsa si ferma, si volta, riparte
