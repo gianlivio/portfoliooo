@@ -3,7 +3,7 @@ import { PELO_ACQUA } from "../condivisi";
 import { type Ospite, alone, liberaTutto } from "./comuni";
 
 /**
- * Di notte, sullo sfondo, due elettrodotti: tralicci a traliccio d'acciaio con le mensole,
+ * Di notte, sullo sfondo, un elettrodotto che si allontana come un viale: tralicci a traliccio d'acciaio con le mensole,
  * i cavi che pendono da uno all'altro, le luci rosse d'ostacolo in cima che pulsano insieme.
  * Il nostro tempo, fermo all'orizzonte, mentre davanti passano navi antiche e draghi.
  */
@@ -64,19 +64,20 @@ export class Tralicci implements Ospite {
     const cavi: number[] = [];
     const tx = alone("#FF3020");
     this.texture.push(tx);
-    // due elettrodotti, in direzioni diverse, che corrono lungo l'orizzonte
-    const tracciati: { azimut: number; distanza: number; n: number; passo: number }[] = [
-      { azimut: 0.35, distanza: 33, n: 9, passo: 10 },
-      { azimut: 2.9, distanza: 38, n: 7, passo: 11 },
+    // un solo elettrodotto, come un viale: il primo traliccio vicino e alto,
+    // gli altri sempre più lontani, e quindi sempre più bassi, fino all'orizzonte
+    const tracciati: { azimut: number; distanza: number; n: number; passo: number; deviazione: number }[] = [
+      { azimut: -0.42, distanza: 15, n: 5, passo: 10, deviazione: 0.55 },
     ];
-    tracciati.forEach(({ azimut, distanza, n, passo }) => {
-      const normale = new THREE.Vector3(Math.sin(azimut), 0, -Math.cos(azimut));
-      const asse = new THREE.Vector3(Math.cos(azimut), 0, Math.sin(azimut));
+    tracciati.forEach(({ azimut, distanza, n, passo, deviazione }) => {
+      const radiale = new THREE.Vector3(Math.sin(azimut), 0, -Math.cos(azimut));
+      const asse = radiale.clone().applyAxisAngle(new THREE.Vector3(0, 1, 0), -deviazione);
+      const normale = new THREE.Vector3(-asse.z, 0, asse.x);
       const piloni: ReturnType<typeof traliccio>[] = [];
       for (let i = 0; i < n; i++) {
-        const o = normale.clone().multiplyScalar(distanza).addScaledVector(asse, (i - (n - 1) / 2) * passo);
+        const o = radiale.clone().multiplyScalar(distanza).addScaledVector(asse, i * passo);
         // le mensole stanno di traverso al tracciato
-        piloni.push(traliccio(linee, o, normale, asse));
+        piloni.push(traliccio(linee, o, asse, normale));
       }
       // i cavi pendono a catenaria fra un traliccio e il successivo
       for (let i = 0; i < piloni.length - 1; i++) {

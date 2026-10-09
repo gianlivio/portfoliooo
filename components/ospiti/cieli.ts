@@ -113,7 +113,7 @@ export class Aereo implements Ospite {
   aggiorna(t: number, _dt: number, camera: THREE.Camera) {
     const s = this.stato;
     if (s.inizio < 0) {
-      if (t < s.prossima || !tocca("cieloNotte", "aereo", t)) return;
+      if (t < s.prossima) return;
       const { avanti, lato } = assi(camera);
       const v = segno();
       const d = casuale(36, 44);
@@ -128,9 +128,8 @@ export class Aereo implements Ospite {
     const k = e / s.durata;
     if (k >= 1) {
       s.inizio = -1;
-      s.prossima = t + attesa(85, 100);
+      s.prossima = t + attesa(95, 115);
       this.gruppo.visible = false;
-      passa("cieloNotte", t, attesa(8, 15));
       return;
     }
     this.aereo.position.lerpVectors(s.da, s.a, k);

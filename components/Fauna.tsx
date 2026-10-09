@@ -9,16 +9,17 @@ import { Nave } from "./ospiti/nave";
 import { Drago } from "./ospiti/drago";
 import { Achille } from "./ospiti/achille";
 import { Icaro } from "./ospiti/icaro";
-import { Falange } from "./ospiti/falange";
 import { Aereo, Jet } from "./ospiti/cieli";
 import { Tralicci } from "./ospiti/tralicci";
+import { Metafisica } from "./ospiti/metafisica";
+import { SOLE } from "./condivisi";
 
 /**
  * Ciò che ogni tanto passa per la stanza, davanti a dove si sta guardando.
  * Notte: stelle cadenti; gocce che cadono sull'acqua e la increspano in cerchi;
  * la nave di Ulisse, fantasma, che attraversa l'acqua a remi; di rado un drago nel cielo.
  * e, a turno col drago, un aereo di linea con le sue luci.
- * Giorno: Achille che insegue la tartaruga senza raggiungerla mai, poi una piccola falange oplitica;
+ * Giorno: Achille che insegue la tartaruga senza raggiungerla mai;
  * di rado Icaro e, a turno con lui, un jet con le scie.
  * Sempre, di notte, due elettrodotti all'orizzonte con le luci rosse in cima ai tralicci.
  * Con "riduci movimento" non passa niente. Con ?ospiti nell'indirizzo passano subito e spesso.
@@ -263,10 +264,10 @@ const creaNave = () => new Nave();
 const creaDrago = () => new Drago();
 const creaAchille = () => new Achille();
 const creaIcaro = () => new Icaro();
-const creaFalange = () => new Falange();
 const creaAereo = () => new Aereo();
 const creaJet = () => new Jet();
 const creaTralicci = () => new Tralicci();
+const creaMetafisica = () => new Metafisica();
 
 /* --------------------------------------------------------------------- insieme */
 
@@ -283,15 +284,15 @@ export default function Fauna({ notte, ridotto }: { notte: boolean; ridotto: boo
       {c("nave") && <Presenza crea={creaNave} />}
       {c("drago") && <Presenza crea={creaDrago} />}
       {c("aereo") && <Presenza crea={creaAereo} />}
-      {c("tralicci") && <Presenza crea={creaTralicci} />}
+      <Presenza crea={creaTralicci} />
     </>
   ) : (
     <>
-      {/* luce solo per la tartaruga e per Icaro: il resto della scena non ne usa */}
-      <hemisphereLight args={["#F6F2EA", "#B8AFA0", 1.15]} />
-      <directionalLight position={[4, 9, 3]} intensity={1.7} color="#FFF6E8" />
+      {/* la luce bassa e dorata della piazza: illumina gli edifici e gli ospiti, le carte no */}
+      <hemisphereLight args={["#CFE0CF", "#B9946A", 0.95]} />
+      <directionalLight position={[SOLE.x * 30, SOLE.y * 30, SOLE.z * 30]} intensity={2.3} color="#FFD7A0" />
+      <Presenza crea={creaMetafisica} />
       {c("tartaruga") && <Presenza crea={creaAchille} />}
-      {c("falange") && <Presenza crea={creaFalange} />}
       {c("icaro") && <Presenza crea={creaIcaro} />}
       {c("jet") && <Presenza crea={creaJet} />}
     </>

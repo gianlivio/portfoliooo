@@ -11,7 +11,10 @@ import { Reflector } from "three/examples/jsm/objects/Reflector.js";
  * Di giorno: un pavimento di marmo chiaro e lucido, con venature morbide, che riflette le carte.
  */
 
-import { PELO_ACQUA, gocce, MAX_GOCCE } from "./condivisi";
+import { PELO_ACQUA, gocce, MAX_GOCCE, SOLE } from "./condivisi";
+
+/** Quante carte al più gettano ombra sul marmo. */
+const MAX_CARTE = 16;
 
 
 
@@ -97,6 +100,11 @@ function Specchio({
           textureMatrix: { value: null },
           uTempo: { value: 0 },
           uGocce: { value: gocce.map((g) => g.clone()) },
+          uCarte: { value: Array.from({ length: MAX_CARTE }, () => new THREE.Matrix4()) },
+          uOpac: { value: new Array(MAX_CARTE).fill(0) },
+          uNumCarte: { value: 0 },
+          uSole: { value: SOLE.clone() },
+          uMisura: { value: new THREE.Vector2(2.4, 1.65) },
         },
         vertexShader: ACQUA_VERT,
         fragmentShader: frammento,
@@ -115,6 +123,7 @@ function Specchio({
   // il riflesso si calcola prima del disegno della scena, non a metà:
   // il Reflector di three lo farebbe dentro il disegno e coprirebbe le carte
   const rif = useRef<Reflector>(null);
+  const carte = useRef<THREE.Mesh[]>([]);
   const riflessione = useRef<Reflector["onBeforeRender"] | null>(null);
   useEffect(() => {
     const r = rif.current;
@@ -129,6 +138,19 @@ function Specchio({
     const u = (r.material as THREE.ShaderMaterial).uniforms;
     u.uTempo.value = ridotto ? 0 : stato.clock.elapsedTime;
     if (u.uGocce) (u.uGocce.value as THREE.Vector4[]).forEach((v, k) => v.copy(gocce[k]));
+    // le carte che gettano ombra: si cercano una volta, poi se ne leggono posizione e opacità
+    if (!carte.current.length) {
+      stato.scene.traverse((o) => {
+        if (o.userData.carta) carte.current.push(o as THREE.Mesh);
+      });
+    }
+    const n = Math.min(carte.current.length, MAX_CARTE);
+    u.uNumCarte.value = n;
+    for (let k = 0; k < n; k++) {
+      const c = carte.current[k];
+      (u.uCarte.value as THREE.Matrix4[])[k].copy(c.matrixWorld).invert();
+      (u.uOpac.value as number[])[k] = c.visible ? ((c.material as THREE.MeshBasicMaterial).opacity ?? 1) : 0;
+    }
     const g = stato.gl;
     riflessione.current?.(g, stato.scene, stato.camera, null as never, r.material as never, null as never);
   });
@@ -141,6 +163,11 @@ function Specchio({
 const MARMO_FRAG = `
 uniform vec3 color;
 uniform sampler2D tDiffuse;
+uniform mat4 uCarte[${MAX_CARTE}];
+uniform float uOpac[${MAX_CARTE}];
+uniform int uNumCarte;
+uniform vec3 uSole;
+uniform vec2 uMisura;
 varying vec4 vUv;
 varying vec3 vMondo;
 float h(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
@@ -162,7 +189,7 @@ void main(){
   vena = 1.0 - smoothstep(0.0, 0.07, vena);
   float vena2 = 1.0 - smoothstep(0.0, 0.035, abs(sin((p.x * -0.3 + p.y * 0.8 + fbm(p * 0.7 + 3.0) * 4.0) * 2.4)));
   vec3 pietra = color * (0.96 + fbm(p * 1.4) * 0.06);
-  pietra = mix(pietra, vec3(0.62, 0.63, 0.66), vena * 0.45 + vena2 * 0.22);
+  pietra = mix(pietra, vec3(0.6, 0.53, 0.45), vena * 0.42 + vena2 * 0.2);
   // lastre: fughe sottilissime ogni due metri e mezzo
   vec2 l = abs(fract(p / 2.5) - 0.5);
   float fuga = smoothstep(0.497, 0.5, max(l.x, l.y));
@@ -173,6 +200,20 @@ void main(){
   // pietra lucida: riflette poco da vicino, di più verso l'orizzonte
   float lucido = (0.16 + 0.22 * smoothstep(3.0, 18.0, r)) * vicino;
   vec3 c = mix(pietra, riflesso, lucido);
+  // le ombre lunghe delle carte, col sole basso: per ogni carta, il raggio verso il sole la attraversa?
+  float ombra = 0.0;
+  for (int k = 0; k < ${MAX_CARTE}; k++) {
+    if (k >= uNumCarte) break;
+    vec3 o = (uCarte[k] * vec4(vMondo, 1.0)).xyz;
+    vec3 d = mat3(uCarte[k]) * uSole;
+    if (abs(d.z) < 0.0001) continue;
+    float t = -o.z / d.z;
+    if (t <= 0.0) continue;
+    vec2 e = abs(o.xy + d.xy * t) - uMisura * 0.5;
+    float dentro = 1.0 - smoothstep(-0.015, 0.015, max(e.x, e.y));
+    ombra = max(ombra, dentro * uOpac[k] * (1.0 - smoothstep(4.0, 16.0, t)));
+  }
+  c = mix(c, c * vec3(0.46, 0.4, 0.37), ombra * 0.8);
   c = mix(c, color, smoothstep(14.0, 34.0, r));
   gl_FragColor = vec4(c, 1.0);
   #include <colorspace_fragment>
@@ -185,11 +226,25 @@ export function CieloDiGiorno({ orizzonte }: { orizzonte: string }) {
   const cupola = useMemo(() => {
     const m = new THREE.ShaderMaterial({
       vertexShader: `varying vec3 vDir; void main(){ vDir = normalize(position); gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
-      fragmentShader: `uniform vec3 uAlto; uniform vec3 uBasso; varying vec3 vDir;
-        void main(){ float h = clamp(vDir.y, 0.0, 1.0); gl_FragColor = vec4(mix(uBasso, uAlto, pow(h, 0.55)), 1.0);
-        #include <colorspace_fragment>
+      // il cielo di una piazza metafisica: giallo pallido all'orizzonte, poi verde acqua, poi un verde-blu profondo;
+      // dalla parte del sole basso un alone caldo
+      fragmentShader: `uniform vec3 uAlto; uniform vec3 uMedio; uniform vec3 uBasso; uniform vec3 uSole; varying vec3 vDir;
+        void main(){
+          vec3 d = normalize(vDir);
+          float h = clamp(d.y, 0.0, 1.0);
+          vec3 c = mix(uBasso, uMedio, smoothstep(0.0, 0.2, h));
+          c = mix(c, uAlto, smoothstep(0.16, 0.8, h));
+          float s = max(dot(d, uSole), 0.0);
+          c += vec3(1.0, 0.82, 0.5) * (pow(s, 14.0) * 0.22 + pow(s, 90.0) * 0.35) * (1.0 - smoothstep(0.0, 0.5, h) * 0.5);
+          gl_FragColor = vec4(c, 1.0);
+          #include <colorspace_fragment>
         }`,
-      uniforms: { uAlto: { value: new THREE.Color("#C9D6E0") }, uBasso: { value: new THREE.Color(orizzonte) } },
+      uniforms: {
+        uAlto: { value: new THREE.Color("#6E9C9A") },
+        uMedio: { value: new THREE.Color("#BCD2B6") },
+        uBasso: { value: new THREE.Color(orizzonte) },
+        uSole: { value: SOLE.clone() },
+      },
       side: THREE.BackSide,
       depthWrite: false,
       fog: false,
@@ -220,6 +275,6 @@ export default function Suolo({
   return notte ? (
     <Specchio fondo={fondo} colore={fondo} stretto={stretto} ridotto={ridotto} frammento={ACQUA_FRAG} quota={PELO_ACQUA} />
   ) : (
-    <Specchio fondo={fondo} colore="#EEEDEA" stretto={stretto} ridotto={ridotto} frammento={MARMO_FRAG} quota={PELO_ACQUA} />
+    <Specchio fondo={fondo} colore="#E9DCBC" stretto={stretto} ridotto={ridotto} frammento={MARMO_FRAG} quota={PELO_ACQUA} />
   );
 }

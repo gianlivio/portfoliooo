@@ -52,7 +52,8 @@ export const PALETTE = {
     costellazione: "#E9E6DD",
   },
   chiaro: {
-    fondo: "#E9ECEC",
+    // la luce di una piazza metafisica: l'orizzonte giallo pallido
+    fondo: "#E8DDB6",
     nebbia: 0.022,
     carta: "#FFFFFF",
     filigrana: "#16171A",
@@ -493,6 +494,7 @@ function Carte({
                 ref={(l) => {
                   lastre.current[i] = l;
                 }}
+                userData={{ carta: true }}
                 renderOrder={3}
                 onPointerOver={(e: ThreeEvent<PointerEvent>) => {
                   e.stopPropagation();

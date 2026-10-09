@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import {
-  type Anello, type Ospite, RUMORE, alone, assi, attesa, passa, tocca, casuale, fra, liberaTutto, loft, morbido, primo, segno,
+  type Anello, type Ospite, RUMORE, alone, assi, attesa, casuale, fra, liberaTutto, loft, morbido, primo, segno,
 } from "./comuni";
 
 /**
@@ -248,7 +248,7 @@ export class Drago implements Ospite {
   private texture: THREE.Texture[] = [];
   private curva: THREE.CatmullRomCurve3 | null = null;
   private stato = {
-    prossima: primo(28, 9), inizio: -1, s: 0, L: 1, uFuoco: 0.45,
+    prossima: primo(15, 9), inizio: -1, s: 0, L: 1, uFuoco: 0.45,
     ruggito: -1, fatto: false, battitoFase: 0, planata: 0, prossimaPlanata: 0,
     imbardata: 0, rollio: 0, bersaglio: new THREE.Vector3(), verso: 1,
   };
@@ -552,7 +552,7 @@ export class Drago implements Ospite {
     u.uT.value = t;
     const vive = this.gruppo.visible ? this.muoviFuoco(t, dt) : 0;
     if (s.inizio < 0) {
-      if (t < s.prossima || !tocca("cieloNotte", "drago", t)) return;
+      if (t < s.prossima) return;
       this.nuovoPercorso(camera);
       s.inizio = t;
       s.s = 0;
@@ -689,8 +689,7 @@ export class Drago implements Ospite {
 
     if (k >= 1 && vive === 0) {
       s.inizio = -1;
-      s.prossima = t + attesa(80, 100);
-      passa("cieloNotte", t, attesa(40, 60));
+      s.prossima = t + attesa(95, 115);
       this.gruppo.visible = false;
     }
   }

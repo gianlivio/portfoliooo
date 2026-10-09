@@ -3,6 +3,7 @@ import { PELO_ACQUA } from "../condivisi";
 import {
   Deriva, type Ospite, assi, attesa, passa, tocca, casuale, fra, generatore, liberaTutto, loft, morbido, ombra, primo,
 } from "./comuni";
+import { Ologramma } from "./ologramma";
 
 /**
  * Di giorno, sul marmo: Achille e la tartaruga.
@@ -12,7 +13,7 @@ import {
  * più fitte e non la raggiungono mai. La tartaruga si ferma, si volta a guardare, e riparte.
  */
 
-const SCALA = 1.6;
+const SCALA = 1.1;
 
 /* ------------------------------------------------------------------ guscio */
 
@@ -175,6 +176,7 @@ export class Achille implements Ospite {
   private scritte: THREE.Mesh[] = [];
   private texture: THREE.Texture[] = [];
   private materiali: THREE.Material[] = [];
+  private lucidi: THREE.Mesh[] = [];
   private deriva = new Deriva();
   private stato = {
     prossima: primo(5, 2), inizio: -1, s: 0, L: 1,
@@ -183,13 +185,15 @@ export class Achille implements Ospite {
     sPassi: [] as number[], verso: 0, oltre: new THREE.Vector3(), k0: -1, ceduto: false,
   };
   private tmp = { p: new THREE.Vector3(), q: new THREE.Vector3(), t: new THREE.Vector3() };
+  private achille = new Ologramma(1.45);
+  private orme = { prima: { s: 0, t: -1 }, ora: { s: 0, t: -1 }, n: 0 };
 
   constructor() {
     const pelle = new THREE.MeshPhysicalMaterial({ vertexColors: true, roughness: 0.8, sheen: 0.4, sheenColor: new THREE.Color("#C9C2A8") });
     const guscio = new THREE.MeshPhysicalMaterial({ vertexColors: true, roughness: 0.45, clearcoat: 0.35, clearcoatRoughness: 0.5 });
     const lucido = new THREE.MeshPhysicalMaterial({ color: "#0E0B08", roughness: 0.15, clearcoat: 1 });
     // trasparenti solo per poter sfumare in fondo al percorso
-    this.materiali = [pelle, guscio, lucido];
+    this.materiali = [pelle, guscio];
     this.materiali.forEach((m) => (m.transparent = true));
 
     const squame = (k: number, ang: number) => {
@@ -222,6 +226,7 @@ export class Achille implements Ospite {
     }), pelle));
     for (const s of [-1, 1]) {
       const o = new THREE.Mesh(new THREE.SphereGeometry(0.0075, 10, 8), lucido);
+      this.lucidi.push(o);
       o.position.set(s * 0.024, 0.009, 0.042);
       this.testa.add(o);
       const pal = new THREE.Mesh(new THREE.SphereGeometry(0.0085, 10, 6, 0, Math.PI * 2, 0, Math.PI / 2), pelle);
@@ -253,11 +258,6 @@ export class Achille implements Ospite {
       this.corpo.add(g);
       this.zampe.push({ g, dietro, lato: Math.sign(x) });
     });
-    // codina
-    const coda = new THREE.Mesh(new THREE.ConeGeometry(0.014, 0.05, 8).rotateX(-Math.PI / 2 - 0.4), pelle);
-    coda.geometry.setAttribute("color", new THREE.Float32BufferAttribute(new Array(coda.geometry.attributes.position.count).fill(0).flatMap(() => [PELLE.r, PELLE.g, PELLE.b]), 3));
-    coda.position.set(0, 0.06, -0.2);
-    this.corpo.add(coda);
 
     this.tarta.scale.setScalar(SCALA);
     this.gruppo.add(this.tarta);
@@ -274,7 +274,7 @@ export class Achille implements Ospite {
     // le impronte di Achille, e le frazioni incise accanto
     const txPiede = texturaImpronta();
     this.texture.push(txPiede);
-    const gPiede = new THREE.PlaneGeometry(0.24, 0.48).rotateX(-Math.PI / 2).rotateY(Math.PI);
+    const gPiede = new THREE.PlaneGeometry(0.13, 0.26).rotateX(-Math.PI / 2).rotateY(Math.PI);
     for (let n = 0; n < ORME; n++) {
       const m = new THREE.Mesh(gPiede, new THREE.MeshBasicMaterial({
         map: txPiede, color: "#3F362C", transparent: true, opacity: 0, depthWrite: false,
@@ -298,6 +298,7 @@ export class Achille implements Ospite {
       this.scritte.push(sc);
     });
 
+    this.gruppo.add(this.achille.gruppo);
     this.gruppo.visible = false;
     this.gruppo.traverse((o) => (o.raycast = () => undefined));
   }
@@ -354,6 +355,7 @@ export class Achille implements Ospite {
     s.fermata = -1;
     s.sFermata = -1;
     s.prossimoPasso = 0;
+    this.orme = { prima: { s: 0, t: -1 }, ora: { s: 0, t: -1 }, n: 0 };
     s.k0 = -1;
     s.ceduto = false;
     this.impronte.forEach((im) => {
@@ -386,7 +388,10 @@ export class Achille implements Ospite {
       if (s.k0 < 0 && s.s >= S_DIMEZZA) s.k0 = n;
       const k = s.k0 < 0 ? -1 : n - s.k0;
       const gap = k < 0 ? GAP0 : Math.max(GAP0 / Math.pow(2, k), 0.06);
-      const sImp = s.s - 0.2 * SCALA - gap - 0.24;
+      const sImp = s.s - 0.2 * SCALA - gap - 0.13;
+      this.orme.prima = { ...this.orme.ora };
+      this.orme.ora = { s: sImp, t };
+      this.orme.n = n;
       const im = this.impronte[n % this.impronte.length];
       im.t = t;
       im.n = n;
@@ -394,7 +399,7 @@ export class Achille implements Ospite {
       this.punto(sImp + 0.05, q);
       const dir = Math.atan2(q.x - p.x, q.z - p.z);
       const lato = n % 2 ? 1 : -1;
-      const off = new THREE.Vector3(Math.cos(dir), 0, -Math.sin(dir)).multiplyScalar(lato * 0.13);
+      const off = new THREE.Vector3(Math.cos(dir), 0, -Math.sin(dir)).multiplyScalar(lato * 0.075);
       im.m.position.set(p.x + off.x, PELO_ACQUA + 0.003, p.z + off.z);
       im.m.rotation.y = dir;
       im.m.scale.x = lato;
@@ -452,7 +457,28 @@ export class Achille implements Ospite {
     this.ombra.position.set(p.x, PELO_ACQUA + 0.002, p.z);
     this.ombra.rotation.z = s.imbardata;
     this.materiali.forEach((m) => (m.opacity = svanire));
+    this.lucidi.forEach((o) => (o.visible = svanire > 0.4));
     (this.ombra.material as THREE.MeshBasicMaterial).opacity = 0.6 * svanire;
+
+    // Achille: corre al rallentatore sopra le sue orme; il corpo va dall'impronta di prima a quella
+    // appena lasciata, e il passo si accorcia insieme alla distanza. Quando lei si ferma, lui si inceppa.
+    {
+      const o = this.orme;
+      const a = this.achille.gruppo;
+      if (o.prima.t < 0) {
+        a.visible = false;
+      } else {
+        a.visible = true;
+        const u = Math.min(1, (t - o.ora.t) / DT);
+        const sa = o.prima.s + (o.ora.s - o.prima.s) * (0.5 + 0.5 * u);
+        this.punto(sa, p);
+        this.punto(sa + 0.05, q);
+        a.position.set(p.x, PELO_ACQUA, p.z);
+        a.rotation.y = Math.atan2(q.x - p.x, q.z - p.z);
+        const fermo = ferma || u >= 1;
+        this.achille.corri((o.n % 2) * 0.5 + u * 0.5, 1, t, Math.min(fra(t - o.prima.t, 0, 1.5), svanire) * 0.95, fermo ? 1 : 0);
+      }
+    }
 
     // andatura a coppie diagonali; il corpo dondola e il collo va avanti e indietro a ogni passo
     s.fase = (s.fase + dt * 1.25 * cammina) % 1;
@@ -492,6 +518,7 @@ export class Achille implements Ospite {
   }
 
   libera() {
+    this.achille.libera();
     liberaTutto(this.gruppo, this.texture);
   }
 }
