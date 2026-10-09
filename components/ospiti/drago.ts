@@ -689,8 +689,8 @@ export class Drago implements Ospite {
 
     if (k >= 1 && vive === 0) {
       s.inizio = -1;
-      s.prossima = t + attesa(100, 160);
-      passa("cieloNotte", t, attesa(30, 60));
+      s.prossima = t + attesa(80, 100);
+      passa("cieloNotte", t, attesa(40, 60));
       this.gruppo.visible = false;
     }
   }

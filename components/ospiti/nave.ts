@@ -258,7 +258,7 @@ export class Nave implements Ospite {
   private ulisse: THREE.Group;
   private texture: THREE.Texture[] = [];
   private stato = {
-    prossima: primo(10, 3), inizio: -1, durata: 28,
+    prossima: primo(12, 3), inizio: -1, durata: 28,
     da: new THREE.Vector3(), a: new THREE.Vector3(), curva: new THREE.Vector3(),
     vacilla: 0, prossimoVacillo: 0, slot: 0, fase: 0, colpo: -1, prua: 0,
   };
@@ -522,7 +522,7 @@ export class Nave implements Ospite {
     const k = Math.min(1, (e - Math.sin((e / VOGATA) * Math.PI * 2) * 0.12) / s.durata);
     if (e >= s.durata) {
       s.inizio = -1;
-      s.prossima = t + attesa(70, 120);
+      s.prossima = t + attesa(90, 110);
       this.gruppo.visible = false;
       return;
     }

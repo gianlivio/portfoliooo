@@ -239,12 +239,12 @@ float frattale(vec3 x){ return 0.5 * rumore(x) + 0.28 * rumore(x * 2.03 + 7.1) +
 
 /**
  * Alcuni posti della scena ospitano una figura alla volta, a turno e in un ordine fisso:
- * sul marmo prima la tartaruga, poi la falange; in cielo, di notte, il drago e l'aereo;
+ * sul marmo prima la tartaruga, poi la falange; in cielo, di notte, l'aereo e il drago;
  * di giorno Icaro e il jet. Con ?ospiti=nome il turno non conta: passa solo quello.
  */
 const turni: Record<string, { ordine: string[]; i: number; libero: number }> = {
   pavimento: { ordine: ["tartaruga", "falange"], i: 0, libero: 0 },
-  cieloNotte: { ordine: ["drago", "aereo"], i: 0, libero: 0 },
+  cieloNotte: { ordine: ["aereo", "drago"], i: 0, libero: 0 },
   cieloGiorno: { ordine: ["icaro", "jet"], i: 0, libero: 0 },
 };
 

@@ -11,7 +11,7 @@ import { Achille } from "./ospiti/achille";
 import { Icaro } from "./ospiti/icaro";
 import { Falange } from "./ospiti/falange";
 import { Aereo, Jet } from "./ospiti/cieli";
-import { Tucano } from "./ospiti/tucano";
+import { Tralicci } from "./ospiti/tralicci";
 
 /**
  * Ciò che ogni tanto passa per la stanza, davanti a dove si sta guardando.
@@ -19,7 +19,8 @@ import { Tucano } from "./ospiti/tucano";
  * la nave di Ulisse, fantasma, che attraversa l'acqua a remi; di rado un drago nel cielo.
  * e, a turno col drago, un aereo di linea con le sue luci.
  * Giorno: Achille che insegue la tartaruga senza raggiungerla mai, poi una piccola falange oplitica;
- * di rado Icaro e, a turno con lui, un jet con le scie; ogni tanto un tucano che passa vicinissimo.
+ * di rado Icaro e, a turno con lui, un jet con le scie.
+ * Sempre, di notte, due elettrodotti all'orizzonte con le luci rosse in cima ai tralicci.
  * Con "riduci movimento" non passa niente. Con ?ospiti nell'indirizzo passano subito e spesso.
  */
 
@@ -265,7 +266,7 @@ const creaIcaro = () => new Icaro();
 const creaFalange = () => new Falange();
 const creaAereo = () => new Aereo();
 const creaJet = () => new Jet();
-const creaTucano = () => new Tucano();
+const creaTralicci = () => new Tralicci();
 
 /* --------------------------------------------------------------------- insieme */
 
@@ -282,6 +283,7 @@ export default function Fauna({ notte, ridotto }: { notte: boolean; ridotto: boo
       {c("nave") && <Presenza crea={creaNave} />}
       {c("drago") && <Presenza crea={creaDrago} />}
       {c("aereo") && <Presenza crea={creaAereo} />}
+      {c("tralicci") && <Presenza crea={creaTralicci} />}
     </>
   ) : (
     <>
@@ -292,7 +294,6 @@ export default function Fauna({ notte, ridotto }: { notte: boolean; ridotto: boo
       {c("falange") && <Presenza crea={creaFalange} />}
       {c("icaro") && <Presenza crea={creaIcaro} />}
       {c("jet") && <Presenza crea={creaJet} />}
-      {c("tucano") && <Presenza crea={creaTucano} />}
     </>
   );
 }

@@ -70,7 +70,7 @@ export class Aereo implements Ospite {
   private luci: { s: THREE.Sprite; tipo: "rossa" | "verde" | "lampo" | "faro" | "coda"; fase: number; base: number }[] = [];
   private finestrini: THREE.Points;
   private texture: THREE.Texture[] = [];
-  private stato = { prossima: primo(30, 4), inizio: -1, durata: 26, da: new THREE.Vector3(), a: new THREE.Vector3() };
+  private stato = { prossima: primo(6, 2), inizio: -1, durata: 26, da: new THREE.Vector3(), a: new THREE.Vector3() };
 
   constructor() {
     const mat = new THREE.MeshBasicMaterial({ color: "#11141B", fog: false, side: THREE.DoubleSide, transparent: true });
@@ -128,9 +128,9 @@ export class Aereo implements Ospite {
     const k = e / s.durata;
     if (k >= 1) {
       s.inizio = -1;
-      s.prossima = t + attesa(90, 150);
+      s.prossima = t + attesa(85, 100);
       this.gruppo.visible = false;
-      passa("cieloNotte", t, attesa(30, 60));
+      passa("cieloNotte", t, attesa(8, 15));
       return;
     }
     this.aereo.position.lerpVectors(s.da, s.a, k);

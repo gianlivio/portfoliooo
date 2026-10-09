@@ -177,10 +177,10 @@ export class Achille implements Ospite {
   private materiali: THREE.Material[] = [];
   private deriva = new Deriva();
   private stato = {
-    prossima: primo(8, 2), inizio: -1, s: 0, L: 1,
+    prossima: primo(5, 2), inizio: -1, s: 0, L: 1,
     da: new THREE.Vector3(), a: new THREE.Vector3(), curva: new THREE.Vector3(), curva2: new THREE.Vector3(),
     fase: 0, imbardata: 0, tPasso: 0, passo: 0, prossimoPasso: 0, sFermata: -1, fermata: -1, palpebraT: 0,
-    sPassi: [] as number[], verso: 0, oltre: new THREE.Vector3(), k0: -1,
+    sPassi: [] as number[], verso: 0, oltre: new THREE.Vector3(), k0: -1, ceduto: false,
   };
   private tmp = { p: new THREE.Vector3(), q: new THREE.Vector3(), t: new THREE.Vector3() };
 
@@ -355,6 +355,7 @@ export class Achille implements Ospite {
     s.sFermata = -1;
     s.prossimoPasso = 0;
     s.k0 = -1;
+    s.ceduto = false;
     this.impronte.forEach((im) => {
       im.t = -1;
       im.m.visible = false;
@@ -429,6 +430,11 @@ export class Achille implements Ospite {
     let voltata = 0;
     if (s.fermata > 0) {
       const ef = t - s.fermata;
+      // quando riparte verso il fondo cede il marmo alla falange, che entra dall'altra parte
+      if (ef >= 3.6 && !s.ceduto) {
+        s.ceduto = true;
+        passa("pavimento", t, attesa(1, 3));
+      }
       if (ef >= 0 && ef < 3.6) {
         cammina = 1 - fra(ef, 0, 0.4) * (1 - fra(ef, 3.0, 3.6));
         voltata = fra(ef, 0.5, 1.1) * (1 - fra(ef, 2.6, 3.2));
@@ -479,9 +485,9 @@ export class Achille implements Ospite {
 
     if (s.s >= s.L) {
       s.inizio = -1;
-      s.prossima = t + attesa(55, 95);
+      s.prossima = t + attesa(75, 95);
       this.gruppo.visible = false;
-      passa("pavimento", t, attesa(15, 35));
+      if (!s.ceduto) passa("pavimento", t, attesa(3, 6));
     }
   }
 
