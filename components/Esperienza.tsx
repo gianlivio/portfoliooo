@@ -288,8 +288,30 @@ export default function Esperienza({ d, lingua }: { d: Dizionario; lingua: Lingu
           <h2 id="vignetta-titolo" className="vignetta-titolo" ref={titoloVignetta} tabIndex={-1}>
             {testi.titolo}
           </h2>
-          <p className="vignetta-riga">{testi.riga}</p>
-          {lavoro.anno && <p className="vignetta-anno">{lavoro.anno}</p>}
+          <p className="vignetta-ruolo">
+            {testi.ruolo}
+            {lavoro.anno && ` · ${lavoro.anno}`}
+          </p>
+          {/* il corpo scorre da solo se è lungo; titolo e azioni restano fermi */}
+          <div className="vignetta-corpo" tabIndex={0} aria-label={testi.titolo}>
+            <p className="vignetta-riga">{testi.riga}</p>
+            {testi.compiti.length > 0 && (
+              <>
+                <h3 className="vignetta-etichetta">{d.vignetta.compiti}</h3>
+                <ul className="vignetta-compiti">
+                  {testi.compiti.map((c) => (
+                    <li key={c}>{c}</li>
+                  ))}
+                </ul>
+              </>
+            )}
+            {testi.strumenti && (
+              <>
+                <h3 className="vignetta-etichetta">{d.vignetta.strumenti}</h3>
+                <p className="vignetta-strumenti">{testi.strumenti}</p>
+              </>
+            )}
+          </div>
           <div className="vignetta-azioni">
             {lavoro.link ? (
               <a className="visita" href={lavoro.link.href} target="_blank" rel="noopener">

@@ -176,7 +176,10 @@ html.con-scena .elenco:focus-within{
   right:1.75rem;
   top:50%;
   transform:translateY(-50%);
-  width:min(24rem,calc(100% - 3.5rem));
+  width:min(29rem,calc(100% - 3.5rem));
+  max-height:calc(100dvh - 12rem);
+  display:flex;
+  flex-direction:column;
   padding:1.75rem 1.75rem 1.5rem;
   background:var(--velo-vignetta);
   color:var(--testo);
@@ -194,9 +197,16 @@ html.con-scena .elenco:focus-within{
 }
 .vignetta-occhiello{font-family:var(--mono);font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--grigio);padding-right:2rem}
 .vignetta-titolo{font-family:var(--serif);font-weight:300;font-size:2.2rem;line-height:1.08;margin:.7rem 0 .9rem}
+.vignetta-ruolo{font-family:var(--mono);font-size:.72rem;letter-spacing:.02em;color:var(--grigio);margin:-.35rem 0 1rem;line-height:1.5}
+.vignetta-corpo{overflow-y:auto;min-height:0;margin-right:-.75rem;padding-right:.75rem;overscroll-behavior:contain;scrollbar-width:thin}
+.vignetta-corpo:focus-visible{outline:2px solid var(--blu);outline-offset:4px;border-radius:6px}
 .vignetta-riga{color:var(--testo-tenue)}
-.vignetta-anno{font-family:var(--mono);font-size:.75rem;color:var(--grigio);margin-top:.9rem}
-.vignetta-azioni{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-top:1.4rem}
+.vignetta-etichetta{font-family:var(--mono);font-weight:400;font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;color:var(--grigio);margin:1.15rem 0 .5rem}
+.vignetta-compiti{list-style:none;margin:0;padding:0;display:grid;gap:.55rem}
+.vignetta-compiti li{position:relative;padding-left:1.05rem;font-size:.9rem;line-height:1.5;color:var(--testo)}
+.vignetta-compiti li::before{content:"";position:absolute;left:0;top:.62em;width:.42rem;height:1px;background:var(--grigio)}
+.vignetta-strumenti{font-family:var(--mono);font-size:.76rem;line-height:1.6;color:var(--testo-tenue)}
+.vignetta-azioni{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-top:1.2rem;flex-shrink:0}
 .visita{
   background:var(--bottone-chiaro);
   color:var(--bottone-chiaro-testo);
@@ -341,6 +351,7 @@ html.con-scena .elenco:focus-within{
     width:auto;
     transform:none;
     padding:1.3rem 1.3rem 1.1rem;
+    max-height:72dvh;
     animation:sale .45s cubic-bezier(.2,.7,.2,1);
   }
   @keyframes sale{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}

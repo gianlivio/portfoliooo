@@ -47,7 +47,23 @@ export default async function Pagina({
                   {t.tipo}
                   {l.anno ? ` · ${l.anno}` : ""}
                 </p>
+                <p>{t.ruolo}</p>
                 <p>{t.riga}</p>
+                {t.compiti.length > 0 && (
+                  <>
+                    <h4>{d.elenco.compiti}</h4>
+                    <ul>
+                      {t.compiti.map((c) => (
+                        <li key={c}>{c}</li>
+                      ))}
+                    </ul>
+                  </>
+                )}
+                {t.strumenti && (
+                  <p>
+                    {d.elenco.strumenti}: {t.strumenti}
+                  </p>
+                )}
                 {l.link && <a href={l.link.href}>{l.link.etichetta}</a>}
               </li>
             );

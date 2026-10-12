@@ -18,62 +18,154 @@
     "shop": {
       "tipo": "E-commerce · Open2B",
       "titolo": "shop.puntoluce.net",
-      "riga": "Theme built from scratch on Open2B for an electrical supplies e-commerce turning over around €20,000 a day. Checkout, integrations, internal applications, tracking."
+      "riga": "B2B and B2C e-commerce for electrical and plumbing/HVAC supplies on Open2B, in four languages (IT/EN/ES/FR), turning over around €20,000 a day. I built the store theme from scratch and looked after its development and maintenance for almost two years.",
+      "ruolo": "Full stack developer · Punto Luce / EDIF · employee",
+      "compiti": [
+        "New theme built from scratch on Open2B/Scriggo: home, product lists and pages, cart, customer area; mobile-first, dark mode, dynamic filters.",
+        "Three-step checkout and a one-page version, with conditional rules between payment and shipping methods: free-shipping threshold, non-EU countries, private and business invoicing; postcode autocomplete across 8,000 municipalities.",
+        "15+ PHP applications on the Open2B API: product feeds for Trovaprezzi and Kelkoo (Italy and France), automatic assignment of 50,000 customers to tax groups, cron-based receipt archiving, duplicate supplier-code check across 25,000 products, export of 60,000 orders, product descriptions generated with the OpenAI API.",
+        "20+ REST and webhook integrations: Brevo (58,000 contacts and 23,550 products in sync, real-time webhooks), Feedaty with Schema.org rich snippets, Doofinder, DocFinance, Facebook Graph API, sign-in with Google Identity Services.",
+        "Tracking via Google Tag Manager: GA4 e-commerce, Meta Pixel, Microsoft UET with enhanced conversions, Clarity; Cookiebot and Consent Mode v2 for GDPR compliance.",
+        "VAT number validation (Cerved and VIES) across 28 EU countries.",
+        "Performance and accessibility: LCP from 12 to 4 seconds, TBT down 40%, CSS cut from 15,000 to 10,000 lines; accessibility audit with WAVE and axe."
+      ],
+      "strumenti": "Open2B/Scriggo · PHP · JavaScript · HTML/CSS · REST APIs and webhooks · Google Tag Manager · GA4"
     },
     "osservatorio": {
       "tipo": "Public data · open source",
       "titolo": "Osservatorio Accoglienza",
-      "riga": "Eleven years of public contracts for migrant reception, 18,104 ANAC records read and cleaned in Python."
+      "riga": "Public archive of migrant reception contracts in Italy, built from scratch: eleven years of public procurement cross-referenced with ministry data, browsable by province and year.",
+      "ruolo": "Personal project · open source",
+      "compiti": [
+        "Collection and cleaning in Python of 18,104 contracts from three ANAC datasets, 2015 to 2025.",
+        "Parser for 90 ministry PDF reports (pdfplumber) with data on unaccompanied foreign minors, 2016 to 2025.",
+        "Aggregations by province and year, including the share of direct awards.",
+        "Static site in Next.js and TypeScript on Vercel; data updates automated with GitHub Actions.",
+        "Technical SEO and structured data; public code on GitHub."
+      ],
+      "strumenti": "Python · pdfplumber · Next.js · TypeScript · GitHub Actions · Vercel"
     },
     "livellozero": {
       "tipo": "Editorial site · custom CMS",
       "titolo": "Livello Zero",
-      "riga": "Video game website built from scratch in Next.js, with a management system the client uses to publish on his own. Ongoing maintenance."
+      "riga": "Editorial website about video games, built from scratch, with a custom CMS the client uses to publish on his own.",
+      "ruolo": "Full stack developer · freelance",
+      "compiti": [
+        "Built from scratch in Next.js (App Router) and TypeScript, deployed on Vercel.",
+        "Custom CMS: the client writes and publishes articles, uploads images and manages sections without technical skills.",
+        "Separate public site and admin panel.",
+        "Ongoing maintenance on an annual fee after delivery."
+      ],
+      "strumenti": "Next.js · TypeScript · Vercel"
     },
     "ndnluxury": {
       "tipo": "Business website",
       "titolo": "NDN Luxury",
-      "riga": "Website of a resin and microcement finishes brand: new pages, maintenance, 3D animations."
+      "riga": "Website of a resin and microcement finishes brand.",
+      "ruolo": "Web developer · freelance",
+      "compiti": [
+        "New pages on the existing site.",
+        "3D animations.",
+        "Maintenance and improvements."
+      ],
+      "strumenti": ""
     },
     "esh": {
       "tipo": "Business website",
       "titolo": "ESH – Erasmus Student Housing",
-      "riga": "Rental housing for Erasmus students: new pages and site maintenance."
+      "riga": "Website for rental housing for Erasmus students.",
+      "ruolo": "Web developer · freelance",
+      "compiti": [
+        "New site pages.",
+        "Maintenance."
+      ],
+      "strumenti": ""
     },
     "blog": {
       "tipo": "Blog · WordPress",
       "titolo": "Come fare — Punto Luce",
-      "riga": "Punto Luce's technical blog on WordPress, separate from the shop: article layout and connection with the store."
+      "riga": "Punto Luce's technical blog on WordPress, separate from the shop but linked to it.",
+      "ruolo": "Web developer · Punto Luce / EDIF · employee",
+      "compiti": [
+        "Article layout.",
+        "Table of contents with scrolling to each section.",
+        "Blog–store link: articles featured on the shop's pages."
+      ],
+      "strumenti": "WordPress"
     },
     "allstudios": {
       "tipo": "Web application",
       "titolo": "All Studios",
-      "riga": "Shared workspace for teams of graphic designers, with artificial intelligence tools. Structure, copy, some pages, testing."
+      "riga": "Application for teams of graphic designers: a shared workspace with advanced tools and artificial intelligence. Still under construction.",
+      "ruolo": "Web developer · structure and testing",
+      "compiti": [
+        "Site and app structure: pages, sections, content organisation.",
+        "Page copy.",
+        "Development of some pages.",
+        "Application testing before launch."
+      ],
+      "strumenti": ""
     },
     "jointoyou": {
       "tipo": "WordPress blog · content · data",
       "titolo": "jointoyou.it",
-      "riga": "The blog built from scratch on WordPress, the writing of the articles, data upload and cleaning."
+      "riga": "The jointoyou.it blog, built from scratch on WordPress.",
+      "ruolo": "Web developer and content · freelance",
+      "compiti": [
+        "Blog built from scratch on WordPress.",
+        "Writing the articles.",
+        "Data upload and cleaning."
+      ],
+      "strumenti": "WordPress"
     },
     "copystudio": {
       "tipo": "Copywriting · brand",
       "titolo": "Copystudio",
-      "riga": "Copy and brand identity for the agency's client websites, starting from interviews on tone, audience and positioning."
+      "riga": "Copy and brand identity for the agency's client websites.",
+      "ruolo": "Copywriter · brand identity",
+      "compiti": [
+        "Copy and brand identity for corporate websites, including organisations with public healthcare contracts.",
+        "Client interviews to define tone of voice, audience and positioning before writing."
+      ],
+      "strumenti": ""
     },
     "hetaweb": {
       "tipo": "SEO · editorial",
       "titolo": "Hetaweb",
-      "riga": "Editorial management and SEO for the blogs of 30+ agency clients, including the Italian National Rugby Team."
+      "riga": "Editorial and SEO management of the agency's client blogs.",
+      "ruolo": "SEO copywriter · Lucca",
+      "compiti": [
+        "Editorial management of the blogs of 30+ clients, including the Italian National Rugby Team.",
+        "Writing and SEO optimisation of articles: title, lead, H2s, meta description.",
+        "Performance analysis on Google Search Console."
+      ],
+      "strumenti": "Google Search Console"
     },
     "futuraauthor": {
       "tipo": "Platform · AI agents",
       "titolo": "Futura Author",
-      "riga": "Editorial platform where AI agents write content for Google search and generative models, with human review. Development, prompts, editorial line. Under construction."
+      "riga": "Editorial platform where AI agents write content for Google search and generative models, always with human review. Designed and built from idea to launch; still under construction.",
+      "ruolo": "Full stack developer, editor, SEO/GEO copywriter · with a colleague",
+      "compiti": [
+        "Platform development in Next.js and TypeScript.",
+        "Writing the prompts for the AI agents that generate the content.",
+        "Editorial line: text review and tone-of-voice calibration for each client.",
+        "SEO and GEO optimisation, Google Search Console analysis."
+      ],
+      "strumenti": "Next.js · TypeScript · AI agents · Google Search Console"
     },
     "beautybroker": {
       "tipo": "Software · development and testing",
       "titolo": "Beauty Broker World",
-      "riga": "Development and user testing of the platform: 22+ end-to-end scenarios on OTP, invites, IBAN, referral and checkout, server errors found and reported, regression testing after every fix."
+      "riga": "Development and user testing of the platform before launch, on its most delicate flows.",
+      "ruolo": "Development and QA · distributed team",
+      "compiti": [
+        "22+ end-to-end test scenarios on critical flows: OTP, invites, IBAN, referral, checkout, account.",
+        "GitHub issues reproducing server-side errors: 502, 409, duplicate invites failing silently.",
+        "Regression testing after every fix.",
+        "Work in a team distributed across Italy, Brazil and the USA, with branches, pull requests and code reviews."
+      ],
+      "strumenti": "GitHub · end-to-end testing · regression testing"
     }
   },
   "contatto": {
@@ -87,7 +179,9 @@
     "chiudi": "Close",
     "precedente": "Previous project",
     "successivo": "Next project",
-    "cantiere": "Under construction"
+    "cantiere": "Under construction",
+    "compiti": "What I did",
+    "strumenti": "Tools"
   },
   "modulo": {
     "titolo": "What do you need?",
@@ -122,7 +216,9 @@
   "elenco": {
     "titolo": "Projects",
     "recapiti": "Contact",
-    "cv": "Résumé (PDF)"
+    "cv": "Résumé (PDF)",
+    "compiti": "What I did",
+    "strumenti": "Tools"
   },
   "tema": {
     "versoChiaro": "Switch to light theme",

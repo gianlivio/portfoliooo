@@ -18,62 +18,154 @@
     "shop": {
       "tipo": "E-commerce · Open2B",
       "titolo": "shop.puntoluce.net",
-      "riga": "Tema construido desde cero en Open2B para un e-commerce de material eléctrico que factura unos 20.000 € al día. Checkout, integraciones, aplicaciones internas, seguimiento."
+      "riga": "E-commerce B2B y B2C de material eléctrico y de fontanería/climatización en Open2B, en cuatro idiomas (IT/EN/ES/FR), que factura unos 20.000 € al día. Construí desde cero el tema de la tienda y durante casi dos años me ocupé de su desarrollo y mantenimiento.",
+      "ruolo": "Full stack developer · Punto Luce / EDIF · empleado",
+      "compiti": [
+        "Nuevo tema construido desde cero en Open2B/Scriggo: home, listados y fichas de producto, carrito, área de cliente; mobile-first, dark mode, filtros dinámicos.",
+        "Checkout en tres pasos y en versión de una sola página, con reglas condicionales entre métodos de pago y de envío: umbral de envío gratuito, países no UE, facturación a particulares y empresas; autocompletado del código postal en 8.000 municipios.",
+        "Más de 15 aplicaciones PHP sobre la API de Open2B: feeds de productos para Trovaprezzi y Kelkoo (Italia y Francia), asignación automática de 50.000 clientes a grupos fiscales, archivo de recibos mediante cron, control de códigos de proveedor duplicados en 25.000 productos, extracción de 60.000 pedidos, descripciones de producto generadas con la API de OpenAI.",
+        "Más de 20 integraciones REST y webhook: Brevo (58.000 contactos y 23.550 productos sincronizados, webhooks en tiempo real), Feedaty con rich snippets Schema.org, Doofinder, DocFinance, Facebook Graph API, acceso con Google Identity Services.",
+        "Seguimiento con Google Tag Manager: GA4 e-commerce, Meta Pixel, Microsoft UET con conversiones mejoradas, Clarity; Cookiebot y Consent Mode v2 para la conformidad con el RGPD.",
+        "Validación del número de IVA (Cerved y VIES) en 28 países de la UE.",
+        "Rendimiento y accesibilidad: LCP de 12 a 4 segundos, TBT reducido un 40%, CSS de 15.000 a 10.000 líneas; auditoría de accesibilidad con WAVE y axe."
+      ],
+      "strumenti": "Open2B/Scriggo · PHP · JavaScript · HTML/CSS · API REST y webhooks · Google Tag Manager · GA4"
     },
     "osservatorio": {
       "tipo": "Datos públicos · código abierto",
       "titolo": "Osservatorio Accoglienza",
-      "riga": "Once años de contratos públicos de acogida, 18.104 registros de ANAC leídos y limpiados en Python."
+      "riga": "Archivo público sobre los contratos de acogida de migrantes en Italia, construido desde cero: once años de contratación pública cruzados con los datos ministeriales, consultables por provincia y por año.",
+      "ruolo": "Proyecto personal · código abierto",
+      "compiti": [
+        "Recogida y limpieza en Python de 18.104 contratos de tres datasets de ANAC, de 2015 a 2025.",
+        "Parser de 90 informes ministeriales en PDF (pdfplumber) con los datos sobre menores extranjeros no acompañados, de 2016 a 2025.",
+        "Agregaciones por provincia y por año, con la proporción de adjudicaciones directas.",
+        "Sitio estático en Next.js y TypeScript en Vercel; actualización de los datos automatizada con GitHub Actions.",
+        "SEO técnico y datos estructurados; código público en GitHub."
+      ],
+      "strumenti": "Python · pdfplumber · Next.js · TypeScript · GitHub Actions · Vercel"
     },
     "livellozero": {
       "tipo": "Sitio editorial · CMS a medida",
       "titolo": "Livello Zero",
-      "riga": "Sitio sobre videojuegos construido desde cero en Next.js, con un gestor con el que el cliente publica por su cuenta. Mantenimiento en curso."
+      "riga": "Sitio editorial sobre videojuegos, desarrollado desde cero, con un gestor a medida con el que el cliente publica por su cuenta.",
+      "ruolo": "Full stack developer · freelance",
+      "compiti": [
+        "Desarrollo desde cero en Next.js (App Router) y TypeScript, despliegue en Vercel.",
+        "Gestor a medida: el cliente escribe y publica los artículos, sube las imágenes y gestiona las secciones sin conocimientos técnicos.",
+        "Sitio público y panel de administración separados.",
+        "Mantenimiento continuo con cuota anual tras la entrega."
+      ],
+      "strumenti": "Next.js · TypeScript · Vercel"
     },
     "ndnluxury": {
       "tipo": "Sitio corporativo",
       "titolo": "NDN Luxury",
-      "riga": "Sitio de una marca de revestimientos de resina y microcemento: nuevas páginas, mantenimiento, animaciones 3D."
+      "riga": "Sitio de una marca de revestimientos de resina y microcemento.",
+      "ruolo": "Web developer · freelance",
+      "compiti": [
+        "Nuevas páginas en el sitio existente.",
+        "Animaciones 3D.",
+        "Mantenimiento y mejoras."
+      ],
+      "strumenti": ""
     },
     "esh": {
       "tipo": "Sitio corporativo",
       "titolo": "ESH – Erasmus Student Housing",
-      "riga": "Alojamientos en alquiler para estudiantes Erasmus: nuevas páginas y mantenimiento del sitio."
+      "riga": "Sitio de alquiler de alojamientos para estudiantes Erasmus.",
+      "ruolo": "Web developer · freelance",
+      "compiti": [
+        "Nuevas páginas del sitio.",
+        "Mantenimiento."
+      ],
+      "strumenti": ""
     },
     "blog": {
       "tipo": "Blog · WordPress",
       "titolo": "Come fare — Punto Luce",
-      "riga": "El blog técnico de Punto Luce en WordPress, separado de la tienda: maquetación de los artículos y conexión con la tienda."
+      "riga": "El blog técnico de Punto Luce en WordPress, separado de la tienda pero conectado con ella.",
+      "ruolo": "Web developer · Punto Luce / EDIF · empleado",
+      "compiti": [
+        "Maquetación de los artículos.",
+        "Índice de contenidos con desplazamiento a cada sección.",
+        "Conexión entre blog y tienda: artículos destacados en las páginas de la tienda."
+      ],
+      "strumenti": "WordPress"
     },
     "allstudios": {
       "tipo": "Aplicación web",
       "titolo": "All Studios",
-      "riga": "Espacio de trabajo compartido para equipos de diseñadores gráficos, con herramientas de inteligencia artificial. Estructura, copy, algunas páginas, pruebas."
+      "riga": "Aplicación para equipos de diseñadores gráficos: un espacio de trabajo compartido con herramientas avanzadas e inteligencia artificial. Todavía en construcción.",
+      "ruolo": "Web developer · estructura y pruebas",
+      "compiti": [
+        "Estructura del sitio y de la app: páginas, secciones, organización de los contenidos.",
+        "Copy de las páginas.",
+        "Desarrollo de algunas páginas.",
+        "Pruebas de la aplicación antes del lanzamiento."
+      ],
+      "strumenti": ""
     },
     "jointoyou": {
       "tipo": "Blog WordPress · contenidos · datos",
       "titolo": "jointoyou.it",
-      "riga": "El blog creado desde cero en WordPress, la redacción de los artículos, la carga y la limpieza de los datos."
+      "riga": "El blog de jointoyou.it, creado desde cero en WordPress.",
+      "ruolo": "Web developer y contenidos · freelance",
+      "compiti": [
+        "Creación del blog desde cero en WordPress.",
+        "Redacción de los artículos.",
+        "Carga y limpieza de los datos."
+      ],
+      "strumenti": "WordPress"
     },
     "copystudio": {
       "tipo": "Copywriting · marca",
       "titolo": "Copystudio",
-      "riga": "Textos e identidad de marca para los sitios de los clientes de la agencia, a partir de entrevistas sobre tono, público y posicionamiento."
+      "riga": "Textos e identidad de marca para los sitios de los clientes de la agencia.",
+      "ruolo": "Copywriter · identidad de marca",
+      "compiti": [
+        "Copy e identidad de marca para sitios corporativos, incluidas entidades con contratos públicos en el ámbito sanitario.",
+        "Entrevistas con los clientes para definir tono de voz, público y posicionamiento antes de escribir."
+      ],
+      "strumenti": ""
     },
     "hetaweb": {
       "tipo": "SEO · editorial",
       "titolo": "Hetaweb",
-      "riga": "Gestión editorial y SEO de los blogs de más de 30 clientes de la agencia, entre ellos la Selección Italiana de Rugby."
+      "riga": "Gestión editorial y SEO de los blogs de los clientes de la agencia.",
+      "ruolo": "Copywriter SEO · Lucca",
+      "compiti": [
+        "Gestión editorial de los blogs de más de 30 clientes, entre ellos la Selección Italiana de Rugby.",
+        "Redacción y optimización SEO de los artículos: título, entradilla, H2, meta description.",
+        "Análisis del rendimiento en Google Search Console."
+      ],
+      "strumenti": "Google Search Console"
     },
     "futuraauthor": {
       "tipo": "Plataforma · agentes de IA",
       "titolo": "Futura Author",
-      "riga": "Plataforma editorial en la que agentes de IA escriben contenidos para la búsqueda en Google y en los modelos generativos, con revisión humana. Desarrollo, prompts, línea editorial. En construcción."
+      "riga": "Plataforma editorial en la que agentes de IA escriben contenidos pensados para la búsqueda en Google y en los modelos generativos, siempre con revisión humana. Diseñada y desarrollada desde la idea hasta el lanzamiento; todavía en construcción.",
+      "ruolo": "Full stack developer, editor, copywriter SEO/GEO · con un colega",
+      "compiti": [
+        "Desarrollo de la plataforma en Next.js y TypeScript.",
+        "Redacción de los prompts para los agentes de IA que generan los contenidos.",
+        "Línea editorial: revisión de los textos y calibración del tono de voz de cada cliente.",
+        "Optimización SEO y GEO, análisis de los datos de Google Search Console."
+      ],
+      "strumenti": "Next.js · TypeScript · agentes de IA · Google Search Console"
     },
     "beautybroker": {
       "tipo": "Software · desarrollo y pruebas",
       "titolo": "Beauty Broker World",
-      "riga": "Desarrollo y pruebas como usuario de la plataforma: más de 22 escenarios end-to-end sobre OTP, invitaciones, IBAN, referral y checkout, errores de servidor detectados y comunicados, regression testing tras cada corrección."
+      "riga": "Desarrollo y pruebas de usuario de la plataforma antes del lanzamiento, en sus flujos más delicados.",
+      "ruolo": "Desarrollo y QA · equipo distribuido",
+      "compiti": [
+        "Más de 22 escenarios de prueba end-to-end en flujos críticos: OTP, invitaciones, IBAN, referral, checkout, cuenta.",
+        "Issues en GitHub con la reproducción de errores del servidor: 502, 409, invitaciones duplicadas que fallaban sin avisar.",
+        "Regression testing tras cada corrección.",
+        "Trabajo en un equipo distribuido entre Italia, Brasil y Estados Unidos, con branches, pull requests y code review."
+      ],
+      "strumenti": "GitHub · pruebas end-to-end · regression testing"
     }
   },
   "contatto": {
@@ -87,7 +179,9 @@
     "chiudi": "Cerrar",
     "precedente": "Proyecto anterior",
     "successivo": "Proyecto siguiente",
-    "cantiere": "En construcción"
+    "cantiere": "En construcción",
+    "compiti": "Qué hice",
+    "strumenti": "Herramientas"
   },
   "modulo": {
     "titolo": "¿Qué necesitas?",
@@ -122,7 +216,9 @@
   "elenco": {
     "titolo": "Proyectos",
     "recapiti": "Contacto",
-    "cv": "Currículum (PDF)"
+    "cv": "Currículum (PDF)",
+    "compiti": "Qué hice",
+    "strumenti": "Herramientas"
   },
   "tema": {
     "versoChiaro": "Cambiar al tema claro",
