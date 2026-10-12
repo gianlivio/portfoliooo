@@ -100,7 +100,7 @@ export class Droni implements Ospite {
   private droni: Drone[] = [];
   private texture: THREE.Texture[] = [];
   private stato = {
-    prossima: primo(15, 2), inizio: -1, durata: 22, quanti: 1,
+    prossima: primo(0, 2), inizio: -1, durata: 22, quanti: 1,
     da: new THREE.Vector3(), sosta: new THREE.Vector3(), via: new THREE.Vector3(), verso: new THREE.Vector3(),
   };
   private meta = new THREE.Vector3();

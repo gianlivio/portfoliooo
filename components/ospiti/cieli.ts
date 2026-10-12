@@ -70,7 +70,7 @@ export class Aereo implements Ospite {
   private luci: { s: THREE.Sprite; tipo: "rossa" | "verde" | "lampo" | "faro" | "coda"; fase: number; base: number }[] = [];
   private finestrini: THREE.Points;
   private texture: THREE.Texture[] = [];
-  private stato = { prossima: primo(6, 2), inizio: -1, durata: 26, da: new THREE.Vector3(), a: new THREE.Vector3() };
+  private stato = { prossima: primo(0, 2), inizio: -1, durata: 26, da: new THREE.Vector3(), a: new THREE.Vector3() };
 
   constructor() {
     const mat = new THREE.MeshBasicMaterial({ color: "#11141B", fog: false, side: THREE.DoubleSide, transparent: true });
@@ -120,7 +120,7 @@ export class Aereo implements Ospite {
       const y = d * Math.tan(casuale(0.25, 0.33));
       s.da.copy(avanti).multiplyScalar(d + casuale(-6, 6)).addScaledVector(lato, -46 * v).setY(y + casuale(-1, 1));
       s.a.copy(avanti).multiplyScalar(d + casuale(-6, 6)).addScaledVector(lato, 46 * v).setY(y + casuale(-1, 1));
-      s.durata = casuale(24, 30);
+      s.durata = casuale(16, 20);
       s.inizio = t;
       this.gruppo.visible = true;
     }
@@ -173,7 +173,7 @@ export class Jet implements Ospite {
   private scie: Scia[] = [];
   private texture: THREE.Texture[] = [];
   private stato = {
-    prossima: primo(40, 4), inizio: -1, durata: 40, da: new THREE.Vector3(), a: new THREE.Vector3(),
+    prossima: primo(0, 4), inizio: -1, durata: 40, da: new THREE.Vector3(), a: new THREE.Vector3(),
     campione: 0, vento: new THREE.Vector3(),
   };
   private tmp = { lato: new THREE.Vector3(), dir: new THREE.Vector3(), cam: new THREE.Vector3(), p: new THREE.Vector3() };
@@ -242,7 +242,7 @@ export class Jet implements Ospite {
       s.da.copy(avanti).multiplyScalar(d + casuale(-5, 5)).addScaledVector(lato, -38 * v).setY(y);
       s.a.copy(avanti).multiplyScalar(d + casuale(-5, 5)).addScaledVector(lato, 38 * v).setY(y + casuale(-1.5, 1.5));
       s.vento.set(casuale(-0.08, 0.08), 0.02, casuale(-0.08, 0.08));
-      s.durata = casuale(30, 36);
+      s.durata = casuale(20, 24);
       s.inizio = t;
       s.campione = 0;
       this.scie.forEach((sc) => {

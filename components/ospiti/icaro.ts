@@ -136,7 +136,7 @@ export class Icaro implements Ospite {
   private texture: THREE.Texture[] = [];
   private curva: THREE.CatmullRomCurve3 | null = null;
   private stato = {
-    prossima: primo(22, 6), inizio: -1, fase: "volo" as "volo" | "crisi" | "caduta" | "dopo" | "fermo",
+    prossima: primo(0, 6), inizio: -1, fase: "volo" as "volo" | "crisi" | "caduta" | "dopo" | "fermo",
     s: 0, L: 1, tFase: 0, battito: 0, staccate: 0, debito: 0, cera: 0,
     vel: new THREE.Vector3(), w: new THREE.Vector3(), q: new THREE.Quaternion(),
     imbardata: 0, rollio: 0, verso: 1, vicine: false, prima: new THREE.Vector3(),

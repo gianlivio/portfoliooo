@@ -179,7 +179,7 @@ export class Achille implements Ospite {
   private lucidi: THREE.Mesh[] = [];
   private deriva = new Deriva();
   private stato = {
-    prossima: primo(5, 2), inizio: -1, s: 0, L: 1,
+    prossima: primo(0, 2), inizio: -1, s: 0, L: 1,
     da: new THREE.Vector3(), a: new THREE.Vector3(), curva: new THREE.Vector3(), curva2: new THREE.Vector3(),
     fase: 0, imbardata: 0, tPasso: 0, passo: 0, prossimoPasso: 0, sFermata: -1, fermata: -1, palpebraT: 0,
     sPassi: [] as number[], verso: 0, oltre: new THREE.Vector3(), k0: -1, ceduto: false,

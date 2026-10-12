@@ -1,9 +1,10 @@
 import * as THREE from "three";
 import { PELO_ACQUA } from "../condivisi";
-import { Deriva, type Ospite, assi, cancella, casuale, finito, liberaTutto, ombra, primo, riposo, segno, tela, tocca } from "./comuni";
+import { type Ospite, casuale, liberaTutto, ombra, segno, tela } from "./comuni";
 
 /**
- * Di giorno, un robot aspirapolvere che pulisce il marmo davanti alle carte, con la logica cieca
+ * Di giorno, sempre, un robot aspirapolvere che pulisce il marmo davanti alla scrivania dello sviluppatore,
+ * senza allontanarsene, con la logica cieca
  * dei robot veri: va dritto, si ferma, gira sul posto, riparte; ogni tanto urta qualcosa che non c'è,
  * arretra un poco e cambia strada. La torretta del laser gira, la spazzola laterale frulla,
  * la luce di stato respira. Dietro di sé lascia una striscia di marmo più lucido, che pian piano si confonde.
@@ -13,6 +14,12 @@ const DIAMETRO = 0.3;
 const VEL = 0.3; // unità al secondo
 const GIRO = 1.6; // radianti al secondo
 const TRACCE = 160;
+// la zona di lavoro: davanti alla scrivania, che sta sotto la terza carta (angolo della carta 2 su 13, raggio 5,05)
+const ANGOLO = (2 / 13) * Math.PI * 2;
+const RAGGIO = 4.2;
+const LARGO = 1.1; // di lato, per parte
+const DENTRO = 0.42; // verso la scrivania, senza toccare la sedia
+const FUORI = 0.75; // verso chi guarda
 
 type Mossa = { tipo: "dritto" | "gira" | "urta" | "arretra"; durata: number; verso?: number };
 
@@ -26,15 +33,16 @@ export class Robot implements Ospite {
   private nascite = new Float32Array(TRACCE);
   private texture: THREE.Texture[] = [];
   private s = {
-    prossima: primo(6, 2), inizio: -1, fine: 34, pos: new THREE.Vector3(), rotta: 0,
+    pos: new THREE.Vector3(), rotta: 0,
     mossa: { tipo: "dritto", durata: 3 } as Mossa, inizioMossa: 0, impronta: 0, slot: 0,
-    centro: new THREE.Vector3(), dist: 3.3, lat: 0, uscita: false,
   };
+  private centro = new THREE.Vector3(Math.sin(ANGOLO) * RAGGIO, 0, -Math.cos(ANGOLO) * RAGGIO);
+  private radiale = new THREE.Vector3(Math.sin(ANGOLO), 0, -Math.cos(ANGOLO)); // verso la scrivania
+  private lato = new THREE.Vector3(Math.cos(ANGOLO), 0, Math.sin(ANGOLO));
   private m = new THREE.Matrix4();
   private q = new THREE.Quaternion();
   private v = new THREE.Vector3();
   private c = new THREE.Color();
-  private deriva = new Deriva();
 
   constructor() {
     const R = DIAMETRO / 2;
@@ -101,7 +109,9 @@ export class Robot implements Ospite {
     }
     this.gruppo.add(this.traccia);
 
-    this.gruppo.visible = false;
+    // parte da un punto a caso della zona, con una direzione a caso
+    this.s.pos.copy(this.centro).addScaledVector(this.lato, casuale(-0.6, 0.6)).addScaledVector(this.radiale, casuale(-0.4, 0.2));
+    this.s.rotta = casuale(0, Math.PI * 2);
     this.gruppo.traverse((o) => {
       o.raycast = () => undefined;
       o.frustumCulled = false;
@@ -112,66 +122,48 @@ export class Robot implements Ospite {
     const s = this.s;
     s.inizioMossa = t;
     const prima = s.mossa.tipo;
-    // fuori dal suo rettangolo di lavoro, o alla fine, si gira verso il centro (o verso l'uscita)
-    this.v.subVectors(s.centro, s.pos);
-    const lontano = this.v.length() > 1.4;
+    // dopo una corsa gira: a caso, oppure verso il centro della zona se ne è al bordo
+    this.v.subVectors(this.centro, s.pos);
+    const lontano = !this.dentro(0.75);
     if (prima === "urta") {
       s.mossa = { tipo: "arretra", durata: 0.6 };
     } else if (prima === "dritto" || prima === "arretra") {
       let verso = segno() * casuale(0.6, 2.2);
-      if (lontano || s.uscita) {
-        const voluta = s.uscita ? Math.atan2(s.pos.x - s.centro.x, s.pos.z - s.centro.z) : Math.atan2(this.v.x, this.v.z);
+      if (lontano) {
+        const voluta = Math.atan2(this.v.x, this.v.z) + casuale(-0.5, 0.5);
         verso = Math.atan2(Math.sin(voluta - s.rotta), Math.cos(voluta - s.rotta));
       }
       s.mossa = { tipo: "gira", durata: Math.abs(verso) / GIRO, verso: Math.sign(verso) || 1 };
     } else {
-      const urta = !s.uscita && Math.random() < 0.3;
-      s.mossa = urta ? { tipo: "urta", durata: casuale(0.8, 2.2) } : { tipo: "dritto", durata: s.uscita ? 12 : casuale(1.5, 4) };
+      s.mossa = Math.random() < 0.3 ? { tipo: "urta", durata: casuale(0.8, 2.2) } : { tipo: "dritto", durata: casuale(1.5, 4) };
     }
   }
 
-  /** La striscia sbiadisce anche dopo che il robot se n'è andato. */
+  /** È dentro la zona di lavoro (ristretta di un fattore)? */
+  private dentro(f = 1) {
+    this.v.subVectors(this.s.pos, this.centro);
+    const r = this.v.dot(this.radiale), l = this.v.dot(this.lato);
+    return Math.abs(l) < LARGO * f && r < DENTRO * f && r > -FUORI * f;
+  }
+
+  /** La striscia lucida sbiadisce piano. */
   private sbiadisci(t: number) {
-    let viva = false;
     for (let i = 0; i < TRACCE; i++) {
       const eta = t - this.nascite[i];
       const a = eta < 0.4 ? eta / 0.4 : Math.max(0, 1 - (eta - 0.4) / 20);
-      if (a > 0) viva = true;
       this.traccia.setColorAt(i, this.c.setRGB(0.014 * a, 0.014 * a, 0.016 * a));
     }
     if (this.traccia.instanceColor) this.traccia.instanceColor.needsUpdate = true;
-    return viva;
   }
 
-  aggiorna(t: number, dt: number, camera: THREE.Camera) {
+  aggiorna(t: number, dt: number) {
     const s = this.s;
-    this.deriva.misura(camera, dt);
-    if (this.gruppo.visible && !this.sbiadisci(t) && s.inizio < 0) this.gruppo.visible = false;
-    if (s.inizio < 0) {
-      if (t < s.prossima || !tocca("giorno", "robot", t)) return;
-      const { avanti, lato } = assi(camera);
-      // entra dal lato verso cui la vista sta girando, così le viene incontro
-      const v = this.deriva.verso();
-      s.dist = casuale(3.0, 3.6);
-      s.lat = casuale(-0.5, 0.5);
-      s.centro.copy(avanti).multiplyScalar(s.dist).addScaledVector(lato, s.lat);
-      s.pos.copy(s.centro).addScaledVector(lato, 2.9 * v).addScaledVector(avanti, casuale(-0.3, 0.3));
-      s.rotta = Math.atan2(-lato.x * v, -lato.z * v);
-      s.mossa = { tipo: "dritto", durata: casuale(5, 7) };
-      s.inizioMossa = t;
-      s.fine = t + casuale(30, 38);
-      s.uscita = false;
-      s.inizio = t;
-      this.gruppo.visible = true;
-      this.robot.visible = true;
-    }
-    // il rettangolo di lavoro segue lo sguardo, che gira piano
-    const { avanti, lato } = assi(camera);
-    s.centro.copy(avanti).multiplyScalar(s.dist).addScaledVector(lato, s.lat);
-    const e = t - s.inizioMossa;
-    if (t > s.fine && !s.uscita) {
-      s.uscita = true;
-      s.mossa = { tipo: "dritto", durata: 0 };
+    this.sbiadisci(t);
+    let e = t - s.inizioMossa;
+    // al bordo della zona (la sedia, la scrivania, il margine) va a sbattere: arretra e cambia strada
+    if (s.mossa.tipo === "dritto" && !this.dentro() && Math.sin(s.rotta) * this.v.x + Math.cos(s.rotta) * this.v.z > 0) {
+      s.mossa = { tipo: "urta", durata: 0 };
+      e = 0;
     }
     if (e >= s.mossa.durata) this.scegli(t);
     const mossa = s.mossa;
@@ -200,18 +192,9 @@ export class Robot implements Ospite {
       this.traccia.setMatrixAt(i, this.m.compose(this.v.set(s.pos.x, PELO_ACQUA + 0.0015, s.pos.z), this.q.identity(), new THREE.Vector3(1, 1, 1)));
       this.traccia.instanceMatrix.needsUpdate = true;
     }
-    // fuori dalla vista: finito; la striscia resta a sbiadire da sola
-    this.v.subVectors(s.pos, s.centro);
-    if (s.uscita && this.v.length() > 3.8) {
-      this.robot.visible = false;
-      s.inizio = -1;
-      s.prossima = t + riposo();
-      finito("giorno", "robot", t);
-    }
   }
 
   libera() {
-    cancella("giorno", "robot");
     liberaTutto(this.gruppo, this.texture);
   }
 }

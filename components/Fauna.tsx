@@ -6,7 +6,6 @@ import * as THREE from "three";
 import { PELO_ACQUA, gocce } from "./condivisi";
 import { type Ospite, assi, attesa, azzeraRegia, casuale, pausaRegia, solo } from "./ospiti/comuni";
 import { Nave } from "./ospiti/nave";
-import { Drago } from "./ospiti/drago";
 import { Achille } from "./ospiti/achille";
 import { Icaro } from "./ospiti/icaro";
 import { Aereo, Jet } from "./ospiti/cieli";
@@ -14,23 +13,24 @@ import { Tralicci } from "./ospiti/tralicci";
 import { Sole } from "./ospiti/sole";
 import { Nuvole } from "./ospiti/nuvole";
 import { Feluca } from "./ospiti/feluca";
-import { Iss, Starlink } from "./ospiti/orbite";
+import { Iss } from "./ospiti/orbite";
 import { Galeone } from "./ospiti/galeone";
 import { Scrivania } from "./ospiti/scrivania";
 import { Zeppelin } from "./ospiti/zeppelin";
 import { Droni } from "./ospiti/drone";
 import { Robot } from "./ospiti/robot";
-import { Peripatetici } from "./ospiti/peripatetici";
+import { Pterodattilo } from "./ospiti/pterodattilo";
 
 /**
  * Ciò che passa per la stanza, davanti a dove si sta guardando. Una regia fa passare un ospite
  * alla volta per ciascuna traccia (in acqua o a terra, e in cielo), con pause brevi, e si ferma
  * quando è aperta una scheda o il modulo.
  * Notte, in acqua: la nave di Ulisse, la feluca della caccia al pesce spada, un galeone pirata;
- * in cielo: un drago cinese, un aereo di linea, la Stazione spaziale, il treno di Starlink. Sempre: stelle cadenti, gocce,
+ * in cielo: un aereo di linea, la Stazione spaziale. Sempre: stelle cadenti, gocce,
  * un elettrodotto che si allontana come un viale.
- * Giorno, a terra: Achille e la tartaruga, Icaro, un robot aspirapolvere, i droni, un maestro coi discepoli;
- * in cielo: un jet con le scie, un dirigibile. Sempre: nuvole lente e un sole dall'alba al tramonto.
+ * Giorno, a terra: Achille e la tartaruga; in aria: Icaro, i droni, uno pterodattilo;
+ * in cielo: un jet con le scie, un dirigibile. Sempre: nuvole lente e un sole dall'alba al tramonto,
+ * e il robot aspirapolvere che pulisce davanti alla scrivania.
  * Sempre, di giorno e di notte: lo sviluppatore alla scrivania, sotto la terza carta.
  * Con "riduci movimento" non passa niente. Con ?ospiti nell'indirizzo passano subito e spesso;
  * con ?ospiti=nome passa solo quello.
@@ -272,7 +272,6 @@ function Presenza({ crea }: { crea: () => Ospite }) {
 }
 
 const creaNave = () => new Nave();
-const creaDrago = () => new Drago();
 const creaAchille = () => new Achille();
 const creaIcaro = () => new Icaro();
 const creaAereo = () => new Aereo();
@@ -282,14 +281,13 @@ const creaSole = () => new Sole();
 const creaNuvole = () => new Nuvole();
 const creaFeluca = () => new Feluca();
 const creaIss = () => new Iss();
-const creaStarlink = () => new Starlink();
 const creaGaleone = () => new Galeone();
 const creaScrivaniaNotte = () => new Scrivania(true);
 const creaScrivaniaGiorno = () => new Scrivania(false);
 const creaZeppelin = () => new Zeppelin();
 const creaDroni = () => new Droni();
 const creaRobot = () => new Robot();
-const creaPeripatetici = () => new Peripatetici();
+const creaPterodattilo = () => new Pterodattilo();
 
 /* --------------------------------------------------------------------- insieme */
 
@@ -310,12 +308,10 @@ export default function Fauna({
       {c("stelle") && <StelleCadenti />}
       {c("gocce") && <Gocce />}
       {c("nave") && <Presenza crea={creaNave} />}
-      {c("drago") && <Presenza crea={creaDrago} />}
       {c("aereo") && <Presenza crea={creaAereo} />}
       {c("feluca") && <Presenza crea={creaFeluca} />}
       {c("galeone") && <Presenza crea={creaGaleone} />}
       {c("iss") && <Presenza crea={creaIss} />}
-      {c("starlink") && <Presenza crea={creaStarlink} />}
       <Presenza crea={creaTralicci} />
       {c("scrivania") && <Presenza crea={creaScrivaniaNotte} />}
     </>
@@ -330,8 +326,8 @@ export default function Fauna({
       {c("jet") && <Presenza crea={creaJet} />}
       {c("zeppelin") && <Presenza crea={creaZeppelin} />}
       {c("drone") && <Presenza crea={creaDroni} />}
+      {c("pterodattilo") && <Presenza crea={creaPterodattilo} />}
       {c("robot") && <Presenza crea={creaRobot} />}
-      {c("peripatetici") && <Presenza crea={creaPeripatetici} />}
       {c("scrivania") && <Presenza crea={creaScrivaniaGiorno} />}
     </>
   );

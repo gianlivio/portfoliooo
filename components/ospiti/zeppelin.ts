@@ -37,7 +37,7 @@ export class Zeppelin implements Ospite {
   private eliche: THREE.Group[] = [];
   private ombra: THREE.Mesh;
   private texture: THREE.Texture[] = [];
-  private stato = { prossima: primo(20, 2), inizio: -1, durata: 60, da: new THREE.Vector3(), a: new THREE.Vector3(), lato: new THREE.Vector3() };
+  private stato = { prossima: primo(0, 2), inizio: -1, durata: 60, da: new THREE.Vector3(), a: new THREE.Vector3(), lato: new THREE.Vector3() };
 
   constructor() {
     const argento = new THREE.MeshStandardMaterial({ color: "#D6DADF", roughness: 0.4, metalness: 0.25, flatShading: true });
@@ -133,7 +133,7 @@ export class Zeppelin implements Ospite {
       s.da.copy(avanti).multiplyScalar(d + casuale(-3, 3)).addScaledVector(lato, -34 * v).setY(y);
       s.a.copy(avanti).multiplyScalar(d + casuale(-3, 3)).addScaledVector(lato, 34 * v).setY(y + casuale(-0.8, 0.8));
       s.lato.copy(lato).multiplyScalar(v);
-      s.durata = casuale(55, 65);
+      s.durata = casuale(30, 34);
       s.inizio = t;
       this.gruppo.visible = true;
     }

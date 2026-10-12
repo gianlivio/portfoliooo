@@ -239,7 +239,7 @@ export class Galeone implements Ospite {
   private bandiera: THREE.Mesh;
   private texture: THREE.Texture[] = [];
   private stato = {
-    prossima: primo(10, 3), inizio: -1, durata: 26,
+    prossima: primo(0, 3), inizio: -1, durata: 26,
     da: new THREE.Vector3(), a: new THREE.Vector3(), curva: new THREE.Vector3(),
     vacilla: 0, prossimoVacillo: 0, scia: 0, slot: 0, fase: 0,
   };
@@ -464,7 +464,7 @@ export class Galeone implements Ospite {
       s.da.copy(avanti).multiplyScalar(d1).addScaledVector(lato, -5.6 * v);
       s.a.copy(avanti).multiplyScalar(d2).addScaledVector(lato, 5.6 * v);
       s.curva.copy(avanti).multiplyScalar((d1 + d2) / 2 + casuale(-0.9, 0.9));
-      s.durata = casuale(24, 30);
+      s.durata = casuale(18, 22);
       s.inizio = t;
       s.prossimoVacillo = t + casuale(5, 9);
       s.fase = casuale(0, 10);

@@ -2,12 +2,9 @@ import * as THREE from "three";
 import { type Ospite, alone, cancella, casuale, finito, fra, liberaTutto, primo, riposo, segno, tocca } from "./comuni";
 
 /**
- * Di notte, due cose che passano in orbita, come si vedono davvero a occhio nudo.
- * La Stazione spaziale: un punto bianco, fermo nella luce (non lampeggia, a differenza degli aerei),
+ * Di notte, la Stazione spaziale come si vede davvero a occhio nudo: un punto bianco, fermo nella luce (non lampeggia, a differenza degli aerei),
  * che attraversa il cielo senza rumore e poi, entrando nell'ombra della Terra, si fa arancio e si spegne
  * a metà del cielo.
- * Il treno di Starlink: una fila di punti uguali, in colonna e alla stessa distanza, che scorre
- * diritta; i satelliti si accendono uno dopo l'altro quando prendono il sole e si spengono in fila.
  */
 
 const R = 46; // lontano, ma dentro il piano di taglio della camera (60)
@@ -59,7 +56,7 @@ export class Iss implements Ospite {
   private punto: THREE.Points;
   private alone: THREE.Points;
   private texture: THREE.Texture[] = [];
-  private stato = { prossima: primo(4, 2), inizio: -1, durata: 24, ombra: 0.78, arco: null as Arco | null };
+  private stato = { prossima: primo(0, 2), inizio: -1, durata: 24, ombra: 0.78, arco: null as Arco | null };
   private p = new THREE.Vector3();
   private c = new THREE.Color();
 
@@ -77,7 +74,7 @@ export class Iss implements Ospite {
     if (s.inizio < 0) {
       if (t < s.prossima || !tocca("notteCielo", "iss", t)) return;
       s.arco = arcoDavanti(camera, 1.15);
-      s.durata = casuale(22, 26);
+      s.durata = casuale(14, 17);
       // a volte entra nell'ombra prima della fine, a volte esce dal campo ancora accesa
       s.ombra = Math.random() < 0.65 ? casuale(0.62, 0.8) : 2;
       s.inizio = t;
@@ -111,78 +108,6 @@ export class Iss implements Ospite {
 
   libera() {
     cancella("notteCielo", "iss");
-    liberaTutto(this.gruppo, this.texture);
-  }
-}
-
-/* ------------------------------------------------------------------ treno di Starlink */
-
-const VAGONI = 26;
-
-export class Starlink implements Ospite {
-  gruppo = new THREE.Group();
-  private treno: THREE.Points;
-  private texture: THREE.Texture[] = [];
-  private stato = {
-    prossima: primo(4, 2), inizio: -1, durata: 30, passo: 0.022, arco: null as Arco | null,
-    lampi: new Float32Array(VAGONI), varia: new Float32Array(VAGONI),
-  };
-  private p = new THREE.Vector3();
-
-  constructor() {
-    const tx = alone("#FFFFFF");
-    this.texture.push(tx);
-    this.treno = punti(VAGONI, tx, 5);
-    this.gruppo.add(this.treno);
-    this.gruppo.visible = false;
-  }
-
-  aggiorna(t: number, _dt: number, camera: THREE.Camera) {
-    const s = this.stato;
-    if (s.inizio < 0) {
-      if (t < s.prossima || !tocca("notteCielo", "starlink", t)) return;
-      s.arco = arcoDavanti(camera, 0.95);
-      s.arco.gobba *= 0.5;
-      s.durata = casuale(26, 32);
-      s.passo = casuale(0.018, 0.026);
-      for (let i = 0; i < VAGONI; i++) {
-        s.varia[i] = casuale(0.7, 1);
-        s.lampi[i] = Math.random() < 0.15 ? casuale(0.2, 0.8) : -1;
-      }
-      s.inizio = t;
-      this.gruppo.visible = true;
-    }
-    const e = t - s.inizio;
-    // il primo vagone corre da 0 a 1 più la lunghezza del treno, perché anche l'ultimo arrivi in fondo
-    const K = (e / s.durata) * (1 + VAGONI * s.passo);
-    if (K >= 1 + VAGONI * s.passo || !s.arco) {
-      s.inizio = -1;
-      s.prossima = t + riposo();
-      this.gruppo.visible = false;
-      finito("notteCielo", "starlink", t);
-      return;
-    }
-    const pos = this.treno.geometry.attributes.position as THREE.BufferAttribute;
-    const col = this.treno.geometry.attributes.color as THREE.BufferAttribute;
-    for (let i = 0; i < VAGONI; i++) {
-      const k = K - i * s.passo;
-      if (k < 0 || k > 1) {
-        col.setXYZ(i, 0, 0, 0);
-        continue;
-      }
-      suArco(s.arco, k, this.p);
-      pos.setXYZ(i, this.p.x, this.p.y, this.p.z);
-      // si accendono entrando nel sole, si spengono uno dopo l'altro verso la fine; qualcuno brilla un attimo
-      let b = fra(k, 0.02, 0.1) * (1 - fra(k, 0.78, 0.9)) * s.varia[i] * 0.85;
-      if (s.lampi[i] > 0) b += Math.max(0, 1 - Math.abs(k - s.lampi[i]) * 25) * 0.6;
-      col.setXYZ(i, b, b, b * 0.96);
-    }
-    pos.needsUpdate = true;
-    col.needsUpdate = true;
-  }
-
-  libera() {
-    cancella("notteCielo", "starlink");
     liberaTutto(this.gruppo, this.texture);
   }
 }

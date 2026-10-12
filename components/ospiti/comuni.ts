@@ -248,11 +248,13 @@ type Traccia = { iscritti: string[]; coda: string[]; corrente: string | null; da
 
 // di giorno tre tracce: a terra, in aria bassa (Icaro, i droni), in cielo
 const TRACCE: Record<string, { pausa: [number, number]; primo: number }> = {
-  notte: { pausa: [5, 9], primo: 3 },
-  notteCielo: { pausa: [8, 15], primo: 9 },
-  giorno: { pausa: [3, 6], primo: 2 },
-  giornoAria: { pausa: [4, 8], primo: 7 },
-  giornoCielo: { pausa: [6, 12], primo: 12 },
+  // chi visita resta mezzo minuto: il primo ospite di ogni traccia arriva entro pochi secondi,
+  // e fra uno e l'altro passano un paio di secondi
+  notte: { pausa: [1.5, 3], primo: 1.5 },
+  notteCielo: { pausa: [1.5, 3], primo: 3 },
+  giorno: { pausa: [1.5, 3], primo: 2 },
+  giornoAria: { pausa: [1.5, 3], primo: 4 },
+  giornoCielo: { pausa: [1.5, 3], primo: 1 },
 };
 
 /** Oltre questo tempo un ospite non tiene più occupata la traccia, qualunque cosa gli succeda. */
