@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { PELO_ACQUA, SOLE } from "../condivisi";
-import { type Ospite, assi, cancella, casuale, finito, fra, liberaTutto, loft, ombra, primo, riposo, segno, tocca } from "./comuni";
+import { type Ospite, assi, cancella, casuale, finito, fra, liberaTutto, loft, ombra, primo, riposo, tocca, lato as latoRegia } from "./comuni";
 
 /**
  * Di giorno, un dirigibile rigido degli anni Trenta che attraversa il cielo, lento e silenzioso.
@@ -127,13 +127,13 @@ export class Zeppelin implements Ospite {
     if (s.inizio < 0) {
       if (t < s.prossima || !tocca("giornoCielo", "zeppelin", t)) return;
       const { avanti, lato } = assi(camera);
-      const v = segno();
+      const v = latoRegia("giornoCielo");
       const d = casuale(24, 30);
       const y = d * Math.tan(casuale(0.24, 0.3));
       s.da.copy(avanti).multiplyScalar(d + casuale(-3, 3)).addScaledVector(lato, -34 * v).setY(y);
       s.a.copy(avanti).multiplyScalar(d + casuale(-3, 3)).addScaledVector(lato, 34 * v).setY(y + casuale(-0.8, 0.8));
       s.lato.copy(lato).multiplyScalar(v);
-      s.durata = casuale(30, 34);
+      s.durata = casuale(16, 18);
       s.inizio = t;
       this.gruppo.visible = true;
     }

@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { type Ospite, assi, cancella, casuale, finito, fra, liberaTutto, loft, primo, riposo, segno, tocca } from "./comuni";
+import { type Ospite, assi, cancella, casuale, finito, fra, liberaTutto, loft, primo, riposo, tocca, lato as latoRegia } from "./comuni";
 
 /**
  * Di giorno, uno pterodattilo (uno pteranodonte) che attraversa il cielo dietro le carte, controluce:
@@ -139,17 +139,17 @@ export class Pterodattilo implements Ospite {
   aggiorna(t: number, _dt: number, camera: THREE.Camera) {
     const s = this.stato;
     if (s.inizio < 0) {
-      if (t < s.prossima || !tocca("giornoAria", "pterodattilo", t)) return;
+      if (t < s.prossima || !tocca("giornoCielo", "pterodattilo", t)) return;
       // una curva larga nel cielo dietro le carte: entra da un lato, vira, esce un po' più in alto
       const { avanti, lato } = assi(camera);
-      const v = segno();
+      const v = latoRegia("giornoCielo");
       const d = casuale(9, 12);
       const h = d * Math.tan(casuale(0.2, 0.26));
       s.p0.copy(avanti).multiplyScalar(d + 3).addScaledVector(lato, -18 * v).setY(h + 1.5);
       s.p1.copy(avanti).multiplyScalar(d - 2).addScaledVector(lato, -5 * v).setY(h - 0.5);
       s.p2.copy(avanti).multiplyScalar(d - 3).addScaledVector(lato, 6 * v).setY(h);
       s.p3.copy(avanti).multiplyScalar(d + 4).addScaledVector(lato, 18 * v).setY(h + 2.5);
-      s.durata = casuale(16, 19);
+      s.durata = casuale(10, 12);
       s.prossimoBattito = t + casuale(1, 3);
       s.inizio = t;
       this.gruppo.visible = true;
@@ -160,7 +160,7 @@ export class Pterodattilo implements Ospite {
       s.inizio = -1;
       s.prossima = t + riposo();
       this.gruppo.visible = false;
-      finito("giornoAria", "pterodattilo", t);
+      finito("giornoCielo", "pterodattilo", t);
       return;
     }
     // sulla curva di Bézier, guardando avanti
@@ -202,7 +202,7 @@ export class Pterodattilo implements Ospite {
   }
 
   libera() {
-    cancella("giornoAria", "pterodattilo");
+    cancella("giornoCielo", "pterodattilo");
     liberaTutto(this.gruppo, this.texture);
   }
 }

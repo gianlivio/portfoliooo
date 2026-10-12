@@ -241,20 +241,26 @@ float frattale(vec3 x){ return 0.5 * rumore(x) + 0.28 * rumore(x * 2.03 + 7.1) +
  * La regia: perché la scena non resti mai ferma, le figure passano a turno su più tracce
  * (di notte acqua e cielo; di giorno terra, aria bassa e cielo), una alla volta per traccia, in ordine
  * rimescolato a ogni giro; la successiva parte pochi secondi dopo che la precedente è uscita.
+ * Le tracce del cielo invece si accavallano: ogni pochi secondi ne parte un altro, mentre il precedente
+ * è ancora a metà strada, e ogni volta dal lato opposto.
  * Mentre una scheda o il modulo sono aperti non parte niente di nuovo.
  * Con ?ospiti=nome la regia non conta: passa solo quell'ospite, coi suoi tempi.
  */
-type Traccia = { iscritti: string[]; coda: string[]; corrente: string | null; dal: number; libero: number; pausa: [number, number]; ultimo: string | null };
+type Traccia = {
+  iscritti: string[]; coda: string[]; corrente: string | null; dal: number; libero: number; pausa: [number, number]; ultimo: string | null;
+  turno: number; promessi: string[]; attivi: string[]; lato: number;
+};
 
-// di giorno tre tracce: a terra, in aria bassa (Icaro, i droni), in cielo
-const TRACCE: Record<string, { pausa: [number, number]; primo: number }> = {
+// di giorno tre tracce: a terra, in aria bassa (i droni), in cielo; "turno" = ogni quanti secondi
+// parte il prossimo in una traccia che si accavalla
+const TRACCE: Record<string, { pausa: [number, number]; primo: number; turno?: number }> = {
   // chi visita resta mezzo minuto: il primo ospite di ogni traccia arriva entro pochi secondi,
   // e fra uno e l'altro passano un paio di secondi
   notte: { pausa: [1.5, 3], primo: 1.5 },
-  notteCielo: { pausa: [1.5, 3], primo: 3 },
+  notteCielo: { pausa: [0, 0], primo: 2, turno: 7 },
   giorno: { pausa: [1.5, 3], primo: 2 },
   giornoAria: { pausa: [1.5, 3], primo: 4 },
-  giornoCielo: { pausa: [1.5, 3], primo: 1 },
+  giornoCielo: { pausa: [0, 0], primo: 1, turno: 6 },
 };
 
 /** Oltre questo tempo un ospite non tiene più occupata la traccia, qualunque cosa gli succeda. */
@@ -268,7 +274,10 @@ const regia = {
 function traccia(nome: string) {
   if (!regia.tracce[nome]) {
     const c = TRACCE[nome] ?? { pausa: [6, 10] as [number, number], primo: 4 };
-    regia.tracce[nome] = { iscritti: [], coda: [], corrente: null, dal: 0, libero: c.primo, pausa: c.pausa, ultimo: null };
+    regia.tracce[nome] = {
+      iscritti: [], coda: [], corrente: null, dal: 0, libero: c.primo, pausa: c.pausa, ultimo: null,
+      turno: c.turno ?? 0, promessi: [], attivi: [], lato: Math.random() < 0.5 ? -1 : 1,
+    };
   }
   return regia.tracce[nome];
 }
@@ -278,7 +287,17 @@ export function cancella(nomeTraccia: string, nome: string) {
   const tr = traccia(nomeTraccia);
   tr.iscritti = tr.iscritti.filter((n) => n !== nome);
   tr.coda = tr.coda.filter((n) => n !== nome);
+  tr.promessi = tr.promessi.filter((n) => n !== nome);
+  tr.attivi = tr.attivi.filter((n) => n !== nome);
   if (tr.corrente === nome) tr.corrente = null;
+}
+
+/** Da che lato entrare: in una traccia, ogni ospite entra dal lato opposto al precedente. */
+export function lato(nomeTraccia: string) {
+  if (solo()) return segno();
+  const tr = traccia(nomeTraccia);
+  tr.lato = -tr.lato;
+  return tr.lato;
 }
 
 /** È il momento di questo ospite? Se la traccia è libera, la regia sceglie il prossimo. */
@@ -288,6 +307,32 @@ export function tocca(nomeTraccia: string, nome: string, t: number) {
   const tr = traccia(nomeTraccia);
   // chi chiede il turno si iscrive da sé: così si iscrive solo chi è davvero in scena
   if (!tr.iscritti.includes(nome)) tr.iscritti.push(nome);
+  if (tr.turno) {
+    // traccia che si accavalla: chi ha avuto la promessa parte; ogni "turno" secondi se ne promette un altro
+    const k = tr.promessi.indexOf(nome);
+    if (k >= 0) {
+      tr.promessi.splice(k, 1);
+      tr.attivi.push(nome);
+      return true;
+    }
+    if (regia.ferma || t < tr.libero) return false;
+    const liberi = tr.iscritti.filter((n) => !tr.attivi.includes(n) && !tr.promessi.includes(n));
+    if (!liberi.length) return false;
+    tr.coda = tr.coda.filter((n) => liberi.includes(n));
+    if (!tr.coda.length) {
+      tr.coda = [...liberi].sort(() => Math.random() - 0.5);
+      if (tr.coda.length > 1 && tr.coda[0] === tr.ultimo) tr.coda.push(tr.coda.shift() as string);
+    }
+    const scelto = tr.coda.shift() as string;
+    tr.ultimo = scelto;
+    tr.libero = t + tr.turno;
+    if (scelto === nome) {
+      tr.attivi.push(nome);
+      return true;
+    }
+    tr.promessi.push(scelto);
+    return false;
+  }
   if (tr.corrente === nome) return true;
   // un turno troppo lungo (un ospite rimasto appeso, il computer che arranca) libera la traccia
   if (tr.corrente !== null && t - tr.dal > TURNO_MASSIMO) {
@@ -308,6 +353,7 @@ export function tocca(nomeTraccia: string, nome: string, t: number) {
 /** L'ospite è uscito di scena: la traccia si libera dopo una breve pausa. */
 export function finito(nomeTraccia: string, nome: string, t: number) {
   const tr = traccia(nomeTraccia);
+  tr.attivi = tr.attivi.filter((n) => n !== nome);
   if (tr.corrente !== nome) return;
   tr.corrente = null;
   tr.ultimo = nome;

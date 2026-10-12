@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { PELO_ACQUA } from "../condivisi";
 import {
-  type Ospite, alone, assi, cancella, finito, riposo, tocca, casuale, fra, generatore, liberaTutto, loft, morbido, primo, segno,
+  type Ospite, alone, assi, cancella, finito, riposo, tocca, casuale, fra, generatore, liberaTutto, loft, morbido, primo, segno, lato as latoRegia,
 } from "./comuni";
 
 /**
@@ -347,7 +347,7 @@ export class Icaro implements Ospite {
   private nuovoVolo(camera: THREE.Camera) {
     const s = this.stato;
     const { avanti, lato } = assi(camera);
-    const v = segno();
+    const v = latoRegia("giornoCielo");
     s.verso = v;
     const P = (d: number, l: number, y: number) => avanti.clone().multiplyScalar(d).addScaledVector(lato, l * v).setY(y);
     const j = () => casuale(-1, 1);
@@ -518,7 +518,7 @@ export class Icaro implements Ospite {
     const vive = this.gruppo.visible ? this.muoviPenne(t, dt) : 0;
     this.muoviCera(dt);
     if (s.inizio < 0) {
-      if (t < s.prossima || !tocca("giornoAria", "icaro", t)) return;
+      if (t < s.prossima || !tocca("giornoCielo", "icaro", t)) return;
       this.nuovoVolo(camera);
       s.inizio = t;
       s.fase = "volo";
@@ -598,7 +598,7 @@ export class Icaro implements Ospite {
         s.fase = "fermo";
         s.inizio = -1;
         s.prossima = t + riposo();
-        finito("giornoAria", "icaro", t);
+        finito("giornoCielo", "icaro", t);
         this.gruppo.visible = false;
         this.sole.visible = false;
         return;
@@ -668,7 +668,7 @@ export class Icaro implements Ospite {
   }
 
   libera() {
-    cancella("giornoAria", "icaro");
+    cancella("giornoCielo", "icaro");
     liberaTutto(this.gruppo, this.texture);
   }
 }

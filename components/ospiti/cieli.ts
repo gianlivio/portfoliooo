@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { type Ospite, alone, assi, cancella, casuale, finito, fra, liberaTutto, loft, primo, riposo, segno, tela, tocca } from "./comuni";
+import { type Ospite, alone, assi, cancella, casuale, finito, fra, liberaTutto, loft, primo, riposo, tela, tocca, lato as latoRegia } from "./comuni";
 
 /**
  * Due intrusi del nostro tempo nel cielo dei miti.
@@ -115,12 +115,12 @@ export class Aereo implements Ospite {
     if (s.inizio < 0) {
       if (t < s.prossima || !tocca("notteCielo", "aereo", t)) return;
       const { avanti, lato } = assi(camera);
-      const v = segno();
+      const v = latoRegia("notteCielo");
       const d = casuale(36, 44);
       const y = d * Math.tan(casuale(0.25, 0.33));
       s.da.copy(avanti).multiplyScalar(d + casuale(-6, 6)).addScaledVector(lato, -46 * v).setY(y + casuale(-1, 1));
       s.a.copy(avanti).multiplyScalar(d + casuale(-6, 6)).addScaledVector(lato, 46 * v).setY(y + casuale(-1, 1));
-      s.durata = casuale(16, 20);
+      s.durata = casuale(12, 14);
       s.inizio = t;
       this.gruppo.visible = true;
     }
@@ -235,14 +235,14 @@ export class Jet implements Ospite {
     if (s.inizio < 0) {
       if (t < s.prossima || !tocca("giornoCielo", "jet", t)) return;
       const { avanti, lato } = assi(camera);
-      const v = segno();
+      const v = latoRegia("giornoCielo");
       // entro il piano lontano della camera (60): la scia non deve essere tagliata
       const d = casuale(33, 38);
       const y = d * Math.tan(casuale(0.26, 0.31));
       s.da.copy(avanti).multiplyScalar(d + casuale(-5, 5)).addScaledVector(lato, -38 * v).setY(y);
       s.a.copy(avanti).multiplyScalar(d + casuale(-5, 5)).addScaledVector(lato, 38 * v).setY(y + casuale(-1.5, 1.5));
       s.vento.set(casuale(-0.08, 0.08), 0.02, casuale(-0.08, 0.08));
-      s.durata = casuale(20, 24);
+      s.durata = casuale(12, 14);
       s.inizio = t;
       s.campione = 0;
       this.scie.forEach((sc) => {

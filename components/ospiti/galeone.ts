@@ -12,9 +12,9 @@ import {
  */
 
 const SLOT_SCIA = [4, 5, 6, 7];
-// verde pallido, per distinguerlo dalla nave di Ulisse (turchese) e dalla feluca (oro)
-const COLORE = new THREE.Color("#B4F2C2");
-const LUCE = new THREE.Color("#8DFFA4");
+// rosso, per distinguerlo dalla nave di Ulisse (turchese) e dalla feluca (oro)
+const COLORE = new THREE.Color("#FF7A68");
+const LUCE = new THREE.Color("#FF4A36");
 
 /* ------------------------------------------------------------------ shader */
 
@@ -63,7 +63,8 @@ varying vec3 vV;
 varying vec2 vUv;
 ${RUMORE}
 void main(){
-  vec3 n = normalize(vNV);
+  // normali per faccia: fasciame a spigoli vivi, non una superficie morbida
+  vec3 n = normalize(cross(dFdx(vV), dFdy(vV)));
   vec3 v = normalize(vV);
   float fres = pow(1.0 - abs(dot(n, v)), 2.0);
   vec3 q = vNave;
@@ -108,7 +109,7 @@ void main(){
     c += uLuce * portello * 1.6 * palpito;
     a = 0.12 + 0.8 * fres + bucato * 0.6 + portello * palpito;
   #endif
-  c += vec3(0.8, 1.0, 0.95) * orlo * 1.8;
+  c += vec3(1.0, 0.85, 0.8) * orlo * 1.8;
   a += orlo;
   // si scioglie nella bruma all'altezza dell'acqua
   a *= smoothstep(-0.1, 0.14, q.y) * uForza;
@@ -261,8 +262,8 @@ export class Galeone implements Ospite {
     // scafo
     const scafo = new THREE.Mesh(
       loft(
-        SCAFO.map(([z, cima, chiglia, l]) => ({ z, y: (cima + chiglia) / 2, l, su: (cima - chiglia) / 2, n: 2.8 })),
-        { radiali: 28, passi: 5 }
+        SCAFO.map(([z, cima, chiglia, l]) => ({ z, y: (cima + chiglia) / 2, l, su: (cima - chiglia) / 2, n: 1.7 })),
+        { radiali: 12, passi: 2 }
       ),
       scafoMat
     );
@@ -395,7 +396,7 @@ export class Galeone implements Ospite {
     }
 
     // lanterne: poppa, prua, coffa di maestra
-    const txAlone = alone("#C8FFD4");
+    const txAlone = alone("#FFC2B8");
     this.texture.push(txAlone);
     [
       [0, 1.08, -1.24, 0.42],
@@ -427,7 +428,7 @@ export class Galeone implements Ospite {
     this.texture.push(txBruma);
     for (let i = 0; i < 22; i++) {
       const s = new THREE.Sprite(
-        new THREE.SpriteMaterial({ map: txBruma, color: "#C2DCCB", transparent: true, opacity: 0, depthWrite: false, fog: false })
+        new THREE.SpriteMaterial({ map: txBruma, color: "#E0B6AE", transparent: true, opacity: 0, depthWrite: false, fog: false })
       );
       const coda = i >= 14;
       const base = new THREE.Vector3(

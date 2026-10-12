@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { type Ospite, alone, cancella, casuale, finito, fra, liberaTutto, primo, riposo, segno, tocca } from "./comuni";
+import { type Ospite, alone, cancella, casuale, finito, fra, liberaTutto, primo, riposo, tocca, lato as latoRegia } from "./comuni";
 
 /**
  * Di notte, la Stazione spaziale come si vede davvero a occhio nudo: un punto bianco, fermo nella luce (non lampeggia, a differenza degli aerei),
@@ -18,9 +18,8 @@ function yaw(camera: THREE.Camera) {
 /** Un arco di cielo: azimut e altezza (radianti) che variano con k da 0 a 1. */
 type Arco = { az0: number; az1: number; h0: number; h1: number; gobba: number };
 
-function arcoDavanti(camera: THREE.Camera, ampiezza: number): Arco {
+function arcoDavanti(camera: THREE.Camera, ampiezza: number, v: number): Arco {
   const c = yaw(camera) + casuale(-0.25, 0.25);
-  const v = segno();
   return {
     az0: c - v * ampiezza,
     az1: c + v * ampiezza,
@@ -73,8 +72,8 @@ export class Iss implements Ospite {
     const s = this.stato;
     if (s.inizio < 0) {
       if (t < s.prossima || !tocca("notteCielo", "iss", t)) return;
-      s.arco = arcoDavanti(camera, 1.15);
-      s.durata = casuale(14, 17);
+      s.arco = arcoDavanti(camera, 1.15, latoRegia("notteCielo"));
+      s.durata = casuale(10, 12);
       // a volte entra nell'ombra prima della fine, a volte esce dal campo ancora accesa
       s.ombra = Math.random() < 0.65 ? casuale(0.62, 0.8) : 2;
       s.inizio = t;

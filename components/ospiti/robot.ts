@@ -3,23 +3,21 @@ import { PELO_ACQUA } from "../condivisi";
 import { type Ospite, casuale, liberaTutto, ombra, segno, tela } from "./comuni";
 
 /**
- * Di giorno, sempre, un robot aspirapolvere che pulisce il marmo davanti alla scrivania dello sviluppatore,
- * senza allontanarsene, con la logica cieca
- * dei robot veri: va dritto, si ferma, gira sul posto, riparte; ogni tanto urta qualcosa che non c'è,
- * arretra un poco e cambia strada. La torretta del laser gira, la spazzola laterale frulla,
+ * Di giorno, sempre, un robot aspirapolvere che fa il giro di tutta la stanza davanti alle carte,
+ * passando anche davanti alla scrivania dello sviluppatore: avanza a zig-zag, si allarga e si stringe,
+ * ogni tanto si ferma e gira su sé stesso per pulire un punto, ogni tanto urta qualcosa che non c'è,
+ * arretra e riparte. La torretta del laser gira, la spazzola laterale frulla,
  * la luce di stato respira. Dietro di sé lascia una striscia di marmo più lucido, che pian piano si confonde.
  */
 
 const DIAMETRO = 0.3;
-const VEL = 0.3; // unità al secondo
+const VEL = 0.55; // unità al secondo: un giro della stanza in poco più di un minuto
 const GIRO = 1.6; // radianti al secondo
 const TRACCE = 160;
-// la zona di lavoro: davanti alla scrivania, che sta sotto la terza carta (angolo della carta 2 su 13, raggio 5,05)
-const ANGOLO = (2 / 13) * Math.PI * 2;
-const RAGGIO = 4.2;
-const LARGO = 1.1; // di lato, per parte
-const DENTRO = 0.42; // verso la scrivania, senza toccare la sedia
-const FUORI = 0.75; // verso chi guarda
+// il percorso: un anello davanti alle carte, fra 3,6 e 4,55 dal centro (la sedia della scrivania è a 4,88)
+const ANGOLO = (2 / 13) * Math.PI * 2; // parte davanti alla scrivania, sotto la terza carta
+const R_MIN = 3.6;
+const R_MAX = 4.55;
 
 type Mossa = { tipo: "dritto" | "gira" | "urta" | "arretra"; durata: number; verso?: number };
 
@@ -33,12 +31,9 @@ export class Robot implements Ospite {
   private nascite = new Float32Array(TRACCE);
   private texture: THREE.Texture[] = [];
   private s = {
-    pos: new THREE.Vector3(), rotta: 0,
-    mossa: { tipo: "dritto", durata: 3 } as Mossa, inizioMossa: 0, impronta: 0, slot: 0,
+    pos: new THREE.Vector3(), rotta: 0, verso: 1, fase: 0,
+    mossa: { tipo: "dritto", durata: 3 } as Mossa, inizioMossa: 0, impronta: 0, slot: 0, prossimoGiro: 10, prossimoUrto: 6,
   };
-  private centro = new THREE.Vector3(Math.sin(ANGOLO) * RAGGIO, 0, -Math.cos(ANGOLO) * RAGGIO);
-  private radiale = new THREE.Vector3(Math.sin(ANGOLO), 0, -Math.cos(ANGOLO)); // verso la scrivania
-  private lato = new THREE.Vector3(Math.cos(ANGOLO), 0, Math.sin(ANGOLO));
   private m = new THREE.Matrix4();
   private q = new THREE.Quaternion();
   private v = new THREE.Vector3();
@@ -110,40 +105,14 @@ export class Robot implements Ospite {
     this.gruppo.add(this.traccia);
 
     // parte da un punto a caso della zona, con una direzione a caso
-    this.s.pos.copy(this.centro).addScaledVector(this.lato, casuale(-0.6, 0.6)).addScaledVector(this.radiale, casuale(-0.4, 0.2));
-    this.s.rotta = casuale(0, Math.PI * 2);
+    this.s.pos.set(Math.sin(ANGOLO) * 4.1, 0, -Math.cos(ANGOLO) * 4.1);
+    this.s.verso = segno();
+    this.s.fase = casuale(0, 10);
+    this.s.rotta = Math.atan2(Math.cos(ANGOLO) * this.s.verso, Math.sin(ANGOLO) * this.s.verso);
     this.gruppo.traverse((o) => {
       o.raycast = () => undefined;
       o.frustumCulled = false;
     });
-  }
-
-  private scegli(t: number) {
-    const s = this.s;
-    s.inizioMossa = t;
-    const prima = s.mossa.tipo;
-    // dopo una corsa gira: a caso, oppure verso il centro della zona se ne è al bordo
-    this.v.subVectors(this.centro, s.pos);
-    const lontano = !this.dentro(0.75);
-    if (prima === "urta") {
-      s.mossa = { tipo: "arretra", durata: 0.6 };
-    } else if (prima === "dritto" || prima === "arretra") {
-      let verso = segno() * casuale(0.6, 2.2);
-      if (lontano) {
-        const voluta = Math.atan2(this.v.x, this.v.z) + casuale(-0.5, 0.5);
-        verso = Math.atan2(Math.sin(voluta - s.rotta), Math.cos(voluta - s.rotta));
-      }
-      s.mossa = { tipo: "gira", durata: Math.abs(verso) / GIRO, verso: Math.sign(verso) || 1 };
-    } else {
-      s.mossa = Math.random() < 0.3 ? { tipo: "urta", durata: casuale(0.8, 2.2) } : { tipo: "dritto", durata: casuale(1.5, 4) };
-    }
-  }
-
-  /** È dentro la zona di lavoro (ristretta di un fattore)? */
-  private dentro(f = 1) {
-    this.v.subVectors(this.s.pos, this.centro);
-    const r = this.v.dot(this.radiale), l = this.v.dot(this.lato);
-    return Math.abs(l) < LARGO * f && r < DENTRO * f && r > -FUORI * f;
   }
 
   /** La striscia lucida sbiadisce piano. */
@@ -160,20 +129,47 @@ export class Robot implements Ospite {
     const s = this.s;
     this.sbiadisci(t);
     let e = t - s.inizioMossa;
-    // al bordo della zona (la sedia, la scrivania, il margine) va a sbattere: arretra e cambia strada
-    if (s.mossa.tipo === "dritto" && !this.dentro() && Math.sin(s.rotta) * this.v.x + Math.cos(s.rotta) * this.v.z > 0) {
-      s.mossa = { tipo: "urta", durata: 0 };
+    // le pause del lavoro: ogni tanto gira su sé stesso (pulizia di un punto), ogni tanto urta e arretra
+    if (s.mossa.tipo === "dritto") {
+      if (t > s.prossimoGiro) {
+        s.mossa = { tipo: "gira", durata: casuale(1.8, 3), verso: segno() };
+        s.inizioMossa = t;
+        s.prossimoGiro = t + casuale(9, 16);
+        e = 0;
+      } else if (t > s.prossimoUrto) {
+        s.mossa = { tipo: "arretra", durata: 0.6 };
+        s.inizioMossa = t;
+        s.prossimoUrto = t + casuale(7, 13);
+        e = 0;
+      }
+    } else if (e >= s.mossa.durata) {
+      s.mossa = s.mossa.tipo === "arretra" ? { tipo: "gira", durata: casuale(0.4, 0.9), verso: segno() } : { tipo: "dritto", durata: 999 };
+      s.inizioMossa = t;
       e = 0;
     }
-    if (e >= s.mossa.durata) this.scegli(t);
     const mossa = s.mossa;
-    // il moto
     let vel = 0;
-    if (mossa.tipo === "dritto" || mossa.tipo === "urta") vel = VEL;
-    if (mossa.tipo === "arretra") vel = -VEL * 0.5;
-    if (mossa.tipo === "gira") s.rotta += (mossa.verso ?? 1) * GIRO * dt;
+    if (mossa.tipo === "dritto") {
+      // la meta: un punto più avanti sull'anello, a una distanza dal centro che va e viene (lo zig-zag)
+      const ang = Math.atan2(s.pos.x, -s.pos.z) + s.verso * 0.45;
+      const r = (R_MIN + R_MAX) / 2 + ((R_MAX - R_MIN) / 2) * Math.sin(t * 0.35 + s.fase);
+      const voluta = Math.atan2(Math.sin(ang) * r - s.pos.x, -Math.cos(ang) * r - s.pos.z);
+      const err = Math.atan2(Math.sin(voluta - s.rotta), Math.cos(voluta - s.rotta));
+      s.rotta += THREE.MathUtils.clamp(err, -GIRO * dt, GIRO * dt);
+      // come i robot veri: se deve girare molto, prima gira sul posto
+      vel = Math.abs(err) < 0.6 ? VEL : VEL * 0.15;
+    }
+    if (mossa.tipo === "arretra") vel = -VEL * 0.4;
+    if (mossa.tipo === "gira") s.rotta += (mossa.verso ?? 1) * GIRO * 1.4 * dt;
     s.pos.x += Math.sin(s.rotta) * vel * dt;
     s.pos.z += Math.cos(s.rotta) * vel * dt;
+    // mai fuori dall'anello
+    const rr = Math.hypot(s.pos.x, s.pos.z);
+    if (rr > R_MAX + 0.05 || rr < R_MIN - 0.05) {
+      const k = THREE.MathUtils.clamp(rr, R_MIN - 0.05, R_MAX + 0.05) / rr;
+      s.pos.x *= k;
+      s.pos.z *= k;
+    }
     // l'urto: alla fine della corsa, un piccolo sobbalzo all'indietro
     const sobbalzo = mossa.tipo === "arretra" && e < 0.12 ? Math.sin((e / 0.12) * Math.PI) * 0.01 : 0;
     this.robot.position.set(s.pos.x, PELO_ACQUA + 0.002 + sobbalzo * 0.3, s.pos.z);
