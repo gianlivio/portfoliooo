@@ -4,7 +4,7 @@ import { useFrame } from "@react-three/fiber";
 import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { PELO_ACQUA, gocce } from "./condivisi";
-import { type Ospite, assi, attesa, azzeraTurni, casuale, solo } from "./ospiti/comuni";
+import { type Ospite, assi, attesa, azzeraRegia, casuale, pausaRegia, solo } from "./ospiti/comuni";
 import { Nave } from "./ospiti/nave";
 import { Drago } from "./ospiti/drago";
 import { Achille } from "./ospiti/achille";
@@ -13,6 +13,9 @@ import { Aereo, Jet } from "./ospiti/cieli";
 import { Tralicci } from "./ospiti/tralicci";
 import { Sole } from "./ospiti/sole";
 import { Nuvole } from "./ospiti/nuvole";
+import { Feluca } from "./ospiti/feluca";
+import { Iss, Starlink } from "./ospiti/orbite";
+import { Portacontainer } from "./ospiti/portacontainer";
 
 /**
  * Ciò che ogni tanto passa per la stanza, davanti a dove si sta guardando.
@@ -270,22 +273,36 @@ const creaJet = () => new Jet();
 const creaTralicci = () => new Tralicci();
 const creaSole = () => new Sole();
 const creaNuvole = () => new Nuvole();
+const creaFeluca = () => new Feluca();
+const creaIss = () => new Iss();
+const creaStarlink = () => new Starlink();
+const creaPortacontainer = () => new Portacontainer();
 
 /* --------------------------------------------------------------------- insieme */
 
-export default function Fauna({ notte, ridotto }: { notte: boolean; ridotto: boolean; stretto?: boolean }) {
+export default function Fauna({
+  notte, ridotto, pausa = false,
+}: { notte: boolean; ridotto: boolean; stretto?: boolean; pausa?: boolean }) {
   const scelto = useMemo(() => solo(), []);
-  // la scena si rimonta a ogni cambio di tema o lingua, con l'orologio da capo: i turni pure
-  useEffect(() => azzeraTurni(), []);
+  // la scena si rimonta a ogni cambio di tema o lingua, con l'orologio da capo: la regia pure
+  useEffect(() => azzeraRegia(), []);
+  // con una scheda o il modulo aperti non parte niente di nuovo
+  useEffect(() => pausaRegia(pausa), [pausa]);
   if (ridotto) return null;
   const c = (nome: string) => !scelto || scelto === nome;
   return notte ? (
     <>
+      {/* luce di luna, fioca, per gli ospiti fatti di materia (le barche, la scrivania) */}
+      <hemisphereLight args={["#4A5A82", "#0B0C10", 0.85]} />
       {c("stelle") && <StelleCadenti />}
       {c("gocce") && <Gocce />}
       {c("nave") && <Presenza crea={creaNave} />}
       {c("drago") && <Presenza crea={creaDrago} />}
       {c("aereo") && <Presenza crea={creaAereo} />}
+      {c("feluca") && <Presenza crea={creaFeluca} />}
+      {c("portacontainer") && <Presenza crea={creaPortacontainer} />}
+      {c("iss") && <Presenza crea={creaIss} />}
+      {c("starlink") && <Presenza crea={creaStarlink} />}
       <Presenza crea={creaTralicci} />
     </>
   ) : (

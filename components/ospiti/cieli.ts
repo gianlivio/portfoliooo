@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { type Ospite, alone, assi, attesa, casuale, fra, liberaTutto, loft, passa, primo, segno, tela, tocca } from "./comuni";
+import { type Ospite, alone, assi, cancella, casuale, finito, fra, liberaTutto, loft, primo, riposo, segno, tela, tocca } from "./comuni";
 
 /**
  * Due intrusi del nostro tempo nel cielo dei miti.
@@ -113,7 +113,7 @@ export class Aereo implements Ospite {
   aggiorna(t: number, _dt: number, camera: THREE.Camera) {
     const s = this.stato;
     if (s.inizio < 0) {
-      if (t < s.prossima) return;
+      if (t < s.prossima || !tocca("notteCielo", "aereo", t)) return;
       const { avanti, lato } = assi(camera);
       const v = segno();
       const d = casuale(36, 44);
@@ -128,8 +128,9 @@ export class Aereo implements Ospite {
     const k = e / s.durata;
     if (k >= 1) {
       s.inizio = -1;
-      s.prossima = t + attesa(95, 115);
+      s.prossima = t + riposo();
       this.gruppo.visible = false;
+      finito("notteCielo", "aereo", t);
       return;
     }
     this.aereo.position.lerpVectors(s.da, s.a, k);
@@ -153,6 +154,7 @@ export class Aereo implements Ospite {
   }
 
   libera() {
+    cancella("notteCielo", "aereo");
     liberaTutto(this.gruppo, this.texture);
   }
 }
@@ -231,7 +233,7 @@ export class Jet implements Ospite {
   aggiorna(t: number, _dt: number, camera: THREE.Camera) {
     const s = this.stato;
     if (s.inizio < 0) {
-      if (t < s.prossima || !tocca("cieloGiorno", "jet", t)) return;
+      if (t < s.prossima || !tocca("giornoCielo", "jet", t)) return;
       const { avanti, lato } = assi(camera);
       const v = segno();
       // entro il piano lontano della camera (60): la scia non deve essere tagliata
@@ -303,13 +305,14 @@ export class Jet implements Ospite {
 
     if (k >= 1 && !vive) {
       s.inizio = -1;
-      s.prossima = t + attesa(90, 150);
+      s.prossima = t + riposo();
       this.gruppo.visible = false;
-      passa("cieloGiorno", t, attesa(30, 60));
+      finito("giornoCielo", "jet", t);
     }
   }
 
   libera() {
+    cancella("giornoCielo", "jet");
     liberaTutto(this.gruppo, this.texture);
   }
 }

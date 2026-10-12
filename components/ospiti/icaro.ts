@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { PELO_ACQUA } from "../condivisi";
 import {
-  type Ospite, alone, assi, attesa, passa, tocca, casuale, fra, generatore, liberaTutto, loft, morbido, primo, segno,
+  type Ospite, alone, assi, cancella, finito, riposo, tocca, casuale, fra, generatore, liberaTutto, loft, morbido, primo, segno,
 } from "./comuni";
 
 /**
@@ -518,7 +518,7 @@ export class Icaro implements Ospite {
     const vive = this.gruppo.visible ? this.muoviPenne(t, dt) : 0;
     this.muoviCera(dt);
     if (s.inizio < 0) {
-      if (t < s.prossima || !tocca("cieloGiorno", "icaro", t)) return;
+      if (t < s.prossima || !tocca("giorno", "icaro", t)) return;
       this.nuovoVolo(camera);
       s.inizio = t;
       s.fase = "volo";
@@ -597,8 +597,8 @@ export class Icaro implements Ospite {
       if (vive === 0 && e > 2) {
         s.fase = "fermo";
         s.inizio = -1;
-        s.prossima = t + attesa(100, 160);
-        passa("cieloGiorno", t, attesa(30, 60));
+        s.prossima = t + riposo();
+        finito("giorno", "icaro", t);
         this.gruppo.visible = false;
         this.sole.visible = false;
         return;
@@ -668,6 +668,7 @@ export class Icaro implements Ospite {
   }
 
   libera() {
+    cancella("giorno", "icaro");
     liberaTutto(this.gruppo, this.texture);
   }
 }

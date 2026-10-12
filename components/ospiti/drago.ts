@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import {
-  type Anello, type Ospite, RUMORE, alone, assi, attesa, casuale, fra, liberaTutto, loft, morbido, primo, segno,
+  type Anello, type Ospite, RUMORE, alone, assi, cancella, finito, riposo, tocca, casuale, fra, liberaTutto, loft, morbido, primo, segno,
 } from "./comuni";
 
 /**
@@ -552,7 +552,7 @@ export class Drago implements Ospite {
     u.uT.value = t;
     const vive = this.gruppo.visible ? this.muoviFuoco(t, dt) : 0;
     if (s.inizio < 0) {
-      if (t < s.prossima) return;
+      if (t < s.prossima || !tocca("notte", "drago", t)) return;
       this.nuovoPercorso(camera);
       s.inizio = t;
       s.s = 0;
@@ -689,12 +689,14 @@ export class Drago implements Ospite {
 
     if (k >= 1 && vive === 0) {
       s.inizio = -1;
-      s.prossima = t + attesa(95, 115);
+      s.prossima = t + riposo();
+      finito("notte", "drago", t);
       this.gruppo.visible = false;
     }
   }
 
   libera() {
+    cancella("notte", "drago");
     liberaTutto(this.gruppo, this.texture);
   }
 }

@@ -235,40 +235,84 @@ float rumore(vec3 x){
 float frattale(vec3 x){ return 0.5 * rumore(x) + 0.28 * rumore(x * 2.03 + 7.1) + 0.14 * rumore(x * 4.1 + 3.7) + 0.08 * rumore(x * 8.3 + 1.3); }
 `;
 
-/* -------------------------------------------------------------------- turni */
+/* -------------------------------------------------------------------- regia */
 
 /**
- * Alcuni posti della scena ospitano una figura alla volta, a turno e in un ordine fisso:
- * in cielo, di giorno, Icaro e il jet. Con ?ospiti=nome il turno non conta: passa solo quello.
+ * La regia: perché la scena non resti mai ferma, le figure passano a turno su due tracce
+ * per ciascun tema (una principale e una del cielo), una alla volta per traccia, in ordine
+ * rimescolato a ogni giro; la successiva parte pochi secondi dopo che la precedente è uscita.
+ * Mentre una scheda o il modulo sono aperti non parte niente di nuovo.
+ * Con ?ospiti=nome la regia non conta: passa solo quell'ospite, coi suoi tempi.
  */
-const turni: Record<string, { ordine: string[]; i: number; libero: number }> = {
-  pavimento: { ordine: ["tartaruga"], i: 0, libero: 0 },
-  cieloGiorno: { ordine: ["icaro", "jet"], i: 0, libero: 0 },
+type Traccia = { iscritti: string[]; coda: string[]; corrente: string | null; libero: number; pausa: [number, number]; ultimo: string | null };
+
+const TRACCE: Record<string, { pausa: [number, number]; primo: number }> = {
+  notte: { pausa: [5, 9], primo: 3 },
+  notteCielo: { pausa: [8, 15], primo: 9 },
+  giorno: { pausa: [5, 9], primo: 3 },
+  giornoCielo: { pausa: [9, 16], primo: 10 },
 };
 
-/** È il turno di questo ospite, in questo posto? */
-export function tocca(posto: string, nome: string, t: number) {
+const regia = {
+  tracce: {} as Record<string, Traccia>,
+  ferma: false,
+};
+
+function traccia(nome: string) {
+  if (!regia.tracce[nome]) {
+    const c = TRACCE[nome] ?? { pausa: [6, 10] as [number, number], primo: 4 };
+    regia.tracce[nome] = { iscritti: [], coda: [], corrente: null, libero: c.primo, pausa: c.pausa, ultimo: null };
+  }
+  return regia.tracce[nome];
+}
+
+/** Un ospite esce dalla rotazione (smontaggio). */
+export function cancella(nomeTraccia: string, nome: string) {
+  const tr = traccia(nomeTraccia);
+  tr.iscritti = tr.iscritti.filter((n) => n !== nome);
+  tr.coda = tr.coda.filter((n) => n !== nome);
+  if (tr.corrente === nome) tr.corrente = null;
+}
+
+/** È il momento di questo ospite? Se la traccia è libera, la regia sceglie il prossimo. */
+export function tocca(nomeTraccia: string, nome: string, t: number) {
   const s = solo();
   if (s) return s === nome;
-  const p = turni[posto];
-  return !!p && p.ordine[p.i % p.ordine.length] === nome && t >= p.libero;
+  const tr = traccia(nomeTraccia);
+  // chi chiede il turno si iscrive da sé: così si iscrive solo chi è davvero in scena
+  if (!tr.iscritti.includes(nome)) tr.iscritti.push(nome);
+  if (tr.corrente === nome) return true;
+  if (tr.corrente !== null || regia.ferma || t < tr.libero || !tr.iscritti.length) return false;
+  if (!tr.coda.length) {
+    // nuovo giro, rimescolato; mai lo stesso due volte di fila
+    tr.coda = [...tr.iscritti].sort(() => Math.random() - 0.5);
+    if (tr.coda.length > 1 && tr.coda[0] === tr.ultimo) tr.coda.push(tr.coda.shift() as string);
+  }
+  tr.corrente = tr.coda.shift() ?? null;
+  return tr.corrente === nome;
 }
 
-/** L'ospite ha finito: il posto passa al successivo dopo una pausa (in secondi). */
-export function passa(posto: string, t: number, pausa: number) {
-  const p = turni[posto];
-  if (!p) return;
-  p.i++;
-  p.libero = t + pausa;
+/** L'ospite è uscito di scena: la traccia si libera dopo una breve pausa. */
+export function finito(nomeTraccia: string, nome: string, t: number) {
+  const tr = traccia(nomeTraccia);
+  if (tr.corrente !== nome) return;
+  tr.corrente = null;
+  tr.ultimo = nome;
+  tr.libero = t + (prova() ? casuale(1.5, 3) : casuale(tr.pausa[0], tr.pausa[1]));
 }
 
-/** Al rimontaggio della scena (cambio tema o lingua) i turni ripartono dall'inizio. */
-export function azzeraTurni() {
-  Object.values(turni).forEach((p) => {
-    p.i = 0;
-    p.libero = 0;
-  });
+/** Con una scheda o il modulo aperti non parte niente di nuovo. */
+export function pausaRegia(ferma: boolean) {
+  regia.ferma = ferma;
 }
+
+/** Al rimontaggio della scena (cambio tema o lingua) l'orologio riparte da zero: la regia pure. */
+export function azzeraRegia() {
+  regia.tracce = {};
+}
+
+/** Riposo fra un passaggio e l'altro dello stesso ospite: conta solo quando lo si prova da solo. */
+export const riposo = () => (solo() ? casuale(3, 5) : 0);
 
 /**
  * La camera, a riposo, gira piano su sé stessa. Chi attraversa il pavimento a passo lento

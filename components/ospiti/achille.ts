@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { PELO_ACQUA } from "../condivisi";
 import {
-  Deriva, type Ospite, assi, attesa, passa, tocca, casuale, fra, generatore, liberaTutto, loft, morbido, ombra, primo,
+  Deriva, type Ospite, assi, cancella, finito, riposo, tocca, casuale, fra, generatore, liberaTutto, loft, morbido, ombra, primo,
 } from "./comuni";
 import { Ologramma } from "./ologramma";
 
@@ -369,7 +369,7 @@ export class Achille implements Ospite {
     const s = this.stato;
     this.deriva.misura(camera, dt);
     if (s.inizio < 0) {
-      if (t < s.prossima || !tocca("pavimento", "tartaruga", t)) return;
+      if (t < s.prossima || !tocca("giorno", "tartaruga", t)) return;
       this.parti(camera);
       s.inizio = t;
       this.gruppo.visible = true;
@@ -435,11 +435,6 @@ export class Achille implements Ospite {
     let voltata = 0;
     if (s.fermata > 0) {
       const ef = t - s.fermata;
-      // quando riparte verso il fondo cede il marmo alla falange, che entra dall'altra parte
-      if (ef >= 3.6 && !s.ceduto) {
-        s.ceduto = true;
-        passa("pavimento", t, attesa(1, 3));
-      }
       if (ef >= 0 && ef < 3.6) {
         cammina = 1 - fra(ef, 0, 0.4) * (1 - fra(ef, 3.0, 3.6));
         voltata = fra(ef, 0.5, 1.1) * (1 - fra(ef, 2.6, 3.2));
@@ -511,13 +506,14 @@ export class Achille implements Ospite {
 
     if (s.s >= s.L) {
       s.inizio = -1;
-      s.prossima = t + attesa(75, 95);
+      s.prossima = t + riposo();
       this.gruppo.visible = false;
-      if (!s.ceduto) passa("pavimento", t, attesa(3, 6));
+      finito("giorno", "tartaruga", t);
     }
   }
 
   libera() {
+    cancella("giorno", "tartaruga");
     this.achille.libera();
     liberaTutto(this.gruppo, this.texture);
   }

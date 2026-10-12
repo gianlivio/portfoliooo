@@ -755,7 +755,12 @@ export default function Scena(props: Props) {
         attiva={attiva}
       />
       {tema === "chiaro" && <CieloDiGiorno orizzonte={p.fondo} />}
-      <Fauna notte={tema === "scuro"} ridotto={props.ridotto} stretto={stretto} />
+      <Fauna
+        notte={tema === "scuro"}
+        ridotto={props.ridotto}
+        stretto={stretto}
+        pausa={!!props.selezionato || props.moduloAperto}
+      />
       <Suolo notte={tema === "scuro"} fondo={p.fondo} stretto={stretto} ridotto={props.ridotto} />
       <Cielo
         notte={tema === "scuro"}

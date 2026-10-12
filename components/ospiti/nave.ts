@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { PELO_ACQUA, gocce } from "../condivisi";
 import {
-  type Ospite, RUMORE, alone, assi, attesa, bruma, casuale, fra, liberaTutto, loft, primo, segno,
+  type Ospite, RUMORE, alone, assi, cancella, finito, riposo, tocca, bruma, casuale, fra, liberaTutto, loft, primo, segno,
 } from "./comuni";
 
 /**
@@ -503,7 +503,7 @@ export class Nave implements Ospite {
     const s = this.stato;
     const c = this.comuni;
     if (s.inizio < 0) {
-      if (t < s.prossima) return;
+      if (t < s.prossima || !tocca("notte", "nave", t)) return;
       const { avanti, lato } = assi(camera);
       const v = segno();
       const d1 = casuale(4.2, 5.1), d2 = casuale(4.2, 5.1);
@@ -522,7 +522,8 @@ export class Nave implements Ospite {
     const k = Math.min(1, (e - Math.sin((e / VOGATA) * Math.PI * 2) * 0.12) / s.durata);
     if (e >= s.durata) {
       s.inizio = -1;
-      s.prossima = t + attesa(90, 110);
+      s.prossima = t + riposo();
+      finito("notte", "nave", t);
       this.gruppo.visible = false;
       return;
     }
@@ -609,6 +610,7 @@ export class Nave implements Ospite {
   }
 
   libera() {
+    cancella("notte", "nave");
     SLOT.forEach((k) => gocce[k].set(0, 0, -100, 0));
     liberaTutto(this.gruppo, this.texture);
   }
