@@ -238,20 +238,25 @@ float frattale(vec3 x){ return 0.5 * rumore(x) + 0.28 * rumore(x * 2.03 + 7.1) +
 /* -------------------------------------------------------------------- regia */
 
 /**
- * La regia: perché la scena non resti mai ferma, le figure passano a turno su due tracce
- * per ciascun tema (una principale e una del cielo), una alla volta per traccia, in ordine
+ * La regia: perché la scena non resti mai ferma, le figure passano a turno su più tracce
+ * (di notte acqua e cielo; di giorno terra, aria bassa e cielo), una alla volta per traccia, in ordine
  * rimescolato a ogni giro; la successiva parte pochi secondi dopo che la precedente è uscita.
  * Mentre una scheda o il modulo sono aperti non parte niente di nuovo.
  * Con ?ospiti=nome la regia non conta: passa solo quell'ospite, coi suoi tempi.
  */
-type Traccia = { iscritti: string[]; coda: string[]; corrente: string | null; libero: number; pausa: [number, number]; ultimo: string | null };
+type Traccia = { iscritti: string[]; coda: string[]; corrente: string | null; dal: number; libero: number; pausa: [number, number]; ultimo: string | null };
 
+// di giorno tre tracce: a terra, in aria bassa (Icaro, i droni), in cielo
 const TRACCE: Record<string, { pausa: [number, number]; primo: number }> = {
   notte: { pausa: [5, 9], primo: 3 },
   notteCielo: { pausa: [8, 15], primo: 9 },
-  giorno: { pausa: [5, 9], primo: 3 },
-  giornoCielo: { pausa: [9, 16], primo: 10 },
+  giorno: { pausa: [3, 6], primo: 2 },
+  giornoAria: { pausa: [4, 8], primo: 7 },
+  giornoCielo: { pausa: [6, 12], primo: 12 },
 };
+
+/** Oltre questo tempo un ospite non tiene più occupata la traccia, qualunque cosa gli succeda. */
+const TURNO_MASSIMO = 70;
 
 const regia = {
   tracce: {} as Record<string, Traccia>,
@@ -261,7 +266,7 @@ const regia = {
 function traccia(nome: string) {
   if (!regia.tracce[nome]) {
     const c = TRACCE[nome] ?? { pausa: [6, 10] as [number, number], primo: 4 };
-    regia.tracce[nome] = { iscritti: [], coda: [], corrente: null, libero: c.primo, pausa: c.pausa, ultimo: null };
+    regia.tracce[nome] = { iscritti: [], coda: [], corrente: null, dal: 0, libero: c.primo, pausa: c.pausa, ultimo: null };
   }
   return regia.tracce[nome];
 }
@@ -282,6 +287,11 @@ export function tocca(nomeTraccia: string, nome: string, t: number) {
   // chi chiede il turno si iscrive da sé: così si iscrive solo chi è davvero in scena
   if (!tr.iscritti.includes(nome)) tr.iscritti.push(nome);
   if (tr.corrente === nome) return true;
+  // un turno troppo lungo (un ospite rimasto appeso, il computer che arranca) libera la traccia
+  if (tr.corrente !== null && t - tr.dal > TURNO_MASSIMO) {
+    tr.ultimo = tr.corrente;
+    tr.corrente = null;
+  }
   if (tr.corrente !== null || regia.ferma || t < tr.libero || !tr.iscritti.length) return false;
   if (!tr.coda.length) {
     // nuovo giro, rimescolato; mai lo stesso due volte di fila
@@ -289,6 +299,7 @@ export function tocca(nomeTraccia: string, nome: string, t: number) {
     if (tr.coda.length > 1 && tr.coda[0] === tr.ultimo) tr.coda.push(tr.coda.shift() as string);
   }
   tr.corrente = tr.coda.shift() ?? null;
+  tr.dal = t;
   return tr.corrente === nome;
 }
 

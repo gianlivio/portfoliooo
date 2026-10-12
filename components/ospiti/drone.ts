@@ -139,7 +139,7 @@ export class Droni implements Ospite {
   aggiorna(t: number, dt: number, camera: THREE.Camera) {
     const s = this.stato;
     if (s.inizio < 0) {
-      if (t < s.prossima || !tocca("giorno", "drone", t)) return;
+      if (t < s.prossima || !tocca("giornoAria", "drone", t)) return;
       const { avanti, lato } = assi(camera);
       const v = segno();
       s.verso.copy(lato).multiplyScalar(v);
@@ -165,7 +165,7 @@ export class Droni implements Ospite {
       s.inizio = -1;
       s.prossima = t + riposo();
       this.gruppo.visible = false;
-      finito("giorno", "drone", t);
+      finito("giornoAria", "drone", t);
       return;
     }
     const cam = camera.position;
@@ -205,7 +205,7 @@ export class Droni implements Ospite {
   }
 
   libera() {
-    cancella("giorno", "drone");
+    cancella("giornoAria", "drone");
     liberaTutto(this.gruppo, this.texture);
   }
 }

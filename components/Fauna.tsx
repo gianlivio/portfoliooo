@@ -31,7 +31,7 @@ import { Peripatetici } from "./ospiti/peripatetici";
  * un elettrodotto che si allontana come un viale.
  * Giorno, a terra: Achille e la tartaruga, Icaro, un robot aspirapolvere, i droni, un maestro coi discepoli;
  * in cielo: un jet con le scie, un dirigibile. Sempre: nuvole lente e un sole dall'alba al tramonto.
- * Sempre, di giorno e di notte: lo sviluppatore alla scrivania, sotto la terza carta, col finestrone e Romero.
+ * Sempre, di giorno e di notte: lo sviluppatore alla scrivania, sotto la terza carta.
  * Con "riduci movimento" non passa niente. Con ?ospiti nell'indirizzo passano subito e spesso;
  * con ?ospiti=nome passa solo quello.
  */
@@ -267,7 +267,7 @@ function Gocce() {
 function Presenza({ crea }: { crea: () => Ospite }) {
   const o = useMemo(() => crea(), [crea]);
   useEffect(() => () => o.libera(), [o]);
-  useFrame(({ clock, camera }, dt) => o.aggiorna(clock.elapsedTime, Math.min(dt, 0.1), camera));
+  useFrame(({ clock, camera }, dt) => o.aggiorna(clock.elapsedTime, Math.min(dt, 0.25), camera));
   return <primitive object={o.gruppo} />;
 }
 

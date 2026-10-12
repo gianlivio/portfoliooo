@@ -1,16 +1,11 @@
 import * as THREE from "three";
 import { PELO_ACQUA } from "../condivisi";
-import { type Ospite, alone, casuale, fra, generatore, liberaTutto, loft, ombra, prova } from "./comuni";
+import { type Ospite, casuale, generatore, liberaTutto, loft, ombra } from "./comuni";
 import { type Figura, figura } from "./figure";
-import { H as PH, W as PW, panorami } from "./panorami";
-import { Romero } from "./romero";
 
 /**
  * Sempre, di giorno e di notte: sotto una delle carte, uno sviluppatore alla scrivania, visto di spalle.
- * Felpa, sedia da ufficio, i rasta lunghi che gli scendono oltre lo schienale; dopo un po' di tempo
- * i rasta si accorciano fino a sparire e resta la testa rasata; l'orecchino al lobo sinistro c'è sempre.
- * Davanti, un finestrone dove i panorami cambiano: lavora da posti diversi, nelle diverse stagioni.
- * Accanto, sulla cuccia, Romero che dorme e sogna. Tre monitor: a sinistra l'editor col codice che si scrive da sé,
+ * Felpa, cuffie, sedia da ufficio; tre monitor: a sinistra l'editor col codice che si scrive da sé,
  * riga dopo riga; al centro il browser col sito che cambia colori e pagine; a destra il terminale
  * che scorre, a volte una riga rossa e poi il verde. Lui batte sui tasti, si ferma, guarda il terminale,
  * prende il mouse, beve dalla tazza. Di notte i monitor sono l'unica luce e gli illuminano le spalle.
@@ -20,9 +15,6 @@ const CARTA = 2; // sotto la terza carta, quella più alta: c'è spazio fino al 
 const CARTE = 13;
 const RAGGIO = 5.05;
 const SCALA = 0.55;
-const RASATURA = 90; // secondi dopo i quali i rasta cominciano ad accorciarsi
-const CAMBIO = 16; // secondi per panorama
-const DISSOLVE = 2.5;
 
 /* ------------------------------------------------------------------ schermi */
 
@@ -71,13 +63,6 @@ export class Scrivania implements Ospite {
   private tazza = new THREE.Group();
   private mouse: THREE.Mesh;
   private luce: THREE.PointLight;
-  private rasta: { m: THREE.Mesh; ritardo: number }[] = [];
-  private calotta: THREE.Mesh;
-  private brillio: THREE.Sprite;
-  private vetri: THREE.Mesh[] = [];
-  private paesaggi: THREE.Texture[];
-  private romero = new Romero();
-  private corrente = 0;
   private lampada: THREE.PointLight;
   private editor: Schermo;
   private browser: Schermo;
@@ -102,7 +87,7 @@ export class Scrivania implements Ospite {
     const grigio = new THREE.MeshStandardMaterial({ color: "#3C3F45", roughness: 0.8 });
     const pelle = new THREE.MeshStandardMaterial({ color: "#C89A7A", roughness: 0.7 });
     const felpa = new THREE.MeshStandardMaterial({ color: "#2C3138", roughness: 0.95 });
-    const capelli = new THREE.MeshStandardMaterial({ color: "#2A1D14", roughness: 1 });
+    const capelli = new THREE.MeshStandardMaterial({ color: "#2A1F1A", roughness: 0.9 });
 
     // la scrivania: piano, quattro gambe, il bordo un po' più scuro
     const P = { l: 1.7, p: 0.72, h: 0.72 };
@@ -149,9 +134,11 @@ export class Scrivania implements Ospite {
     braccio.add(new THREE.Mesh(new THREE.ConeGeometry(0.05, 0.08, 14, 1, true).translate(0, -0.04, 0).rotateZ(0.3).translate(0.35, 0.32, 0), nero));
     braccio.rotation.y = -0.6;
     this.posto.add(braccio);
-    this.lampada = new THREE.PointLight("#FFC98A", notte ? 0.9 : 0, 1.4, 2);
+    // le luci (lampada e schermi) solo di notte: di giorno basta il sole, e ogni luce in più costa
+    // a tutti i materiali della scena
+    this.lampada = new THREE.PointLight("#FFC98A", 0.9, 1.4, 2);
     this.lampada.position.set(-0.45, P.h + 0.22, 0.65);
-    this.posto.add(this.lampada);
+    if (notte) this.posto.add(this.lampada);
 
     // i tre monitor: quello al centro diritto, i laterali girati verso di lui
     this.editor = schermo(320, 192);
@@ -176,9 +163,9 @@ export class Scrivania implements Ospite {
       this.posto.add(mon);
     });
     // la luce degli schermi sulle sue spalle e sul piano
-    this.luce = new THREE.PointLight("#9FC0FF", notte ? 1.6 : 0.25, 1.8, 2);
+    this.luce = new THREE.PointLight("#9FC0FF", 1.6, 1.8, 2);
     this.luce.position.set(0, P.h + 0.3, 0.6);
-    this.posto.add(this.luce);
+    if (notte) this.posto.add(this.luce);
 
     // la sedia: base a cinque razze con le rotelle, pistone, seduta, schienale a rete
     const base = new THREE.Group();
@@ -210,97 +197,25 @@ export class Scrivania implements Ospite {
     }
     this.posto.add(this.sedia);
 
-    // lui: felpa; la testa sotto i capelli è rasata (la calotta della figura prende il colore della pelle)
-    this.uomo = figura({ pelle, abito: felpa, capo: pelle }, { seduta: true, felpa: true });
+    // lui: felpa, capelli corti, cuffie
+    this.uomo = figura({ pelle, abito: felpa, capo: capelli }, { seduta: true, felpa: true });
     this.uomo.gruppo.position.set(0, 0.01, 0.02);
     this.posto.add(this.uomo.gruppo);
-    const T = this.uomo.testa;
-    // le orecchie, e l'orecchino d'oro al lobo sinistro
-    for (const s of [-1, 1]) {
-      const o = new THREE.Mesh(new THREE.SphereGeometry(0.03, 10, 8).scale(0.45, 1.1, 0.8), pelle);
-      o.position.set(s * 0.1, 0.145, 0.0);
-      T.add(o);
-    }
-    const oro = new THREE.MeshStandardMaterial({ color: "#F0C658", metalness: 1, roughness: 0.18, emissive: "#5A4210", emissiveIntensity: 0.6 });
-    const anello = new THREE.Mesh(new THREE.TorusGeometry(0.016, 0.0045, 8, 20), oro);
-    anello.position.set(0.108, 0.105, 0.0);
-    anello.rotation.y = Math.PI / 2;
-    T.add(anello);
-    const txBrillio = alone("#FFF2C0");
-    this.texture.push(txBrillio);
-    this.brillio = new THREE.Sprite(new THREE.SpriteMaterial({ map: txBrillio, color: "#FFE9A8", transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, fog: false }));
-    this.brillio.position.set(0.11, 0.095, -0.005);
-    this.brillio.scale.setScalar(0.07);
-    T.add(this.brillio);
-    // i capelli: una calotta scura e i rasta, lunghi, che scendono sulla schiena e oltre lo schienale
-    this.calotta = new THREE.Mesh(
-      new THREE.SphereGeometry(0.114, 16, 12, 0, Math.PI * 2, 0, Math.PI * 0.62).rotateX(-0.5).scale(0.95, 1.08, 1.02).translate(0, 0.146, 0.0),
-      new THREE.MeshStandardMaterial({ color: "#2A1D14", roughness: 1, transparent: true })
-    );
-    T.add(this.calotta);
-    const rr = generatore(23);
-    for (let i = 0; i < 44; i++) {
-      // la radice sul cuoio capelluto: dietro, in cima e ai lati, mai sulla fronte
-      let phi = (rr() * 2 - 1) * Math.PI;
-      if (Math.abs(phi) < 0.85) phi = Math.sign(phi || 1) * (0.85 + rr() * 0.4);
-      const lam = 0.15 + rr() * 0.95;
-      const radice = new THREE.Vector3(Math.sin(phi) * Math.cos(lam) * 0.112, 0.15 + Math.sin(lam) * 0.118, Math.cos(phi) * Math.cos(lam) * 0.112);
-      const lato = Math.sin(phi);
-      const fine = -0.32 - rr() * 0.26; // quota della punta, sotto il bordo dello schienale
-      const punti = [
-        new THREE.Vector3(0, 0, 0),
-        new THREE.Vector3(lato * 0.03, -0.05, -0.04),
-        new THREE.Vector3(lato * 0.07 - radice.x * 0.2, -0.18 - radice.y, -0.2 - radice.z),
-        new THREE.Vector3(lato * 0.1 - radice.x * 0.3, -0.27 - radice.y, -0.33 - radice.z),
-        new THREE.Vector3(lato * 0.12 - radice.x * 0.3 + (rr() - 0.5) * 0.04, fine - radice.y, -0.37 - radice.z + (rr() - 0.5) * 0.04),
-      ];
-      const curva = new THREE.CatmullRomCurve3(punti);
-      const m = new THREE.Mesh(new THREE.TubeGeometry(curva, 14, 0.011 + rr() * 0.004, 5), capelli);
-      m.position.copy(radice);
-      T.add(m);
-      this.rasta.push({ m, ritardo: rr() * 14 });
-    }
-
-    // il finestrone davanti alla scrivania: telaio scuro, montanti, davanzale; dietro, il panorama
-    this.paesaggi = panorami(notte);
-    this.paesaggi.forEach((tx) => this.texture.push(tx));
-    const F = { l: 3.0, h: 1.4, y: 0.05, z: 1.2 };
-    const telaio = new THREE.MeshStandardMaterial({ color: "#2A2C30", roughness: 0.6, metalness: 0.4 });
-    const vano = new THREE.Group();
-    vano.position.set(0, F.y, F.z);
-    for (const x of [-F.l / 2, -F.l / 6, F.l / 6, F.l / 2]) vano.add(new THREE.Mesh(new THREE.BoxGeometry(0.06, F.h, 0.08).translate(x, F.h / 2, 0), telaio));
-    for (const y of [0, F.h]) vano.add(new THREE.Mesh(new THREE.BoxGeometry(F.l + 0.06, 0.06, 0.08).translate(0, y, 0), telaio));
-    vano.add(new THREE.Mesh(new THREE.BoxGeometry(F.l + 0.16, 0.03, 0.2).translate(0, -0.01, -0.06), telaio));
-    // il panorama un po' più largo del vano: in due strati, il secondo sfuma sul primo al cambio
-    for (let k = 0; k < 2; k++) {
-      const v = new THREE.Mesh(
-        new THREE.PlaneGeometry(F.l, (F.l * PH) / PW),
-        new THREE.MeshBasicMaterial({ map: this.paesaggi[k], transparent: k === 1, opacity: k === 1 ? 0 : 1, depthWrite: k === 0, color: notte ? "#C8CCD8" : "#FFFFFF", toneMapped: false, fog: false })
-      );
-      v.rotation.y = Math.PI; // guarda verso di lui (−z)
-      v.position.set(0, F.h / 2, 0.06 - k * 0.002);
-      v.scale.y = F.h / ((F.l * PH) / PW);
-      vano.add(v);
-      this.vetri.push(v);
-    }
-    this.posto.add(vano);
-    // la luce che entra dal finestrone
-    const dallaFinestra = new THREE.PointLight(notte ? "#8FA8D8" : "#FFF1DC", notte ? 0.35 : 0.7, 3.2, 2);
-    dallaFinestra.position.set(0, 1.0, 1.05);
-    this.posto.add(dallaFinestra);
-    // Romero sulla cuccia, a fianco della scrivania
-    this.romero.gruppo.position.set(1.5, 0, 0.42);
-    this.romero.gruppo.rotation.y = Math.PI / 2;
-    this.posto.add(this.romero.gruppo);
+    // le cuffie: l'arco sopra la testa da un orecchio all'altro, i due padiglioni
+    const cuffie = new THREE.Group();
+    cuffie.add(new THREE.Mesh(new THREE.TorusGeometry(0.115, 0.012, 6, 16, Math.PI), nero));
+    for (const s of [-1, 1]) cuffie.add(new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, 0.03, 12).rotateZ(Math.PI / 2).translate(s * 0.11, -0.01, 0), nero));
+    cuffie.position.set(0, 0.16, 0.0);
+    this.uomo.testa.add(cuffie);
 
     // ombra morbida sotto tutto
     const txOmbra = ombra();
     this.texture.push(txOmbra);
     const om = new THREE.Mesh(
-      new THREE.PlaneGeometry(3.6, 1.8).rotateX(-Math.PI / 2),
+      new THREE.PlaneGeometry(2.2, 1.5).rotateX(-Math.PI / 2),
       new THREE.MeshBasicMaterial({ map: txOmbra, transparent: true, opacity: notte ? 0.5 : 0.75, depthWrite: false })
     );
-    om.position.set(0.3, 0.003, 0.5);
+    om.position.set(0, 0.003, 0.45);
     this.posto.add(om);
 
     // al suo posto: sotto la carta, rivolto verso fuori, di spalle a chi guarda
@@ -466,33 +381,6 @@ export class Scrivania implements Ospite {
   aggiorna(t: number, dt: number) {
     const s = this.stato;
     const U = this.uomo;
-    // i rasta si accorciano uno dopo l'altro fino a sparire: resta la testa rasata
-    const rasa = prova() ? 15 : RASATURA;
-    this.rasta.forEach((r) => {
-      const u = fra(t, rasa + r.ritardo, rasa + r.ritardo + 8);
-      r.m.visible = u < 0.999;
-      r.m.scale.setScalar(Math.max(0.001, 1 - u));
-    });
-    const calvo = fra(t, rasa + 12, rasa + 24);
-    (this.calotta.material as THREE.MeshStandardMaterial).opacity = 1 - calvo;
-    this.calotta.visible = calvo < 0.999;
-    // l'orecchino manda un lampo quando prende la luce
-    this.brillio.material.opacity = Math.max(0, Math.sin(t * 0.9) * Math.sin(t * 2.3) - 0.6) * 2;
-    // il panorama: ogni tanto un altro posto, in dissolvenza
-    const ciclo = Math.floor(t / CAMBIO), dentro = t - ciclo * CAMBIO;
-    const prossimo = (ciclo + 1) % this.paesaggi.length;
-    if (ciclo % this.paesaggi.length !== this.corrente) {
-      this.corrente = ciclo % this.paesaggi.length;
-      (this.vetri[0].material as THREE.MeshBasicMaterial).map = this.paesaggi[this.corrente];
-      (this.vetri[0].material as THREE.MeshBasicMaterial).needsUpdate = true;
-    }
-    const sopra = this.vetri[1].material as THREE.MeshBasicMaterial;
-    if (sopra.map !== this.paesaggi[prossimo]) {
-      sopra.map = this.paesaggi[prossimo];
-      sopra.needsUpdate = true;
-    }
-    sopra.opacity = fra(dentro, CAMBIO - DISSOLVE, CAMBIO);
-    this.romero.aggiorna(t);
     // cambia azione: per lo più scrive; ogni tanto legge il terminale, usa il mouse, beve
     if (t > s.fineAzione) {
       const u = Math.random();

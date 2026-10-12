@@ -518,7 +518,7 @@ export class Icaro implements Ospite {
     const vive = this.gruppo.visible ? this.muoviPenne(t, dt) : 0;
     this.muoviCera(dt);
     if (s.inizio < 0) {
-      if (t < s.prossima || !tocca("giorno", "icaro", t)) return;
+      if (t < s.prossima || !tocca("giornoAria", "icaro", t)) return;
       this.nuovoVolo(camera);
       s.inizio = t;
       s.fase = "volo";
@@ -598,7 +598,7 @@ export class Icaro implements Ospite {
         s.fase = "fermo";
         s.inizio = -1;
         s.prossima = t + riposo();
-        finito("giorno", "icaro", t);
+        finito("giornoAria", "icaro", t);
         this.gruppo.visible = false;
         this.sole.visible = false;
         return;
@@ -668,7 +668,7 @@ export class Icaro implements Ospite {
   }
 
   libera() {
-    cancella("giorno", "icaro");
+    cancella("giornoAria", "icaro");
     liberaTutto(this.gruppo, this.texture);
   }
 }
