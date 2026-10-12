@@ -16,17 +16,23 @@ import { Nuvole } from "./ospiti/nuvole";
 import { Feluca } from "./ospiti/feluca";
 import { Iss, Starlink } from "./ospiti/orbite";
 import { Portacontainer } from "./ospiti/portacontainer";
+import { Scrivania } from "./ospiti/scrivania";
+import { Zeppelin } from "./ospiti/zeppelin";
+import { Droni } from "./ospiti/drone";
+import { Robot } from "./ospiti/robot";
 
 /**
- * Ciò che ogni tanto passa per la stanza, davanti a dove si sta guardando.
- * Notte: stelle cadenti; gocce che cadono sull'acqua e la increspano in cerchi;
- * la nave di Ulisse, fantasma, che attraversa l'acqua a remi; di rado un drago nel cielo.
- * e, a turno col drago, un aereo di linea con le sue luci.
- * Giorno: Achille che insegue la tartaruga senza raggiungerla mai;
- * di rado Icaro e, a turno con lui, un jet con le scie.
- * Sempre, di notte, un elettrodotto che si allontana come un viale, con le luci rosse in cima ai tralicci;
- * di giorno, nuvole lente e un sole che va dall'alba al tramonto, con le ombre delle carte che girano sul marmo.
- * Con "riduci movimento" non passa niente. Con ?ospiti nell'indirizzo passano subito e spesso.
+ * Ciò che passa per la stanza, davanti a dove si sta guardando. Una regia fa passare un ospite
+ * alla volta per ciascuna traccia (in acqua o a terra, e in cielo), con pause brevi, e si ferma
+ * quando è aperta una scheda o il modulo.
+ * Notte, in acqua: la nave di Ulisse, il drago, la feluca della caccia al pesce spada, una portacontainer;
+ * in cielo: un aereo di linea, la Stazione spaziale, il treno di Starlink. Sempre: stelle cadenti, gocce,
+ * un elettrodotto che si allontana come un viale.
+ * Giorno, a terra: Achille e la tartaruga, Icaro, un robot aspirapolvere, i droni;
+ * in cielo: un jet con le scie, un dirigibile. Sempre: nuvole lente e un sole dall'alba al tramonto.
+ * Sempre, di giorno e di notte: lo sviluppatore alla scrivania, sotto la terza carta.
+ * Con "riduci movimento" non passa niente. Con ?ospiti nell'indirizzo passano subito e spesso;
+ * con ?ospiti=nome passa solo quello.
  */
 
 /** Direzione orizzontale verso cui guarda la camera, come angolo (0 = −z). */
@@ -277,6 +283,11 @@ const creaFeluca = () => new Feluca();
 const creaIss = () => new Iss();
 const creaStarlink = () => new Starlink();
 const creaPortacontainer = () => new Portacontainer();
+const creaScrivaniaNotte = () => new Scrivania(true);
+const creaScrivaniaGiorno = () => new Scrivania(false);
+const creaZeppelin = () => new Zeppelin();
+const creaDroni = () => new Droni();
+const creaRobot = () => new Robot();
 
 /* --------------------------------------------------------------------- insieme */
 
@@ -304,6 +315,7 @@ export default function Fauna({
       {c("iss") && <Presenza crea={creaIss} />}
       {c("starlink") && <Presenza crea={creaStarlink} />}
       <Presenza crea={creaTralicci} />
+      {c("scrivania") && <Presenza crea={creaScrivaniaNotte} />}
     </>
   ) : (
     <>
@@ -314,6 +326,10 @@ export default function Fauna({
       {c("tartaruga") && <Presenza crea={creaAchille} />}
       {c("icaro") && <Presenza crea={creaIcaro} />}
       {c("jet") && <Presenza crea={creaJet} />}
+      {c("zeppelin") && <Presenza crea={creaZeppelin} />}
+      {c("drone") && <Presenza crea={creaDroni} />}
+      {c("robot") && <Presenza crea={creaRobot} />}
+      {c("scrivania") && <Presenza crea={creaScrivaniaGiorno} />}
     </>
   );
 }

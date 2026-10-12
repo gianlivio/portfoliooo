@@ -44,7 +44,8 @@ export function figura(
   testa.add(new THREE.Mesh(new THREE.SphereGeometry(0.105, 16, 12).scale(0.92, 1.1, 1.0).translate(0, 0.14, 0.01), mat.pelle));
   if (felpa) {
     // capelli corti e il cappuccio della felpa abbassato sulla schiena
-    testa.add(new THREE.Mesh(new THREE.SphereGeometry(0.11, 16, 10, 0, Math.PI * 2, 0, Math.PI * 0.55).scale(0.95, 1.05, 1.02).translate(0, 0.16, -0.005), mat.capo ?? mat.abito));
+    // la calotta dei capelli inclinata all'indietro: scende sulla nuca, lascia scoperta la fronte
+    testa.add(new THREE.Mesh(new THREE.SphereGeometry(0.112, 16, 12, 0, Math.PI * 2, 0, Math.PI * 0.62).rotateX(-0.5).scale(0.95, 1.08, 1.02).translate(0, 0.145, 0.0), mat.capo ?? mat.abito));
     busto.add(new THREE.Mesh(new THREE.TorusGeometry(0.11, 0.045, 8, 16, Math.PI).rotateX(Math.PI / 2 + 0.5).translate(0, 0.55, -0.08), mat.abito));
   } else if (coppola) {
     testa.add(new THREE.Mesh(new THREE.CylinderGeometry(0.105, 0.11, 0.05, 14).translate(0, 0.22, 0), mat.capo ?? mat.abito));
