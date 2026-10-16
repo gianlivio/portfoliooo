@@ -385,7 +385,8 @@ export function CieloDiGiorno({ orizzonte }: { orizzonte: string }) {
         void main(){
           vec3 d = normalize(vDir);
           float h = clamp(d.y, 0.0, 1.0);
-          vec3 c = mix(uBasso, uAlto, pow(h, 0.55));
+          // l'azzurro del cielo vero: chiaro all'orizzonte, pieno allo zenit
+          vec3 c = mix(mix(uBasso, vec3(0.74, 0.85, 0.94), smoothstep(0.0, 0.08, h)), uAlto, smoothstep(0.05, 0.75, h));
           float s = max(dot(d, uSole), 0.0);
           float basso = 1.0 - smoothstep(0.04, 0.45, uSole.y);
           vec3 caldo = mix(vec3(1.0, 0.95, 0.86), vec3(1.0, 0.62, 0.42), basso);
@@ -397,7 +398,7 @@ export function CieloDiGiorno({ orizzonte }: { orizzonte: string }) {
           #include <colorspace_fragment>
         }`,
       uniforms: {
-        uAlto: { value: new THREE.Color("#C9D6E0") },
+        uAlto: { value: new THREE.Color("#4F8FD0") },
         uBasso: { value: new THREE.Color(orizzonte) },
         uSole: { value: SOLE },
       },

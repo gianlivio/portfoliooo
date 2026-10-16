@@ -13,6 +13,7 @@ import { mondo } from "./condivisi";
 import { suono } from "./audio";
 import { ANGOLO_ZONA } from "./zona";
 import { Zona, LIBRI, type Azione } from "./ospiti/zonaSviluppatore";
+import { Etna } from "./ospiti/etna";
 
 /**
  * La scena: chi visita sta al centro di un anello di carte, una per lavoro.
@@ -729,6 +730,70 @@ function ZonaSviluppatore({ notte, ridotto }: { notte: boolean; ridotto: boolean
   );
 }
 
+/** L'Etna all'orizzonte: lo stesso oggetto di giorno e di notte. */
+function Vulcano({ notte, ridotto }: { notte: boolean; ridotto: boolean }) {
+  const [etna] = useState(() => new Etna(notte));
+  useEffect(() => () => etna.libera(), [etna]);
+  useEffect(() => etna.setNotte(notte), [etna, notte]);
+  useFrame(({ clock }) => {
+    if (!ridotto) etna.aggiorna(clock.elapsedTime);
+  });
+  return <primitive object={etna.gruppo} />;
+}
+
+const ALBA_VERT = `varying vec3 vD; void main(){ vD = normalize(position); gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`;
+const ALBA_FRAG = `
+uniform float uK;
+uniform float uSale;
+varying vec3 vD;
+void main(){
+  float y = vD.y;
+  // la fascia calda: all'alba sale dall'orizzonte, al tramonto vi scende
+  float centro = mix(-0.05, 0.35, uSale > 0.5 ? uK : 1.0 - uK);
+  float f = exp(-pow((y - centro) / 0.22, 2.0));
+  vec3 basso = vec3(1.0, 0.42, 0.18);
+  vec3 medio = vec3(1.0, 0.68, 0.38);
+  vec3 alto = vec3(0.42, 0.24, 0.52);
+  vec3 c = mix(basso, medio, smoothstep(centro - 0.15, centro + 0.1, y));
+  c = mix(c, alto, smoothstep(centro + 0.05, centro + 0.6, y));
+  c = mix(c, vec3(0.98, 0.5, 0.42), f * 0.35);
+  float a = sin(uK * 3.14159) * (0.55 + 0.45 * f) * smoothstep(-0.25, 0.05, y);
+  gl_FragColor = vec4(c, a);
+}`;
+
+/**
+ * Il passaggio fra notte e giorno: per tre secondi e mezzo il cielo si accende di un'alba (verso il giorno)
+ * o di un tramonto (verso la notte), poi si spegne sul cielo nuovo. Con "riduci movimento" non c'è.
+ */
+function Transizione({ tema, ridotto }: { tema: Tema; ridotto: boolean }) {
+  const mat = useRef<THREE.ShaderMaterial>(null);
+  const prima = useRef(tema);
+  // il progresso si accumula fotogramma per fotogramma (con un tetto): sui computer lenti il primo
+  // fotogramma dopo il cambio di tema è lungo, e un orologio assoluto salterebbe tutta l'alba
+  const k = useRef(1);
+  const verso = useRef(1);
+  const [uniformi] = useState(() => ({ uK: { value: 0 }, uSale: { value: 1 } }));
+  useFrame((_, dt) => {
+    const m = mat.current;
+    if (!m) return;
+    if (prima.current !== tema) {
+      prima.current = tema;
+      verso.current = tema === "chiaro" ? 1 : 0;
+      k.current = 0;
+    } else k.current += Math.min(dt, 1 / 30) / 3.5;
+    const attiva = !ridotto && k.current < 1;
+    m.visible = attiva;
+    m.uniforms.uK.value = attiva ? k.current : 0;
+    m.uniforms.uSale.value = verso.current;
+  });
+  return (
+    <mesh renderOrder={-0.9} raycast={() => null}>
+      <sphereGeometry args={[48, 32, 16]} />
+      <shaderMaterial ref={mat} vertexShader={ALBA_VERT} fragmentShader={ALBA_FRAG} uniforms={uniformi} side={THREE.BackSide} transparent depthWrite={false} fog={false} visible={false} />
+    </mesh>
+  );
+}
+
 /* --------------------------------------------------------- tempo e ritmo */
 
 /**
@@ -954,6 +1019,8 @@ export default function Scena(props: Props) {
         sezioneEditoria={props.sezioneEditoria}
       />
       <ZonaSviluppatore notte={tema === "scuro"} ridotto={props.ridotto} />
+      <Vulcano notte={tema === "scuro"} ridotto={props.ridotto} />
+      <Transizione tema={tema} ridotto={props.ridotto} />
       {tema === "chiaro" && <CieloDiGiorno orizzonte={p.fondo} />}
       <Fauna
         notte={tema === "scuro"}

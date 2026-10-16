@@ -1,13 +1,13 @@
 import * as THREE from "three";
 import { mondo } from "../condivisi";
 import { POSIZIONI, collocaZona } from "../zona";
-import { alone, casuale, liberaTutto, loft, ombra, tela } from "./comuni";
+import { alone, liberaTutto, tela } from "./comuni";
 import { Scrivania } from "./scrivania";
 
 /**
  * La zona dello sviluppatore, il centro del mondo: la scrivania e, intorno, tutto piccolo e in scala con lui:
  * la drum machine sul piano (l'interruttore dell'audio), un pannello di legno con la mensola dei due libri
- * e lo schiacciasogni, e Romero che dorme sulla sua cuccia. Il cassetto aperto è in components/Portale.tsx.
+ * e lo schiacciasogni, e un tavolino con le macchine del suono e il rack modulare. Il cassetto aperto è in components/Portale.tsx.
  * Le misure sono in metri, nelle coordinate della scrivania (vedi components/zona.ts).
  * Con "riduci movimento" la zona resta, ferma: niente si muove, ma libri e drum machine si possono cliccare.
  */
@@ -32,92 +32,188 @@ export type Azione = { tipo: "drum" } | { tipo: "libro"; indice: number };
 const PARETE_GIORNO = "#E4DED3";
 const PARETE_NOTTE = "#2A2A2F";
 
-/* ------------------------------------------------------------- drum machine */
+/* -------------------------------------------- il tavolino delle macchine */
 
-class Drum {
+/** Una tela che diventa la faccia di sopra di una macchina; si ridisegna quando cambiano le luci. */
+function faccia(l: number, a: number, texture: THREE.Texture[]) {
+  const c = document.createElement("canvas");
+  c.width = l;
+  c.height = a;
+  const x = c.getContext("2d") as CanvasRenderingContext2D;
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  t.anisotropy = 4;
+  texture.push(t);
+  return { x, t, l, a };
+}
+
+type Faccia = ReturnType<typeof faccia>;
+const ACCESI = ["#FF4D3A", "#FFB23A", "#F5E04A", "#5BE36B", "#3AC8FF", "#9C6BFF"];
+
+/**
+ * Un tavolino a parte, accanto alla scrivania, con le macchine del suono: un sintetizzatore d'argento
+ * a una voce con le sue manopole, una drum machine coi sedici tasti a passi colorati, un campionatore nero
+ * col display "MALA CARNE · 130 BPM", e dietro un rack modulare coi cavi che pendono in verticale.
+ * Macchine generiche, senza marchi. Le luci girano piano anche a suono spento, per invitare al clic;
+ * a loop acceso vanno a tempo. Un clic sul tavolino accende o spegne il loop.
+ */
+class Studio {
   gruppo = new THREE.Group();
-  private x: CanvasRenderingContext2D;
-  private t: THREE.CanvasTexture;
-  private acceso = -1;
-  private quarto = -1;
+  private facce: Faccia[] = [];
+  private led: THREE.InstancedMesh;
+  private ledN = 0;
+  private passo = -1;
+  private c = new THREE.Color();
 
-  constructor(private texture: THREE.Texture[]) {
-    const L = 0.26, A = 0.045, P = 0.17;
-    const c = document.createElement("canvas");
-    c.width = 260;
-    c.height = 170;
-    this.x = c.getContext("2d") as CanvasRenderingContext2D;
-    this.t = new THREE.CanvasTexture(c);
-    this.t.colorSpace = THREE.SRGBColorSpace;
-    this.t.anisotropy = 4;
-    texture.push(this.t);
-    const scocca = new THREE.MeshStandardMaterial({ color: "#2A2B30", roughness: 0.55, metalness: 0.2 });
-    const sopra = new THREE.MeshBasicMaterial({ map: this.t, toneMapped: false });
-    // il corpo appena inclinato verso chi suona, come le macchine vere
-    const corpo = new THREE.Mesh(new THREE.BoxGeometry(L, A, P), [scocca, scocca, sopra, scocca, scocca, scocca]);
-    corpo.position.y = A / 2;
-    corpo.rotation.x = -0.06;
-    this.gruppo.add(corpo);
-    // un'area di clic un po' più grande della scatola: sullo schermo è piccola
+  constructor(texture: THREE.Texture[]) {
+    const p = POSIZIONI.studio;
+    this.gruppo.position.copy(p);
+    this.gruppo.rotation.y = 0.12;
+    const nero = new THREE.MeshStandardMaterial({ color: "#1A1B1F", roughness: 0.6 });
+    const legno = new THREE.MeshStandardMaterial({ color: "#6B5844", roughness: 0.75 });
+    // il tavolino
+    const T = { l: 0.78, p: 0.46, h: 0.62 };
+    const piano = new THREE.Mesh(new THREE.BoxGeometry(T.l, 0.03, T.p), legno);
+    piano.position.y = T.h;
+    this.gruppo.add(piano);
+    for (const x of [-T.l / 2 + 0.04, T.l / 2 - 0.04]) for (const z of [-T.p / 2 + 0.04, T.p / 2 - 0.04]) {
+      const g = new THREE.Mesh(new THREE.BoxGeometry(0.035, T.h, 0.035).translate(0, T.h / 2, 0), nero);
+      g.position.set(x, 0, z);
+      this.gruppo.add(g);
+    }
+    // le macchine: corpo e faccia di sopra disegnata
+    const macchina = (l: number, a: number, pr: number, x: number, z: number, colore: string, f: Faccia) => {
+      const corpo = new THREE.MeshStandardMaterial({ color: colore, roughness: 0.4, metalness: colore === "#C9CCD1" ? 0.6 : 0.2 });
+      const sopra = new THREE.MeshBasicMaterial({ map: f.t, toneMapped: false });
+      const m = new THREE.Mesh(new THREE.BoxGeometry(l, a, pr), [corpo, corpo, sopra, corpo, corpo, corpo]);
+      m.position.set(x, T.h + 0.015 + a / 2, z);
+      m.rotation.x = -0.05;
+      this.gruppo.add(m);
+      this.facce.push(f);
+    };
+    macchina(0.24, 0.04, 0.13, -0.24, -0.1, "#C9CCD1", faccia(240, 130, texture)); // la scatola d'argento a una voce
+    macchina(0.26, 0.04, 0.14, 0.04, -0.1, "#2E3036", faccia(260, 140, texture)); // la drum machine a passi
+    macchina(0.2, 0.05, 0.16, 0.27, -0.09, "#141518", faccia(200, 160, texture)); // il campionatore nero
+    // il rack modulare, in piedi sul fondo del tavolino
+    const rack = faccia(256, 192, texture);
+    const R = { l: 0.5, a: 0.36 };
+    const cassa = new THREE.Mesh(new THREE.BoxGeometry(R.l + 0.03, R.a + 0.03, 0.09), nero);
+    cassa.position.set(0, T.h + 0.015 + R.a / 2 + 0.015, T.p / 2 - 0.08);
+    this.gruppo.add(cassa);
+    const fronte = new THREE.Mesh(new THREE.PlaneGeometry(R.l, R.a), new THREE.MeshBasicMaterial({ map: rack.t, toneMapped: false }));
+    fronte.position.set(0, cassa.position.y, cassa.position.z - 0.046);
+    fronte.rotation.y = Math.PI;
+    this.gruppo.add(fronte);
+    this.facce.push(rack);
+    // i cavi: dalle prese in alto pendono in verticale e si piegano verso le prese in basso
+    const cavi: { col: string; pts: THREE.Vector3[] }[] = [];
+    const zc = cassa.position.z - 0.052;
+    for (let i = 0; i < 9; i++) {
+      const x = -R.l / 2 + 0.04 + i * 0.052;
+      const y0 = cassa.position.y + R.a / 2 - 0.05 - (i % 3) * 0.04;
+      const x1 = x + (i % 2 ? 0.06 : -0.05);
+      const y1 = cassa.position.y - R.a / 2 + 0.05 + (i % 4) * 0.03;
+      const giu = Math.min(y0, y1) - 0.06 - (i % 3) * 0.03;
+      cavi.push({
+        col: ACCESI[i % ACCESI.length],
+        pts: [new THREE.Vector3(x, y0, zc), new THREE.Vector3(x, giu, zc - 0.03), new THREE.Vector3(x1, giu - 0.01, zc - 0.03), new THREE.Vector3(x1, y1, zc)],
+      });
+    }
+    cavi.forEach(({ col, pts }) => {
+      const tubo = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 16, 0.0045, 5), new THREE.MeshStandardMaterial({ color: col, roughness: 0.5 }));
+      this.gruppo.add(tubo);
+    });
+    // le spie del rack e delle macchine: istanze di un solo puntino luminoso
+    const posti: THREE.Vector3[] = [];
+    for (let i = 0; i < 14; i++) posti.push(new THREE.Vector3(-R.l / 2 + 0.03 + (i % 7) * 0.072, cassa.position.y + (i < 7 ? 0.14 : -0.02), zc - 0.002));
+    this.led = new THREE.InstancedMesh(new THREE.SphereGeometry(0.006, 6, 4), new THREE.MeshBasicMaterial({ toneMapped: false }), posti.length);
+    const m = new THREE.Matrix4();
+    posti.forEach((q, i) => this.led.setMatrixAt(i, m.makeTranslation(q.x, q.y, q.z)));
+    this.ledN = posti.length;
+    this.gruppo.add(this.led);
+    // dove si clicca: tutto il tavolino, rack compreso
     const presa = new THREE.Mesh(
-      new THREE.BoxGeometry(L * 1.6, 0.14, P * 1.6),
+      new THREE.BoxGeometry(T.l + 0.1, 1.1, T.p + 0.1),
       new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false, colorWrite: false })
     );
-    presa.position.y = 0.06;
+    presa.position.y = 0.55;
     presa.userData.azione = { tipo: "drum" } satisfies Azione;
     this.gruppo.add(presa);
-    this.disegna(false, -1);
+    this.disegna(0, false);
   }
 
-  /** Il pannello: display "MALA CARNE · 130 BPM", sedici pad, quattro manopole. */
-  private disegna(acceso: boolean, quarto: number) {
-    const x = this.x;
-    x.fillStyle = "#24252A";
-    x.fillRect(0, 0, 260, 170);
-    // display
-    x.fillStyle = acceso ? "#0E1A12" : "#101413";
-    x.fillRect(12, 12, 150, 34);
-    x.fillStyle = acceso ? "#8CF5A8" : "#4E7A5B";
-    x.font = "600 13px ui-monospace, monospace";
-    x.textBaseline = "middle";
-    x.fillText("MALA CARNE · 130 BPM", 18, 29);
-    // manopole
-    for (let k = 0; k < 4; k++) {
-      x.fillStyle = "#3A3C42";
-      x.beginPath();
-      x.arc(180 + (k % 2) * 34, 20 + Math.floor(k / 2) * 22, 9, 0, Math.PI * 2);
-      x.fill();
-      x.strokeStyle = "#C9CCD2";
-      x.lineWidth = 2;
-      x.beginPath();
-      x.moveTo(180 + (k % 2) * 34, 20 + Math.floor(k / 2) * 22);
-      x.lineTo(180 + (k % 2) * 34 + 6 * Math.cos(k * 1.3), 20 + Math.floor(k / 2) * 22 - 6 * Math.sin(k * 1.3 + 1));
-      x.stroke();
-    }
-    // pad: a loop acceso si accende la colonna del quarto che suona
-    const colori = ["#E8774D", "#E8C14D", "#5DB8E8", "#9C7BE8"];
-    for (let r = 0; r < 4; r++) {
-      for (let k = 0; k < 4; k++) {
-        const su = acceso && k === quarto;
-        x.fillStyle = su ? colori[r] : "#3B3D44";
-        x.fillRect(14 + k * 61, 58 + r * 27, 52, 21);
-        if (su) {
-          x.fillStyle = "rgba(255,255,255,0.35)";
-          x.fillRect(14 + k * 61, 58 + r * 27, 52, 4);
-        }
+  /** Ridisegna le facce: passo = sedicesimo che suona (o che gira piano a suono spento). */
+  private disegna(passo: number, acceso: boolean) {
+    const [sint, drum, camp, rack] = this.facce;
+    // la scatola d'argento: due file di manopole, la tastierina a bottoni
+    {
+      const { x, t } = sint;
+      x.fillStyle = "#D9DCE0"; x.fillRect(0, 0, 240, 130);
+      for (let i = 0; i < 12; i++) {
+        x.fillStyle = "#2A2C31"; x.beginPath(); x.arc(20 + (i % 6) * 40, 24 + Math.floor(i / 6) * 34, 10, 0, 7); x.fill();
       }
+      for (let i = 0; i < 13; i++) {
+        x.fillStyle = i === passo % 13 ? ACCESI[(passo >> 2) % ACCESI.length] : "#9A9EA6";
+        x.fillRect(10 + i * 17.5, 98, 13, 20);
+      }
+      t.needsUpdate = true;
     }
-    this.t.needsUpdate = true;
+    // la drum machine: sedici tasti a passi, si accende quello che suona
+    {
+      const { x, t } = drum;
+      x.fillStyle = "#2E3036"; x.fillRect(0, 0, 260, 140);
+      for (let i = 0; i < 4; i++) { x.fillStyle = "#C9CCD2"; x.beginPath(); x.arc(28 + i * 34, 30, 9, 0, 7); x.fill(); }
+      for (let i = 0; i < 16; i++) {
+        const su = i === passo % 16;
+        x.fillStyle = su ? ACCESI[Math.floor(i / 4) % ACCESI.length] : i % 4 === 0 ? "#6A5048" : "#4A4C54";
+        x.fillRect(8 + i * 15.6, 96, 12, 28);
+        if (su) { x.fillStyle = "rgba(255,255,255,0.5)"; x.fillRect(8 + i * 15.6, 96, 12, 5); }
+      }
+      t.needsUpdate = true;
+    }
+    // il campionatore: il display, otto tasti
+    {
+      const { x, t } = camp;
+      x.fillStyle = "#141518"; x.fillRect(0, 0, 200, 160);
+      x.fillStyle = acceso ? "#0E1A12" : "#101413"; x.fillRect(12, 10, 176, 50);
+      x.fillStyle = acceso ? "#8CF5A8" : "#5E9A6E";
+      x.font = "600 15px ui-monospace, monospace"; x.textBaseline = "middle";
+      x.fillText("MALA CARNE", 22, 26); x.fillText("130 BPM", 22, 46);
+      for (let i = 0; i < 8; i++) {
+        x.fillStyle = (passo >> 1) % 8 === i ? ACCESI[i % ACCESI.length] : "#33353C";
+        x.fillRect(14 + (i % 4) * 44, 76 + Math.floor(i / 4) * 40, 34, 30);
+      }
+      t.needsUpdate = true;
+    }
+    // il rack: moduli, manopole, prese
+    {
+      const { x, t } = rack;
+      x.fillStyle = "#1C1D21"; x.fillRect(0, 0, 256, 192);
+      const larg = [36, 28, 44, 24, 36, 40, 48];
+      let ox = 0;
+      larg.forEach((w, k) => {
+        x.fillStyle = k % 2 ? "#B9BCC2" : "#2B2D33"; x.fillRect(ox + 1, 4, w - 2, 184);
+        for (let j = 0; j < 3; j++) { x.fillStyle = k % 2 ? "#26282C" : "#D0D3D8"; x.beginPath(); x.arc(ox + w / 2, 30 + j * 30, 7, 0, 7); x.fill(); }
+        for (let j = 0; j < 3; j++) { x.fillStyle = "#0B0B0D"; x.beginPath(); x.arc(ox + w / 2, 128 + j * 20, 4, 0, 7); x.fill(); }
+        ox += w;
+      });
+      t.needsUpdate = true;
+    }
+    // le spie del rack
+    for (let i = 0; i < this.ledN; i++) {
+      const su = (i + passo) % 5 === 0 || (acceso && i % 4 === passo % 4);
+      this.led.setColorAt(i, this.c.set(su ? ACCESI[(i + (passo >> 2)) % ACCESI.length] : "#2A2B30"));
+    }
+    if (this.led.instanceColor) this.led.instanceColor.needsUpdate = true;
   }
 
-  aggiorna() {
+  aggiorna(t: number, ridotto: boolean) {
     const b = mondo.battito;
-    const acceso = b.attivo ? 1 : 0;
-    const quarto = b.attivo ? b.n % 4 : -1;
-    if (acceso !== this.acceso || quarto !== this.quarto) {
-      this.acceso = acceso;
-      this.quarto = quarto;
-      this.disegna(!!acceso, quarto);
+    // a loop acceso: il sedicesimo vero; spento: un passo ogni mezzo secondo, piano
+    const passo = b.attivo ? b.n * 4 + Math.floor(b.fase * 4) : ridotto ? 0 : Math.floor(t * 2);
+    if (passo !== this.passo) {
+      this.passo = passo;
+      this.disegna(passo, b.attivo);
     }
   }
 }
@@ -328,217 +424,14 @@ class Schiacciasogni {
   }
 }
 
-/* -------------------------------------------------------------------- Romero */
-
-/** Piega lungo un arco una geometria fatta lungo z: il corpo si arrotola su sé stesso. */
-function piega(g: THREE.BufferGeometry, raggio: number) {
-  const pos = g.attributes.position as THREE.BufferAttribute;
-  for (let i = 0; i < pos.count; i++) {
-    const x = pos.getX(i), z = pos.getZ(i);
-    const a = z / raggio;
-    const r = raggio - x;
-    pos.setXYZ(i, raggio - r * Math.cos(a), pos.getY(i), r * Math.sin(a));
-  }
-  g.computeVertexNormals();
-  return g;
-}
-
-/** Un punto e la direzione dell'arco a una certa distanza lungo la schiena. */
-function sullArco(z: number, raggio: number, x = 0) {
-  const a = z / raggio;
-  const r = raggio - x;
-  return { p: new THREE.Vector3(raggio - r * Math.cos(a), 0, r * Math.sin(a)), rotta: a };
-}
-
-/**
- * Romero, un cane corso grigio, raggomitolato sulla cuccia: corpo massiccio piegato a C,
- * la testa larga col muso corto appoggiata sulle zampe davanti, le orecchie piccole e ripiegate,
- * la coda lungo il fianco. Respira; ogni tanto muove un orecchio o la punta della coda.
- * Quando si apre il modulo alza la testa, guarda, e la riabbassa.
- */
-class Romero {
-  gruppo = new THREE.Group();
-  private corpo: THREE.Mesh;
-  private testa = new THREE.Group();
-  private orecchie: THREE.Mesh[] = [];
-  private coda = new THREE.Group();
-  private s = { orecchio: 4, orecchioT: -10, quale: 0, coda: 7, codaT: -10, alzata: -10, modulo: false };
-
-  constructor(texture: THREE.Texture[]) {
-    const c = POSIZIONI.cuccia;
-    this.gruppo.position.set(c.x, 0, c.z);
-    // la cuccia: un cuscino tondo col bordo rialzato
-    const stoffa = new THREE.MeshStandardMaterial({ color: "#7D5E48", roughness: 0.95 });
-    const fondo = new THREE.MeshStandardMaterial({ color: "#9A7A60", roughness: 1 });
-    const cuscino = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.42, 0.08, 32), fondo);
-    cuscino.position.y = 0.04;
-    this.gruppo.add(cuscino);
-    const bordo = new THREE.Mesh(new THREE.TorusGeometry(0.42, 0.065, 10, 40).rotateX(Math.PI / 2), stoffa);
-    bordo.position.y = 0.08;
-    bordo.scale.set(1, 1, 0.85);
-    this.gruppo.add(bordo);
-    const txOmbra = ombra();
-    texture.push(txOmbra);
-    const om = new THREE.Mesh(new THREE.PlaneGeometry(1.25, 1.25).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ map: txOmbra, transparent: true, opacity: 0.6, depthWrite: false }));
-    om.position.y = 0.002;
-    this.gruppo.add(om);
-
-    // il mantello: grigio piombo, appena più scuro sul dorso e sulla maschera
-    const pelo = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.62 });
-    const grigio = new THREE.Color("#6E7077"), scuro = new THREE.Color("#55575E"), ventre = new THREE.Color("#85878D");
-    const tinta = (_k: number, ang: number) => {
-      const su = Math.sin(ang);
-      return su > 0.4 ? scuro : su < -0.3 ? ventre : grigio;
-    };
-
-    const cane = new THREE.Group();
-    cane.position.set(-0.24, 0.075, 0.1);
-    cane.rotation.y = 0.55;
-    cane.scale.setScalar(1.18);
-    this.gruppo.add(cane);
-    const RC = 0.3;
-    // il corpo, lungo z dalla groppa (−) al petto (+), poi piegato a C
-    const g = loft([
-      { z: -0.36, l: 0.03, su: 0.03, y: 0.1 },
-      { z: -0.32, l: 0.12, su: 0.11, giu: 0.06, y: 0.1 },
-      { z: -0.2, l: 0.16, su: 0.15, giu: 0.07, y: 0.1, n: 2.3 },
-      { z: -0.02, l: 0.14, su: 0.13, giu: 0.06, y: 0.09, n: 2.3 },
-      { z: 0.14, l: 0.155, su: 0.15, giu: 0.07, y: 0.1, n: 2.3 },
-      { z: 0.26, l: 0.13, su: 0.13, giu: 0.06, y: 0.11 },
-      { z: 0.34, l: 0.09, su: 0.09, giu: 0.05, y: 0.12 },
-    ], { radiali: 18, passi: 4, colore: tinta });
-    this.corpo = new THREE.Mesh(piega(g, RC), pelo);
-    cane.add(this.corpo);
-
-    // la coscia di dietro, che sporge sopra il fianco esterno
-    const coscia = new THREE.Mesh(new THREE.SphereGeometry(0.1, 14, 10).scale(1.15, 0.9, 1.3), pelo);
-    const cA = sullArco(-0.22, RC, -0.09);
-    coscia.position.copy(cA.p).setY(0.15);
-    coscia.rotation.y = cA.rotta;
-    this.colora(coscia.geometry, grigio);
-    cane.add(coscia);
-
-    // le zampe davanti, distese sul cuscino sotto il muso
-    const zampa = (z: number, x: number, lungo: number) => {
-      const z0 = sullArco(z, RC, x);
-      const m = new THREE.Mesh(new THREE.CapsuleGeometry(0.032, lungo, 4, 8).rotateX(Math.PI / 2).translate(0, 0, lungo / 2), pelo);
-      this.colora(m.geometry, grigio);
-      m.position.copy(z0.p).setY(0.035);
-      m.rotation.y = z0.rotta + 0.25;
-      cane.add(m);
-    };
-    zampa(0.3, 0.06, 0.24);
-    zampa(0.26, -0.05, 0.22);
-    // la zampa di dietro ripiegata verso la testa
-    zampa(-0.12, -0.15, 0.16);
-
-    // la testa: cranio largo e piatto, stop marcato, muso corto e squadrato, guance piene
-    const tA = sullArco(0.5, RC, 0.02);
-    this.testa.position.copy(tA.p).setY(0.11);
-    this.testa.rotation.y = tA.rotta + 0.3;
-    cane.add(this.testa);
-    const gt = loft([
-      { z: -0.1, l: 0.02, su: 0.02 },
-      { z: -0.07, l: 0.095, su: 0.08, giu: 0.07 },
-      { z: 0.0, l: 0.11, su: 0.085, giu: 0.08, n: 2.4 },
-      { z: 0.06, l: 0.1, su: 0.07, giu: 0.08, n: 2.6 },
-      { z: 0.1, l: 0.085, su: 0.045, giu: 0.075, y: -0.015, n: 3 },
-      { z: 0.155, l: 0.075, su: 0.04, giu: 0.06, y: -0.02, n: 3.2 },
-      { z: 0.18, l: 0.05, su: 0.03, giu: 0.04, y: -0.02, n: 3 },
-    ], {
-      radiali: 18, passi: 3,
-      colore: (k) => (k > 0.62 ? new THREE.Color("#2F3034") : k > 0.48 ? scuro : grigio),
-    });
-    this.testa.add(new THREE.Mesh(gt, pelo));
-    // il tartufo nero
-    const naso = new THREE.Mesh(new THREE.SphereGeometry(0.024, 10, 8).scale(1.2, 0.8, 0.7), new THREE.MeshStandardMaterial({ color: "#151517", roughness: 0.35 }));
-    naso.position.set(0, -0.005, 0.18);
-    this.testa.add(naso);
-    // le palpebre chiuse: due trattini scuri
-    for (const s of [-1, 1]) {
-      const occhio = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.004, 0.006), new THREE.MeshBasicMaterial({ color: "#18181B" }));
-      occhio.position.set(s * 0.05, 0.035, 0.085);
-      occhio.rotation.set(-0.5, s * 0.35, 0);
-      this.testa.add(occhio);
-    }
-    // le orecchie: triangoli piccoli, ripiegati in avanti sulle tempie
-    // le orecchie: lembi triangolari che ricadono sulle tempie, non dritte
-    for (const s of [-1, 1]) {
-      const o = new THREE.Mesh(new THREE.ConeGeometry(0.045, 0.085, 3).scale(1, 1, 0.3), pelo);
-      this.colora(o.geometry, scuro);
-      o.geometry.translate(0, -0.045, 0);
-      o.position.set(s * 0.1, 0.055, -0.035);
-      o.rotation.set(0.15, 0, s * 0.35);
-      this.testa.add(o);
-      this.orecchie.push(o);
-    }
-
-    // la coda, lungo il fianco verso le zampe
-    const cC = sullArco(-0.34, RC, 0.02);
-    this.coda.position.copy(cC.p).setY(0.1);
-    this.coda.rotation.y = cC.rotta - 1.9;
-    const curva = new THREE.CatmullRomCurve3([
-      new THREE.Vector3(0, 0, 0), new THREE.Vector3(0.04, -0.05, 0.12), new THREE.Vector3(0.0, -0.07, 0.26), new THREE.Vector3(-0.08, -0.07, 0.36),
-    ]);
-    const tubo = new THREE.Mesh(new THREE.TubeGeometry(curva, 12, 0.022, 6), pelo);
-    this.colora(tubo.geometry, grigio);
-    this.coda.add(tubo);
-    cane.add(this.coda);
-
-    this.gruppo.traverse((o) => (o.raycast = () => undefined));
-  }
-
-  private colora(g: THREE.BufferGeometry, c: THREE.Color) {
-    const n = g.attributes.position.count;
-    const col = new Float32Array(n * 3);
-    for (let i = 0; i < n; i++) col.set([c.r, c.g, c.b], i * 3);
-    g.setAttribute("color", new THREE.BufferAttribute(col, 3));
-  }
-
-  aggiorna(t: number) {
-    const s = this.s;
-    // il respiro, lento, del sonno profondo
-    const r = Math.sin(t * 1.4);
-    this.corpo.scale.set(1 + r * 0.012, 1 + r * 0.025, 1);
-    // un orecchio che scatta
-    if (t > s.orecchio) {
-      s.orecchioT = t;
-      s.quale = Math.random() < 0.5 ? 0 : 1;
-      s.orecchio = t + casuale(5, 11);
-    }
-    this.orecchie.forEach((o, i) => {
-      const e = t - s.orecchioT;
-      const scatto = i === s.quale && e < 0.45 ? Math.sin((e / 0.45) * Math.PI * 2) * Math.exp(-e * 4) : 0;
-      o.rotation.x = 0.15 + scatto * 0.7;
-    });
-    // la punta della coda che batte due volte
-    if (t > s.coda) {
-      s.codaT = t;
-      s.coda = t + casuale(8, 16);
-    }
-    const ec = t - s.codaT;
-    this.coda.rotation.z = ec < 1 ? Math.sin(ec * Math.PI * 4) * 0.18 * (1 - ec) : 0;
-    // il modulo si apre: alza la testa, guarda, la riabbassa
-    if (mondo.modulo && !s.modulo) s.alzata = t;
-    s.modulo = mondo.modulo;
-    const ea = t - s.alzata;
-    const su = ea < 0 ? 0 : ea < 0.6 ? morbido(ea / 0.6) : ea < 2.6 ? 1 : ea < 3.8 ? 1 - morbido((ea - 2.6) / 1.2) : 0;
-    this.testa.rotation.x = -su * 0.55;
-    this.testa.position.y = 0.11 + su * 0.09;
-  }
-}
-
-const morbido = (k: number) => k * k * (3 - 2 * k);
-
 /* ---------------------------------------------------------------------- zona */
 
 export class Zona {
   gruppo = new THREE.Group();
   private scrivania: Scrivania;
-  private drum: Drum;
+  private studio: Studio;
   private pannello: Pannello;
   private schiacciasogni: Schiacciasogni;
-  private romero: Romero;
   private texture: THREE.Texture[] = [];
   private notte: boolean;
 
@@ -547,15 +440,12 @@ export class Zona {
     collocaZona(this.gruppo);
     this.scrivania = new Scrivania(notte);
     this.gruppo.add(this.scrivania.gruppo);
-    this.drum = new Drum(this.texture);
-    this.drum.gruppo.position.copy(POSIZIONI.drum);
-    this.gruppo.add(this.drum.gruppo);
+    this.studio = new Studio(this.texture);
+    this.gruppo.add(this.studio.gruppo);
     this.pannello = new Pannello(this.texture);
     this.gruppo.add(this.pannello.gruppo);
     this.schiacciasogni = new Schiacciasogni(this.texture);
     this.gruppo.add(this.schiacciasogni.gruppo);
-    this.romero = new Romero(this.texture);
-    this.gruppo.add(this.romero.gruppo);
     this.pannello.setNotte(notte);
     // solo libri e drum machine rispondono al puntatore
     this.gruppo.traverse((o) => {
@@ -575,11 +465,10 @@ export class Zona {
   }
 
   aggiorna(t: number, dt: number, camera: THREE.Camera, ridotto: boolean) {
-    this.drum.aggiorna();
+    this.studio.aggiorna(t, ridotto);
     if (ridotto) return;
     this.scrivania.aggiorna(t, dt);
     this.schiacciasogni.aggiorna(t, this.notte);
-    this.romero.aggiorna(t);
     void camera;
   }
 

@@ -4,8 +4,8 @@ import { PELO_ACQUA } from "./condivisi";
 
 /**
  * La zona dello sviluppatore: il posto sull'anello che prima era della carta "Scrivimi".
- * Lì stanno la scrivania, il cassetto aperto (il modulo di contatto), la drum machine,
- * la mensola coi libri, lo schiacciasogni e Romero. Tutto è misurato nelle unità della scrivania
+ * Lì stanno la scrivania, il cassetto aperto (il modulo di contatto),
+ * la mensola coi libri, lo schiacciasogni e il tavolino delle macchine del suono. Tutto è misurato nelle unità della scrivania
  * (circa metri), poi scalato di SCALA_ZONA e messo al suo posto sull'anello, rivolto verso fuori:
  * lo sviluppatore dà le spalle a chi guarda. In queste coordinate +z va verso fuori, −z verso il centro.
  */
@@ -21,12 +21,10 @@ export const SCALA_ZONA = 0.55;
 export const POSIZIONI = {
   /** la cassettiera col cassetto aperto, accanto alla sedia, dalla parte di chi guarda */
   cassetto: new THREE.Vector3(1.22, 0, 0.18),
-  /** la drum machine, sul piano a sinistra della tastiera */
-  drum: new THREE.Vector3(-0.47, 0.735, 0.36),
+  /** il tavolino delle macchine del suono, accanto alla sedia dal lato della mensola */
+  studio: new THREE.Vector3(-0.98, 0, -0.22),
   /** il pannello di legno a cui sono appese la mensola e lo schiacciasogni */
   pannello: new THREE.Vector3(-1.32, 0, 0.92),
-  /** la cuccia di Romero, accanto alla sedia dal lato della mensola, fuori dal giro del robot */
-  cuccia: new THREE.Vector3(-0.86, 0, -0.25),
 };
 
 /** Mette una zona-gruppo al suo posto sull'anello. */

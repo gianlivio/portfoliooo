@@ -188,7 +188,18 @@ class Suono {
 
     this.loopBus = c.createGain();
     this.loopBus.gain.value = 0;
-    this.loopBus.connect(this.master);
+    // il loop passa da una saturazione: più sporco, più industriale
+    const sporco = c.createWaveShaper();
+    const curva = new Float32Array(1024);
+    for (let i = 0; i < 1024; i++) {
+      const x = (i / 1023) * 2 - 1;
+      curva[i] = Math.tanh(x * 2.6);
+    }
+    sporco.curve = curva;
+    sporco.oversample = "2x";
+    const dopo = c.createGain();
+    dopo.gain.value = 0.7;
+    this.loopBus.connect(sporco).connect(dopo).connect(this.master);
 
     this.effetti = c.createGain();
     this.effetti.gain.value = 0.7;
@@ -358,12 +369,19 @@ class Suono {
     }
   }
 
-  /** Un sedicesimo del loop. Notte: la minore, cupa e piena d'eco. Giorno: aperto, in re dorico. */
+  /**
+   * Un sedicesimo del loop: techno industriale. Cassa saturata in quattro, metallo battuto sui levare,
+   * rumore stretto al posto del charleston, basso a dente di sega che rotola.
+   * Notte: in la minore, cupa e piena d'eco. Giorno: in re, più aperta.
+   */
   private colpo(s: number, battuta: number, t: number) {
     const n = this.eNotte;
     const d = this.loopBus;
-    // cassa in quattro
-    if (s % 4 === 0) this.cassa(t, n ? 0.95 : 0.85);
+    // cassa in quattro, e un colpo fantasma prima del quattro
+    if (s % 4 === 0) this.cassa(t, n ? 1 : 0.9);
+    if (s === 14 && battuta % 2 === 1) this.cassa(t, 0.45);
+    // metallo: lamiera battuta sui levare, ogni tanto doppia
+    if (s % 4 === 2 || (s === 7 && battuta % 2 === 0)) this.metallo(t, n ? 0.05 : 0.06, n ? 2.2 : 3.1);
     // charleston: chiuso sui levare, aperto sul levare del quarto (di giorno)
     if (s % 4 === 2) this.charleston(t, n ? 0.05 : 0.09, n ? 0.05 : 0.18);
     else if (s % 2 === 1) this.charleston(t, n ? 0.022 : 0.03, 0.03);
@@ -376,9 +394,9 @@ class Suono {
       const semi = giro[(battuta % 2) * 4 + Math.floor(s / 4)];
       this.basso(t, radice * Math.pow(2, semi / 12), n ? 0.22 : 0.17, n ? 380 : 620);
     }
-    // arpeggio pizzicato, nell'eco
+    // arpeggio pizzicato, nell'eco: più rado, sotto il metallo
     const arp = n ? [0, 3, 7, 10, 12, 10, 7, 3] : [0, 5, 7, 12, 14, 12, 9, 7];
-    if (s % 2 === 0 && (battuta % 4 !== 3 || s < 8)) {
+    if (s % 4 === 0 && battuta % 2 === 0) {
       const semi = arp[(s / 2 + battuta) % arp.length];
       const f = (n ? 220 : 293.66) * Math.pow(2, semi / 12);
       this.pizzico(t, f, n ? 0.045 : 0.05);
@@ -399,8 +417,8 @@ class Suono {
   private cassa(t: number, forza: number) {
     const c = this.ctx as AudioContext;
     const o = c.createOscillator();
-    o.frequency.setValueAtTime(150, t);
-    o.frequency.exponentialRampToValueAtTime(44, t + 0.12);
+    o.frequency.setValueAtTime(190, t);
+    o.frequency.exponentialRampToValueAtTime(42, t + 0.09);
     const g = c.createGain();
     this.inviluppo(g, t, forza, 0.003, 0.42);
     o.connect(g).connect(this.loopBus);
@@ -408,13 +426,41 @@ class Suono {
     o.stop(t + 0.45);
   }
 
+  /** Metallo battuto: due onde quadre stonate fra loro, moltiplicate e filtrate stretto. */
+  private metallo(t: number, forza: number, rapporto: number) {
+    const c = this.ctx as AudioContext;
+    const a = c.createOscillator();
+    const b = c.createOscillator();
+    a.type = b.type = "square";
+    a.frequency.value = 410;
+    b.frequency.value = 410 * rapporto;
+    const anello = c.createGain();
+    anello.gain.value = 0;
+    b.connect(anello.gain);
+    a.connect(anello);
+    const f = c.createBiquadFilter();
+    f.type = "bandpass";
+    f.frequency.value = 3200;
+    f.Q.value = 3;
+    const g = c.createGain();
+    this.inviluppo(g, t, forza, 0.001, 0.16);
+    anello.connect(f).connect(g);
+    g.connect(this.loopBus);
+    g.connect(this.riverbero);
+    a.start(t);
+    b.start(t);
+    a.stop(t + 0.2);
+    b.stop(t + 0.2);
+  }
+
   private charleston(t: number, forza: number, durata: number) {
     const c = this.ctx as AudioContext;
     const s = c.createBufferSource();
     s.buffer = this.rumore;
     const f = c.createBiquadFilter();
-    f.type = "highpass";
-    f.frequency.value = 7800;
+    f.type = "bandpass";
+    f.frequency.value = 9000;
+    f.Q.value = 2.5;
     const g = c.createGain();
     this.inviluppo(g, t, forza, 0.002, durata);
     s.connect(f).connect(g).connect(this.loopBus);
@@ -446,8 +492,8 @@ class Suono {
     o.frequency.value = f;
     const fl = c.createBiquadFilter();
     fl.type = "lowpass";
-    fl.Q.value = 6;
-    fl.frequency.setValueAtTime(taglio * 2.2, t);
+    fl.Q.value = 9;
+    fl.frequency.setValueAtTime(taglio * 3, t);
     fl.frequency.exponentialRampToValueAtTime(taglio * 0.5, t + 0.1);
     const g = c.createGain();
     this.inviluppo(g, t, forza, 0.004, 0.13);
