@@ -23,6 +23,8 @@ export const SOTTOFONDO: { url: string | null; volume: number } = { url: null, v
 
 const CHIAVE = "audio";
 const VOLUME = 0.16; // volume generale, basso
+/** Le campanelle del giorno: note della scala hijaz su re. */
+const CAMPANE_GIORNO = [440, 466.16, 587.33, 622.25, 739.99, 783.99, 880];
 /** La scala hijaz (frigia dominante), in semitoni dalla tonica. */
 const HIJAZ = [0, 1, 4, 5, 7, 8, 10];
 /** Le frasi dell'oud: quattro battute, sei colpi per battuta (gradi della scala; null = pausa). */
@@ -322,9 +324,9 @@ class Suono {
     this.lfo(g.gain, 0.07, guadagno * 0.3);
   }
 
-  /** Giorno: un accordo largo e chiaro, e aria. */
+  /** Giorno: una quinta vuota su re, bassa, che sta sotto la scala hijaz delle melodie; e aria. */
   private fondoGiorno() {
-    this.tappeto(this.giorno, [130.81, 196, 246.94, 293.66, 329.63], 1900, 0.05);
+    this.tappeto(this.giorno, [73.42, 110, 146.83, 220, 293.66], 1300, 0.055);
     const aria = this.sorgenteRumore(this.giorno, "highpass", 5200, 0.5, 0.025);
     this.lfo(aria.g.gain, 0.09, 0.012);
   }
@@ -373,7 +375,7 @@ class Suono {
   private campanella() {
     const c = this.ctx;
     if (!c) return;
-    const f = SCALA[5 + Math.floor(Math.random() * 7)];
+    const f = this.eNotte ? SCALA[5 + Math.floor(Math.random() * 7)] : CAMPANE_GIORNO[Math.floor(Math.random() * CAMPANE_GIORNO.length)];
     this.nota(this.eNotte ? this.notte : this.giorno, f * (this.eNotte ? 0.5 : 1), c.currentTime + 0.05, 2.8, 0.03, "sine");
     this.campanelle = setTimeout(() => this.campanella(), 4000 + Math.random() * 6000);
   }
@@ -550,8 +552,9 @@ class Suono {
   private cassa(t: number, forza: number) {
     const c = this.ctx as AudioContext;
     const o = c.createOscillator();
-    o.frequency.setValueAtTime(190, t);
-    o.frequency.exponentialRampToValueAtTime(42, t + 0.09);
+    // la coda della cassa sulla tonica: la di notte, re di giorno
+    o.frequency.setValueAtTime(this.eNotte ? 190 : 165, t);
+    o.frequency.exponentialRampToValueAtTime(this.eNotte ? 42 : 36.71, t + 0.09);
     const g = c.createGain();
     this.inviluppo(g, t, forza, 0.003, 0.42);
     o.connect(g).connect(this.loopBus);
