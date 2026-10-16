@@ -10,6 +10,7 @@ import { curriculum } from "@/content/collegamenti";
 import schermate from "@/content/schermate.json";
 import type { Carta, Tema } from "./Scena";
 import Modulo from "./Modulo";
+import { suono, type Modo } from "./audio";
 
 const Scena = dynamic(() => import("./Scena"), { ssr: false });
 
@@ -32,7 +33,7 @@ export default function Esperienza({ d, lingua }: { d: Dizionario; lingua: Lingu
   const [pronta, setPronta] = useState(false);
   const [ambiente, setAmbiente] = useState<Ambiente | null>(null);
   const [tema, setTema] = useState<Tema>("scuro");
-  const [montaggi, setMontaggi] = useState(0);
+  const [audio, setAudio] = useState<Modo>("spento");
   const palco = useRef<HTMLDivElement>(null);
   const titoloVignetta = useRef<HTMLHeadingElement>(null);
   const daTastiera = useRef(false);
@@ -55,11 +56,35 @@ export default function Esperienza({ d, lingua }: { d: Dizionario; lingua: Lingu
       attesa = setTimeout(leggi, 250);
     };
     window.addEventListener("resize", ridim);
+    // "riduci movimento" può cambiare a pagina aperta: si ascolta il cambio, non solo l'avvio
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const cambiaRidotto = () => setAmbiente((a) => (a ? { ...a, ridotto: mq.matches } : a));
+    mq.addEventListener("change", cambiaRidotto);
     return () => {
       cancelAnimationFrame(primo);
       window.removeEventListener("resize", ridim);
+      mq.removeEventListener("change", cambiaRidotto);
     };
   }, []);
+
+  // l'audio: legge la scelta salvata (con "riduci movimento" non si riaccende da solo) e aspetta un gesto
+  useEffect(() => {
+    if (!ambiente) return;
+    const via = suono.ascolta(setAudio);
+    suono.prepara(ambiente.ridotto);
+    const gesto = () => suono.gesto();
+    window.addEventListener("pointerdown", gesto);
+    window.addEventListener("keydown", gesto);
+    return () => {
+      via();
+      window.removeEventListener("pointerdown", gesto);
+      window.removeEventListener("keydown", gesto);
+    };
+  }, [ambiente?.ridotto]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    suono.setNotte(tema === "scuro");
+  }, [tema]);
 
   useEffect(() => {
     document.documentElement.classList.toggle("con-scena", !!ambiente?.webgl);
@@ -74,7 +99,8 @@ export default function Esperienza({ d, lingua }: { d: Dizionario; lingua: Lingu
       /* archivio non disponibile: il tema vale per questa visita */
     }
     setTema(nuovo);
-    setMontaggi((m) => m + 1);
+    suono.setNotte(nuovo === "scuro");
+    suono.effetto("tema");
   }, [tema]);
 
   const carte = useMemo<Carta[]>(() => {
@@ -121,12 +147,14 @@ export default function Esperienza({ d, lingua }: { d: Dizionario; lingua: Lingu
       setSelezionato(null);
       setModulo(true);
       setMosso(true);
+      suono.effetto("cassetto");
       return;
     }
     setSelezionato(id);
     if (id) {
       setMosso(true);
       setFocale(null);
+      suono.effetto("apri");
     }
   }, []);
 
@@ -135,6 +163,11 @@ export default function Esperienza({ d, lingua }: { d: Dizionario; lingua: Lingu
     setFocale(null);
   }, []);
   const chiudiModulo = useCallback(() => setModulo(false), []);
+
+  // passando con le frecce da una carta all'altra, ogni carta suona la sua nota: un arpeggio
+  useEffect(() => {
+    if (focale !== null) suono.notaCarta(focale);
+  }, [focale]);
 
   const indice = selezionato ? lavori.findIndex((l) => l.id === selezionato) : -1;
   const vai = useCallback(
@@ -160,6 +193,10 @@ export default function Esperienza({ d, lingua }: { d: Dizionario; lingua: Lingu
       if (e.key === "Escape") chiudiVignetta();
       if (e.key === "ArrowRight") vai(1);
       if (e.key === "ArrowLeft") vai(-1);
+      if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
+        const n = lavori.length;
+        suono.notaCarta((lavori.findIndex((l) => l.id === selezionato) + (e.key === "ArrowRight" ? 1 : -1) + n) % n);
+      }
     };
     window.addEventListener("keydown", tasti);
     return () => window.removeEventListener("keydown", tasti);
@@ -222,8 +259,9 @@ export default function Esperienza({ d, lingua }: { d: Dizionario; lingua: Lingu
           daTastiera.current = false;
         }}
       >
+        {/* il tema non rimonta la scena: cambia materiali e uniform */}
         <Scena
-          key={`${lingua}-${ambiente.stretto}-${tema}`}
+          key={`${lingua}-${ambiente.stretto}`}
           carte={carte}
           selezionato={selezionato}
           focale={focale}
@@ -233,9 +271,10 @@ export default function Esperienza({ d, lingua }: { d: Dizionario; lingua: Lingu
           ridotto={ambiente.ridotto}
           stretto={ambiente.stretto}
           tema={tema}
-          conIngresso={montaggi === 0}
+          conIngresso
           lingua={lingua}
           moduloAperto={modulo}
+          sezioneEditoria={d.elenco.editoria}
         />
       </div>
 
@@ -257,6 +296,19 @@ export default function Esperienza({ d, lingua }: { d: Dizionario; lingua: Lingu
               {l.toUpperCase()}
             </a>
           ))}
+          <button
+            className="tema audio"
+            onClick={() => suono.interruttore()}
+            aria-pressed={audio !== "spento"}
+            aria-label={audio === "spento" ? d.audio.accendi : d.audio.spegni}
+            title={audio === "spento" ? d.audio.accendi : d.audio.spegni}
+          >
+            <span className={`audio-segno${audio !== "spento" ? " audio-segno--acceso" : ""}`} aria-hidden="true">
+              <i />
+              <i />
+              <i />
+            </span>
+          </button>
           <button
             className="tema"
             onClick={cambiaTema}

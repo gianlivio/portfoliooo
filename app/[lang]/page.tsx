@@ -36,39 +36,48 @@ export default async function Pagina({
           {d.nome} — {d.ruolo}
         </h1>
         <p>{d.meta.descrizione}</p>
-        <h2>{d.elenco.titolo}</h2>
-        <ul>
-          {lavori.map((l) => {
-            const t = d.lavori[l.id as keyof typeof d.lavori];
-            return (
-              <li key={l.id}>
-                <h3>{t.titolo}</h3>
-                <p>
-                  {t.tipo}
-                  {l.anno ? ` · ${l.anno}` : ""}
-                </p>
-                <p>{t.ruolo}</p>
-                <p>{t.riga}</p>
-                {t.compiti.length > 0 && (
-                  <>
-                    <h4>{d.elenco.compiti}</h4>
-                    <ul>
-                      {t.compiti.map((c) => (
-                        <li key={c}>{c}</li>
-                      ))}
-                    </ul>
-                  </>
-                )}
-                {t.strumenti && (
-                  <p>
-                    {d.elenco.strumenti}: {t.strumenti}
-                  </p>
-                )}
-                {l.link && <a href={l.link.href}>{l.link.etichetta}</a>}
-              </li>
-            );
-          })}
-        </ul>
+        {([
+          ["sviluppo", d.elenco.titolo],
+          ["editoria", d.elenco.editoria],
+        ] as const).map(([sezione, titolo]) => (
+          <section key={sezione}>
+            <h2>{titolo}</h2>
+            <ul>
+              {lavori
+                .filter((l) => l.sezione === sezione)
+                .map((l) => {
+                  const t = d.lavori[l.id as keyof typeof d.lavori];
+                  return (
+                    <li key={l.id}>
+                      <h3>{t.titolo}</h3>
+                      <p>
+                        {t.tipo}
+                        {l.anno ? ` · ${l.anno}` : ""}
+                      </p>
+                      <p>{t.ruolo}</p>
+                      <p>{t.riga}</p>
+                      {t.compiti.length > 0 && (
+                        <>
+                          <h4>{d.elenco.compiti}</h4>
+                          <ul>
+                            {t.compiti.map((c) => (
+                              <li key={c}>{c}</li>
+                            ))}
+                          </ul>
+                        </>
+                      )}
+                      {t.strumenti && (
+                        <p>
+                          {d.elenco.strumenti}: {t.strumenti}
+                        </p>
+                      )}
+                      {l.link && <a href={l.link.href}>{l.link.etichetta}</a>}
+                    </li>
+                  );
+                })}
+            </ul>
+          </section>
+        ))}
         <h2>{d.elenco.recapiti}</h2>
         <ul>
           {Object.entries(recapiti).map(([k, r]) => (

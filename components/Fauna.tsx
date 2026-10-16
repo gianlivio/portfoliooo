@@ -15,7 +15,7 @@ import { Nuvole } from "./ospiti/nuvole";
 import { Feluca } from "./ospiti/feluca";
 import { Iss } from "./ospiti/orbite";
 import { Galeone } from "./ospiti/galeone";
-import { Scrivania } from "./ospiti/scrivania";
+import { suono } from "./audio";
 import { Zeppelin } from "./ospiti/zeppelin";
 import { Droni } from "./ospiti/drone";
 import { Robot } from "./ospiti/robot";
@@ -31,7 +31,7 @@ import { Pterodattilo } from "./ospiti/pterodattilo";
  * Giorno, a terra: Achille e la tartaruga; in aria: Icaro, i droni, uno pterodattilo;
  * in cielo: un jet con le scie, un dirigibile. Sempre: nuvole lente e un sole dall'alba al tramonto,
  * e il robot aspirapolvere che pulisce davanti alla scrivania.
- * Sempre, di giorno e di notte: lo sviluppatore alla scrivania, sotto la terza carta.
+ * Lo sviluppatore alla scrivania non è qui: la sua zona sta in Scena e resta anche con "riduci movimento".
  * Con "riduci movimento" non passa niente. Con ?ospiti nell'indirizzo passano subito e spesso;
  * con ?ospiti=nome passa solo quello.
  */
@@ -208,6 +208,7 @@ function Gocce() {
         // impatto: l'acqua comincia a fare cerchi, una piccola corona di schizzi salta su
         gm.visible = false;
         gocce[s.slot].set(s.pos.x, s.pos.z, t, casuale(0.8, 1.15));
+        suono.effetto("goccia");
         s.slot = (s.slot + 1) % 4; // le altre sono dei remi della nave
         s.impatto = t;
         s.vel.forEach((v, k) => {
@@ -282,8 +283,6 @@ const creaNuvole = () => new Nuvole();
 const creaFeluca = () => new Feluca();
 const creaIss = () => new Iss();
 const creaGaleone = () => new Galeone();
-const creaScrivaniaNotte = () => new Scrivania(true);
-const creaScrivaniaGiorno = () => new Scrivania(false);
 const creaZeppelin = () => new Zeppelin();
 const creaDroni = () => new Droni();
 const creaRobot = () => new Robot();
@@ -295,16 +294,15 @@ export default function Fauna({
   notte, ridotto, pausa = false,
 }: { notte: boolean; ridotto: boolean; stretto?: boolean; pausa?: boolean }) {
   const scelto = useMemo(() => solo(), []);
-  // la scena si rimonta a ogni cambio di tema o lingua, con l'orologio da capo: la regia pure
+  // la scena si rimonta al cambio di lingua o di formato, con l'orologio da capo: la regia pure
   useEffect(() => azzeraRegia(), []);
   // con una scheda o il modulo aperti non parte niente di nuovo
   useEffect(() => pausaRegia(pausa), [pausa]);
   if (ridotto) return null;
   const c = (nome: string) => !scelto || scelto === nome;
+  // la luce del cielo e la zona dello sviluppatore stanno in Scena: restano anche con "riduci movimento"
   return notte ? (
     <>
-      {/* luce di luna, fioca, per gli ospiti fatti di materia (le barche, la scrivania) */}
-      <hemisphereLight args={["#4A5A82", "#0B0C10", 0.85]} />
       {c("stelle") && <StelleCadenti />}
       {c("gocce") && <Gocce />}
       {c("nave") && <Presenza crea={creaNave} />}
@@ -313,12 +311,10 @@ export default function Fauna({
       {c("galeone") && <Presenza crea={creaGaleone} />}
       {c("iss") && <Presenza crea={creaIss} />}
       <Presenza crea={creaTralicci} />
-      {c("scrivania") && <Presenza crea={creaScrivaniaNotte} />}
     </>
   ) : (
     <>
-      {/* luce per gli ospiti (le carte non ne usano): il cielo, più il sole che si muove */}
-      <hemisphereLight args={["#F6F2EA", "#B8AFA0", 1.05]} />
+      {/* il sole che si muove, sopra la luce del cielo */}
       <Presenza crea={creaSole} />
       <Presenza crea={creaNuvole} />
       {c("tartaruga") && <Presenza crea={creaAchille} />}
@@ -328,7 +324,6 @@ export default function Fauna({
       {c("drone") && <Presenza crea={creaDroni} />}
       {c("pterodattilo") && <Presenza crea={creaPterodattilo} />}
       {c("robot") && <Presenza crea={creaRobot} />}
-      {c("scrivania") && <Presenza crea={creaScrivaniaGiorno} />}
     </>
   );
 }

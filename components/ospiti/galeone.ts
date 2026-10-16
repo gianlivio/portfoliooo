@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { PELO_ACQUA, gocce } from "../condivisi";
+import { BPM, PELO_ACQUA, gocce, mondo } from "../condivisi";
 import {
   type Ospite, RUMORE, alone, assi, bruma, cancella, casuale, finito, fra, liberaTutto, loft, primo, riposo, segno, tocca,
 } from "./comuni";
@@ -8,7 +8,8 @@ import {
  * Di notte, ogni tanto, un galeone pirata fantasma attraversa l'acqua fra chi guarda e le carte, piccolo e lontano.
  * Si compone dal buio a chiazze, dal basso in alto; il fasciame è marcio e bucato,
  * le vele sono stracci che il vento gonfia; lanterne verdi, finestre di poppa accese,
- * un timoniere incappucciato. Lascia una scia di cerchi sull'acqua, a tratti vacilla, e si disfa.
+ * un timoniere incappucciato. Sul ponte c'è una festa (vedi Festa, sotto).
+ * Lascia una scia di cerchi sull'acqua, a tratti vacilla, e si disfa.
  */
 
 const SLOT_SCIA = [4, 5, 6, 7];
@@ -228,6 +229,142 @@ const ALBERI: Albero[] = [
 ];
 const MEZZANA = { z: -0.8, base: 0.68, cima: 1.95 };
 
+/* -------------------------------------------------------------------- festa */
+
+const COLORI_LASER = ["#FF2E88", "#2EF2FF", "#9DFF2E", "#B04DFF", "#FFE02E", "#FF6A2E"];
+
+/**
+ * La festa sul ponte, in miniatura: uno stack di casse da sound system a poppa, laser di tutti i colori
+ * sparati in cielo, ghiaccio secco basso sul legno, una folla di figurine che saltano a tempo
+ * e uno stroboscopio che lampeggia sui quarti (a 130 BPM sono poco più di due lampi al secondo:
+ * mai più di tre, come chiede WCAG 2.3.1). A loop acceso il tempo è quello del loop.
+ * Con "riduci movimento" niente strobo e laser fermi (e comunque gli ospiti non passano).
+ */
+class Festa {
+  gruppo = new THREE.Group();
+  private folla: THREE.InstancedMesh;
+  private teste: THREE.InstancedMesh;
+  private posti: { x: number; z: number; fase: number; alto: number }[] = [];
+  private laser: THREE.Mesh[] = [];
+  private casse = new THREE.Group();
+  private strobo: THREE.Sprite;
+  private nebbia: { s: THREE.Sprite; x: number; z: number; fase: number }[] = [];
+  private m = new THREE.Matrix4();
+  private ultimoLampo = -1;
+
+  constructor(texture: THREE.Texture[]) {
+    const yPonte = (z: number) => ponte(z) - 0.02;
+    // le casse: due colonne di tre, coi coni
+    const nero = new THREE.MeshBasicMaterial({ color: "#0D0D10", transparent: true });
+    const cono = new THREE.MeshBasicMaterial({ color: "#3A3A44", transparent: true });
+    for (const x of [-0.13, 0.13]) {
+      for (let i = 0; i < 3; i++) {
+        const b = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.08, 0.08), nero);
+        b.position.set(x, yPonte(-0.62) + 0.04 + i * 0.082, -0.62);
+        this.casse.add(b);
+        const c = new THREE.Mesh(new THREE.CircleGeometry(0.028, 14), cono);
+        c.position.set(x, b.position.y, -0.62 + 0.041);
+        this.casse.add(c);
+      }
+    }
+    this.gruppo.add(this.casse);
+    // la folla: corpi e teste, istanze di due sole geometrie
+    const N = 22;
+    this.folla = new THREE.InstancedMesh(
+      new THREE.CapsuleGeometry(0.02, 0.05, 3, 6).translate(0, 0.045, 0),
+      new THREE.MeshBasicMaterial({ color: "#FFFFFF", transparent: true }),
+      N
+    );
+    this.teste = new THREE.InstancedMesh(new THREE.SphereGeometry(0.017, 8, 6), new THREE.MeshBasicMaterial({ color: "#D9B8A8", transparent: true }), N);
+    const tinte = ["#2B1E3A", "#3A1E2B", "#1E2B3A", "#2E2A1E", "#401A3D"];
+    const c = new THREE.Color();
+    for (let i = 0; i < N; i++) {
+      const z = -0.48 + (i / N) * 0.48 + casuale(-0.03, 0.03);
+      const x = casuale(-1, 1) * bordo(z) * 0.75;
+      this.posti.push({ x, z, fase: casuale(0, 0.35), alto: casuale(0.9, 1.15) });
+      this.folla.setColorAt(i, c.set(tinte[i % tinte.length]));
+    }
+    this.gruppo.add(this.folla, this.teste);
+    // i laser: lame sottili che partono dalle casse e vanno in cielo
+    COLORI_LASER.forEach((col) => {
+      const l = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.004, 0.012, 9, 4, 1, true).translate(0, 4.5, 0),
+        new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, fog: false })
+      );
+      l.position.set(0, yPonte(-0.6) + 0.27, -0.6);
+      this.laser.push(l);
+      this.gruppo.add(l);
+    });
+    // lo strobo
+    const tx = alone("#FFFFFF");
+    texture.push(tx);
+    this.strobo = new THREE.Sprite(new THREE.SpriteMaterial({ map: tx, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false }));
+    this.strobo.position.set(0, yPonte(-0.3) + 0.25, -0.3);
+    this.strobo.scale.setScalar(0.9);
+    this.gruppo.add(this.strobo);
+    // il ghiaccio secco, basso sul legno
+    const txN = bruma(17);
+    texture.push(txN);
+    for (let i = 0; i < 7; i++) {
+      const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: txN, color: "#E8E2F2", transparent: true, opacity: 0, depthWrite: false }));
+      const z = -0.6 + i * 0.09;
+      s.scale.set(0.38, 0.12, 1);
+      this.nebbia.push({ s, x: casuale(-0.12, 0.12), z, fase: casuale(0, 6) });
+      this.gruppo.add(s);
+    }
+    this.gruppo.traverse((o) => {
+      o.raycast = () => undefined;
+      o.frustumCulled = false;
+    });
+  }
+
+  aggiorna(t: number, vis: number) {
+    const b = mondo.battito;
+    const ridotto = mondo.ridotto;
+    // il tempo: quello del loop se suona, altrimenti 130 BPM dall'orologio della scena
+    const q = b.attivo ? b.n + b.fase : (t * BPM) / 60;
+    const fase = q - Math.floor(q);
+    const colpo = Math.exp(-fase * 6);
+    // le figurine saltano sui quarti, ognuna col suo ritardo
+    for (let i = 0; i < this.posti.length; i++) {
+      const p = this.posti[i];
+      const f = (fase + p.fase) % 1;
+      const salto = ridotto ? 0 : Math.max(0, Math.sin(f * Math.PI)) * 0.018;
+      const y = ponte(p.z) - 0.02 + salto;
+      this.m.makeScale(1, p.alto, 1).setPosition(p.x, y, p.z);
+      this.folla.setMatrixAt(i, this.m);
+      this.m.makeTranslation(p.x, y + 0.105 * p.alto, p.z);
+      this.teste.setMatrixAt(i, this.m);
+    }
+    this.folla.instanceMatrix.needsUpdate = true;
+    this.teste.instanceMatrix.needsUpdate = true;
+    (this.folla.material as THREE.MeshBasicMaterial).opacity = vis;
+    (this.teste.material as THREE.MeshBasicMaterial).opacity = vis;
+    this.casse.scale.setScalar(1 + (ridotto ? 0 : colpo * 0.04));
+    this.casse.children.forEach((o) => (((o as THREE.Mesh).material as THREE.MeshBasicMaterial).opacity = vis));
+    // i laser spazzano il cielo; cambiano direzione ogni battuta
+    this.laser.forEach((l, i) => {
+      const battuta = Math.floor(q / 4);
+      const base = (i / this.laser.length) * Math.PI * 2 + battuta * 0.7;
+      const moto = ridotto ? 0 : Math.sin(q * 0.5 + i) * 0.35;
+      l.rotation.set(0.35 + 0.25 * Math.sin(base + moto), base + moto, 0, "YXZ");
+      (l.material as THREE.MeshBasicMaterial).opacity = vis * (0.35 + 0.45 * colpo);
+    });
+    // lo strobo: un lampo breve su ogni quarto, al più uno per quarto
+    let lampo = 0;
+    if (!ridotto && fase < 0.12) {
+      const n = Math.floor(q);
+      if (n !== this.ultimoLampo) this.ultimoLampo = n;
+      lampo = 1 - fase / 0.12;
+    }
+    this.strobo.material.opacity = vis * lampo * 0.9;
+    this.nebbia.forEach((n) => {
+      n.s.position.set(n.x + Math.sin(t * 0.3 + n.fase) * 0.08, ponte(n.z) + 0.02, n.z);
+      n.s.material.opacity = vis * 0.35;
+    });
+  }
+}
+
 /* ------------------------------------------------------------------ galeone */
 
 export class Galeone implements Ospite {
@@ -238,6 +375,7 @@ export class Galeone implements Ospite {
   private lanterne: THREE.Sprite[] = [];
   private nuvole: { s: THREE.Sprite; base: THREE.Vector3; fase: number; vel: number }[] = [];
   private bandiera: THREE.Mesh;
+  private festa: Festa;
   private texture: THREE.Texture[] = [];
   private stato = {
     prossima: primo(0, 3), inizio: -1, durata: 26,
@@ -442,6 +580,10 @@ export class Galeone implements Ospite {
       this.gruppo.add(s);
     }
 
+    // la festa sul ponte
+    this.festa = new Festa(this.texture);
+    this.nave.add(this.festa.gruppo);
+
     this.nave.scale.setScalar(0.6);
     this.gruppo.add(this.nave);
     this.gruppo.visible = false;
@@ -519,6 +661,7 @@ export class Galeone implements Ospite {
     c.uInv.value.copy(this.nave.matrixWorld).invert();
 
     (this.sartiame.material as THREE.LineBasicMaterial).opacity = 0.42 * vis * forza;
+    this.festa.aggiorna(t, vis * forza);
     this.nave.children.forEach((o) => {
       const m = (o as THREE.Mesh).material as THREE.MeshBasicMaterial;
       if (m && m.type === "MeshBasicMaterial") m.opacity = vis * forza * (0.75 + 0.25 * Math.sin(t * 9 + 1.3));

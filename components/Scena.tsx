@@ -8,11 +8,16 @@ import Portale from "./Portale";
 import Fauna from "./Fauna";
 import Suolo, { CieloDiGiorno } from "./Suolo";
 import { disegnaCopertina, FINESTRA, FLUO, LARGHEZZA, ALTEZZA, type DatiCopertina, type Famiglie } from "./copertina";
+import { lavori } from "@/content/lavori";
+import { mondo } from "./condivisi";
+import { suono } from "./audio";
+import { ANGOLO_ZONA } from "./zona";
+import { Zona, LIBRI, type Azione } from "./ospiti/zonaSviluppatore";
 
 /**
  * La scena: chi visita sta al centro di un anello di carte, una per lavoro.
  * Sopra ogni carta, in filigrana, il testo che sta dietro quel lavoro.
- * Oltre le carte, la polvere dei contratti ANAC dell'Osservatorio.
+ * Nell'ultimo posto dell'anello, la zona dello sviluppatore, da cui si comincia a guardare.
  * Si trascina per guardarsi intorno, si clicca (o Invio) per avvicinare una carta.
  */
 
@@ -39,6 +44,8 @@ type Props = {
   lingua: string;
   /** con il modulo aperto le carte affondano nel suolo, una dopo l'altra */
   moduloAperto: boolean;
+  /** il titolo della sezione "Editoria, SEO e copywriting", nella lingua della pagina */
+  sezioneEditoria: string;
 };
 
 /* Ogni tema cambia più dei colori: luce, densità, peso dei segni. */
@@ -161,6 +168,10 @@ type Grafica = {
   /** nastro da cantiere che scorre, per i lavori in costruzione */
   nastri: (THREE.CanvasTexture | null)[];
   lampada: THREE.CanvasTexture;
+  /** per ridisegnare le copertine quando cambia il tema, sulla stessa tela */
+  conSchermo: boolean[];
+  famiglie: Famiglie;
+  tema: Tema;
 };
 
 /** Il nastro bianco e rosso dei cantieri, qui giallo fluo e nero: la scritta si ripete e scorre. */
@@ -222,7 +233,7 @@ function quotaVisibile(img: HTMLImageElement) {
 }
 
 function Carte({
-  carte, selezionato, focale, onSeleziona, ridotto, onPronta, tema, conIngresso, moduloAperto, attiva,
+  carte, selezionato, focale, onSeleziona, ridotto, onPronta, tema, conIngresso, moduloAperto, attiva, sezioneEditoria,
 }: Omit<Props, "onInteragisci" | "stretto" | "lingua"> & { attiva: React.MutableRefObject<string | null> }) {
   const [grafica, setGrafica] = useState<Grafica | null>(null);
   const [sopra, setSopra] = useState<string | null>(null);
@@ -246,7 +257,7 @@ function Carte({
               uAlone: { value: 0 },
               uOpacita: { value: 0 },
               uPuntatore: { value: new THREE.Vector2(0.5, 0.5) },
-              uColore: { value: new THREE.Color(tema === "scuro" ? "#FFFFFF" : "#FFF8EC") },
+              uColore: { value: new THREE.Color() },
             },
             transparent: true,
             depthWrite: false,
@@ -254,9 +265,13 @@ function Carte({
             toneMapped: false,
           }) as Riflesso
       ),
-    [carte, tema]
+    [carte]
   );
   useEffect(() => () => riflessi.forEach((r) => r.dispose()), [riflessi]);
+  // il tema cambia il colore del riflesso, non i materiali
+  useEffect(() => {
+    riflessi.forEach((r) => r.uniforms.uColore.value.set(tema === "scuro" ? "#FFFFFF" : "#FFF8EC"));
+  }, [riflessi, tema]);
   const scorrimento = useRef<{ p: number; verso: number }[]>([]);
   const puntatore = useRef(new THREE.Vector2());
   const moduloRif = useRef(false);
@@ -313,7 +328,7 @@ function Carte({
       const nastri = carte.map((c) =>
         c.dati.motivo === "cantiere" ? disegnaNastro(c.dati.avviso ?? "", f.mono) : null
       );
-      setGrafica({ copertine, frammenti, schermi, nastri, lampada: disegnaLampada() });
+      setGrafica({ copertine, frammenti, schermi, nastri, lampada: disegnaLampada(), conSchermo: immagini.map((i) => !!i), famiglie: f, tema });
       onPronta();
     })();
     return () => {
@@ -334,8 +349,25 @@ function Carte({
     [grafica]
   );
 
+  // il tema cambia la carta delle copertine: si ridisegnano sulle loro tele, senza ricreare la scena
+  useEffect(() => {
+    if (!grafica || grafica.tema === tema) return;
+    grafica.tema = tema;
+    carte.forEach((c, i) => {
+      const t = grafica.copertine[i];
+      if (c.dati.contatto || !t) return;
+      disegnaCopertina(
+        t.image as HTMLCanvasElement,
+        { ...c.dati, immagine: null, finestraVuota: grafica.conSchermo[i] },
+        grafica.famiglie, 1000 + i * 97, PALETTE[tema].carta
+      );
+      t.needsUpdate = true;
+    });
+  }, [grafica, tema, carte]);
+
   useEffect(() => {
     document.body.style.cursor = sopra ? "pointer" : "";
+    if (sopra) suono.effetto("sfiora");
     return () => {
       document.body.style.cursor = "";
     };
@@ -352,6 +384,11 @@ function Carte({
     attiva.current = moduloAperto
       ? null
       : selezionato ?? sopra ?? (focale !== null ? carte[focale]?.id ?? null : null);
+
+    mondo.modulo = moduloAperto;
+    // a loop acceso il fascio di luce batte a tempo
+    const b = mondo.battito;
+    const aTempo = b.attivo && !ridotto ? 0.55 + 0.75 * Math.exp(-b.fase * 4) : 1;
 
     // il modulo aperto fa affondare le carte una dopo l'altra; alla chiusura riemergono
     if (moduloRif.current !== moduloAperto) {
@@ -444,7 +481,7 @@ function Carte({
         const fase = (((faroAl(stato.clock.elapsedTime) - a) % giro) + giro) % giro;
         const inCorso = !ridotto && fase < DURATA_FASCIO;
         rf.uniforms.uFascia.value = inCorso ? -0.65 + (fase / DURATA_FASCIO) * 1.9 : -1;
-        rf.uniforms.uForza.value = inCorso ? (tema === "scuro" ? 0.3 : 0.24) : 0;
+        rf.uniforms.uForza.value = inCorso ? (tema === "scuro" ? 0.3 : 0.24) * aTempo : 0;
         const alone = c.id === sopra && !selezionato && !ridotto ? 1 : 0;
         rf.uniforms.uAlone.value = THREE.MathUtils.lerp(rf.uniforms.uAlone.value, alone, k);
         rf.uniforms.uPuntatore.value.set((puntatore.current.x + 1) / 2, (puntatore.current.y + 1) / 2);
@@ -463,12 +500,10 @@ function Carte({
         const a = angoloDi(i, carte.length);
         const pos = direzione(a).multiplyScalar(RAGGIO);
         if (c.dati.contatto) {
-          const pp = direzione(a).multiplyScalar(RAGGIO + 0.5);
+          // il contatto è il cassetto aperto, nella zona dello sviluppatore
           return (
             <Portale
               key={c.id}
-              posizione={[pp.x, 0.3, pp.z]}
-              rotazione={-a}
               notte={tema === "scuro"}
               titolo={c.dati.titolo}
               sotto={c.dati.tipo}
@@ -477,6 +512,7 @@ function Carte({
               opacita={opacitaPortale.current}
               ridotto={ridotto}
               onApri={() => onSeleziona(c.id)}
+              onSfiora={() => suono.effetto("sfiora")}
             />
           );
         }
@@ -585,6 +621,168 @@ function Carte({
           </group>
         );
       })}
+      {sezioneEditoria && (
+        <EtichettaSezione
+          testo={sezioneEditoria}
+          angolo={angoloSezione(carte)}
+          colore={p.filigrana}
+          mono={famiglie.mono}
+          spenta={!!selezionato || moduloAperto}
+          ridotto={ridotto}
+        />
+      )}
+    </>
+  );
+}
+
+/** L'angolo medio delle carte di editoria, SEO e copywriting sull'anello. */
+function angoloSezione(carte: Carta[]) {
+  const indici = carte
+    .map((c, i) => (lavori.find((l) => l.id === c.id)?.sezione === "editoria" ? i : -1))
+    .filter((i) => i >= 0);
+  if (!indici.length) return 0;
+  return angoloDi(indici.reduce((a, b) => a + b, 0) / indici.length, carte.length);
+}
+
+/**
+ * Il titolo della sezione "Editoria, SEO e copywriting", in alto sopra le sue carte,
+ * nello stesso carattere e colore della filigrana.
+ */
+function EtichettaSezione({
+  testo, angolo, colore, mono, spenta, ridotto,
+}: { testo: string; angolo: number; colore: string; mono: string; spenta: boolean; ridotto: boolean }) {
+  const tx = useMemo(() => {
+    const tela = document.createElement("canvas");
+    tela.width = 1024;
+    tela.height = 72;
+    const c = tela.getContext("2d");
+    if (c) {
+      c.fillStyle = "#FFFFFF";
+      c.font = `500 34px ${mono}`;
+      c.textAlign = "center";
+      c.textBaseline = "middle";
+      const lettere = testo.toUpperCase().split("").join(String.fromCharCode(8202));
+      c.fillText(lettere, 512, 38, 1000);
+      c.fillRect(312, 68, 400, 2);
+    }
+    const t = new THREE.CanvasTexture(tela);
+    t.colorSpace = THREE.SRGBColorSpace;
+    return t;
+  }, [testo, mono]);
+  useEffect(() => () => tx.dispose(), [tx]);
+  const mat = useRef<THREE.MeshBasicMaterial>(null);
+  const inizio = useRef<number | null>(null);
+  useFrame((stato, dt) => {
+    if (!mat.current) return;
+    if (inizio.current === null) inizio.current = stato.clock.elapsedTime;
+    const entrata = ridotto ? 1 : THREE.MathUtils.smoothstep(stato.clock.elapsedTime - inizio.current, 1.4, 2.6);
+    const bersaglio = spenta ? 0 : 0.55 * entrata;
+    mat.current.opacity = ridotto ? bersaglio : THREE.MathUtils.lerp(mat.current.opacity, bersaglio, 1 - Math.exp(-dt * 4));
+  });
+  const p = direzione(angolo).multiplyScalar(RAGGIO + 0.4);
+  return (
+    <mesh position={[p.x, 2.55, p.z]} rotation={[0, -angolo, 0]} raycast={() => null} renderOrder={1}>
+      <planeGeometry args={[3.6, 3.6 * (72 / 1024)]} />
+      <meshBasicMaterial ref={mat} map={tx} color={colore} transparent opacity={0} depthWrite={false} toneMapped={false} fog={false} />
+    </mesh>
+  );
+}
+
+/* --------------------------------------------------- zona dello sviluppatore */
+
+/**
+ * La zona dello sviluppatore: monta la Zona (ospiti/zonaSviluppatore.ts) una volta sola e la tiene viva
+ * anche quando cambia il tema. Libri e drum machine si cliccano; il resto non risponde al puntatore.
+ */
+function ZonaSviluppatore({ notte, ridotto }: { notte: boolean; ridotto: boolean }) {
+  const [zona] = useState(() => new Zona(notte));
+  useEffect(() => () => zona.libera(), [zona]);
+  useEffect(() => zona.setNotte(notte), [zona, notte]);
+  const [sopra, setSopra] = useState<Azione | null>(null);
+  useEffect(() => {
+    document.body.style.cursor = sopra ? "pointer" : "";
+    zona.mostraTitolo(sopra?.tipo === "libro" ? sopra.indice : null);
+    return () => {
+      document.body.style.cursor = "";
+    };
+  }, [sopra, zona]);
+  useFrame(({ clock, camera }, dt) => zona.aggiorna(clock.elapsedTime, Math.min(dt, 0.25), camera, ridotto));
+  const azione = (e: ThreeEvent<PointerEvent | MouseEvent>) => (e.object.userData.azione as Azione | undefined) ?? null;
+  return (
+    <primitive
+      object={zona.gruppo}
+      onPointerOver={(e: ThreeEvent<PointerEvent>) => {
+        const a = azione(e);
+        if (!a) return;
+        e.stopPropagation();
+        setSopra(a);
+      }}
+      onPointerOut={() => setSopra(null)}
+      onClick={(e: ThreeEvent<MouseEvent>) => {
+        const a = azione(e);
+        if (!a || e.delta > 6) return;
+        e.stopPropagation();
+        if (a.tipo === "drum") suono.drum();
+        else window.open(LIBRI[a.indice].url, "_blank", "noopener");
+      }}
+    />
+  );
+}
+
+/* --------------------------------------------------------- tempo e ritmo */
+
+/**
+ * Due compiti di regia del disegno.
+ * Il battito: a ogni fotogramma legge dal suono la fase del loop e la scrive in mondo.battito.
+ * Il ritmo: con il modulo aperto e le carte già affondate, la scena dietro il velo si ridisegna
+ * dieci volte al secondo invece di sessanta, così l'energia intorno al modulo non si somma al 3D.
+ */
+function Ritmo({ moduloAperto, ridotto }: { moduloAperto: boolean; ridotto: boolean }) {
+  const { setFrameloop, invalidate } = useThree();
+  useEffect(() => {
+    mondo.ridotto = ridotto;
+  }, [ridotto]);
+  useEffect(() => {
+    if (!moduloAperto) {
+      setFrameloop("always");
+      return;
+    }
+    let giro: ReturnType<typeof setInterval> | undefined;
+    // si aspetta che le carte siano affondate (circa tre secondi), poi si rallenta
+    const attesa = setTimeout(() => {
+      setFrameloop("demand");
+      giro = setInterval(() => invalidate(), 100);
+    }, 3200);
+    return () => {
+      clearTimeout(attesa);
+      if (giro) clearInterval(giro);
+      setFrameloop("always");
+    };
+  }, [moduloAperto, setFrameloop, invalidate]);
+  useFrame(() => {
+    const b = suono.battito();
+    mondo.battito.attivo = !!b;
+    if (b) {
+      mondo.battito.fase = b.fase;
+      mondo.battito.n = b.n;
+    }
+  });
+  return null;
+}
+
+/**
+ * Sfondo, nebbia e luce del cielo seguono il tema, sulla stessa scena.
+ * La luce del cielo serve alle cose fatte di materia (la zona dello sviluppatore, gli ospiti);
+ * le carte non ne usano. Di notte è una luna fioca.
+ */
+function Ambiente({ tema }: { tema: Tema }) {
+  const p = PALETTE[tema];
+  const notte = tema === "scuro";
+  return (
+    <>
+      <color attach="background" args={[p.fondo]} />
+      <fogExp2 attach="fog" args={[p.fondo, p.nebbia]} />
+      <hemisphereLight args={[notte ? "#4A5A82" : "#F6F2EA", notte ? "#0B0C10" : "#B8AFA0", notte ? 0.85 : 1.05]} />
     </>
   );
 }
@@ -593,10 +791,11 @@ function Carte({
 
 function Regia({
   carte, selezionato, focale, onSeleziona, onInteragisci, ridotto, stretto, conIngresso,
-}: Omit<Props, "onPronta" | "tema">) {
+}: Omit<Props, "onPronta" | "tema" | "sezioneEditoria">) {
   const { camera, gl } = useThree();
   const s = useRef({
-    yaw: 0,
+    // si comincia guardando la zona dello sviluppatore, il centro del mondo
+    yaw: ANGOLO_ZONA - Math.PI * 2,
     pitch: conIngresso && !ridotto ? -0.22 : SGUARDO,
     vy: 0,
     trascina: false, lx: 0, ly: 0, ultimo: -1e9,
@@ -730,17 +929,16 @@ export default function Scena(props: Props) {
     <Canvas
       className="tela"
       aria-hidden="true"
-      dpr={[1, 1.75]}
+      // densità massima 1,5 su desktop e 1,25 su schermi stretti
+      dpr={stretto ? [1, 1.25] : [1, 1.5]}
       gl={{ antialias: true, powerPreference: "high-performance" }}
       camera={{ fov: stretto ? 72 : 55, near: 0.05, far: 60, position: [0, 0, 0] }}
-      onCreated={({ scene }) => {
-        scene.background = new THREE.Color(p.fondo);
-        scene.fog = new THREE.FogExp2(p.fondo, p.nebbia);
-      }}
       onPointerMissed={(e) => {
         if (e.type === "click") props.onSeleziona(null);
       }}
     >
+      <Ambiente tema={tema} />
+      <Ritmo moduloAperto={props.moduloAperto} ridotto={props.ridotto} />
       <Regia {...props} />
       <Carte
         carte={props.carte}
@@ -753,7 +951,9 @@ export default function Scena(props: Props) {
         conIngresso={props.conIngresso}
         moduloAperto={props.moduloAperto}
         attiva={attiva}
+        sezioneEditoria={props.sezioneEditoria}
       />
+      <ZonaSviluppatore notte={tema === "scuro"} ridotto={props.ridotto} />
       {tema === "chiaro" && <CieloDiGiorno orizzonte={p.fondo} />}
       <Fauna
         notte={tema === "scuro"}
@@ -761,7 +961,7 @@ export default function Scena(props: Props) {
         stretto={stretto}
         pausa={!!props.selezionato || props.moduloAperto}
       />
-      <Suolo notte={tema === "scuro"} fondo={p.fondo} stretto={stretto} ridotto={props.ridotto} />
+      <Suolo notte={tema === "scuro"} fondo={p.fondo} stretto={stretto} ridotto={props.ridotto} conIngresso={props.conIngresso} />
       <Cielo
         notte={tema === "scuro"}
         colore={p.costellazione}

@@ -10,8 +10,12 @@
 
 export type Motivo = "negozio" | "editoriale" | "dati" | "app" | "sito" | "testo" | "cantiere";
 
+/** I lavori di sviluppo vengono prima; quelli di editoria, SEO e copywriting dopo, in una sezione a parte. */
+export type Sezione = "sviluppo" | "editoria";
+
 export type Lavoro = {
   id: string;
+  sezione: Sezione;
   anno: string;
   motivo: Motivo;
   tinta: string;
@@ -21,6 +25,7 @@ export type Lavoro = {
 export const lavori: Lavoro[] = [
   {
     id: "shop",
+    sezione: "sviluppo",
     anno: "2024–2026",
     motivo: "negozio",
     tinta: "#C7D2DA",
@@ -28,6 +33,7 @@ export const lavori: Lavoro[] = [
   },
   {
     id: "osservatorio",
+    sezione: "sviluppo",
     anno: "2026",
     motivo: "dati",
     tinta: "#D8D1C0",
@@ -35,6 +41,7 @@ export const lavori: Lavoro[] = [
   },
   {
     id: "livellozero",
+    sezione: "sviluppo",
     anno: "2026 →",
     motivo: "editoriale",
     tinta: "#DBCBD0",
@@ -42,6 +49,7 @@ export const lavori: Lavoro[] = [
   },
   {
     id: "futuraauthor",
+    sezione: "sviluppo",
     anno: "2026 →",
     motivo: "cantiere",
     tinta: "#0E0E0E",
@@ -49,6 +57,7 @@ export const lavori: Lavoro[] = [
   },
   {
     id: "ndnluxury",
+    sezione: "sviluppo",
     anno: "2026",
     motivo: "sito",
     tinta: "#D2CFBE",
@@ -56,6 +65,7 @@ export const lavori: Lavoro[] = [
   },
   {
     id: "esh",
+    sezione: "sviluppo",
     anno: "2026",
     motivo: "sito",
     tinta: "#CBD6C9",
@@ -63,20 +73,15 @@ export const lavori: Lavoro[] = [
   },
   {
     id: "beautybroker",
+    sezione: "sviluppo",
     anno: "2026",
     motivo: "app",
     tinta: "#DBCBD0",
     link: { href: "https://www.beautybrokerworld.com", etichetta: "beautybrokerworld.com" },
   },
   {
-    id: "blog",
-    anno: "2024–2026",
-    motivo: "editoriale",
-    tinta: "#C7D2DA",
-    link: { href: "https://www.puntoluce.net/comefare/", etichetta: "puntoluce.net/comefare" },
-  },
-  {
     id: "allstudios",
+    sezione: "sviluppo",
     anno: "2026",
     motivo: "cantiere",
     tinta: "#0E0E0E",
@@ -84,13 +89,23 @@ export const lavori: Lavoro[] = [
   },
   {
     id: "jointoyou",
+    sezione: "sviluppo",
     anno: "",
     motivo: "editoriale",
     tinta: "#DBCBD0",
     link: { href: "https://jointoyou.it", etichetta: "jointoyou.it" },
   },
   {
+    id: "blog",
+    sezione: "editoria",
+    anno: "2024–2026",
+    motivo: "editoriale",
+    tinta: "#C7D2DA",
+    link: { href: "https://www.puntoluce.net/comefare/", etichetta: "puntoluce.net/comefare" },
+  },
+  {
     id: "copystudio",
+    sezione: "editoria",
     anno: "2023–2024",
     motivo: "testo",
     tinta: "#CDCBD6",
@@ -98,6 +113,7 @@ export const lavori: Lavoro[] = [
   },
   {
     id: "hetaweb",
+    sezione: "editoria",
     anno: "2023",
     motivo: "testo",
     tinta: "#D2CFBE",

@@ -1,5 +1,6 @@
 import * as THREE from "three";
-import { type Ospite, alone, assi, cancella, casuale, finito, fra, liberaTutto, loft, primo, riposo, tela, tocca, lato as latoRegia } from "./comuni";
+import { pterodattilo } from "../condivisi";
+import { type Ospite, alone, assi, cancella, casuale, finito, fra, liberaTutto, loft, primo, riposo, solo, tela, tocca, lato as latoRegia } from "./comuni";
 
 /**
  * Due intrusi del nostro tempo nel cielo dei miti.
@@ -175,8 +176,10 @@ export class Jet implements Ospite {
   private stato = {
     prossima: primo(0, 4), inizio: -1, durata: 40, da: new THREE.Vector3(), a: new THREE.Vector3(),
     campione: 0, vento: new THREE.Vector3(),
+    // in scorta allo pterodattilo: gli si affianca, saluta col dondolio delle ali, poi se ne va
+    scorta: false, fianco: 1, via: -1, rotta: new THREE.Vector3(1, 0, 0),
   };
-  private tmp = { lato: new THREE.Vector3(), dir: new THREE.Vector3(), cam: new THREE.Vector3(), p: new THREE.Vector3() };
+  private tmp = { lato: new THREE.Vector3(), dir: new THREE.Vector3(), cam: new THREE.Vector3(), p: new THREE.Vector3(), posto: new THREE.Vector3() };
 
   constructor() {
     const mat = new THREE.MeshBasicMaterial({ color: "#B9C0CA", fog: false, side: THREE.DoubleSide });
@@ -230,7 +233,7 @@ export class Jet implements Ospite {
     });
   }
 
-  aggiorna(t: number, _dt: number, camera: THREE.Camera) {
+  aggiorna(t: number, dt: number, camera: THREE.Camera) {
     const s = this.stato;
     if (s.inizio < 0) {
       if (t < s.prossima || !tocca("giornoCielo", "jet", t)) return;
@@ -245,6 +248,15 @@ export class Jet implements Ospite {
       s.durata = casuale(12, 14);
       s.inizio = t;
       s.campione = 0;
+      // ogni tanto, se lo pterodattilo è in volo e ha ancora qualche secondo, il jet scende a fargli compagnia
+      s.scorta = !solo() && pterodattilo.attivo && pterodattilo.fine - t > 3.5 && Math.random() < 0.5;
+      if (s.scorta) {
+        const pd = pterodattilo.dir;
+        s.fianco = Math.random() < 0.5 ? -1 : 1;
+        s.da.copy(pterodattilo.pos).addScaledVector(pd, -9).addScaledVector(new THREE.Vector3(-pd.z, 0, pd.x), s.fianco * 3).setY(pterodattilo.pos.y + 2.5);
+        s.via = -1;
+        this.aereo.position.copy(s.da);
+      }
       this.scie.forEach((sc) => {
         sc.punti = [];
         sc.tempi = [];
@@ -253,17 +265,23 @@ export class Jet implements Ospite {
       this.aereo.visible = true;
     }
     const e = t - s.inizio;
-    const k = Math.min(1, e / s.durata);
-    this.aereo.position.lerpVectors(s.da, s.a, k);
-    this.aereo.lookAt(s.a);
+    let k = Math.min(1, e / s.durata);
+    const { lato, dir, cam, p, posto } = this.tmp;
+    if (s.scorta) {
+      k = this.inScorta(t, e, dt);
+    } else {
+      this.aereo.position.lerpVectors(s.da, s.a, k);
+      this.aereo.lookAt(s.a);
+    }
     this.aereo.visible = k < 1;
     // un lampo di sole sulla fusoliera, di tanto in tanto
     this.riflesso.material.opacity = Math.max(0, Math.sin(e * 0.7)) ** 8 * 0.8;
 
     // nuovi campioni dietro i motori
-    const { lato, dir, cam, p } = this.tmp;
-    dir.subVectors(s.a, s.da).normalize();
+    if (s.scorta) dir.copy(s.rotta);
+    else dir.subVectors(s.a, s.da).normalize();
     lato.set(-dir.z, 0, dir.x);
+    void posto;
     if (k < 1 && e > s.campione) {
       s.campione = e + 0.1;
       this.scie.forEach((sc) => {
@@ -309,6 +327,38 @@ export class Jet implements Ospite {
       this.gruppo.visible = false;
       finito("giornoCielo", "jet", t);
     }
+  }
+
+  /**
+   * La scorta: un secondo e mezzo per affiancarsi allo pterodattilo, un tratto insieme
+   * con un dondolio delle ali per salutarlo, poi via, in salita, accelerando. Restituisce il progresso 0–1.
+   */
+  private inScorta(t: number, e: number, dt: number) {
+    const s = this.stato;
+    const { posto } = this.tmp;
+    const pd = pterodattilo.dir;
+    const insieme = s.via < 0 && pterodattilo.attivo && e < 6;
+    if (insieme) {
+      posto.copy(pterodattilo.pos).addScaledVector(new THREE.Vector3(-pd.z, 0, pd.x), s.fianco * 1.5).addScaledVector(pd, 0.3);
+      posto.y += 0.55;
+      const u = fra(e, 0, 1.6);
+      this.aereo.position.lerpVectors(s.da, posto, u);
+      s.rotta.copy(u < 1 ? posto.clone().sub(s.da).normalize() : pd);
+      this.aereo.lookAt(this.aereo.position.clone().add(s.rotta));
+      // il saluto: due dondolii d'ala, a metà del tratto insieme
+      const sal = e - 2.2;
+      if (sal > 0 && sal < 1.6) this.aereo.rotateZ(Math.sin(sal * Math.PI * 2 * 1.25) * 0.5 * Math.sin((sal / 1.6) * Math.PI));
+    } else {
+      if (s.via < 0) s.via = t;
+      const ev = t - s.via;
+      // via: accelera e sale, lungo la rotta che aveva
+      s.rotta.y = Math.min(0.35, s.rotta.y + 0.002);
+      s.rotta.normalize();
+      this.aereo.position.addScaledVector(s.rotta, (2 + ev * 3) * dt);
+      this.aereo.lookAt(this.aereo.position.clone().add(s.rotta));
+      if (ev > 5) return 1;
+    }
+    return 0.5;
   }
 
   libera() {

@@ -1,14 +1,36 @@
 import * as THREE from "three";
-import { PELO_ACQUA } from "../condivisi";
+import { PELO_ACQUA, mondo } from "../condivisi";
 import { type Ospite, alone, liberaTutto } from "./comuni";
 
 /**
  * Di notte, sullo sfondo, un elettrodotto che si allontana come un viale: tralicci a traliccio d'acciaio con le mensole,
- * i cavi che pendono da uno all'altro, le luci rosse d'ostacolo in cima che pulsano insieme.
- * Il nostro tempo, fermo all'orizzonte, mentre davanti passano navi antiche e draghi.
+ * i cavi che pendono da uno all'altro, le luci rosse d'ostacolo in cima che lampeggiano insieme:
+ * "SCRIVIMI" in codice Morse, in ciclo.
+ * Il nostro tempo, fermo all'orizzonte, mentre davanti passano navi antiche.
  */
 
 const ALTO = 10;
+
+/** La durata di un punto, a loop spento: abbastanza lento da leggerlo. */
+const PUNTO = 0.24;
+
+/**
+ * "SCRIVIMI" in Morse, unità per unità (1 = acceso): punto = 1, linea = 3, pausa fra segni = 1,
+ * fra lettere = 3, in fondo al messaggio 7 prima di ricominciare.
+ */
+const MORSE = (() => {
+  const codice: Record<string, string> = { S: "...", C: "-.-.", R: ".-.", I: "..", V: "...-", M: "--" };
+  const u: number[] = [];
+  "SCRIVIMI".split("").forEach((l, i) => {
+    if (i) u.push(0, 0, 0);
+    codice[l].split("").forEach((s, k) => {
+      if (k) u.push(0);
+      u.push(...(s === "." ? [1] : [1, 1, 1]));
+    });
+  });
+  u.push(0, 0, 0, 0, 0, 0, 0);
+  return u;
+})();
 
 /** Un traliccio come elenco di segmenti: gambe, crociere a X, mensole, cuspide. Le mensole sono lungo x. */
 function traliccio(linee: number[], o: THREE.Vector3, asse: THREE.Vector3, normale: THREE.Vector3) {
@@ -58,6 +80,7 @@ export class Tralicci implements Ospite {
   gruppo = new THREE.Group();
   private luci: THREE.Sprite[] = [];
   private texture: THREE.Texture[] = [];
+  private acceso = 0;
 
   constructor() {
     const linee: number[] = [];
@@ -120,10 +143,22 @@ export class Tralicci implements Ospite {
   }
 
   aggiorna(t: number) {
-    // le luci d'ostacolo pulsano tutte insieme, lente
-    const c = (t % 2.0) / 2.0;
-    const a = c < 0.5 ? Math.sin((c / 0.5) * Math.PI) : 0;
-    this.luci.forEach((l) => (l.material.opacity = 0.15 + a * 0.85));
+    // le luci d'ostacolo lampeggiano tutte insieme "SCRIVIMI" in Morse, in ciclo.
+    // A loop acceso il Morse va a tempo (un punto = un ottavo) e fra un messaggio e l'altro
+    // le luci battono i quarti per due battute: il messaggio resta intero e leggibile.
+    const b = mondo.battito;
+    let a: number;
+    if (b.attivo) {
+      const ottavi = b.n * 2 + (b.fase >= 0.5 ? 1 : 0);
+      const ciclo = MORSE.length + 16;
+      const k = ottavi % ciclo;
+      a = k < MORSE.length ? MORSE[k] : Math.exp(-b.fase * 6);
+    } else {
+      const k = Math.floor(t / PUNTO) % MORSE.length;
+      a = MORSE[k];
+    }
+    this.acceso += (a - this.acceso) * 0.6;
+    this.luci.forEach((l) => (l.material.opacity = 0.12 + this.acceso * 0.88));
   }
 
   libera() {

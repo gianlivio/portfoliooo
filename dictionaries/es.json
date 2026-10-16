@@ -59,27 +59,32 @@
       "strumenti": "Next.js · TypeScript · Vercel"
     },
     "ndnluxury": {
-      "tipo": "Sitio corporativo",
+      "tipo": "Sitio corporativo, SEO y contenidos",
       "titolo": "NDN Luxury",
-      "riga": "Sitio de una marca de revestimientos de resina y microcemento.",
-      "ruolo": "Web developer · freelance",
+      "riga": "Sitio Next.js de una empresa de pavimentos de resina y microcemento de Legnano, con clientes particulares y B2B (restauración, hoteles, industria). Desarrollé páginas nuevas y me ocupé del posicionamiento orgánico y de los contenidos.",
+      "ruolo": "Freelance",
       "compiti": [
-        "Nuevas páginas en el sitio existente.",
-        "Animaciones 3D.",
-        "Mantenimiento y mejoras."
+        "Páginas nuevas y animaciones 3D.",
+        "Datos estructurados Schema.org (área de servicio, catálogo de servicios, FAQ).",
+        "Secciones “Lee también” que eligen los artículos relacionados con una puntuación de pertinencia en lugar de por fecha.",
+        "Análisis de Search Console: diferencia de CTR entre escritorio y móvil, páginas con muchas impresiones y pocos clics que optimizar.",
+        "Plan editorial, revisión de los artículos, categorías del blog reordenadas en cuatro.",
+        "Configuración de campañas de Meta y Google Ads dirigidas a la zona, construidas sobre búsquedas reales."
       ],
-      "strumenti": ""
+      "strumenti": "Next.js, TypeScript, Vercel, JSON-LD, Google Search Console, Meta Ads, Google Ads"
     },
     "esh": {
-      "tipo": "Sitio corporativo",
+      "tipo": "Plataforma web",
       "titolo": "ESH – Erasmus Student Housing",
-      "riga": "Sitio de alquiler de alojamientos para estudiantes Erasmus.",
-      "ruolo": "Web developer · freelance",
+      "riga": "Plataforma europea que pone en contacto a estudiantes Erasmus con propietarios verificados en varias ciudades. Desarrollé funcionalidades en el código Next.js y coordiné el blog multilingüe para el posicionamiento orgánico.",
+      "ruolo": "Freelance",
       "compiti": [
-        "Nuevas páginas del sitio.",
+        "Páginas y funcionalidades nuevas.",
+        "Revisión sistemática de las traducciones al italiano, inglés y español para encontrar cadenas sin traducir.",
+        "Revisión de los artículos del blog, enlaces internos, términos de marca coherentes entre idiomas.",
         "Mantenimiento."
       ],
-      "strumenti": ""
+      "strumenti": "Next.js (App Router), TypeScript, Prisma, PostgreSQL (Neon), shadcn/ui, pnpm, Vercel"
     },
     "blog": {
       "tipo": "Blog · WordPress",
@@ -218,7 +223,8 @@
     "recapiti": "Contacto",
     "cv": "Currículum (PDF)",
     "compiti": "Qué hice",
-    "strumenti": "Herramientas"
+    "strumenti": "Herramientas",
+    "editoria": "Edición, SEO y copywriting"
   },
   "tema": {
     "versoChiaro": "Cambiar al tema claro",
@@ -227,5 +233,10 @@
   "tastiera": {
     "ruolo": "galería",
     "etichetta": "Proyectos. Flechas izquierda y derecha para recorrer, Intro para abrir."
+  },
+  "audio": {
+    "accendi": "Activar el sonido",
+    "spegni": "Desactivar el sonido",
+    "nome": "Sonido"
   }
 }

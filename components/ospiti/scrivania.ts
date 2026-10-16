@@ -1,5 +1,4 @@
 import * as THREE from "three";
-import { PELO_ACQUA } from "../condivisi";
 import { type Ospite, casuale, generatore, liberaTutto, loft, ombra } from "./comuni";
 import { type Figura, figura } from "./figure";
 
@@ -11,10 +10,8 @@ import { type Figura, figura } from "./figure";
  * prende il mouse, beve dalla tazza. Di notte i monitor sono l'unica luce e gli illuminano le spalle.
  */
 
-const CARTA = 2; // sotto la terza carta, quella più alta: c'è spazio fino al suo bordo
-const CARTE = 13;
-const RAGGIO = 5.05;
-const SCALA = 0.55;
+/** Gli schermi si ridisegnano al più tre volte al secondo (il browser due): a quella distanza basta. */
+const RIDISEGNO = 0.33;
 
 /* ------------------------------------------------------------------ schermi */
 
@@ -55,9 +52,16 @@ const PAGINE = [
   { fondo: "#F7F2F0", testa: "#3A2A26", eroe: "#B9875F", accento: "#8E2C4F" },
 ];
 
+/**
+ * La scrivania e lo sviluppatore, in coordinate della zona: la mette al suo posto la Zona (ospiti/zona.ts),
+ * che la tiene viva anche quando cambia il tema (setNotte) invece di ricrearla.
+ */
 export class Scrivania implements Ospite {
   gruppo = new THREE.Group();
-  private posto = new THREE.Group();
+  private posto = this.gruppo;
+  private legno: THREE.MeshStandardMaterial;
+  private ombraMat!: THREE.MeshBasicMaterial;
+  private sporchi = { editor: false, terminale: false };
   private uomo: Figura;
   private sedia = new THREE.Group();
   private tazza = new THREE.Group();
@@ -78,11 +82,12 @@ export class Scrivania implements Ospite {
   private stato = {
     tasto: 0, riga: 0, log: 0, pagina: 6, // prossimi istanti
     azione: "scrive" as "scrive" | "legge" | "mouse" | "beve",
-    fineAzione: 8, iniAzione: 0, rientro: 1, errore: -1, ricaricato: -10, ridisegno: 0,
+    fineAzione: 8, iniAzione: 0, rientro: 1, errore: -1, ricaricato: -10, ridisegno: 0, ridisegnoTesto: 0,
   };
 
   constructor(private notte: boolean) {
     const legno = new THREE.MeshStandardMaterial({ color: notte ? "#3A3430" : "#B8A58C", roughness: 0.7 });
+    this.legno = legno;
     const nero = new THREE.MeshStandardMaterial({ color: "#1B1C1F", roughness: 0.5, metalness: 0.3 });
     const grigio = new THREE.MeshStandardMaterial({ color: "#3C3F45", roughness: 0.8 });
     const pelle = new THREE.MeshStandardMaterial({ color: "#C89A7A", roughness: 0.7 });
@@ -216,14 +221,8 @@ export class Scrivania implements Ospite {
       new THREE.MeshBasicMaterial({ map: txOmbra, transparent: true, opacity: notte ? 0.5 : 0.75, depthWrite: false })
     );
     om.position.set(0, 0.003, 0.45);
+    this.ombraMat = om.material as THREE.MeshBasicMaterial;
     this.posto.add(om);
-
-    // al suo posto: sotto la carta, rivolto verso fuori, di spalle a chi guarda
-    const a = (CARTA / CARTE) * Math.PI * 2;
-    this.posto.scale.setScalar(SCALA);
-    this.gruppo.position.set(Math.sin(a) * RAGGIO, PELO_ACQUA, -Math.cos(a) * RAGGIO);
-    this.gruppo.rotation.y = Math.PI - a;
-    this.gruppo.add(this.posto);
     this.gruppo.traverse((o) => (o.raycast = () => undefined));
 
     for (let i = 0; i < 9; i++) this.nuovaRiga();
@@ -232,6 +231,16 @@ export class Scrivania implements Ospite {
     this.disegnaEditor();
     this.disegnaBrowser(0);
     this.disegnaTerminale();
+  }
+
+  /** Giorno o notte: cambia il legno e accende o spegne le luci, senza ricostruire niente. */
+  setNotte(notte: boolean) {
+    if (notte === this.notte) return;
+    this.notte = notte;
+    this.legno.color.set(notte ? "#3A3430" : "#B8A58C");
+    this.ombraMat.opacity = notte ? 0.5 : 0.75;
+    if (notte) this.posto.add(this.lampada, this.luce);
+    else this.posto.remove(this.lampada, this.luce);
   }
 
   /* ---------------------------------------------------------------- contenuti */
@@ -439,7 +448,7 @@ export class Scrivania implements Ospite {
       const riga = this.codice[this.codice.length - 1];
       if (this.scritto < riga.pezzi.length) this.scritto++;
       else this.nuovaRiga();
-      this.disegnaEditor();
+      this.sporchi.editor = true;
     }
     // il terminale: righe ogni tanto; a volte una raffica (una build), a volte un errore e poi il verde
     if (t > s.log) {
@@ -453,7 +462,14 @@ export class Scrivania implements Ospite {
         s.errore = t + casuale(4, 8);
       } else this.nuovoLog(false);
       s.log = t + (raffica ? 0.06 : casuale(0.6, 2.4));
-      this.disegnaTerminale();
+      this.sporchi.terminale = true;
+    }
+    // editor e terminale si ridisegnano insieme, al più tre volte al secondo
+    if (t > s.ridisegnoTesto && (this.sporchi.editor || this.sporchi.terminale)) {
+      s.ridisegnoTesto = t + RIDISEGNO;
+      if (this.sporchi.editor) this.disegnaEditor();
+      if (this.sporchi.terminale) this.disegnaTerminale();
+      this.sporchi.editor = this.sporchi.terminale = false;
     }
     // il browser: scorre piano, ogni tanto ricarica e cambia pagina e colori
     if (t > s.pagina) {
@@ -464,9 +480,9 @@ export class Scrivania implements Ospite {
     }
     const ricarica = Math.max(0, 1 - (t - s.ricaricato) / 0.6);
     this.scorri = Math.min(340, this.scorri + dt * (s.azione === "mouse" ? 40 : 6));
-    // ridisegnare il browser dieci volte al secondo basta
+    // il browser scorre piano: due volte al secondo basta
     if (t > s.ridisegno) {
-      s.ridisegno = t + 0.1;
+      s.ridisegno = t + 0.5;
       this.disegnaBrowser(ricarica);
     }
 

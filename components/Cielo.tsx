@@ -4,6 +4,7 @@ import { useFrame } from "@react-three/fiber";
 import { useEffect, useMemo, useRef, type MutableRefObject } from "react";
 import * as THREE from "three";
 import { competenze, competenzeDi, nomeCompetenza } from "@/content/competenze";
+import { POSIZIONI, nelMondo } from "./zona";
 
 /**
  * Il cielo della stanza.
@@ -243,7 +244,7 @@ export default function Cielo({
     g.setAttribute("aFase", new THREE.Float32BufferAttribute(fase, 1));
     const luci = new THREE.BufferAttribute(new Float32Array(nodi.length), 1);
     g.setAttribute("aAccesa", luci);
-    const mat = materialeStelle(colore, dpr);
+    const mat = materialeStelle("#FFFFFF", dpr);
     // le competenze accese crescono e brillano
     mat.vertexShader = mat.vertexShader
       .replace("attribute float aFase;", "attribute float aFase;\nattribute float aAccesa;\nvarying float vAccesa;")
@@ -256,7 +257,7 @@ export default function Cielo({
 
     const etichette = nodi.map((n) => {
       const { t, rapporto } = etichetta(n.nome, mono);
-      const m = new THREE.SpriteMaterial({ map: t, color: colore, transparent: true, opacity: 0, depthWrite: false, fog: false });
+      const m = new THREE.SpriteMaterial({ map: t, transparent: true, opacity: 0, depthWrite: false, fog: false });
       const sp = new THREE.Sprite(m);
       const alto = stretto ? 0.32 : 0.26;
       sp.scale.set(alto * rapporto, alto, 1);
@@ -272,12 +273,19 @@ export default function Cielo({
     gf.setDrawRange(0, 0);
     const fili = new THREE.LineSegments(
       gf,
-      new THREE.LineBasicMaterial({ color: colore, transparent: true, opacity: 0, depthWrite: false, fog: false })
+      new THREE.LineBasicMaterial({ transparent: true, opacity: 0, depthWrite: false, fog: false })
     );
     fili.raycast = () => undefined;
     fili.frustumCulled = false;
     return { punti, luci, etichette, fili };
-  }, [nodi, colore, dpr, mono, stretto]);
+  }, [nodi, dpr, mono, stretto]);
+
+  // il tema cambia il colore della costellazione: si aggiornano i materiali, non si ricostruisce niente
+  useEffect(() => {
+    (grafica.punti.material as THREE.ShaderMaterial).uniforms.uColore.value.set(colore);
+    grafica.etichette.forEach((e) => e.material.color.set(colore));
+    (grafica.fili.material as THREE.LineBasicMaterial).color.set(colore);
+  }, [grafica, colore]);
 
   useEffect(
     () => () => {
@@ -317,7 +325,11 @@ export default function Cielo({
       accese.current = new Set(usate);
       if (id && angoli[id] !== undefined) {
         const a = angoli[id];
-        const da = new THREE.Vector3(Math.sin(a) * 5.75, (quote[id] ?? 0) + 0.85, -Math.cos(a) * 5.75);
+        // dalla carta; per il contatto, dalla luce che esce dal cassetto
+        const da =
+          id === "contatto"
+            ? nelMondo(new THREE.Vector3(POSIZIONI.cassetto.x, 1.3, POSIZIONI.cassetto.z - 0.38))
+            : new THREE.Vector3(Math.sin(a) * 5.75, (quote[id] ?? 0) + 0.85, -Math.cos(a) * 5.75);
         const arr = grafica.fili.geometry.attributes.position.array as Float32Array;
         let k = 0;
         nodi.forEach((n) => {
@@ -331,8 +343,9 @@ export default function Cielo({
       }
     }
 
-    const k = 1 - Math.exp(-dt * 4);
-    forzaFili.current = THREE.MathUtils.lerp(forzaFili.current, id ? 1 : 0, ridotto ? 1 : k);
+    // con "riduci movimento" niente dissolvenze: fili, punti ed etichette cambiano di colpo
+    const k = ridotto ? 1 : 1 - Math.exp(-dt * 4);
+    forzaFili.current = THREE.MathUtils.lerp(forzaFili.current, id ? 1 : 0, k);
     (grafica.fili.material as THREE.LineBasicMaterial).opacity = forzaFili.current * (notte ? 0.26 : 0.3);
 
     nodi.forEach((n, i) => {

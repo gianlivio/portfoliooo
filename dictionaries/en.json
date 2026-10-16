@@ -59,27 +59,32 @@
       "strumenti": "Next.js · TypeScript · Vercel"
     },
     "ndnluxury": {
-      "tipo": "Business website",
+      "tipo": "Business website, SEO and content",
       "titolo": "NDN Luxury",
-      "riga": "Website of a resin and microcement finishes brand.",
-      "ruolo": "Web developer · freelance",
+      "riga": "Next.js website of a resin and microcement flooring company in Legnano, serving private and B2B clients (restaurants, hotels, industry). I built new pages and handled organic search and content.",
+      "ruolo": "Freelance",
       "compiti": [
-        "New pages on the existing site.",
-        "3D animations.",
-        "Maintenance and improvements."
+        "New pages and 3D animations.",
+        "Schema.org structured data (area served, service catalogue, FAQ).",
+        "“Read also” sections that pick related articles by a relevance score rather than by date.",
+        "Search Console analysis: CTR gap between desktop and mobile, pages with many impressions and few clicks to optimise.",
+        "Editorial plan, article revision, blog categories reorganised into four.",
+        "Setup of Meta and Google Ads campaigns targeted on the area, built on real searches."
       ],
-      "strumenti": ""
+      "strumenti": "Next.js, TypeScript, Vercel, JSON-LD, Google Search Console, Meta Ads, Google Ads"
     },
     "esh": {
-      "tipo": "Business website",
+      "tipo": "Web platform",
       "titolo": "ESH – Erasmus Student Housing",
-      "riga": "Website for rental housing for Erasmus students.",
-      "ruolo": "Web developer · freelance",
+      "riga": "European platform that connects Erasmus students with verified landlords in several cities. I developed features in the Next.js codebase and coordinated the multilingual blog for organic search.",
+      "ruolo": "Freelance",
       "compiti": [
-        "New site pages.",
+        "New pages and features.",
+        "Systematic check of the Italian, English and Spanish translations to find untranslated strings.",
+        "Blog article revision, internal links, brand terms consistent across languages.",
         "Maintenance."
       ],
-      "strumenti": ""
+      "strumenti": "Next.js (App Router), TypeScript, Prisma, PostgreSQL (Neon), shadcn/ui, pnpm, Vercel"
     },
     "blog": {
       "tipo": "Blog · WordPress",
@@ -218,7 +223,8 @@
     "recapiti": "Contact",
     "cv": "Résumé (PDF)",
     "compiti": "What I did",
-    "strumenti": "Tools"
+    "strumenti": "Tools",
+    "editoria": "Publishing, SEO and copywriting"
   },
   "tema": {
     "versoChiaro": "Switch to light theme",
@@ -227,5 +233,10 @@
   "tastiera": {
     "ruolo": "gallery",
     "etichetta": "Projects. Left and right arrows to browse, Enter to open."
+  },
+  "audio": {
+    "accendi": "Turn sound on",
+    "spegni": "Turn sound off",
+    "nome": "Sound"
   }
 }

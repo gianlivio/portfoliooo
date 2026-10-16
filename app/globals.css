@@ -137,6 +137,16 @@ html.con-scena .elenco:focus-within{
 .tema:hover{border-color:var(--testo)}
 .tema-segno{width:.8rem;height:.8rem;border-radius:50%;border:1.5px solid var(--testo);background:linear-gradient(90deg,var(--testo) 50%,transparent 50%);transition:transform .6s var(--curva)}
 .tema-segno--chiaro{transform:rotate(180deg)}
+/* il pulsante dell'audio: tre barre, basse da spento, alte e diverse da acceso */
+.audio-segno{display:flex;align-items:flex-end;gap:2px;height:.8rem}
+.audio-segno i{display:block;width:2px;background:var(--grigio);border-radius:1px;transition:height .3s var(--curva),background .3s}
+.audio-segno i:nth-child(1){height:4px}
+.audio-segno i:nth-child(2){height:7px}
+.audio-segno i:nth-child(3){height:5px}
+.audio-segno--acceso i{background:var(--testo)}
+.audio-segno--acceso i:nth-child(1){height:7px}
+.audio-segno--acceso i:nth-child(2){height:12px}
+.audio-segno--acceso i:nth-child(3){height:9px}
 
 /* ---------- guida e invito ---------- */
 .guida{

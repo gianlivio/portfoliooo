@@ -60,7 +60,8 @@ export default function Aura({ bersaglio }: { bersaglio: React.RefObject<HTMLEle
 
     const giorno = document.documentElement.dataset.tema === "chiaro";
     const colori = (giorno ? FIAMMA : VAPORE).map(sprite);
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    // densità 1: le particelle sono sfumate, a densità piena non si vede differenza e costa il quadruplo
+    const dpr = 1;
     const ridim = () => {
       c.width = innerWidth * dpr;
       c.height = innerHeight * dpr;
@@ -79,7 +80,8 @@ export default function Aura({ bersaglio }: { bersaglio: React.RefObject<HTMLEle
     let prima = t0;
     let fotogramma = 0;
     const stretto = innerWidth < 760;
-    const tetto = stretto ? 420 : 900;
+    // tetto di particelle: sopra quello che il bordo produce a regime (circa 350 vive di giorno, 170 su mobile)
+    const tetto = stretto ? 240 : 480;
     const debito = { flusso: 0, bordo: 0 };
 
     const ciclo = (ora: number) => {

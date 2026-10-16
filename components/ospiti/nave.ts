@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { PELO_ACQUA, gocce } from "../condivisi";
+import { suono } from "../audio";
 import {
   type Ospite, RUMORE, alone, assi, cancella, finito, riposo, tocca, bruma, casuale, fra, liberaTutto, loft, primo, segno,
 } from "./comuni";
@@ -18,6 +19,62 @@ const COLORE = new THREE.Color("#9FEBD9");
 const LUCE = new THREE.Color("#7DFFC4");
 const REMI = 11;
 const VOGATA = 2.3;
+
+/* ---------------------------------------------------------------- bandiere */
+
+/**
+ * Le bandiere del codice nautico internazionale che compongono "LIVIO", in un'unica mesh:
+ * L (quarti gialli e neri), I (gialla col disco nero), V (bianca con la croce di Sant'Andrea rossa),
+ * I, O (diagonale: rosso in alto al battente, giallo in basso all'inferitura).
+ * Appese in fila sotto lo strallo, dall'alto verso la prua; si leggono dal fianco della nave.
+ */
+function bandiereLivio(da: THREE.Vector3, a: THREE.Vector3, texture: THREE.Texture[]) {
+  const G = "#F2C230", N = "#141414", B = "#F4F2EC", R = "#D3262C";
+  const lettere = ["L", "I", "V", "I", "O"];
+  const c = document.createElement("canvas");
+  c.width = 64 * lettere.length;
+  c.height = 64;
+  const x = c.getContext("2d") as CanvasRenderingContext2D;
+  lettere.forEach((l, i) => {
+    const o = i * 64;
+    if (l === "L") {
+      x.fillStyle = G; x.fillRect(o, 0, 32, 32); x.fillRect(o + 32, 32, 32, 32);
+      x.fillStyle = N; x.fillRect(o + 32, 0, 32, 32); x.fillRect(o, 32, 32, 32);
+    } else if (l === "I") {
+      x.fillStyle = G; x.fillRect(o, 0, 64, 64);
+      x.fillStyle = N; x.beginPath(); x.arc(o + 32, 32, 15, 0, Math.PI * 2); x.fill();
+    } else if (l === "V") {
+      x.fillStyle = B; x.fillRect(o, 0, 64, 64);
+      x.strokeStyle = R; x.lineWidth = 12;
+      x.beginPath(); x.moveTo(o, 0); x.lineTo(o + 64, 64); x.moveTo(o + 64, 0); x.lineTo(o, 64); x.stroke();
+    } else {
+      x.fillStyle = G; x.fillRect(o, 0, 64, 64);
+      x.fillStyle = R; x.beginPath(); x.moveTo(o, 0); x.lineTo(o + 64, 0); x.lineTo(o + 64, 64); x.closePath(); x.fill();
+    }
+  });
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  texture.push(t);
+  // cinque quadrati, il lato d'inferitura lungo lo strallo
+  const L = 0.15;
+  const pos: number[] = [], uv: number[] = [], idx: number[] = [];
+  lettere.forEach((_, i) => {
+    // oltre la vela, fino a metà dello strallo; ogni bandiera pende col lato d'inferitura verso poppa
+    const p = da.clone().lerp(a, 0.3 + i * 0.12);
+    const v = [p, p.clone().add(new THREE.Vector3(0, 0, L)), p.clone().add(new THREE.Vector3(0, -L, L)), p.clone().add(new THREE.Vector3(0, -L, 0))];
+    const b = i * 4;
+    v.forEach((w) => pos.push(w.x, w.y, w.z));
+    const u0 = i / lettere.length, u1 = (i + 1) / lettere.length;
+    uv.push(u0, 1, u1, 1, u1, 0, u0, 0);
+    idx.push(b, b + 3, b + 1, b + 1, b + 3, b + 2);
+  });
+  const g = new THREE.BufferGeometry();
+  g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+  g.setAttribute("uv", new THREE.Float32BufferAttribute(uv, 2));
+  g.setIndex(idx);
+  const m = new THREE.Mesh(g, new THREE.MeshBasicMaterial({ map: t, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false }));
+  return m;
+}
 
 /* ------------------------------------------------------------------ shader */
 
@@ -255,6 +312,7 @@ export class Nave implements Ospite {
   private nuvole: { s: THREE.Sprite; base: THREE.Vector3; fase: number; vel: number }[] = [];
   private remi: Remo[] = [];
   private fiamma: THREE.Mesh;
+  private bandiere: THREE.Mesh;
   private ulisse: THREE.Group;
   private texture: THREE.Texture[] = [];
   private stato = {
@@ -453,6 +511,10 @@ export class Nave implements Ospite {
     );
     this.nave.add(this.sartiame);
 
+    // le bandiere del codice nautico internazionale, issate sullo strallo di prua: L, I, V, I, O
+    this.bandiere = bandiereLivio(V3(0, al.cima - 0.05, al.z), V3(0, 0.72, 1.48), this.texture);
+    this.nave.add(this.bandiere);
+
     // lucerne: a poppa e sul dritto di prua; un braciere che arde a mezzanave
     const txAlone = alone("#B8FFE6");
     this.texture.push(txAlone);
@@ -578,6 +640,7 @@ export class Nave implements Ospite {
     // all'attacco della passata le pale toccano l'acqua: due cerchi, uno per lato
     if (vog < 0.05 && s.colpo !== Math.floor(e / VOGATA) && vis > 0.3) {
       s.colpo = Math.floor(e / VOGATA);
+      suono.effetto("remo", vis);
       for (const lato of [-1, 1]) {
         const rm = this.remi[(lato > 0 ? REMI : 0) + Math.floor(Math.random() * REMI)];
         w.set(1.12, 0, 0);
@@ -589,6 +652,8 @@ export class Nave implements Ospite {
 
     (this.sartiame.material as THREE.LineBasicMaterial).opacity = 0.42 * vis * forza;
     (this.funi.material as THREE.LineBasicMaterial).opacity = 0.7 * vis * forza;
+    (this.bandiere.material as THREE.MeshBasicMaterial).opacity = 0.85 * vis * forza;
+    this.bandiere.rotation.x = Math.sin(t * 1.7) * 0.025;
     this.lanterne.forEach((l, i) => {
       const tremo = 0.8 + 0.2 * Math.sin(t * (11 + i * 3) + i) * Math.sin(t * (4 + i));
       l.material.opacity = vis * forza * tremo;

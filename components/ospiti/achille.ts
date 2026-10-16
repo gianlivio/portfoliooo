@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { PELO_ACQUA } from "../condivisi";
+import { PELO_ACQUA, tartaruga } from "../condivisi";
 import {
   Deriva, type Ospite, assi, cancella, finito, riposo, tocca, casuale, fra, generatore, liberaTutto, loft, morbido, ombra, primo,
 } from "./comuni";
@@ -449,6 +449,10 @@ export class Achille implements Ospite {
     this.gruppo.position.set(0, 0, 0);
     this.tarta.position.set(p.x, PELO_ACQUA, p.z);
     this.tarta.rotation.y = s.imbardata;
+    // il robot deve sapere dov'è, per incrociarla
+    tartaruga.attiva = svanire > 0.5;
+    tartaruga.pos.set(p.x, 0, p.z);
+    tartaruga.rotta = s.imbardata;
     this.ombra.position.set(p.x, PELO_ACQUA + 0.002, p.z);
     this.ombra.rotation.z = s.imbardata;
     this.materiali.forEach((m) => (m.opacity = svanire));
@@ -508,11 +512,13 @@ export class Achille implements Ospite {
       s.inizio = -1;
       s.prossima = t + riposo();
       this.gruppo.visible = false;
+      tartaruga.attiva = false;
       finito("giorno", "tartaruga", t);
     }
   }
 
   libera() {
+    tartaruga.attiva = false;
     cancella("giorno", "tartaruga");
     this.achille.libera();
     liberaTutto(this.gruppo, this.texture);

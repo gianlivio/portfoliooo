@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { pterodattilo } from "../condivisi";
 import { type Ospite, assi, cancella, casuale, finito, fra, liberaTutto, loft, primo, riposo, tocca, lato as latoRegia } from "./comuni";
 
 /**
@@ -160,6 +161,7 @@ export class Pterodattilo implements Ospite {
       s.inizio = -1;
       s.prossima = t + riposo();
       this.gruppo.visible = false;
+      pterodattilo.attivo = false;
       finito("giornoCielo", "pterodattilo", t);
       return;
     }
@@ -176,6 +178,11 @@ export class Pterodattilo implements Ospite {
     bez(Math.max(0, k - 0.01), c);
     this.corpo.position.copy(a);
     this.corpo.lookAt(b);
+    // il jet, se passa, gli può volare accanto: deve sapere dov'è e dove va
+    pterodattilo.attivo = true;
+    pterodattilo.pos.copy(a);
+    pterodattilo.dir.subVectors(b, a).normalize();
+    pterodattilo.fine = s.inizio + s.durata;
     // si inclina nella virata: quanto curva la rotta
     const d1 = b.clone().sub(a).setY(0).normalize(), d0 = a.clone().sub(c).setY(0).normalize();
     const curva = d0.x * d1.z - d0.z * d1.x;
@@ -202,6 +209,7 @@ export class Pterodattilo implements Ospite {
   }
 
   libera() {
+    pterodattilo.attivo = false;
     cancella("giornoCielo", "pterodattilo");
     liberaTutto(this.gruppo, this.texture);
   }

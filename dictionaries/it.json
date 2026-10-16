@@ -59,27 +59,32 @@
       "strumenti": "Next.js · TypeScript · Vercel"
     },
     "ndnluxury": {
-      "tipo": "Sito aziendale",
+      "tipo": "Sito aziendale, SEO e contenuti",
       "titolo": "NDN Luxury",
-      "riga": "Sito di un marchio di rivestimenti in resina e microcemento.",
-      "ruolo": "Web developer · freelance",
+      "riga": "Sito Next.js di un’azienda di pavimenti in resina e microcemento di Legnano, con clienti privati e B2B (ristorazione, hotel, industria). Ho sviluppato nuove pagine e curato il posizionamento organico e i contenuti.",
+      "ruolo": "Freelance",
       "compiti": [
-        "Nuove pagine sul sito esistente.",
-        "Animazioni 3D.",
-        "Manutenzione e interventi di miglioramento."
+        "Nuove pagine e animazioni 3D.",
+        "Dati strutturati Schema.org (area servita, catalogo dei servizi, FAQ).",
+        "Sezioni “Leggi anche” che scelgono gli articoli correlati con un punteggio di pertinenza invece che per data.",
+        "Analisi di Search Console: divario di CTR tra desktop e mobile, pagine con molte impressioni e pochi clic da ottimizzare.",
+        "Piano editoriale, revisione degli articoli, categorie del blog riordinate in quattro.",
+        "Impostazione di campagne Meta e Google Ads mirate sulla zona, costruite sulle ricerche reali."
       ],
-      "strumenti": ""
+      "strumenti": "Next.js, TypeScript, Vercel, JSON-LD, Google Search Console, Meta Ads, Google Ads"
     },
     "esh": {
-      "tipo": "Sito aziendale",
+      "tipo": "Piattaforma web",
       "titolo": "ESH – Erasmus Student Housing",
-      "riga": "Sito di alloggi in affitto per studenti Erasmus.",
-      "ruolo": "Web developer · freelance",
+      "riga": "Piattaforma europea che mette in contatto studenti Erasmus e proprietari verificati in diverse città. Ho sviluppato funzionalità nel codice Next.js e coordinato il blog multilingue per il posizionamento organico.",
+      "ruolo": "Freelance",
       "compiti": [
-        "Nuove pagine del sito.",
+        "Nuove pagine e funzionalità.",
+        "Controllo sistematico delle traduzioni in italiano, inglese e spagnolo per trovare le stringhe non tradotte.",
+        "Revisione degli articoli del blog, link interni, termini di marca coerenti tra le lingue.",
         "Manutenzione."
       ],
-      "strumenti": ""
+      "strumenti": "Next.js (App Router), TypeScript, Prisma, PostgreSQL (Neon), shadcn/ui, pnpm, Vercel"
     },
     "blog": {
       "tipo": "Blog · WordPress",
@@ -218,7 +223,8 @@
     "recapiti": "Recapiti",
     "cv": "Curriculum (PDF)",
     "compiti": "Cosa ho fatto",
-    "strumenti": "Strumenti"
+    "strumenti": "Strumenti",
+    "editoria": "Editoria, SEO e copywriting"
   },
   "tema": {
     "versoChiaro": "Passa al tema chiaro",
@@ -227,5 +233,10 @@
   "tastiera": {
     "ruolo": "galleria",
     "etichetta": "Lavori. Frecce sinistra e destra per scorrere, Invio per aprire."
+  },
+  "audio": {
+    "accendi": "Accendi l'audio",
+    "spegni": "Spegni l'audio",
+    "nome": "Audio"
   }
 }

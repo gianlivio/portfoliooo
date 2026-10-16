@@ -1,5 +1,6 @@
 import * as THREE from "three";
-import { PELO_ACQUA } from "../condivisi";
+import { PELO_ACQUA, tartaruga } from "../condivisi";
+import { ANGOLO_ZONA } from "../zona";
 import { type Ospite, casuale, liberaTutto, ombra, segno, tela } from "./comuni";
 
 /**
@@ -8,6 +9,7 @@ import { type Ospite, casuale, liberaTutto, ombra, segno, tela } from "./comuni"
  * ogni tanto si ferma e gira su sé stesso per pulire un punto, ogni tanto urta qualcosa che non c'è,
  * arretra e riparte. La torretta del laser gira, la spazzola laterale frulla,
  * la luce di stato respira. Dietro di sé lascia una striscia di marmo più lucido, che pian piano si confonde.
+ * Ogni tanto incrocia la tartaruga di Achille, le si mette dietro e non riesce a superarla.
  */
 
 const DIAMETRO = 0.3;
@@ -15,7 +17,7 @@ const VEL = 0.55; // unità al secondo: un giro della stanza in poco più di un 
 const GIRO = 1.6; // radianti al secondo
 const TRACCE = 160;
 // il percorso: un anello davanti alle carte, fra 3,6 e 4,55 dal centro (la sedia della scrivania è a 4,88)
-const ANGOLO = (2 / 13) * Math.PI * 2; // parte davanti alla scrivania, sotto la terza carta
+const ANGOLO = ANGOLO_ZONA; // parte davanti alla scrivania
 const R_MIN = 3.6;
 const R_MAX = 4.55;
 
@@ -34,6 +36,7 @@ export class Robot implements Ospite {
     pos: new THREE.Vector3(), rotta: 0, verso: 1, fase: 0,
     mossa: { tipo: "dritto", durata: 3 } as Mossa, inizioMossa: 0, impronta: 0, slot: 0, prossimoGiro: 10, prossimoUrto: 6,
   };
+  private inc = { attivo: false, inizio: 0, prossimo: 4, urto: 0 };
   private m = new THREE.Matrix4();
   private q = new THREE.Quaternion();
   private v = new THREE.Vector3();
@@ -149,24 +152,49 @@ export class Robot implements Ospite {
     }
     const mossa = s.mossa;
     let vel = 0;
+    this.incontro(t);
+    const inc = this.inc;
     if (mossa.tipo === "dritto") {
-      // la meta: un punto più avanti sull'anello, a una distanza dal centro che va e viene (lo zig-zag)
-      const ang = Math.atan2(s.pos.x, -s.pos.z) + s.verso * 0.45;
-      const r = (R_MIN + R_MAX) / 2 + ((R_MAX - R_MIN) / 2) * Math.sin(t * 0.35 + s.fase);
-      const voluta = Math.atan2(Math.sin(ang) * r - s.pos.x, -Math.cos(ang) * r - s.pos.z);
+      let voluta: number;
+      let massima = VEL;
+      if (inc.attivo) {
+        // dietro la tartaruga, come Achille: la distanza si dimezza, ma non la passa mai.
+        // Ogni tanto prova a sorpassarla di lato; lei è sempre un po' più avanti, e il robot urta e ritorna dietro.
+        const k = Math.min(5, Math.floor((t - inc.inizio) / 1.8));
+        const gap = Math.max(0.27, 0.9 / Math.pow(2, k));
+        const fx = Math.sin(tartaruga.rotta), fz = Math.cos(tartaruga.rotta);
+        const sorpasso = gap <= 0.3 && Math.sin((t - inc.inizio) * 1.1) > 0.55 ? 1 : 0;
+        const mx = tartaruga.pos.x - fx * gap + fz * sorpasso * 0.28;
+        const mz = tartaruga.pos.z - fz * gap - fx * sorpasso * 0.28;
+        voluta = Math.atan2(mx - s.pos.x, mz - s.pos.z);
+        const d = Math.hypot(mx - s.pos.x, mz - s.pos.z);
+        // vicino, va al passo della tartaruga e non di più
+        massima = d > 0.4 ? VEL : 0.2 + d * 0.5;
+        if (sorpasso && d < 0.12 && t > inc.urto) {
+          inc.urto = t + 3;
+          s.mossa = { tipo: "arretra", durata: 0.6 };
+          s.inizioMossa = t;
+        }
+      } else {
+        // la meta: un punto più avanti sull'anello, a una distanza dal centro che va e viene (lo zig-zag)
+        const ang = Math.atan2(s.pos.x, -s.pos.z) + s.verso * 0.45;
+        const r = (R_MIN + R_MAX) / 2 + ((R_MAX - R_MIN) / 2) * Math.sin(t * 0.35 + s.fase);
+        voluta = Math.atan2(Math.sin(ang) * r - s.pos.x, -Math.cos(ang) * r - s.pos.z);
+      }
       const err = Math.atan2(Math.sin(voluta - s.rotta), Math.cos(voluta - s.rotta));
       s.rotta += THREE.MathUtils.clamp(err, -GIRO * dt, GIRO * dt);
       // come i robot veri: se deve girare molto, prima gira sul posto
-      vel = Math.abs(err) < 0.6 ? VEL : VEL * 0.15;
+      vel = Math.abs(err) < 0.6 ? massima : massima * 0.15;
     }
     if (mossa.tipo === "arretra") vel = -VEL * 0.4;
     if (mossa.tipo === "gira") s.rotta += (mossa.verso ?? 1) * GIRO * 1.4 * dt;
     s.pos.x += Math.sin(s.rotta) * vel * dt;
     s.pos.z += Math.cos(s.rotta) * vel * dt;
-    // mai fuori dall'anello
+    // mai fuori dall'anello (un po' più largo mentre segue la tartaruga)
     const rr = Math.hypot(s.pos.x, s.pos.z);
-    if (rr > R_MAX + 0.05 || rr < R_MIN - 0.05) {
-      const k = THREE.MathUtils.clamp(rr, R_MIN - 0.05, R_MAX + 0.05) / rr;
+    const rMin = inc.attivo ? R_MIN - 0.5 : R_MIN - 0.05, rMax = inc.attivo ? R_MAX + 0.3 : R_MAX + 0.05;
+    if (rr > rMax || rr < rMin) {
+      const k = THREE.MathUtils.clamp(rr, rMin, rMax) / rr;
       s.pos.x *= k;
       s.pos.z *= k;
     }
@@ -187,6 +215,28 @@ export class Robot implements Ospite {
       this.nascite[i] = t;
       this.traccia.setMatrixAt(i, this.m.compose(this.v.set(s.pos.x, PELO_ACQUA + 0.0015, s.pos.z), this.q.identity(), new THREE.Vector3(1, 1, 1)));
       this.traccia.instanceMatrix.needsUpdate = true;
+    }
+  }
+
+  /** Ogni tanto, se la tartaruga passa vicino, il robot le si mette dietro; dopo un po' rinuncia. */
+  private incontro(t: number) {
+    const inc = this.inc;
+    const s = this.s;
+    const d = Math.hypot(tartaruga.pos.x - s.pos.x, tartaruga.pos.z - s.pos.z);
+    const r = Math.hypot(s.pos.x, s.pos.z);
+    if (inc.attivo) {
+      if (!tartaruga.attiva || t - inc.inizio > 16 || r > R_MAX + 0.28 || r < R_MIN - 0.48 || d > 2.2) {
+        inc.attivo = false;
+        inc.prossimo = t + casuale(20, 35);
+      }
+      return;
+    }
+    if (tartaruga.attiva && t > inc.prossimo && d < 1.8) {
+      if (Math.random() < 0.6) {
+        inc.attivo = true;
+        inc.inizio = t;
+        inc.urto = t + 4;
+      } else inc.prossimo = t + casuale(8, 14);
     }
   }
 
