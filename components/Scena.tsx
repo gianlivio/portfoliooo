@@ -47,6 +47,8 @@ type Props = {
   moduloAperto: boolean;
   /** il titolo della sezione "Editoria, SEO e copywriting", nella lingua della pagina */
   sezioneEditoria: string;
+  /** la scritta sopra il tavolino delle macchine: [accendi, spegni] */
+  testiMusica: [string, string];
 };
 
 /* Ogni tema cambia più dei colori: luce, densità, peso dei segni. */
@@ -235,7 +237,7 @@ function quotaVisibile(img: HTMLImageElement) {
 
 function Carte({
   carte, selezionato, focale, onSeleziona, ridotto, onPronta, tema, conIngresso, moduloAperto, attiva, sezioneEditoria,
-}: Omit<Props, "onInteragisci" | "stretto" | "lingua"> & { attiva: React.MutableRefObject<string | null> }) {
+}: Omit<Props, "onInteragisci" | "stretto" | "lingua" | "testiMusica"> & { attiva: React.MutableRefObject<string | null> }) {
   const [grafica, setGrafica] = useState<Grafica | null>(null);
   const [sopra, setSopra] = useState<string | null>(null);
   const gruppi = useRef<(THREE.Group | null)[]>([]);
@@ -695,8 +697,9 @@ function EtichettaSezione({
  * La zona dello sviluppatore: monta la Zona (ospiti/zonaSviluppatore.ts) una volta sola e la tiene viva
  * anche quando cambia il tema. Libri e drum machine si cliccano; il resto non risponde al puntatore.
  */
-function ZonaSviluppatore({ notte, ridotto }: { notte: boolean; ridotto: boolean }) {
+function ZonaSviluppatore({ notte, ridotto, testi }: { notte: boolean; ridotto: boolean; testi: [string, string] }) {
   const [zona] = useState(() => new Zona(notte));
+  useEffect(() => zona.setTesti(testi[0], testi[1]), [zona, testi]);
   useEffect(() => () => zona.libera(), [zona]);
   useEffect(() => zona.setNotte(notte), [zona, notte]);
   const [sopra, setSopra] = useState<Azione | null>(null);
@@ -856,7 +859,7 @@ function Ambiente({ tema }: { tema: Tema }) {
 
 function Regia({
   carte, selezionato, focale, onSeleziona, onInteragisci, ridotto, stretto, conIngresso,
-}: Omit<Props, "onPronta" | "tema" | "sezioneEditoria">) {
+}: Omit<Props, "onPronta" | "tema" | "sezioneEditoria" | "testiMusica">) {
   const { camera, gl } = useThree();
   const s = useRef({
     // si comincia guardando la zona dello sviluppatore, il centro del mondo
@@ -1018,7 +1021,7 @@ export default function Scena(props: Props) {
         attiva={attiva}
         sezioneEditoria={props.sezioneEditoria}
       />
-      <ZonaSviluppatore notte={tema === "scuro"} ridotto={props.ridotto} />
+      <ZonaSviluppatore notte={tema === "scuro"} ridotto={props.ridotto} testi={props.testiMusica} />
       <Vulcano notte={tema === "scuro"} ridotto={props.ridotto} />
       <Transizione tema={tema} ridotto={props.ridotto} />
       {tema === "chiaro" && <CieloDiGiorno orizzonte={p.fondo} />}

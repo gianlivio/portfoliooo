@@ -237,6 +237,8 @@
   "audio": {
     "accendi": "Turn sound on",
     "spegni": "Turn sound off",
-    "nome": "Sound"
+    "nome": "Sound",
+    "musica": "Play music",
+    "silenzio": "Stop music"
   }
 }

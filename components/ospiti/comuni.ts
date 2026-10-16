@@ -256,7 +256,8 @@ type Traccia = {
 const TRACCE: Record<string, { pausa: [number, number]; primo: number; turno?: number }> = {
   // chi visita resta mezzo minuto: il primo ospite di ogni traccia arriva entro pochi secondi,
   // e fra uno e l'altro passano un paio di secondi
-  notte: { pausa: [1.5, 3], primo: 1.5 },
+  // le navi si accavallano: una nuova ogni dieci secondi, anche se la precedente è ancora in acqua
+  notte: { pausa: [0, 0], primo: 1.5, turno: 10 },
   notteCielo: { pausa: [0, 0], primo: 2, turno: 7 },
   giorno: { pausa: [1.5, 3], primo: 2 },
   giornoAria: { pausa: [1.5, 3], primo: 4 },
@@ -362,6 +363,8 @@ export function finito(nomeTraccia: string, nome: string, t: number) {
 
 /** Con una scheda o il modulo aperti non parte niente di nuovo. */
 export function pausaRegia(ferma: boolean) {
+  // chiusa la scheda o il modulo, si riparte subito: niente attese accumulate durante la pausa
+  if (regia.ferma && !ferma) Object.values(regia.tracce).forEach((tr) => (tr.libero = Math.min(tr.libero, 0)));
   regia.ferma = ferma;
 }
 

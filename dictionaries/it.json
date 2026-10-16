@@ -237,6 +237,8 @@
   "audio": {
     "accendi": "Accendi l'audio",
     "spegni": "Spegni l'audio",
-    "nome": "Audio"
+    "nome": "Audio",
+    "musica": "Accendi musica",
+    "silenzio": "Spegni musica"
   }
 }

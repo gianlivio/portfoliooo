@@ -304,6 +304,8 @@ type Remo = { g: THREE.Group; lato: number; z: number };
 
 export class Nave implements Ospite {
   gruppo = new THREE.Group();
+  /** la sua voce, mentre passa (vedi components/audio.ts) */
+  private voce: ReturnType<typeof suono.voce> | null = null;
   private nave = new THREE.Group();
   private comuni: Comuni;
   private sartiame: THREE.LineSegments;
@@ -577,6 +579,7 @@ export class Nave implements Ospite {
       s.prossimoVacillo = t + casuale(5, 9);
       s.fase = casuale(0, 10);
       this.gruppo.visible = true;
+      this.voce = suono.voce("nave");
     }
     const e = t - s.inizio;
     // la vogata spinge a strappi: la nave avanza di più durante la passata in acqua
@@ -585,6 +588,8 @@ export class Nave implements Ospite {
     if (e >= s.durata) {
       s.inizio = -1;
       s.prossima = t + riposo();
+      this.voce?.ferma();
+      this.voce = null;
       finito("notte", "nave", t);
       this.gruppo.visible = false;
       return;
@@ -616,6 +621,7 @@ export class Nave implements Ospite {
     if (ev < 0.5) forza *= 0.35 + 0.65 * Math.abs(Math.cos(ev * 19));
     c.uT.value = t;
     c.uVis.value = vis;
+    this.voce?.volume(vis);
     c.uForza.value = forza;
     this.gruppo.updateMatrixWorld(true);
     c.uInv.value.copy(this.nave.matrixWorld).invert();
@@ -675,6 +681,7 @@ export class Nave implements Ospite {
   }
 
   libera() {
+    this.voce?.ferma();
     cancella("notte", "nave");
     SLOT.forEach((k) => gocce[k].set(0, 0, -100, 0));
     liberaTutto(this.gruppo, this.texture);

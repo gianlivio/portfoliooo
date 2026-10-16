@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { suono } from "../audio";
 import { BPM, PELO_ACQUA, gocce, mondo } from "../condivisi";
 import {
   type Ospite, RUMORE, alone, assi, bruma, cancella, casuale, finito, fra, liberaTutto, loft, primo, riposo, segno, tocca,
@@ -369,6 +370,8 @@ class Festa {
 
 export class Galeone implements Ospite {
   gruppo = new THREE.Group();
+  /** la sua voce, mentre passa (vedi components/audio.ts) */
+  private voce: ReturnType<typeof suono.voce> | null = null;
   private nave = new THREE.Group();
   private comuni: Comuni;
   private sartiame: THREE.LineSegments;
@@ -612,6 +615,7 @@ export class Galeone implements Ospite {
       s.prossimoVacillo = t + casuale(5, 9);
       s.fase = casuale(0, 10);
       this.gruppo.visible = true;
+      this.voce = suono.voce("galeone");
     }
     const e = t - s.inizio;
     const k = e / s.durata;
@@ -619,6 +623,8 @@ export class Galeone implements Ospite {
       s.inizio = -1;
       s.prossima = t + riposo();
       this.gruppo.visible = false;
+      this.voce?.ferma();
+      this.voce = null;
       finito("notte", "galeone", t);
       return;
     }
@@ -656,6 +662,7 @@ export class Galeone implements Ospite {
     if (ev < 0.5) forza *= 0.35 + 0.65 * Math.abs(Math.cos(ev * 19));
     c.uT.value = t;
     c.uVis.value = vis;
+    this.voce?.volume(vis);
     c.uForza.value = forza;
     this.gruppo.updateMatrixWorld(true);
     c.uInv.value.copy(this.nave.matrixWorld).invert();
@@ -704,6 +711,7 @@ export class Galeone implements Ospite {
   }
 
   libera() {
+    this.voce?.ferma();
     cancella("notte", "galeone");
     SLOT_SCIA.forEach((k) => gocce[k].set(0, 0, -100, 0));
     liberaTutto(this.gruppo, this.texture);

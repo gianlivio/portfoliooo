@@ -22,7 +22,7 @@ export const POSIZIONI = {
   /** la cassettiera col cassetto aperto, accanto alla sedia, dalla parte di chi guarda */
   cassetto: new THREE.Vector3(1.22, 0, 0.18),
   /** il tavolino delle macchine del suono, accanto alla sedia dal lato della mensola */
-  studio: new THREE.Vector3(-0.98, 0, -0.22),
+  studio: new THREE.Vector3(-1.62, 0, -0.12),
   /** il pannello di legno a cui sono appese la mensola e lo schiacciasogni */
   pannello: new THREE.Vector3(-1.32, 0, 0.92),
 };

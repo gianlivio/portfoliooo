@@ -34,6 +34,7 @@ export default function Esperienza({ d, lingua }: { d: Dizionario; lingua: Lingu
   const [ambiente, setAmbiente] = useState<Ambiente | null>(null);
   const [tema, setTema] = useState<Tema>("scuro");
   const [audio, setAudio] = useState<Modo>("spento");
+  const testiMusica = useMemo<[string, string]>(() => [d.audio.musica, d.audio.silenzio], [d]);
   const palco = useRef<HTMLDivElement>(null);
   const titoloVignetta = useRef<HTMLHeadingElement>(null);
   const daTastiera = useRef(false);
@@ -275,6 +276,7 @@ export default function Esperienza({ d, lingua }: { d: Dizionario; lingua: Lingu
           lingua={lingua}
           moduloAperto={modulo}
           sezioneEditoria={d.elenco.editoria}
+          testiMusica={testiMusica}
         />
       </div>
 

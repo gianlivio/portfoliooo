@@ -64,6 +64,10 @@ class Studio {
   private ledN = 0;
   private passo = -1;
   private c = new THREE.Color();
+  private scritta: { x: CanvasRenderingContext2D; t: THREE.CanvasTexture };
+  private testi = ["", ""];
+  private acceso = -1;
+  private raggio: THREE.Sprite;
 
   constructor(texture: THREE.Texture[]) {
     const p = POSIZIONI.studio;
@@ -139,7 +143,58 @@ class Studio {
     presa.position.y = 0.55;
     presa.userData.azione = { tipo: "drum" } satisfies Azione;
     this.gruppo.add(presa);
+    // un raggio di luce sopra il tavolino, e la scritta "Accendi musica" (o "Spegni musica")
+    const c = document.createElement("canvas");
+    c.width = 1024;
+    c.height = 128;
+    const tx = new THREE.CanvasTexture(c);
+    tx.colorSpace = THREE.SRGBColorSpace;
+    texture.push(tx);
+    this.scritta = { x: c.getContext("2d") as CanvasRenderingContext2D, t: tx };
+    const cartello = new THREE.Mesh(
+      new THREE.PlaneGeometry(1.9, 1.9 * (128 / 1024)),
+      new THREE.MeshBasicMaterial({ map: tx, transparent: true, depthWrite: false, toneMapped: false })
+    );
+    cartello.position.set(0, 1.95, -0.05);
+    cartello.rotation.y = Math.PI;
+    this.gruppo.add(cartello);
+    const lama = tela(64, 256, (x) => {
+      const v = x.createLinearGradient(0, 256, 0, 0);
+      v.addColorStop(0, "rgba(255,255,255,1)");
+      v.addColorStop(1, "rgba(255,255,255,0)");
+      x.fillStyle = v;
+      x.fillRect(0, 0, 64, 256);
+      x.globalCompositeOperation = "destination-in";
+      const o = x.createLinearGradient(0, 0, 64, 0);
+      o.addColorStop(0, "rgba(0,0,0,0)");
+      o.addColorStop(0.5, "rgba(0,0,0,1)");
+      o.addColorStop(1, "rgba(0,0,0,0)");
+      x.fillStyle = o;
+      x.fillRect(0, 0, 64, 256);
+    });
+    texture.push(lama);
+    this.raggio = new THREE.Sprite(new THREE.SpriteMaterial({ map: lama, color: "#E05BFF", transparent: true, opacity: 0.4, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false }));
+    this.raggio.position.set(0, 1.25, 0);
+    this.raggio.scale.set(0.5, 1.2, 1);
+    this.gruppo.add(this.raggio);
     this.disegna(0, false);
+  }
+
+  /** I testi della scritta, nella lingua della pagina: [accendi, spegni]. */
+  setTesti(accendi: string, spegni: string) {
+    this.testi = [accendi, spegni];
+    this.acceso = -1;
+  }
+
+  private scrivi(acceso: boolean) {
+    const { x, t } = this.scritta;
+    x.clearRect(0, 0, 1024, 128);
+    x.fillStyle = "#FFFFFF";
+    x.font = "500 64px ui-monospace, monospace";
+    x.textAlign = "center";
+    x.textBaseline = "middle";
+    x.fillText((acceso ? this.testi[1] : this.testi[0]).toUpperCase(), 512, 66, 1000);
+    t.needsUpdate = true;
   }
 
   /** Ridisegna le facce: passo = sedicesimo che suona (o che gira piano a suono spento). */
@@ -209,6 +264,11 @@ class Studio {
 
   aggiorna(t: number, ridotto: boolean) {
     const b = mondo.battito;
+    if ((b.attivo ? 1 : 0) !== this.acceso) {
+      this.acceso = b.attivo ? 1 : 0;
+      this.scrivi(b.attivo);
+    }
+    this.raggio.material.opacity = ridotto ? 0.4 : b.attivo ? 0.3 + 0.4 * Math.exp(-b.fase * 5) : 0.32 + 0.1 * Math.sin(t * 2);
     // a loop acceso: il sedicesimo vero; spento: un passo ogni mezzo secondo, piano
     const passo = b.attivo ? b.n * 4 + Math.floor(b.fase * 4) : ridotto ? 0 : Math.floor(t * 2);
     if (passo !== this.passo) {
@@ -451,6 +511,11 @@ export class Zona {
     this.gruppo.traverse((o) => {
       if (!o.userData.azione) o.raycast = () => undefined;
     });
+  }
+
+  /** La scritta sopra il tavolino delle macchine. */
+  setTesti(accendi: string, spegni: string) {
+    this.studio.setTesti(accendi, spegni);
   }
 
   setNotte(notte: boolean) {

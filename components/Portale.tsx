@@ -351,8 +351,8 @@ export default function Portale({
       <sprite position={[C.x, BOCCA.y + 0.45, BOCCA_Z]} scale={[0.5, 0.95, 1]} material={colonnaMat} raycast={() => null} />
       <primitive object={scintille} />
       {/* la scritta, sopra la luce, rivolta verso chi guarda */}
-      <mesh position={[C.x, 1.62, BOCCA_Z]} rotation={[0, Math.PI, 0]} raycast={() => null}>
-        <planeGeometry args={[1.5, 1.5 * (200 / 1024)]} />
+      <mesh position={[C.x, 2.35, BOCCA_Z]} rotation={[0, Math.PI, 0]} raycast={() => null}>
+        <planeGeometry args={[2.7, 2.7 * (200 / 1024)]} />
         <meshBasicMaterial ref={scrittaMat} map={scritta} color={col.scritta} transparent opacity={0} depthWrite={false} toneMapped={false} />
       </mesh>
       {/* dove si clicca: la cassettiera e la colonna di luce, un po' più larghe del disegno */}

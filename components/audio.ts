@@ -545,13 +545,142 @@ class Suono {
     return this.ctx && this.modo !== "spento" && this.ctx.state === "running";
   }
 
-  /** La nota della carta i-esima: le carte una dopo l'altra fanno un arpeggio. */
+  /**
+   * Un colpo di basso industriale: una sinusoide che cade di tono, saturata, con un clic di rumore in testa.
+   * È il suono delle carte; f è la nota d'arrivo.
+   */
+  private colpoBasso(t: number, f: number, forza: number, durata = 0.32) {
+    const c = this.ctx as AudioContext;
+    const o = c.createOscillator();
+    o.type = "sine";
+    o.frequency.setValueAtTime(f * 2.4, t);
+    o.frequency.exponentialRampToValueAtTime(f, t + 0.06);
+    const sat = c.createWaveShaper();
+    const k = new Float32Array(512);
+    for (let i = 0; i < 512; i++) k[i] = Math.tanh(((i / 511) * 2 - 1) * 4);
+    sat.curve = k;
+    const fl = c.createBiquadFilter();
+    fl.type = "lowpass";
+    fl.frequency.value = 900;
+    const g = c.createGain();
+    this.inviluppo(g, t, forza, 0.002, durata);
+    o.connect(sat).connect(fl).connect(g).connect(this.effetti);
+    o.start(t);
+    o.stop(t + durata + 0.05);
+    const s = c.createBufferSource();
+    s.buffer = this.rumore;
+    const h = c.createBiquadFilter();
+    h.type = "bandpass";
+    h.frequency.value = 2500;
+    const gc = c.createGain();
+    this.inviluppo(gc, t, forza * 0.35, 0.001, 0.03);
+    s.connect(h).connect(gc).connect(this.effetti);
+    s.start(t, Math.random(), 0.05);
+  }
+
+  /** La nota della carta i-esima: colpi di basso sulla scala, che uno dopo l'altro fanno un arpeggio. */
   notaCarta(i: number) {
     if (!this.pronto()) return;
     const c = this.ctx as AudioContext;
-    const f = SCALA[i % SCALA.length];
-    this.nota(this.effetti, f, c.currentTime + 0.01, 0.9, 0.06, "triangle");
-    this.nota(this.eco, f * 2, c.currentTime + 0.01, 0.4, 0.015, "sine");
+    this.colpoBasso(c.currentTime + 0.01, SCALA[i % SCALA.length] / 4, 0.16);
+  }
+
+  /**
+   * La voce di una nave mentre passa: ognuna la sua. Restituisce un regolatore (volume 0–1, che segue
+   * quanto la nave è visibile) e uno stop. A suono spento non fa niente.
+   *  nave: il canto delle sirene, due voci senza parole che salgono e scendono.
+   *  feluca: i remi che battono a tempo e un coro basso di rematori.
+   *  galeone: la festa a bordo, attutita dalla distanza: cassa a 130 BPM e il brusio della folla.
+   */
+  voce(tipo: "nave" | "feluca" | "galeone") {
+    const nulla = { volume: (_v: number) => undefined, ferma: () => undefined };
+    if (!this.pronto()) return nulla;
+    const c = this.ctx as AudioContext;
+    const t = c.currentTime;
+    const uscita = c.createGain();
+    uscita.gain.value = 0;
+    uscita.connect(this.effetti);
+    const fonti: AudioScheduledSourceNode[] = [];
+    const parti = (n: AudioScheduledSourceNode) => {
+      n.start(t);
+      fonti.push(n);
+      return n;
+    };
+    if (tipo === "nave") {
+      [440, 554.37].forEach((f, i) => {
+        const o = parti(c.createOscillator()) as OscillatorNode;
+        o.type = "sine";
+        o.frequency.value = f;
+        const vib = parti(c.createOscillator()) as OscillatorNode;
+        vib.frequency.value = 5 + i;
+        const vg = c.createGain();
+        vg.gain.value = 6;
+        vib.connect(vg).connect(o.frequency);
+        const melodia = parti(c.createOscillator()) as OscillatorNode;
+        melodia.frequency.value = 0.11 + i * 0.04;
+        const mg = c.createGain();
+        mg.gain.value = 120;
+        melodia.connect(mg).connect(o.frequency);
+        const g = c.createGain();
+        g.gain.value = 0.05;
+        o.connect(g).connect(uscita);
+      });
+    } else if (tipo === "feluca") {
+      const remi = parti(c.createBufferSource()) as AudioBufferSourceNode;
+      remi.buffer = this.rumore;
+      remi.loop = true;
+      const bf = c.createBiquadFilter();
+      bf.type = "bandpass";
+      bf.frequency.value = 700;
+      const battito = parti(c.createOscillator()) as OscillatorNode;
+      battito.frequency.value = 0.9;
+      const bg = c.createGain();
+      bg.gain.value = 0;
+      const ampiezza = c.createGain();
+      ampiezza.gain.value = 0.09;
+      battito.connect(ampiezza).connect(bg.gain);
+      remi.connect(bf).connect(bg).connect(uscita);
+      const coro = parti(c.createOscillator()) as OscillatorNode;
+      coro.type = "sawtooth";
+      coro.frequency.value = 98;
+      const lf = c.createBiquadFilter();
+      lf.type = "lowpass";
+      lf.frequency.value = 420;
+      const cg = c.createGain();
+      cg.gain.value = 0.035;
+      coro.connect(lf).connect(cg).connect(uscita);
+    } else {
+      const cassa = parti(c.createOscillator()) as OscillatorNode;
+      cassa.frequency.value = 52;
+      const colpi = parti(c.createOscillator()) as OscillatorNode;
+      colpi.type = "sawtooth";
+      colpi.frequency.value = BPM / 60;
+      const forma = c.createWaveShaper();
+      const k = new Float32Array(256);
+      for (let i = 0; i < 256; i++) k[i] = Math.pow(1 - i / 255, 6) * 0.8;
+      forma.curve = k;
+      const cg = c.createGain();
+      cg.gain.value = 0;
+      colpi.connect(forma).connect(cg.gain);
+      cassa.connect(cg).connect(uscita);
+      const folla = parti(c.createBufferSource()) as AudioBufferSourceNode;
+      folla.buffer = this.rumore;
+      folla.loop = true;
+      const ff = c.createBiquadFilter();
+      ff.type = "bandpass";
+      ff.frequency.value = 650;
+      ff.Q.value = 0.8;
+      const fg = c.createGain();
+      fg.gain.value = 0.03;
+      folla.connect(ff).connect(fg).connect(uscita);
+    }
+    return {
+      volume: (v: number) => uscita.gain.setTargetAtTime(Math.max(0, Math.min(1, v)), c.currentTime, 0.2),
+      ferma: () => {
+        uscita.gain.setTargetAtTime(0, c.currentTime, 0.3);
+        fonti.forEach((f) => f.stop(c.currentTime + 1.5));
+      },
+    };
   }
 
   effetto(nome: "goccia" | "remo" | "sfiora" | "apri" | "cassetto" | "tema", forza = 1) {
@@ -586,11 +715,10 @@ class Suono {
         break;
       }
       case "sfiora":
-        this.nota(e, 2093, t, 0.12, 0.012, "sine");
+        this.colpoBasso(t, 55, 0.07, 0.18);
         break;
       case "apri":
-        this.nota(e, 659.25, t, 1.2, 0.04, "sine");
-        this.nota(e, 987.77, t + 0.06, 1.4, 0.03, "sine");
+        this.colpoBasso(t, 41.2, 0.2, 0.6);
         break;
       case "cassetto": {
         const s = c.createBufferSource();

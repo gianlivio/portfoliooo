@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { suono } from "../audio";
 import { PELO_ACQUA, gocce } from "../condivisi";
 import {
   type Ospite, alone, assi, cancella, casuale, finito, fra, liberaTutto, loft, morbido, primo, riposo, segno, tocca,
@@ -74,6 +75,8 @@ type Remo = { g: THREE.Group; lato: number; uomo: Figura };
 
 export class Feluca implements Ospite {
   gruppo = new THREE.Group();
+  /** la sua voce, mentre passa (vedi components/audio.ts) */
+  private voce: ReturnType<typeof suono.voce> | null = null;
   private barca = new THREE.Group();
   private remi: Remo[] = [];
   private lanciatore: Figura;
@@ -267,6 +270,7 @@ export class Feluca implements Ospite {
       s.zig = casuale(0, 10);
       this.storia.forEach((h) => h.set(0, -100, 0));
       this.gruppo.visible = true;
+      this.voce = suono.voce("feluca");
     }
     const e = t - s.inizio;
     const { p, q, w, mano, z } = this.tmp;
@@ -292,6 +296,7 @@ export class Feluca implements Ospite {
     const c = this.c;
     c.uT.value = t;
     c.uVis.value = vis;
+    this.voce?.volume(vis);
     c.uForza.value = forza;
     c.uInv.value.copy(this.barca.matrixWorld).invert();
     (this.sartiame.material as THREE.LineBasicMaterial).opacity = 0.45 * vis * forza;
@@ -481,11 +486,14 @@ export class Feluca implements Ospite {
       s.inizio = -1;
       s.prossima = t + riposo();
       this.gruppo.visible = false;
+      this.voce?.ferma();
+      this.voce = null;
       finito("notte", "feluca", t);
     }
   }
 
   libera() {
+    this.voce?.ferma();
     cancella("notte", "feluca");
     SLOT.forEach((k) => gocce[k].set(0, 0, -100, 0));
     liberaTutto(this.gruppo, this.texture);

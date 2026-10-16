@@ -237,6 +237,8 @@
   "audio": {
     "accendi": "Activar el sonido",
     "spegni": "Desactivar el sonido",
-    "nome": "Sonido"
+    "nome": "Sonido",
+    "musica": "Enciende la música",
+    "silenzio": "Apaga la música"
   }
 }

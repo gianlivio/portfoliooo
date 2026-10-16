@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { pterodattilo } from "../condivisi";
-import { type Ospite, assi, cancella, casuale, finito, fra, liberaTutto, loft, primo, riposo, tocca, lato as latoRegia } from "./comuni";
+import { type Ospite, solo, assi, cancella, casuale, finito, fra, liberaTutto, loft, primo, riposo, tocca, lato as latoRegia } from "./comuni";
 
 /**
  * Di giorno, uno pterodattilo (uno pteranodonte) che attraversa il cielo dietro le carte, controluce:
@@ -141,6 +141,12 @@ export class Pterodattilo implements Ospite {
     const s = this.stato;
     if (s.inizio < 0) {
       if (t < s.prossima || !tocca("giornoCielo", "pterodattilo", t)) return;
+      // passa un terzo delle volte in meno: a volte lascia il suo turno vuoto
+      if (Math.random() < 1 / 3 && !solo()) {
+        finito("giornoCielo", "pterodattilo", t);
+        s.prossima = t + 1;
+        return;
+      }
       // una curva larga nel cielo dietro le carte: entra da un lato, vira, esce un po' più in alto
       const { avanti, lato } = assi(camera);
       const v = latoRegia("giornoCielo");
