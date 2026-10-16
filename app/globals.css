@@ -388,3 +388,32 @@ html.con-scena .elenco:focus-within{
 .esperienza--pronta .guida.guida--via{opacity:0;transition-delay:0s}
 /* con il modulo aperto restano solo il modulo e l'energia intorno */
 .esperienza--modulo .scrivimi,.esperienza--modulo .guida{opacity:0;pointer-events:none;transition-delay:0s}
+
+/* ---------- avvio: il caricamento iniziale ---------- */
+.avvio{
+  position:fixed;inset:0;z-index:60;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.9rem;
+  background:radial-gradient(ellipse at 50% 45%,var(--fondo-alto),var(--fondo) 70%);
+  transition:opacity 1.1s var(--curva),visibility 0s linear 1.1s;
+  pointer-events:none;
+}
+.avvio--chiude{opacity:0;visibility:hidden}
+.avvio-anello{width:min(42vmin,260px);height:auto;overflow:visible;animation:avvio-giro 38s linear infinite;transition:transform 1.1s cubic-bezier(.6,0,.2,1),opacity 1.1s var(--curva)}
+.avvio--chiude .avvio-anello{transform:scale(5.5);opacity:0}
+.avvio-orbita{fill:none;stroke:var(--bordo);stroke-width:.6}
+.avvio-carta{fill:var(--testo);opacity:.14;animation:avvio-accende 2.6s ease-in-out infinite}
+.avvio-zona{fill:var(--rosso);opacity:.3;animation:avvio-accende 2.6s ease-in-out infinite}
+.avvio-centro{fill:var(--grigio)}
+.avvio-nome{font-family:var(--serif);font-weight:300;font-size:1.65rem;letter-spacing:.01em;margin-top:1.4rem;animation:avvio-sale 1.2s var(--curva) both .15s}
+.avvio-testo{font-family:var(--mono);font-size:.72rem;text-transform:uppercase;letter-spacing:.12em;color:var(--grigio);animation:avvio-sale 1.2s var(--curva) both .35s}
+.avvio-punti::after{content:"";display:inline-block;width:1.6em;text-align:left;animation:avvio-punti 1.4s steps(4) infinite}
+.avvio--chiude .avvio-nome,.avvio--chiude .avvio-testo{transform:translateY(-.6rem);transition:transform 1.1s var(--curva)}
+@keyframes avvio-giro{to{transform:rotate(360deg)}}
+@keyframes avvio-accende{0%,100%{opacity:.14}12%{opacity:1}40%{opacity:.3}}
+@keyframes avvio-sale{from{opacity:0;transform:translateY(.5rem)}to{opacity:1;transform:none}}
+@keyframes avvio-punti{0%{content:""}25%{content:"."}50%{content:".."}75%{content:"..."}}
+@media (prefers-reduced-motion:reduce){
+  .avvio-anello,.avvio-carta,.avvio-zona,.avvio-nome,.avvio-testo,.avvio-punti::after{animation:none}
+  .avvio-carta{opacity:.5}.avvio-zona{opacity:1}
+  .avvio--chiude .avvio-anello{transform:none}
+}

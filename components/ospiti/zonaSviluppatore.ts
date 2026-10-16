@@ -13,18 +13,30 @@ import { Scrivania } from "./scrivania";
  */
 
 /** I due libri della mensola: dorso, spirale in copertina, pagina Amazon. */
+const TITOLO = "Sottilissimi strati di un enorme croissant";
+
+/** I tre libri: stesso titolo; il secondo e il terzo hanno in più la versione. Rosso, verde, azzurro. */
 export const LIBRI = [
   {
-    dorso: "Sottilissimi strati di un enorme croissant — V1",
-    spirale: "#3E9B5A",
+    titolo: TITOLO,
+    versione: "",
+    colore: "#C6462F",
     url: "https://www.amazon.it/Sottilissimi-Strati-Enorme-Croissant-Gianlivio-ebook/dp/B0DVZH2S3Q",
   },
   {
-    dorso: "Sottilissimi strati di un enorme croissant — V2",
-    spirale: "#3A9AD9",
+    titolo: TITOLO,
+    versione: "v.2",
+    colore: "#3E9B5A",
     url: "https://www.amazon.it/Sottilissimi-Strati-Enorme-Croissant-v-2-ebook/dp/B0DX2MM9FV",
   },
+  {
+    titolo: TITOLO,
+    versione: "v.3",
+    colore: "#3A9AD9",
+    url: "https://www.amazon.it/dp/B0DXQB4KK9",
+  },
 ];
+const nomeLibro = (l: (typeof LIBRI)[number]) => (l.versione ? `${l.titolo} ${l.versione}` : l.titolo);
 
 /** Cosa succede cliccando un oggetto della zona: lo legge Scena dagli userData. */
 export type Azione = { tipo: "drum" } | { tipo: "libro"; indice: number };
@@ -303,6 +315,56 @@ function dorso(testo: string, colore: string) {
   });
 }
 
+/** La copertina grande, in piedi, quella che gira accanto alla mensola. */
+function copertinaGrande(l: (typeof LIBRI)[number]) {
+  return tela(512, 744, (x) => {
+    x.fillStyle = "#F3EEE3";
+    x.fillRect(0, 0, 512, 744);
+    // la spirale, grande, nel colore del libro
+    x.strokeStyle = l.colore;
+    x.lineWidth = 10;
+    x.lineCap = "round";
+    x.beginPath();
+    for (let a = 0; a < Math.PI * 10; a += 0.04) {
+      const r = 5 + a * 6.2;
+      const px = 256 + Math.cos(a) * r, py = 430 + Math.sin(a) * r;
+      if (a === 0) x.moveTo(px, py);
+      else x.lineTo(px, py);
+    }
+    x.stroke();
+    // il titolo in alto, su tre righe
+    x.fillStyle = "#1E1F23";
+    x.textAlign = "center";
+    x.textBaseline = "alphabetic";
+    x.font = "400 44px Georgia, serif";
+    ["Sottilissimi strati", "di un enorme", "croissant"].forEach((riga, i) => x.fillText(riga, 256, 82 + i * 52, 460));
+    if (l.versione) {
+      x.fillStyle = l.colore;
+      x.font = "700 30px ui-monospace, monospace";
+      x.fillText(l.versione, 256, 82 + 3 * 52 - 4);
+    }
+    x.fillStyle = "#4A4B50";
+    x.font = "400 26px ui-monospace, monospace";
+    x.fillText("GIANLIVIO IEMOLO", 256, 712);
+    // il filo del bordo, perché la copertina chiara si stacchi dal cielo del giorno
+    x.strokeStyle = "rgba(30,31,35,0.35)";
+    x.lineWidth = 6;
+    x.strokeRect(3, 3, 506, 738);
+  });
+}
+
+/** Il retro: il colore pieno del libro, il nome. */
+function retroGrande(l: (typeof LIBRI)[number]) {
+  return tela(512, 744, (x) => {
+    x.fillStyle = l.colore;
+    x.fillRect(0, 0, 512, 744);
+    x.fillStyle = "rgba(255,255,255,0.9)";
+    x.textAlign = "center";
+    x.font = "400 34px Georgia, serif";
+    x.fillText("Gianlivio Iemolo", 256, 380);
+  });
+}
+
 function copertina(colore: string) {
   return tela(512, 366, (x) => {
     x.fillStyle = "#F1ECE2";
@@ -346,6 +408,11 @@ class Pannello {
   gruppo = new THREE.Group();
   private legno: THREE.MeshStandardMaterial;
   cartelli: THREE.Sprite[] = [];
+  /** La copertina che gira accanto alla mensola, al passaggio sopra un libro. */
+  private vetrina = new THREE.Group();
+  private facce: THREE.MeshBasicMaterial[][] = [];
+  private mostrato: number | null = null;
+  private vis = 0;
 
   constructor(texture: THREE.Texture[]) {
     const p = POSIZIONI.pannello;
@@ -370,26 +437,74 @@ class Pannello {
       r.position.set(p.x + dx, Y - 0.012, p.z - 0.095);
       this.gruppo.add(r);
     }
-    // i libri, distesi, col dorso verso chi guarda
+    // i libri, uno sopra l'altro, col dorso verso chi guarda: il primo sotto
     const pagine = new THREE.MeshStandardMaterial({ color: "#EDE6D6", roughness: 0.9 });
+    const storti = [0.05, -0.09, 0.03], spostati = [0, 0.012, -0.008];
     LIBRI.forEach((l, i) => {
-      const txD = dorso(l.dorso, l.spirale);
-      const txC = copertina(l.spirale);
+      const txD = dorso(nomeLibro(l), l.colore);
+      const txC = copertina(l.colore);
       texture.push(txD, txC);
       const fronte = new THREE.MeshStandardMaterial({ map: txC, roughness: 0.8 });
       const retro = new THREE.MeshStandardMaterial({ color: "#F1ECE2", roughness: 0.8 });
       const schiena = new THREE.MeshStandardMaterial({ map: txD, roughness: 0.8 });
       const libro = new THREE.Mesh(new THREE.BoxGeometry(0.21, 0.03, 0.15), [pagine, pagine, fronte, retro, pagine, schiena]);
-      libro.position.set(p.x - 0.14 + i * 0.27, Y + 0.0125 + 0.015, p.z - 0.15);
-      libro.rotation.y = i ? -0.07 : 0.05;
+      libro.position.set(p.x - 0.1 + spostati[i], Y + 0.0125 + 0.015 + i * 0.031, p.z - 0.15);
+      libro.rotation.y = storti[i];
       libro.userData.azione = { tipo: "libro", indice: i } satisfies Azione;
       this.gruppo.add(libro);
-      const c = cartello(l.dorso);
-      c.position.set(libro.position.x, Y + 0.17, libro.position.z - 0.05);
+      const c = cartello(nomeLibro(l));
+      c.position.set(libro.position.x, Y + 0.24, libro.position.z - 0.05);
       texture.push(c.material.map as THREE.Texture);
       this.gruppo.add(c);
       this.cartelli.push(c);
+      // la copertina grande e il retro, per la vetrina
+      const fr = copertinaGrande(l), rt = retroGrande(l);
+      texture.push(fr, rt);
+      const mat = (o: THREE.MeshBasicMaterialParameters) =>
+        new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, toneMapped: false, fog: false, ...o });
+      const carta = mat({ color: "#EDE6D6" });
+      // facce del libro: +x il dorso nel suo colore, −x le pagine, sopra e sotto le pagine, dietro il retro, davanti la copertina
+      this.facce.push([mat({ color: l.colore }), carta, carta, carta, mat({ map: rt }), mat({ map: fr })]);
     });
+    // la vetrina: il libro intero, in piedi sopra il pannello, che gira su se stesso
+    const L = 0.9, H = L * (744 / 512);
+    const libro = new THREE.Mesh(new THREE.BoxGeometry(L, H, 0.08), this.facce[0]);
+    libro.renderOrder = 31;
+    this.vetrina.add(libro);
+    this.vetrina.position.set(p.x, 2.5, p.z - 0.3);
+    this.vetrina.visible = false;
+    this.gruppo.add(this.vetrina);
+  }
+
+  mostra(indice: number | null) {
+    this.cartelli.forEach((c, i) => (c.visible = i === indice));
+    if (indice === null) return;
+    if (indice !== this.mostrato) {
+      (this.vetrina.children[0] as THREE.Mesh).material = this.facce[indice];
+      this.vetrina.rotation.y = 0;
+    }
+    this.mostrato = indice;
+    this.acceso = true;
+  }
+  private acceso = false;
+
+  spegni() {
+    this.cartelli.forEach((c) => (c.visible = false));
+    this.acceso = false;
+  }
+
+  /** Compare crescendo, gira su se stessa (un giro ogni quattro secondi), sparisce sfumando. */
+  aggiorna(dt: number, ridotto: boolean) {
+    const meta = this.acceso ? 1 : 0;
+    this.vis += (meta - this.vis) * Math.min(1, dt * (ridotto ? 30 : 7));
+    if (this.vis < 0.01 && !this.acceso) {
+      this.vetrina.visible = false;
+      return;
+    }
+    this.vetrina.visible = true;
+    if (!ridotto) this.vetrina.rotation.y += dt * ((Math.PI * 2) / 4);
+    this.vetrina.scale.setScalar(0.6 + 0.4 * this.vis);
+    if (this.mostrato !== null) this.facce[this.mostrato].forEach((m) => (m.opacity = this.vis));
   }
 
   setNotte(notte: boolean) {
@@ -534,11 +649,13 @@ export class Zona {
 
   /** Il titolo di un libro sopra il libro, al passaggio del puntatore. */
   mostraTitolo(indice: number | null) {
-    this.pannello.cartelli.forEach((c, i) => (c.visible = i === indice));
+    if (indice === null) this.pannello.spegni();
+    else this.pannello.mostra(indice);
   }
 
   aggiorna(t: number, dt: number, camera: THREE.Camera, ridotto: boolean) {
     this.studio.aggiorna(t, ridotto);
+    this.pannello.aggiorna(dt, ridotto);
     if (ridotto) return;
     this.scrivania.aggiorna(t, dt);
     this.schiacciasogni.aggiorna(t, this.notte);

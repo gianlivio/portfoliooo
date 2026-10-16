@@ -10,6 +10,7 @@ import { curriculum } from "@/content/collegamenti";
 import schermate from "@/content/schermate.json";
 import type { Carta, Tema } from "./Scena";
 import Modulo from "./Modulo";
+import Avvio from "./Avvio";
 import { suono, type Modo } from "./audio";
 
 const Scena = dynamic(() => import("./Scena"), { ssr: false });
@@ -23,9 +24,20 @@ function supportaWebGL() {
   }
 }
 
-type Ambiente = { webgl: boolean; ridotto: boolean; stretto: boolean; tocco: boolean };
+type Ambiente = {
+  webgl: boolean;
+  ridotto: boolean;
+  stretto: boolean;
+  tocco: boolean;
+};
 
-export default function Esperienza({ d, lingua }: { d: Dizionario; lingua: Lingua }) {
+export default function Esperienza({
+  d,
+  lingua,
+}: {
+  d: Dizionario;
+  lingua: Lingua;
+}) {
   const [selezionato, setSelezionato] = useState<string | null>(null);
   const [focale, setFocale] = useState<number | null>(null);
   const [modulo, setModulo] = useState(false);
@@ -34,7 +46,10 @@ export default function Esperienza({ d, lingua }: { d: Dizionario; lingua: Lingu
   const [ambiente, setAmbiente] = useState<Ambiente | null>(null);
   const [tema, setTema] = useState<Tema>("scuro");
   const [audio, setAudio] = useState<Modo>("spento");
-  const testiMusica = useMemo<[string, string]>(() => [d.audio.musica, d.audio.silenzio], [d]);
+  const testiMusica = useMemo<[string, string]>(
+    () => [d.audio.musica, d.audio.silenzio],
+    [d],
+  );
   const palco = useRef<HTMLDivElement>(null);
   const titoloVignetta = useRef<HTMLHeadingElement>(null);
   const daTastiera = useRef(false);
@@ -48,7 +63,9 @@ export default function Esperienza({ d, lingua }: { d: Dizionario; lingua: Lingu
         tocco: window.matchMedia("(pointer: coarse)").matches,
       });
       // il tema l'ha già scelto lo script in testa alla pagina, prima del primo disegno
-      setTema(document.documentElement.dataset.tema === "chiaro" ? "chiaro" : "scuro");
+      setTema(
+        document.documentElement.dataset.tema === "chiaro" ? "chiaro" : "scuro",
+      );
     };
     const primo = requestAnimationFrame(leggi);
     let attesa: ReturnType<typeof setTimeout>;
@@ -59,7 +76,8 @@ export default function Esperienza({ d, lingua }: { d: Dizionario; lingua: Lingu
     window.addEventListener("resize", ridim);
     // "riduci movimento" può cambiare a pagina aperta: si ascolta il cambio, non solo l'avvio
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const cambiaRidotto = () => setAmbiente((a) => (a ? { ...a, ridotto: mq.matches } : a));
+    const cambiaRidotto = () =>
+      setAmbiente((a) => (a ? { ...a, ridotto: mq.matches } : a));
     mq.addEventListener("change", cambiaRidotto);
     return () => {
       cancelAnimationFrame(primo);
@@ -110,13 +128,17 @@ export default function Esperienza({ d, lingua }: { d: Dizionario; lingua: Lingu
       const t = d.lavori[l.id as keyof typeof d.lavori];
       return {
         id: l.id,
-        immagine: (schermate as string[]).includes(l.id) ? `/lavori/${l.id}.jpg` : null,
+        immagine: (schermate as string[]).includes(l.id)
+          ? `/lavori/${l.id}.jpg`
+          : null,
         frammento: frammenti[lingua][l.id] ?? "",
         dati: {
           numero: String(i + 1).padStart(2, "0"),
           tipo: t.tipo,
           titolo: t.titolo,
-          dominio: l.link ? `↗ ${l.link.etichetta}` : `— ${d.vignetta.senzaLink}`,
+          dominio: l.link
+            ? `↗ ${l.link.etichetta}`
+            : `— ${d.vignetta.senzaLink}`,
           anno: l.anno,
           tinta: l.tinta,
           motivo: l.motivo,
@@ -170,14 +192,16 @@ export default function Esperienza({ d, lingua }: { d: Dizionario; lingua: Lingu
     if (focale !== null) suono.notaCarta(focale);
   }, [focale]);
 
-  const indice = selezionato ? lavori.findIndex((l) => l.id === selezionato) : -1;
+  const indice = selezionato
+    ? lavori.findIndex((l) => l.id === selezionato)
+    : -1;
   const vai = useCallback(
     (passo: number) => {
       if (indice < 0) return;
       const n = lavori.length;
       setSelezionato(lavori[(indice + passo + n) % n].id);
     },
-    [indice]
+    [indice],
   );
 
   const chiudiVignetta = useCallback(() => {
@@ -196,7 +220,12 @@ export default function Esperienza({ d, lingua }: { d: Dizionario; lingua: Lingu
       if (e.key === "ArrowLeft") vai(-1);
       if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
         const n = lavori.length;
-        suono.notaCarta((lavori.findIndex((l) => l.id === selezionato) + (e.key === "ArrowRight" ? 1 : -1) + n) % n);
+        suono.notaCarta(
+          (lavori.findIndex((l) => l.id === selezionato) +
+            (e.key === "ArrowRight" ? 1 : -1) +
+            n) %
+            n,
+        );
       }
     };
     window.addEventListener("keydown", tasti);
@@ -228,11 +257,17 @@ export default function Esperienza({ d, lingua }: { d: Dizionario; lingua: Lingu
     }
   }
 
-  if (!ambiente || !ambiente.webgl) {
+  // l'avvio sta sempre al primo posto dello stesso frammento: React lo tiene montato mentre arriva la scena
+  const avvio = <Avvio pronta={pronta} nome={d.nome} testo={d.avvio} />;
+  if (!ambiente) return <>{avvio}</>;
+  if (!ambiente.webgl) {
     // senza WebGL resta l'elenco in HTML della pagina, più il modulo
     return ambiente ? (
       <>
-        <button className="scrivimi scrivimi--fisso" onClick={() => setModulo(true)}>
+        <button
+          className="scrivimi scrivimi--fisso"
+          onClick={() => setModulo(true)}
+        >
           {d.testata.scrivimi}
         </button>
         {modulo && <Modulo d={d} lingua={lingua} onChiudi={chiudiModulo} />}
@@ -245,156 +280,201 @@ export default function Esperienza({ d, lingua }: { d: Dizionario; lingua: Lingu
   const cartaFocale = focale !== null ? carte[focale] : null;
 
   return (
-    <div
-      className={`esperienza${pronta ? " esperienza--pronta" : ""}${selezionato ? " esperienza--aperta" : ""}${modulo ? " esperienza--modulo" : ""}`}
-    >
+    <>
+      {avvio}
       <div
-        ref={palco}
-        className="palco"
-        tabIndex={0}
-        role="group"
-        aria-roledescription={d.tastiera.ruolo}
-        aria-label={d.tastiera.etichetta}
-        onKeyDown={tastiPalco}
-        onPointerDown={() => {
-          daTastiera.current = false;
-        }}
+        className={`esperienza${pronta ? " esperienza--pronta" : ""}${selezionato ? " esperienza--aperta" : ""}${modulo ? " esperienza--modulo" : ""}`}
       >
-        {/* il tema non rimonta la scena: cambia materiali e uniform */}
-        <Scena
-          key={`${lingua}-${ambiente.stretto}`}
-          carte={carte}
-          selezionato={selezionato}
-          focale={focale}
-          onSeleziona={seleziona}
-          onInteragisci={interagisci}
-          onPronta={() => setPronta(true)}
-          ridotto={ambiente.ridotto}
-          stretto={ambiente.stretto}
-          tema={tema}
-          conIngresso
-          lingua={lingua}
-          moduloAperto={modulo}
-          sezioneEditoria={d.elenco.editoria}
-          testiMusica={testiMusica}
-        />
-      </div>
-
-      <p className="solo-schermo" aria-live="polite">
-        {cartaFocale
-          ? `${cartaFocale.dati.numero} / ${String(carte.length).padStart(2, "0")} — ${cartaFocale.dati.titolo}, ${cartaFocale.dati.tipo}`
-          : ""}
-      </p>
-
-      <header className="testata">
-        <div className="firma">
-          <p className="firma-nome">{d.nome}</p>
-          <p className="firma-ruolo">{d.ruolo}</p>
+        <div
+          ref={palco}
+          className="palco"
+          tabIndex={0}
+          role="group"
+          aria-roledescription={d.tastiera.ruolo}
+          aria-label={d.tastiera.etichetta}
+          onKeyDown={tastiPalco}
+          onPointerDown={() => {
+            daTastiera.current = false;
+          }}
+        >
+          {/* il tema non rimonta la scena: cambia materiali e uniform */}
+          <Scena
+            key={`${lingua}-${ambiente.stretto}`}
+            carte={carte}
+            selezionato={selezionato}
+            focale={focale}
+            onSeleziona={seleziona}
+            onInteragisci={interagisci}
+            onPronta={() => setPronta(true)}
+            ridotto={ambiente.ridotto}
+            stretto={ambiente.stretto}
+            tema={tema}
+            conIngresso
+            lingua={lingua}
+            moduloAperto={modulo}
+            sezioneEditoria={d.elenco.editoria}
+            testiMusica={testiMusica}
+          />
         </div>
-        <nav className="comandi" aria-label={d.testata.lingua}>
-          {/* cambio lingua con un caricamento vero: la scena, il cielo e le texture ripartono da capo */}
-          {lingue.map((l) => (
-            <a key={l} href={`/${l}`} hrefLang={l} lang={l} aria-current={l === lingua ? "true" : undefined}>
-              {l.toUpperCase()}
-            </a>
-          ))}
-          <button
-            className="tema audio"
-            onClick={() => suono.interruttore()}
-            aria-pressed={audio !== "spento"}
-            aria-label={audio === "spento" ? d.audio.accendi : d.audio.spegni}
-            title={audio === "spento" ? d.audio.accendi : d.audio.spegni}
-          >
-            <span className={`audio-segno${audio !== "spento" ? " audio-segno--acceso" : ""}`} aria-hidden="true">
-              <i />
-              <i />
-              <i />
-            </span>
-          </button>
-          <button
-            className="tema"
-            onClick={cambiaTema}
-            aria-label={tema === "scuro" ? d.tema.versoChiaro : d.tema.versoScuro}
-            title={tema === "scuro" ? d.tema.versoChiaro : d.tema.versoScuro}
-          >
-            <span className={`tema-segno tema-segno--${tema}`} aria-hidden="true" />
-          </button>
-          <a className="cv" href={curriculum[lingua]} download>
-            {d.testata.cv} ↓
-          </a>
-        </nav>
-      </header>
 
-      <p className={`guida${mosso ? " guida--via" : ""}`} aria-hidden="true">
-        {ambiente.tocco ? d.guida.tocco : d.guida.mouse}
-      </p>
+        <p className="solo-schermo" aria-live="polite">
+          {cartaFocale
+            ? `${cartaFocale.dati.numero} / ${String(carte.length).padStart(2, "0")} — ${cartaFocale.dati.titolo}, ${cartaFocale.dati.tipo}`
+            : ""}
+        </p>
 
-      <button className="scrivimi" onClick={() => setModulo(true)}>
-        {d.testata.scrivimi}
-      </button>
-
-      {lavoro && testi && (
-        <aside className="vignetta" key={lavoro.id} aria-labelledby="vignetta-titolo">
-          <p className="vignetta-occhiello">
-            {String(indice + 1).padStart(2, "0")} / {String(lavori.length).padStart(2, "0")} ·{" "}
-            {testi.tipo}
-          </p>
-          <h2 id="vignetta-titolo" className="vignetta-titolo" ref={titoloVignetta} tabIndex={-1}>
-            {testi.titolo}
-          </h2>
-          <p className="vignetta-ruolo">
-            {testi.ruolo}
-            {lavoro.anno && ` · ${lavoro.anno}`}
-          </p>
-          {/* il corpo scorre da solo se è lungo; titolo e azioni restano fermi */}
-          <div className="vignetta-corpo" tabIndex={0} aria-label={testi.titolo}>
-            <p className="vignetta-riga">{testi.riga}</p>
-            {testi.compiti.length > 0 && (
-              <>
-                <h3 className="vignetta-etichetta">{d.vignetta.compiti}</h3>
-                <ul className="vignetta-compiti">
-                  {testi.compiti.map((c) => (
-                    <li key={c}>{c}</li>
-                  ))}
-                </ul>
-              </>
-            )}
-            {testi.strumenti && (
-              <>
-                <h3 className="vignetta-etichetta">{d.vignetta.strumenti}</h3>
-                <p className="vignetta-strumenti">{testi.strumenti}</p>
-              </>
-            )}
+        <header className="testata">
+          <div className="firma">
+            <p className="firma-nome">{d.nome}</p>
+            <p className="firma-ruolo">{d.ruolo}</p>
           </div>
-          <div className="vignetta-azioni">
-            {lavoro.link ? (
-              <a className="visita" href={lavoro.link.href} target="_blank" rel="noopener">
-                {d.vignetta.visita} <span aria-hidden="true">↗</span>
+          <nav className="comandi" aria-label={d.testata.lingua}>
+            {/* cambio lingua con un caricamento vero: la scena, il cielo e le texture ripartono da capo */}
+            {lingue.map((l) => (
+              <a
+                key={l}
+                href={`/${l}`}
+                hrefLang={l}
+                lang={l}
+                aria-current={l === lingua ? "true" : undefined}
+              >
+                {l.toUpperCase()}
               </a>
-            ) : lavoro.motivo === "cantiere" ? (
-              <span className="cantiere">
-                <span aria-hidden="true" className="cantiere-luce" />
-                {d.vignetta.cantiere}
+            ))}
+            <button
+              className="tema audio"
+              onClick={() => suono.interruttore()}
+              aria-pressed={audio !== "spento"}
+              aria-label={audio === "spento" ? d.audio.accendi : d.audio.spegni}
+              title={audio === "spento" ? d.audio.accendi : d.audio.spegni}
+            >
+              <span
+                className={`audio-segno${audio !== "spento" ? " audio-segno--acceso" : ""}`}
+                aria-hidden="true"
+              >
+                <i />
+                <i />
+                <i />
               </span>
-            ) : (
-              <span className="senza-link">{d.vignetta.senzaLink}</span>
-            )}
-            <span className="frecce">
-              <button onClick={() => vai(-1)} aria-label={d.vignetta.precedente}>
-                <span aria-hidden="true">←</span>
-              </button>
-              <button onClick={() => vai(1)} aria-label={d.vignetta.successivo}>
-                <span aria-hidden="true">→</span>
-              </button>
-            </span>
-          </div>
-          <button className="chiudi" onClick={chiudiVignetta} aria-label={d.vignetta.chiudi}>
-            <span aria-hidden="true">×</span>
-          </button>
-        </aside>
-      )}
+            </button>
+            <button
+              className="tema"
+              onClick={cambiaTema}
+              aria-label={
+                tema === "scuro" ? d.tema.versoChiaro : d.tema.versoScuro
+              }
+              title={tema === "scuro" ? d.tema.versoChiaro : d.tema.versoScuro}
+            >
+              <span
+                className={`tema-segno tema-segno--${tema}`}
+                aria-hidden="true"
+              />
+            </button>
+            <a className="cv" href={curriculum[lingua]} download>
+              {d.testata.cv} ↓
+            </a>
+          </nav>
+        </header>
 
-      {modulo && <Modulo d={d} lingua={lingua} onChiudi={chiudiModulo} />}
-    </div>
+        <p className={`guida${mosso ? " guida--via" : ""}`} aria-hidden="true">
+          {ambiente.tocco ? d.guida.tocco : d.guida.mouse}
+        </p>
+
+        <button className="scrivimi" onClick={() => setModulo(true)}>
+          {d.testata.scrivimi}
+        </button>
+
+        {lavoro && testi && (
+          <aside
+            className="vignetta"
+            key={lavoro.id}
+            aria-labelledby="vignetta-titolo"
+          >
+            <p className="vignetta-occhiello">
+              {String(indice + 1).padStart(2, "0")} /{" "}
+              {String(lavori.length).padStart(2, "0")} · {testi.tipo}
+            </p>
+            <h2
+              id="vignetta-titolo"
+              className="vignetta-titolo"
+              ref={titoloVignetta}
+              tabIndex={-1}
+            >
+              {testi.titolo}
+            </h2>
+            <p className="vignetta-ruolo">
+              {testi.ruolo}
+              {lavoro.anno && ` · ${lavoro.anno}`}
+            </p>
+            {/* il corpo scorre da solo se è lungo; titolo e azioni restano fermi */}
+            <div
+              className="vignetta-corpo"
+              tabIndex={0}
+              aria-label={testi.titolo}
+            >
+              <p className="vignetta-riga">{testi.riga}</p>
+              {testi.compiti.length > 0 && (
+                <>
+                  <h3 className="vignetta-etichetta">{d.vignetta.compiti}</h3>
+                  <ul className="vignetta-compiti">
+                    {testi.compiti.map((c) => (
+                      <li key={c}>{c}</li>
+                    ))}
+                  </ul>
+                </>
+              )}
+              {testi.strumenti && (
+                <>
+                  <h3 className="vignetta-etichetta">{d.vignetta.strumenti}</h3>
+                  <p className="vignetta-strumenti">{testi.strumenti}</p>
+                </>
+              )}
+            </div>
+            <div className="vignetta-azioni">
+              {lavoro.link ? (
+                <a
+                  className="visita"
+                  href={lavoro.link.href}
+                  target="_blank"
+                  rel="noopener"
+                >
+                  {d.vignetta.visita} <span aria-hidden="true">↗</span>
+                </a>
+              ) : lavoro.motivo === "cantiere" ? (
+                <span className="cantiere">
+                  <span aria-hidden="true" className="cantiere-luce" />
+                  {d.vignetta.cantiere}
+                </span>
+              ) : (
+                <span className="senza-link">{d.vignetta.senzaLink}</span>
+              )}
+              <span className="frecce">
+                <button
+                  onClick={() => vai(-1)}
+                  aria-label={d.vignetta.precedente}
+                >
+                  <span aria-hidden="true">←</span>
+                </button>
+                <button
+                  onClick={() => vai(1)}
+                  aria-label={d.vignetta.successivo}
+                >
+                  <span aria-hidden="true">→</span>
+                </button>
+              </span>
+            </div>
+            <button
+              className="chiudi"
+              onClick={chiudiVignetta}
+              aria-label={d.vignetta.chiudi}
+            >
+              <span aria-hidden="true">×</span>
+            </button>
+          </aside>
+        )}
+
+        {modulo && <Modulo d={d} lingua={lingua} onChiudi={chiudiModulo} />}
+      </div>
+    </>
   );
 }
