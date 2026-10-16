@@ -11,7 +11,8 @@ import { alone, bruma, casuale, liberaTutto } from "./comuni";
  */
 
 const DIST = 39; // dentro la volta delle stelle (42), che altrimenti gli passerebbero davanti
-const AZ = ANGOLO_ZONA + 0.62;
+// nella finestra di cielo libera sopra la zona dello sviluppatore, subito a sinistra della prima carta: lì non lo copre niente
+const AZ = ANGOLO_ZONA + 0.22;
 const ALTO = 3.4;
 const BASE = 6.2;
 

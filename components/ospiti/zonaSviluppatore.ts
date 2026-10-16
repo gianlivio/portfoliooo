@@ -72,7 +72,6 @@ class Studio {
   constructor(texture: THREE.Texture[]) {
     const p = POSIZIONI.studio;
     this.gruppo.position.copy(p);
-    this.gruppo.rotation.y = 0.12;
     const nero = new THREE.MeshStandardMaterial({ color: "#1A1B1F", roughness: 0.6 });
     const legno = new THREE.MeshStandardMaterial({ color: "#6B5844", roughness: 0.75 });
     // il tavolino
@@ -145,17 +144,18 @@ class Studio {
     this.gruppo.add(presa);
     // un raggio di luce sopra il tavolino, e la scritta "Accendi musica" (o "Spegni musica")
     const c = document.createElement("canvas");
-    c.width = 1024;
-    c.height = 128;
+    c.width = 768;
+    c.height = 160;
     const tx = new THREE.CanvasTexture(c);
     tx.colorSpace = THREE.SRGBColorSpace;
     texture.push(tx);
     this.scritta = { x: c.getContext("2d") as CanvasRenderingContext2D, t: tx };
     const cartello = new THREE.Mesh(
-      new THREE.PlaneGeometry(1.9, 1.9 * (128 / 1024)),
+      new THREE.PlaneGeometry(1.75, 1.75 * (160 / 768)),
       new THREE.MeshBasicMaterial({ map: tx, transparent: true, depthWrite: false, toneMapped: false })
     );
-    cartello.position.set(0, 1.95, -0.05);
+    // spostata un po' verso la mensola: dall'altra parte c'è la prima carta, che la coprirebbe
+    cartello.position.set(0.45, 1.72, -0.05);
     cartello.rotation.y = Math.PI;
     this.gruppo.add(cartello);
     const lama = tela(64, 256, (x) => {
@@ -188,12 +188,20 @@ class Studio {
 
   private scrivi(acceso: boolean) {
     const { x, t } = this.scritta;
-    x.clearRect(0, 0, 1024, 128);
+    x.clearRect(0, 0, 768, 160);
+    // una fascia scura sotto il testo: si legge sul cielo chiaro del giorno come su quello della notte
+    x.fillStyle = "rgba(14,10,24,0.82)";
+    x.beginPath();
+    x.roundRect(6, 12, 756, 136, 68);
+    x.fill();
+    x.strokeStyle = "#E05BFF";
+    x.lineWidth = 5;
+    x.stroke();
     x.fillStyle = "#FFFFFF";
-    x.font = "500 64px ui-monospace, monospace";
+    x.font = "700 78px ui-monospace, monospace";
     x.textAlign = "center";
     x.textBaseline = "middle";
-    x.fillText((acceso ? this.testi[1] : this.testi[0]).toUpperCase(), 512, 66, 1000);
+    x.fillText((acceso ? this.testi[1] : this.testi[0]).toUpperCase(), 384, 84, 700);
     t.needsUpdate = true;
   }
 

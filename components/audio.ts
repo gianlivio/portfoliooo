@@ -23,7 +23,8 @@ export const SOTTOFONDO: { url: string | null; volume: number } = { url: null, v
 
 const CHIAVE = "audio";
 const VOLUME = 0.16; // volume generale, basso
-const SEDICESIMO = 60 / BPM / 4;
+/** Di notte 130 BPM; di giorno più lento e più pesante. */
+const BPM_GIORNO = 108;
 
 /** La scala delle carte: la minore pentatonica di la, su due ottave abbondanti. */
 const SCALA = [220, 261.63, 293.66, 329.63, 392, 440, 523.25, 587.33, 659.25, 783.99, 880, 1046.5, 1174.66, 1318.51];
@@ -63,6 +64,9 @@ class Suono {
   private inizioLoop = 0;
   private campanelle: ReturnType<typeof setTimeout> | null = null;
   private eNotte = true;
+  /** Il tempo del loop, e da dove contare i quarti dopo l'ultimo cambio di tempo. */
+  private bpm = BPM;
+  private ancora = { t: 0, q: 0 };
   private ascoltatori = new Set<Ascoltatore>();
   modo: Modo = "spento";
   /** la scelta salvata, in attesa del primo gesto per diventare suono */
@@ -116,6 +120,7 @@ class Suono {
 
   setNotte(notte: boolean) {
     this.eNotte = notte;
+    this.cambiaTempo();
     const c = this.ctx;
     if (!c) return;
     const t = c.currentTime;
@@ -129,8 +134,8 @@ class Suono {
   battito(): { fase: number; n: number } | null {
     const c = this.ctx;
     if (!c || this.modo !== "loop") return null;
-    const q = (c.currentTime - this.inizioLoop) / (60 / BPM);
-    if (q < 0) return null;
+    const q = this.ancora.q + (c.currentTime - this.ancora.t) / (60 / this.bpm);
+    if (c.currentTime < this.inizioLoop) return null;
     return { fase: q - Math.floor(q), n: Math.floor(q) };
   }
 
@@ -167,7 +172,7 @@ class Suono {
 
     // eco a tempo (un ottavo puntato), per il loop e qualche effetto
     this.eco = c.createDelay(1.5);
-    this.eco.delayTime.value = (60 / BPM) * 0.75;
+    this.eco.delayTime.value = (60 / this.bpm) * 0.75;
     const ritorno = c.createGain();
     ritorno.gain.value = 0.32;
     const filtroEco = c.createBiquadFilter();
@@ -229,6 +234,7 @@ class Suono {
       this.passo = 0;
       this.prossimo = t + 0.08;
       this.inizioLoop = this.prossimo;
+      this.ancora = { t: this.prossimo, q: 0 };
       this.scheduler = setInterval(() => this.programma(), 25);
     }
     if (m !== "loop" && this.scheduler) {
@@ -359,12 +365,25 @@ class Suono {
 
   /* ------------------------------------------------------------------ il loop */
 
+  /** Al cambio di tema il tempo cambia dal prossimo sedicesimo, e i quarti continuano a contare da lì. */
+  private cambiaTempo() {
+    const bpm = this.eNotte ? BPM : BPM_GIORNO;
+    if (bpm === this.bpm) return;
+    const c = this.ctx;
+    if (c && this.modo === "loop" && this.prossimo > 0) {
+      const q = this.ancora.q + (this.prossimo - this.ancora.t) / (60 / this.bpm);
+      this.ancora = { t: this.prossimo, q };
+    }
+    this.bpm = bpm;
+    if (this.eco && c) this.eco.delayTime.setTargetAtTime((60 / bpm) * 0.75, c.currentTime, 0.2);
+  }
+
   private programma() {
     const c = this.ctx;
     if (!c) return;
     while (this.prossimo < c.currentTime + 0.12) {
       this.colpo(this.passo % 16, Math.floor(this.passo / 16), this.prossimo);
-      this.prossimo += SEDICESIMO;
+      this.prossimo += 60 / this.bpm / 4;
       this.passo++;
     }
   }
@@ -378,33 +397,36 @@ class Suono {
     const n = this.eNotte;
     const d = this.loopBus;
     // cassa in quattro, e un colpo fantasma prima del quattro
-    if (s % 4 === 0) this.cassa(t, n ? 1 : 0.9);
+    if (s % 4 === 0) this.cassa(t, 1);
     if (s === 14 && battuta % 2 === 1) this.cassa(t, 0.45);
     // metallo: lamiera battuta sui levare, ogni tanto doppia
-    if (s % 4 === 2 || (s === 7 && battuta % 2 === 0)) this.metallo(t, n ? 0.05 : 0.06, n ? 2.2 : 3.1);
+    if (s % 4 === 2 || (s === 7 && battuta % 2 === 0)) this.metallo(t, n ? 0.05 : 0.075, n ? 2.2 : 1.6);
+    // di giorno lamiera anche in controtempo: una fabbrica che lavora piano
+    if (!n && (s === 3 || s === 11 || (s === 13 && battuta % 2 === 1))) this.metallo(t, 0.05, 1.2);
     // charleston: chiuso sui levare, aperto sul levare del quarto (di giorno)
-    if (s % 4 === 2) this.charleston(t, n ? 0.05 : 0.09, n ? 0.05 : 0.18);
-    else if (s % 2 === 1) this.charleston(t, n ? 0.022 : 0.03, 0.03);
+    if (s % 4 === 2) this.charleston(t, n ? 0.05 : 0.07, n ? 0.05 : 0.09);
+    else if (s % 2 === 1) this.charleston(t, n ? 0.022 : 0.035, 0.03);
     // battito di mani, morbido, sul due e sul quattro
     if (s === 4 || s === 12) this.mani(t, n ? 0.12 : 0.16);
     // basso che rotola
-    const radice = n ? 55 : 73.42;
-    const giro = n ? [0, 0, 3, 0, 7, 0, 5, 3] : [0, 0, 5, 0, 7, 0, 10, 7];
+    const radice = n ? 55 : 36.71;
+    const giro = n ? [0, 0, 3, 0, 7, 0, 5, 3] : [0, 0, 0, 0, 1, 0, 0, 0];
     if (s % 4 !== 0) {
       const semi = giro[(battuta % 2) * 4 + Math.floor(s / 4)];
-      this.basso(t, radice * Math.pow(2, semi / 12), n ? 0.22 : 0.17, n ? 380 : 620);
+      this.basso(t, radice * Math.pow(2, semi / 12), n ? 0.22 : 0.24, n ? 380 : 300);
     }
     // arpeggio pizzicato, nell'eco: più rado, sotto il metallo
     const arp = n ? [0, 3, 7, 10, 12, 10, 7, 3] : [0, 5, 7, 12, 14, 12, 9, 7];
-    if (s % 4 === 0 && battuta % 2 === 0) {
+    if (n && s % 4 === 0 && battuta % 2 === 0) {
       const semi = arp[(s / 2 + battuta) % arp.length];
       const f = (n ? 220 : 293.66) * Math.pow(2, semi / 12);
       this.pizzico(t, f, n ? 0.045 : 0.05);
     }
     // ogni quattro battute un accordo lungo che apre
     if (s === 0 && battuta % 4 === 0) {
-      const acc = n ? [220, 261.63, 329.63, 392] : [293.66, 369.99, 440, 554.37];
-      acc.forEach((f) => this.nota(d, f, t, (60 / BPM) * 6, 0.018, "sawtooth", 900));
+      // di notte un accordo che apre; di giorno solo una quinta vuota, bassa e sporca
+      const acc = n ? [220, 261.63, 329.63, 392] : [73.42, 110];
+      acc.forEach((f) => this.nota(d, f, t, (60 / this.bpm) * 6, n ? 0.018 : 0.03, "sawtooth", n ? 900 : 420));
     }
   }
 
