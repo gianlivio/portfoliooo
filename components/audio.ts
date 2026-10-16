@@ -23,6 +23,21 @@ export const SOTTOFONDO: { url: string | null; volume: number } = { url: null, v
 
 const CHIAVE = "audio";
 const VOLUME = 0.16; // volume generale, basso
+/** La scala hijaz (frigia dominante), in semitoni dalla tonica. */
+const HIJAZ = [0, 1, 4, 5, 7, 8, 10];
+/** Le frasi dell'oud: quattro battute, sei colpi per battuta (gradi della scala; null = pausa). */
+const FRASI: (number | null)[][][] = [
+  [[0, 1, 2, null, 1, 0], [2, 3, 4, 3, 2, 1], [4, 5, 4, null, 3, 2], [1, 2, 1, 0, null, 0]],
+  [[4, null, 4, 5, 4, 2], [3, 2, 1, null, 2, 3], [4, 6, 5, 4, 3, 2], [2, 1, 1, 0, null, null]],
+];
+/** La cadenza andalusa in re: sol minore, fa, mi bemolle, re. Le corde dal basso. */
+const CADENZA = [
+  [98, 146.83, 196, 233.08, 293.66],
+  [87.31, 130.81, 174.61, 220, 261.63],
+  [77.78, 116.54, 155.56, 196, 233.08],
+  [73.42, 110, 146.83, 185, 220, 293.66],
+];
+
 /** Di notte 130 BPM; di giorno più lento e più pesante. */
 const BPM_GIORNO = 108;
 
@@ -423,11 +438,107 @@ class Suono {
       this.pizzico(t, f, n ? 0.045 : 0.05);
     }
     // ogni quattro battute un accordo lungo che apre
+    if (!n) this.andaluso(s, battuta, t);
     if (s === 0 && battuta % 4 === 0) {
       // di notte un accordo che apre; di giorno solo una quinta vuota, bassa e sporca
       const acc = n ? [220, 261.63, 329.63, 392] : [73.42, 110];
       acc.forEach((f) => this.nota(d, f, t, (60 / this.bpm) * 6, n ? 0.018 : 0.03, "sawtooth", n ? 900 : 420));
     }
+  }
+
+  /**
+   * Il giorno, sopra la fabbrica: un'altra riva del Mediterraneo. Scala hijaz su re (frigia dominante).
+   * Ogni otto battute: quattro di oud a due voci (la seconda una terza sotto, nella scala),
+   * quattro di rasgueado flamenco sulla cadenza andalusa (sol minore, fa, mi bemolle, re).
+   * Ogni sedici, sopra l'oud, una voce lunga che sale per melismi.
+   */
+  private andaluso(s: number, battuta: number, t: number) {
+    const b8 = battuta % 8;
+    const re = 146.83;
+    const grado = (k: number) => re * Math.pow(2, (Math.floor(k / 7) * 12 + HIJAZ[((k % 7) + 7) % 7]) / 12);
+    if (b8 < 4) {
+      // l'oud: 3+3+2, come un tresillo
+      const posti = [0, 3, 6, 8, 11, 14];
+      const k = posti.indexOf(s);
+      if (k >= 0) {
+        const frase = FRASI[(Math.floor(battuta / 8) % FRASI.length)][b8];
+        const g = frase[k];
+        if (g !== null) {
+          this.corda(t, grado(g), 0.055, 0.7);
+          this.corda(t + 0.004, grado(g - 2), 0.03, 0.6);
+        }
+      }
+    } else {
+      // il rasgueado: colpo pieno sull'uno, accenti sul sei e sul dieci
+      const acc = CADENZA[b8 - 4];
+      if (s === 0 || s === 6 || s === 10) {
+        const giu = s !== 6;
+        const corde = giu ? acc : [...acc].reverse();
+        corde.forEach((f, i) => this.corda(t + i * 0.013, f, s === 0 ? 0.03 : 0.02, s === 0 ? 0.9 : 0.4));
+      }
+    }
+    // la voce, ogni sedici battute, sulle battute 8–11: una nota lunga per battuta
+    if (battuta % 16 >= 8 && battuta % 16 < 12 && s === 0) {
+      const g = [4, 5, 4, 1][battuta % 16 - 8];
+      this.canto(t, grado(g + 7), (60 / this.bpm) * 3.7, 0.03);
+    }
+  }
+
+  /** Una corda pizzicata: oud o chitarra. L'attacco cala appena di intonazione, il timbro si chiude in fretta. */
+  private corda(t: number, f: number, forza: number, durata: number) {
+    const c = this.ctx as AudioContext;
+    const o = c.createOscillator();
+    o.type = "sawtooth";
+    o.frequency.setValueAtTime(f * 1.012, t);
+    o.frequency.exponentialRampToValueAtTime(f, t + 0.03);
+    const fl = c.createBiquadFilter();
+    fl.type = "lowpass";
+    fl.Q.value = 3;
+    fl.frequency.setValueAtTime(3800, t);
+    fl.frequency.exponentialRampToValueAtTime(650, t + durata * 0.5);
+    const g = c.createGain();
+    this.inviluppo(g, t, forza, 0.002, durata);
+    o.connect(fl).connect(g);
+    g.connect(this.loopBus);
+    g.connect(this.eco);
+    o.start(t);
+    o.stop(t + durata + 0.05);
+  }
+
+  /** Una voce lunga, nasale come un ney: entra scivolando da sotto, poi vibrato. */
+  private canto(t: number, f: number, durata: number, forza: number) {
+    const c = this.ctx as AudioContext;
+    const o = c.createOscillator();
+    o.type = "sawtooth";
+    o.frequency.setValueAtTime(f * 0.94, t);
+    o.frequency.exponentialRampToValueAtTime(f * 1.02, t + 0.18);
+    o.frequency.exponentialRampToValueAtTime(f, t + 0.32);
+    // a metà nota un abbellimento: un semitono su e giù
+    o.frequency.setValueAtTime(f, t + durata * 0.55);
+    o.frequency.exponentialRampToValueAtTime(f * 1.059, t + durata * 0.6);
+    o.frequency.exponentialRampToValueAtTime(f, t + durata * 0.68);
+    const lfo = c.createOscillator();
+    lfo.frequency.value = 5.3;
+    const prof = c.createGain();
+    prof.gain.setValueAtTime(0, t);
+    prof.gain.linearRampToValueAtTime(f * 0.012, t + 0.6);
+    lfo.connect(prof).connect(o.frequency);
+    const fl = c.createBiquadFilter();
+    fl.type = "bandpass";
+    fl.frequency.value = 1150;
+    fl.Q.value = 1.6;
+    const g = c.createGain();
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(forza, t + 0.25);
+    g.gain.setValueAtTime(forza, t + durata * 0.8);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + durata);
+    o.connect(fl).connect(g);
+    g.connect(this.loopBus);
+    g.connect(this.eco);
+    o.start(t);
+    lfo.start(t);
+    o.stop(t + durata + 0.05);
+    lfo.stop(t + durata + 0.05);
   }
 
   private inviluppo(g: GainNode, t: number, picco: number, attacco: number, durata: number) {

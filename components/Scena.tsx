@@ -15,6 +15,7 @@ import { ANGOLO_ZONA } from "./zona";
 import { Zona, LIBRI, type Azione } from "./ospiti/zonaSviluppatore";
 import { Etna } from "./ospiti/etna";
 import { Citta } from "./ospiti/citta";
+import { Lontano } from "./ospiti/lontano";
 
 /**
  * La scena: chi visita sta al centro di un anello di carte, una per lavoro.
@@ -756,6 +757,17 @@ function Metropoli({ notte, ridotto }: { notte: boolean; ridotto: boolean }) {
   return <primitive object={citta.gruppo} />;
 }
 
+/** L'orizzonte fra lo sviluppatore e la città: porto e faro di notte, colline siciliane di giorno. */
+function Orizzonte({ notte, ridotto }: { notte: boolean; ridotto: boolean }) {
+  const [lontano] = useState(() => new Lontano(notte));
+  useEffect(() => () => lontano.libera(), [lontano]);
+  useEffect(() => lontano.setNotte(notte), [lontano, notte]);
+  useFrame(({ clock }) => {
+    if (!ridotto) lontano.aggiorna(clock.elapsedTime);
+  });
+  return <primitive object={lontano.gruppo} />;
+}
+
 const ALBA_VERT = `varying vec3 vD; void main(){ vD = normalize(position); gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`;
 const ALBA_FRAG = `
 uniform float uK;
@@ -1036,6 +1048,7 @@ export default function Scena(props: Props) {
       <ZonaSviluppatore notte={tema === "scuro"} ridotto={props.ridotto} testi={props.testiMusica} />
       <Vulcano notte={tema === "scuro"} ridotto={props.ridotto} />
       <Metropoli notte={tema === "scuro"} ridotto={props.ridotto} />
+      <Orizzonte notte={tema === "scuro"} ridotto={props.ridotto} />
       <Transizione tema={tema} ridotto={props.ridotto} />
       {tema === "chiaro" && <CieloDiGiorno orizzonte={p.fondo} />}
       <Fauna
