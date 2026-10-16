@@ -1,11 +1,12 @@
 import * as THREE from "three";
 import { PELO_ACQUA } from "../condivisi";
 import { ANGOLO_ZONA } from "../zona";
-import { alone, generatore, liberaTutto, tela } from "./comuni";
+import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
+import { alone, bruma, generatore, liberaTutto, tela } from "./comuni";
 
 /**
  * L'orizzonte a sinistra dello sviluppatore, fino alla città: tutto in lontananza.
- * Di notte un porto industriale con le gru di banchina, i fari arancio sui piazzali, e più in qua
+ * Di notte un petrolchimico come quelli di Priolo e di Gela, con le torce che bruciano, e più in qua
  * un faro su uno scoglio col fascio che gira. Di giorno colline siciliane d'erba secca,
  * pale eoliche sulla cresta e una fila di radiotelescopi sull'altopiano.
  */
@@ -27,13 +28,18 @@ export class Lontano {
   private giorno = new THREE.Group();
   private texture: THREE.Texture[] = [];
   private fasci = new THREE.Group();
-  private rosse: THREE.SpriteMaterial[] = [];
+  private luciImpianto!: THREE.PointsMaterial;
+  private luciRosse!: THREE.PointsMaterial;
+  private ciminiere: THREE.Vector3[] = [];
+  private fiamme: { cuore: THREE.Sprite; fiamma: THREE.Sprite; alone: THREE.Sprite; base: THREE.Vector3 }[] = [];
+  private fumi: { s: THREE.Sprite; da: THREE.Vector3; fase: number }[] = [];
+  private fumoTorce: { s: THREE.Sprite; da: THREE.Vector3; fase: number }[] = [];
   private rotori: THREE.Object3D[] = [];
   private parabole: { az: THREE.Object3D; el: THREE.Object3D; fase: number }[] = [];
 
   constructor(eNotte: boolean) {
     const r = generatore(77);
-    this.porto(r);
+    this.petrolchimico(r);
     this.faro();
     this.colline(r);
     this.gruppo.add(this.notte, this.giorno);
@@ -47,74 +53,132 @@ export class Lontano {
 
   /* ------------------------------------------------------------------ notte */
 
-  private porto(r: () => number) {
-    const ferro = new THREE.MeshBasicMaterial({ color: "#2B313C", fog: false });
-    const D = 40;
-    const txR = alone("#FF3A2A"), txG = alone("#FFB45A"), txB = alone("#FFFFFF");
-    this.texture.push(txR, txG, txB);
-    const lucine: number[] = [];
-    // le gru di banchina: due portali a A, la trave, il braccio sul mare; due col braccio alzato
-    const posti = [-2.38, -2.24, -2.1, -1.95, -1.8];
-    posti.forEach((da, i) => {
-      const a = ANGOLO_ZONA + da;
-      const g = new THREE.Group();
-      g.position.copy(suAnello(a, D + r() * 2, SU));
-      rivolgi(g, a);
-      g.rotation.y += 0.55 + (r() - 0.5) * 0.2; // di sbieco: il braccio si legge di profilo
-      g.scale.setScalar(0.8); // lontane: i tralicci vicini restano più grandi
-      const H = 8.5;
-      for (const x of [-1.1, 1.1]) for (const z of [-1.2, 1.2]) {
-        const gamba = new THREE.Mesh(new THREE.BoxGeometry(0.16, H, 0.16).translate(0, H / 2, 0), ferro);
-        gamba.position.set(x, 0, z);
-        g.add(gamba);
+  /**
+   * Il petrolchimico, come a Priolo o a Gela: colonne di distillazione punteggiate di luci al sodio,
+   * serbatoi sferici, due ciminiere con le luci rosse, due torce che bruciano e il vapore rischiarato dal basso.
+   */
+  private petrolchimico(r: () => number) {
+    const pezzi: THREE.BufferGeometry[] = [];
+    const luci: number[] = [], colori: number[] = [], rosse: number[] = [];
+    const sodio = new THREE.Color("#FFB45A"), bianca = new THREE.Color("#FFF1D6"), rossa = new THREE.Color("#FF3A2A");
+    const luce = (p: THREE.Vector3, c: THREE.Color) => {
+      if (c === rossa) return void rosse.push(p.x, p.y, p.z);
+      luci.push(p.x, p.y, p.z);
+      colori.push(c.r, c.g, c.b);
+    };
+    const qui = (a: number, d: number) => suAnello(a, d, SU);
+    const metti = (g: THREE.BufferGeometry, p: THREE.Vector3) => pezzi.push(g.translate(p.x, p.y, p.z));
+    const A0 = ANGOLO_ZONA - 2.45, A1 = ANGOLO_ZONA - 1.75;
+    // le colonne di distillazione, con i ballatoi e le luci giro giro
+    for (let k = 0; k < 16; k++) {
+      const a = A0 + 0.04 + r() * (A1 - A0 - 0.08);
+      const p = qui(a, 39 + r() * 2.5);
+      const h = 3.5 + Math.pow(r(), 1.4) * 7.5;
+      const rad = 0.16 + r() * 0.22;
+      metti(new THREE.CylinderGeometry(rad, rad * 1.1, h, 10).translate(0, h / 2, 0), p);
+      metti(new THREE.SphereGeometry(rad, 10, 5, 0, Math.PI * 2, 0, Math.PI / 2).translate(0, h, 0), p);
+      for (let y = 1.4; y < h; y += 1.5 + r() * 0.6) {
+        metti(new THREE.CylinderGeometry(rad + 0.14, rad + 0.14, 0.05, 12).translate(0, y, 0), p);
+        for (let n = 0; n < 4; n++) {
+          const an = (n / 4) * Math.PI * 2 + r();
+          luce(p.clone().add(new THREE.Vector3(Math.cos(an) * (rad + 0.16), y + 0.08, Math.sin(an) * (rad + 0.16))), r() < 0.75 ? sodio : bianca);
+        }
       }
-      const trave = new THREE.Mesh(new THREE.BoxGeometry(2.5, 0.5, 2.6).translate(0, H, 0), ferro);
-      g.add(trave);
-      const cabina = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.4, 1.2).translate(0, H + 1.1, 0.6), ferro);
-      g.add(cabina);
-      const alzato = i === 1 || i === 3;
-      const braccio = new THREE.Group();
-      braccio.position.set(0, H + 0.3, 0);
-      braccio.rotation.x = alzato ? -1.25 : 0;
-      braccio.add(new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.45, 12).translate(0, 0, -4.5), ferro));
-      g.add(braccio);
-      // tiranti verso l'alto
-      const pilone = new THREE.Mesh(new THREE.BoxGeometry(0.2, 3, 0.2).translate(0, H + 1.5, 0), ferro);
-      g.add(pilone);
-      // luce rossa in cima e lucine bianche lungo il braccio
-      const cima = new THREE.Sprite(new THREE.SpriteMaterial({ map: txR, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, fog: false }));
-      cima.position.set(0, H + 3.1, 0);
-      cima.scale.setScalar(1.1);
-      this.rosse.push(cima.material);
-      g.add(cima);
-      g.updateMatrixWorld(true);
-      const v = new THREE.Vector3();
-      for (let k = 0; k < 9; k++) {
-        v.set(0, 0.35, 1 - k * 1.25);
-        braccio.localToWorld(v);
-        lucine.push(v.x, v.y, v.z);
-      }
-      this.notte.add(g);
-    });
-    const pts = new THREE.BufferGeometry();
-    pts.setAttribute("position", new THREE.Float32BufferAttribute(lucine, 3));
-    this.notte.add(new THREE.Points(pts, new THREE.PointsMaterial({ map: txB, color: "#FFF4DA", size: 0.5, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, fog: false })));
-    // i fari dei piazzali: pali alti, una corona arancio
-    for (let k = 0; k < 7; k++) {
-      const a = ANGOLO_ZONA - 2.42 + k * 0.1 + r() * 0.03;
-      const p = suAnello(a, D - 1.5 + r() * 2, SU);
-      const palo = new THREE.Mesh(new THREE.BoxGeometry(0.12, 6, 0.12).translate(0, 3, 0), ferro);
-      palo.position.copy(p);
-      this.notte.add(palo);
-      const l = new THREE.Sprite(new THREE.SpriteMaterial({ map: txG, transparent: true, opacity: 0.9, blending: THREE.AdditiveBlending, depthWrite: false, fog: false }));
-      l.position.copy(p).setY(SU + 6.1);
-      l.scale.setScalar(1.5);
-      this.notte.add(l);
+      if (h > 8) luce(p.clone().setY(SU + h + 0.25), rossa);
     }
-    // il bagliore arancio sopra il porto
-    const b = new THREE.Sprite(new THREE.SpriteMaterial({ map: txG, transparent: true, opacity: 0.22, blending: THREE.AdditiveBlending, depthWrite: false, fog: false }));
-    b.position.copy(suAnello(ANGOLO_ZONA - 2.1, D + 2, 2.5));
-    b.scale.set(26, 9, 1);
+    // i serbatoi sferici sulle gambe
+    for (let k = 0; k < 5; k++) {
+      const p = qui(A0 + 0.1 + k * 0.13 + r() * 0.04, 37.5 + r());
+      metti(new THREE.SphereGeometry(0.95, 16, 10).translate(0, 2.1, 0), p);
+      for (let n = 0; n < 6; n++) {
+        const an = (n / 6) * Math.PI * 2;
+        metti(new THREE.BoxGeometry(0.07, 1.6, 0.07).translate(Math.cos(an) * 0.75, 0.8, Math.sin(an) * 0.75), p);
+      }
+      luce(p.clone().setY(SU + 3.1), bianca);
+    }
+    // i pipe rack: file di luci basse, orizzontali, fra le colonne
+    for (let k = 0; k < 3; k++) {
+      const y = SU + 2.2 + k * 1.1;
+      for (let a = A0 + 0.05; a < A1 - 0.05; a += 0.018) if (r() < 0.7) luce(suAnello(a, 39.4 + k * 0.6, y), sodio);
+    }
+    // le ciminiere, alte, con le luci rosse a metà e in cima
+    this.ciminiere = [ANGOLO_ZONA - 2.3, ANGOLO_ZONA - 1.92].map((a, i) => {
+      const p = qui(a, 41);
+      const h = 12.5 + i * 1.5;
+      metti(new THREE.CylinderGeometry(0.3, 0.5, h, 12).translate(0, h / 2, 0), p);
+      luce(p.clone().setY(SU + h + 0.1), rossa);
+      luce(p.clone().setY(SU + h * 0.55), rossa);
+      return p.clone().setY(SU + h + 0.3);
+    });
+    // le torce: un traliccio sottile, la fiamma in cima
+    const torce = [ANGOLO_ZONA - 2.12, ANGOLO_ZONA - 1.82].map((a, i) => {
+      const p = qui(a, 40.2);
+      const h = 10 + i * 2;
+      metti(new THREE.CylinderGeometry(0.1, 0.16, h, 6).translate(0, h / 2, 0), p);
+      for (let y = 0; y < h; y += 1.2) metti(new THREE.CylinderGeometry(0.35, 0.35, 0.04, 6).translate(0, y, 0), p);
+      return p.clone().setY(SU + h);
+    });
+    // l'acciaio preso dal riverbero delle torce: un bruno caldo, appena più chiaro del cielo
+    const ferro = new THREE.MeshBasicMaterial({ color: "#3A332E", fog: false });
+    const tutto = mergeGeometries(pezzi.map((g) => (g.index ? g.toNonIndexed() : g)));
+    pezzi.forEach((g) => g.dispose());
+    this.notte.add(new THREE.Mesh(tutto, ferro));
+    // la fiamma: una lingua che sfuma dal giallo bianco alla base all'arancio, poi al rosso, in alto trasparente
+    const lingua = (caldo: boolean) =>
+      tela(64, 128, (x) => {
+        const g = x.createRadialGradient(32, 100, 2, 32, 80, 60);
+        g.addColorStop(0, caldo ? "rgba(255,250,220,1)" : "rgba(255,190,90,1)");
+        g.addColorStop(0.35, caldo ? "rgba(255,200,90,0.9)" : "rgba(255,120,40,0.8)");
+        g.addColorStop(0.7, "rgba(230,70,20,0.35)");
+        g.addColorStop(1, "rgba(120,20,0,0)");
+        x.fillStyle = g;
+        x.beginPath();
+        x.moveTo(32, 2);
+        x.bezierCurveTo(52, 50, 62, 90, 32, 126);
+        x.bezierCurveTo(2, 90, 12, 50, 32, 2);
+        x.fill();
+      });
+    const txW = alone("#FFFFFF"), txF = lingua(false), txC = lingua(true), txB = alone("#FF7A2A"), fumo = bruma(5);
+    this.texture.push(txW, txF, txC, txB, fumo);
+    const pts = new THREE.BufferGeometry();
+    pts.setAttribute("position", new THREE.Float32BufferAttribute(luci, 3));
+    pts.setAttribute("color", new THREE.Float32BufferAttribute(colori, 3));
+    this.luciImpianto = new THREE.PointsMaterial({ map: txW, vertexColors: true, size: 0.55, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, fog: false });
+    this.notte.add(new THREE.Points(pts, this.luciImpianto));
+    const ptsR = new THREE.BufferGeometry();
+    ptsR.setAttribute("position", new THREE.Float32BufferAttribute(rosse, 3));
+    this.luciRosse = new THREE.PointsMaterial({ map: txW, color: "#FF3A2A", size: 0.9, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, fog: false });
+    this.notte.add(new THREE.Points(ptsR, this.luciRosse));
+    // le fiamme: un cuore chiaro, una fiamma arancio, un alone largo che rischiara il fumo
+    const sprite = (map: THREE.Texture, op: number) =>
+      new THREE.Sprite(new THREE.SpriteMaterial({ map, transparent: true, opacity: op, blending: THREE.AdditiveBlending, depthWrite: false, fog: false }));
+    torce.forEach((p) => {
+      const cuore = sprite(txC, 1), fiamma = sprite(txF, 0.95), alone_ = sprite(txB, 0.28);
+      cuore.position.copy(p).setY(p.y + 0.5);
+      fiamma.position.copy(p).setY(p.y + 0.9);
+      alone_.position.copy(p).setY(p.y + 1);
+      alone_.scale.setScalar(9);
+      this.notte.add(cuore, fiamma, alone_);
+      this.fiamme.push({ cuore, fiamma, alone: alone_, base: p });
+    });
+    // il vapore delle ciminiere, che sale e si allarga, preso dal bagliore arancio
+    for (let k = 0; k < 10; k++) {
+      const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: fumo, color: "#C9A58A", transparent: true, opacity: 0, depthWrite: false, fog: false }));
+      this.notte.add(s);
+      this.fumi.push({ s, da: this.ciminiere[k % 2], fase: k / 10 });
+    }
+    // il fumo scuro delle torce
+    torce.forEach((p, i) => {
+      for (let k = 0; k < 5; k++) {
+        const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: fumo, transparent: true, opacity: 0, depthWrite: false, fog: false }));
+        this.notte.add(s);
+        this.fumoTorce.push({ s, da: p, fase: k / 5 + i * 0.1 });
+      }
+    });
+    // il bagliore sopra l'impianto
+    const b = sprite(txB, 0.2);
+    b.position.copy(suAnello(ANGOLO_ZONA - 2.1, 42, 3));
+    b.scale.set(28, 10, 1);
     this.notte.add(b);
   }
 
@@ -276,8 +340,32 @@ export class Lontano {
   aggiorna(t: number) {
     if (this.notte.visible) {
       this.fasci.rotation.y = t * 0.55;
-      const lampo = Math.sin(t * 2.2) > 0.55 ? 1 : 0.12;
-      this.rosse.forEach((m) => (m.opacity = lampo));
+      // le torce: fiamme che tremano e si piegano al vento
+      this.fiamme.forEach(({ cuore, fiamma, alone, base }, i) => {
+        const v = 0.75 + 0.25 * Math.sin(t * 9 + i * 3) * Math.sin(t * 5.3 + i) + 0.1 * Math.sin(t * 23 + i);
+        cuore.scale.set(1.1 * v, 2.2 * v, 1);
+        cuore.position.set(base.x + 0.08 * Math.sin(t * 1.7 + i), base.y + 0.9 * v, base.z);
+        fiamma.scale.set(2.4 * v, 4.6 * (0.85 + 0.3 * Math.sin(t * 3.1 + i * 2)), 1);
+        fiamma.position.set(base.x + 0.3 * Math.sin(t * 1.3 + i), base.y + 1.9 * v, base.z);
+        alone.material.opacity = 0.2 + 0.1 * v;
+      });
+      // il vapore: sale, si allarga, svanisce
+      this.fumi.forEach(({ s, da, fase }) => {
+        const k = (t * 0.045 + fase) % 1;
+        s.position.set(da.x + k * 2.5, da.y + k * 6, da.z);
+        s.scale.setScalar(1.2 + k * 5);
+        s.material.opacity = Math.sin(k * Math.PI) * 0.55;
+      });
+      // il fumo scuro sopra le torce, preso di sotto dalla fiamma
+      this.fumoTorce.forEach(({ s, da, fase }) => {
+        const k = (t * 0.07 + fase) % 1;
+        s.position.set(da.x + k * 2.2 + Math.sin(t * 0.5 + fase * 6) * 0.3, da.y + 3 + k * 5, da.z);
+        s.scale.setScalar(1.5 + k * 4.5);
+        s.material.opacity = Math.sin(k * Math.PI) * 0.6;
+        s.material.color.setRGB(0.55 - k * 0.35, 0.3 - k * 0.18, 0.18 - k * 0.1);
+      });
+      // le luci rosse delle ciminiere e delle colonne lampeggiano insieme
+      this.luciRosse.opacity = Math.sin(t * 2.2) > 0.55 ? 1 : 0.15;
       return;
     }
     this.rotori.forEach((ro) => (ro.rotation.z = t * ro.userData.v));
