@@ -28,19 +28,22 @@ const CAMPANE_GIORNO = [440, 466.16, 587.33, 622.25, 739.99, 783.99, 880];
 /** La linea acida della notte: sedici passi per giro, [semitoni da la, accento, legato] o null per la pausa. */
 type Passo = [number, 0 | 1, 0 | 1] | null;
 const ACIDO: Passo[][] = [
-  // il giro della prima comparsa: cantabile, poche note che tornano
-  [[0, 1, 0], null, [12, 0, 0], [0, 0, 0], [7, 0, 1], [10, 0, 0], null, [12, 1, 0], [0, 0, 0], [3, 0, 1], [5, 0, 0], null, [7, 1, 0], [5, 0, 1], [3, 0, 1], [0, 0, 0]],
+  // il giro della prima comparsa: poche note che tornano, il si bemolle e il tritono addosso alla tonica
+  [[0, 1, 0], null, [0, 0, 0], [1, 0, 1], [0, 0, 0], null, [12, 1, 0], [0, 0, 0], [0, 0, 0], [3, 0, 1], [1, 0, 0], null, [6, 1, 0], [3, 0, 1], [1, 0, 1], [0, 0, 0]],
   [[0, 1, 0], [0, 0, 0], [12, 0, 1], [0, 0, 0], [3, 1, 0], null, [0, 0, 0], [1, 0, 1], [0, 1, 0], [12, 0, 0], [0, 0, 0], [10, 0, 1], [7, 1, 0], null, [3, 0, 1], [0, 0, 0]],
   [[0, 1, 0], [12, 0, 1], [0, 0, 0], [0, 0, 0], [1, 1, 0], [0, 0, 0], [13, 0, 1], [12, 0, 0], [0, 1, 0], null, [7, 0, 1], [8, 0, 0], [0, 1, 0], [3, 0, 0], [12, 0, 1], [10, 0, 0]],
   [[0, 1, 0], [0, 0, 1], [-2, 0, 1], [0, 0, 0], [12, 1, 0], [12, 0, 1], [15, 0, 1], [12, 0, 0], [0, 1, 0], [1, 0, 1], [0, 0, 0], null, [7, 1, 0], [6, 0, 1], [3, 0, 1], [1, 0, 0]],
 ];
-/** Gli accordi del tappeto di notte: la minore nona e la minore undicesima, cinque voci. */
+/**
+ * Il tappeto di notte, cupo: voci basse e strette, semitoni che stridono. La con si bemolle addosso (frigio),
+ * fa minore sopra il la, re minore col si bemolle, e un mi bemolle a tritono quando la strofa chiude.
+ */
 const ACCORDI_NOTTE = [
-  [220, 261.63, 329.63, 392, 493.88],
-  [220, 293.66, 329.63, 392, 523.25],
+  [110, 116.54, 130.81, 164.81, 220],
+  [110, 130.81, 174.61, 207.65, 261.63],
+  [110, 146.83, 174.61, 220, 233.08],
+  [110, 155.56, 164.81, 233.08, 311.13],
 ];
-/** Il cancello del tappeto, due battute di sedicesimi: 1 aperto, 0 chiuso. */
-const CANCELLO = [1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 0, 1, 1, 0];
 /** La scala hijaz (frigia dominante), in semitoni dalla tonica. */
 const HIJAZ = [0, 1, 4, 5, 7, 8, 10];
 /** Le frasi dell'oud: quattro battute, sei colpi per battuta (gradi della scala; null = pausa). */
@@ -636,8 +639,8 @@ class Suono {
     const c = this.ctx as AudioContext;
     const f = c.createBiquadFilter();
     f.type = "lowpass";
-    f.Q.value = 2;
-    f.frequency.value = 900;
+    f.Q.value = 3.5;
+    f.frequency.value = 500;
     const g = c.createGain();
     g.gain.value = 0;
     f.connect(g);
@@ -660,22 +663,21 @@ class Suono {
   }
 
   /**
-   * Il cancello: il tappeto si apre a sedicesimi secondo uno schema, come nella trance; l'accordo cambia ogni quattro
-   * battute (la minore nona, la minore undicesima), il filtro respira sulla strofa.
+   * Il tappeto cupo: niente cancello, respira lento. Ogni battuta si gonfia e ricade; l'accordo scivola ogni quattro
+   * battute (le voci scendono o salgono di un semitono, non saltano); il filtro resta basso e si apre appena sulla strofa.
    */
   private cancello(s: number, battuta: number, t: number) {
     const v = this.voceTappeto();
-    const dur = 60 / this.bpm / 4;
     if (s === 0 && battuta % 4 === 0) {
       const acc = ACCORDI_NOTTE[Math.floor(battuta / 4) % ACCORDI_NOTTE.length];
-      v.o.forEach((x, i) => x.frequency.setValueAtTime(acc[Math.floor(i / 2)], t));
+      v.o.forEach((x, i) => x.frequency.setTargetAtTime(acc[Math.floor(i / 2)], t, 0.35));
     }
-    const fase = (battuta % 16) / 16;
-    v.f.frequency.setTargetAtTime(600 + 1400 * Math.sin(fase * Math.PI), t, 0.2);
-    if (CANCELLO[(battuta % 2) * 16 + s]) {
-      v.g.gain.setTargetAtTime(0.022, t, 0.004);
-      v.g.gain.setTargetAtTime(0, t + dur * 0.55, 0.02);
+    if (s === 0) {
+      const fase = (battuta % 16) / 16;
+      v.f.frequency.setTargetAtTime(340 + 520 * Math.sin(fase * Math.PI), t, 1.2);
+      v.g.gain.setTargetAtTime(0.034, t, 0.5);
     }
+    if (s === 8) v.g.gain.setTargetAtTime(0.016, t, 0.9);
   }
 
   /**

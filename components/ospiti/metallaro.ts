@@ -15,62 +15,89 @@ const QUOTE = [0.3, -0.22, 0.42, -0.34, 0.12, -0.1];
 const POSTI = lavori.length + 1;
 const PAVIMENTO = -1.22; // PELO_ACQUA
 
-/** La faccia dipinta: bianco cadavere, nero attorno agli occhi a punte, il naso e la bocca segnati. */
+/**
+ * La faccia dipinta, cattiva: bianco gesso, le orbite nere che esplodono in lunghe punte su fronte e guance,
+ * le sopracciglia aggrottate a V, il naso nero, le labbra nere cucite da righe verticali fino al mento,
+ * le colature nere sotto gli occhi. Gli occhi piccoli, chiari, fissi.
+ */
 function faccia(urla: boolean) {
   // la texture fa il giro intero della testa: il viso sta nel terzo centrale, schiacciato in larghezza
   return tela(384, 256, (x) => {
-    x.fillStyle = "#EDEBE6";
+    x.fillStyle = "#F2F1EE";
     x.fillRect(0, 0, 384, 256);
+    // un'ombra grigia sotto gli zigomi: il viso scavato
+    x.fillStyle = "rgba(120,118,125,0.35)";
+    x.fillRect(0, 150, 384, 40);
     x.translate(128, 0);
     x.scale(0.5, 1);
-    x.fillStyle = "#0B0B0D";
-    // gli occhi: due macchie nere che scendono a punte sulle guance e salgono sulla fronte
-    for (const s of [-1, 1]) {
-      const cx = 128 + s * 46;
+    const nero = "#050506";
+    x.fillStyle = nero;
+    const punta = (ax: number, ay: number, bx: number, by: number, cx: number, cy: number) => {
       x.beginPath();
-      x.moveTo(cx - 34, 104);
-      x.lineTo(cx - 20, 70);
-      x.lineTo(cx - 6, 92);
-      x.lineTo(cx + 8, 62);
-      x.lineTo(cx + 30, 98);
-      x.lineTo(cx + 26, 128);
-      x.lineTo(cx + 14, 168);
-      x.lineTo(cx + 2, 136);
-      x.lineTo(cx - 10, 176);
-      x.lineTo(cx - 18, 134);
+      x.moveTo(ax, ay);
+      x.lineTo(bx, by);
+      x.lineTo(cx, cy);
       x.closePath();
       x.fill();
-    }
-    // i bianchi degli occhi, piccoli e spiritati
-    x.fillStyle = "#F4F2EE";
+    };
     for (const s of [-1, 1]) {
+      const cx = 128 + s * 44;
+      // l'orbita
       x.beginPath();
-      x.ellipse(128 + s * 44, 112, 9, 6, 0, 0, Math.PI * 2);
+      x.ellipse(cx, 112, 30, 24, 0, 0, Math.PI * 2);
       x.fill();
+      // le punte: tre in su fino all'attaccatura, due in giù sulle guance, una verso la tempia
+      punta(cx - 18, 96, cx - 8, 98, cx - 22, 6);
+      punta(cx - 4, 92, cx + 8, 94, cx + 4, 0);
+      punta(cx + 12, 96, cx + 24, 102, cx + 34, 18);
+      punta(cx - 14, 128, cx - 2, 132, cx - 16, 214);
+      punta(cx + 6, 132, cx + 18, 126, cx + 22, 200);
+      punta(cx + s * 24, 104, cx + s * 26, 120, cx + s * 70, 100);
+      // le colature
+      x.fillRect(cx - 3, 132, 3, 50 + (s > 0 ? 14 : 0));
     }
-    x.fillStyle = "#0B0B0D";
-    for (const s of [-1, 1]) {
-      x.beginPath();
-      x.arc(128 + s * 44, 112, 3.5, 0, Math.PI * 2);
-      x.fill();
-    }
-    // il naso annerito e le righe della bocca
+    // le sopracciglia a V, aggrottate
+    x.lineWidth = 9;
+    x.strokeStyle = nero;
     x.beginPath();
-    x.moveTo(120, 150);
-    x.lineTo(136, 150);
-    x.lineTo(128, 132);
+    x.moveTo(70, 70);
+    x.lineTo(124, 92);
+    x.lineTo(132, 92);
+    x.lineTo(186, 70);
+    x.stroke();
+    // gli occhi: piccoli, chiari, con la pupilla a punta di spillo
+    for (const s of [-1, 1]) {
+      x.fillStyle = "#DCE3E6";
+      x.beginPath();
+      x.ellipse(128 + s * 42, 114, 8, 5, 0, 0, Math.PI * 2);
+      x.fill();
+      x.fillStyle = nero;
+      x.beginPath();
+      x.arc(128 + s * 42, 114, 2, 0, Math.PI * 2);
+      x.fill();
+    }
+    // il naso annerito
+    x.fillStyle = nero;
+    x.beginPath();
+    x.moveTo(116, 156);
+    x.lineTo(140, 156);
+    x.lineTo(128, 128);
     x.fill();
     if (urla) {
+      // la bocca spalancata, nera, coi denti
       x.beginPath();
-      x.ellipse(128, 196, 26, 30, 0, 0, Math.PI * 2);
+      x.ellipse(128, 200, 30, 36, 0, 0, Math.PI * 2);
       x.fill();
-      x.fillStyle = "#5A1414";
+      x.fillStyle = "#D8D2C4";
+      for (const dx of [-14, -5, 4, 13]) x.fillRect(124 + dx, 168, 5, 8);
+      x.fillStyle = "#4A0C0C";
       x.beginPath();
-      x.ellipse(128, 204, 16, 16, 0, 0, Math.PI * 2);
+      x.ellipse(128, 210, 16, 18, 0, 0, Math.PI * 2);
       x.fill();
     } else {
-      x.fillRect(100, 188, 56, 10);
-      for (const dx of [-20, 0, 20]) x.fillRect(124 + dx, 198, 8, 26);
+      // le labbra nere e le cuciture fino al mento
+      x.fillRect(96, 186, 64, 12);
+      for (let k = 0; k < 7; k++) x.fillRect(98 + k * 10, 172, 3, 50);
     }
   });
 }
@@ -100,45 +127,45 @@ export class Metallaro implements Ospite {
     const gambe = new THREE.Group();
     gambe.position.y = 0.74;
     for (const sx of [-0.1, 0.1]) {
-      gambe.add(new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.065, 0.78, 8).translate(sx, -0.39 + 0.1, 0), nero));
-      gambe.add(new THREE.Mesh(new THREE.BoxGeometry(0.13, 0.12, 0.24).translate(sx, -0.68, -0.04), cuoio));
+      gambe.add(new THREE.Mesh(new THREE.CylinderGeometry(0.048, 0.04, 0.78, 8).translate(sx * 0.7, -0.39 + 0.1, 0), nero));
+      gambe.add(new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.1, 0.2).translate(sx * 0.7, -0.68, -0.04), cuoio));
     }
     this.gruppo.add(gambe);
     // il busto: giubbotto di cuoio, la cartucciera a tracolla
-    const busto = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.55, 0.24).translate(0, 0.27, 0), cuoio);
+    const busto = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.11, 0.56, 10).scale(1, 1, 0.62).translate(0, 0.28, 0), cuoio);
     this.corpo.add(busto);
     const tracolla = new THREE.Group();
     tracolla.rotation.z = 0.7;
-    tracolla.position.set(0, 0.3, -0.125);
+    tracolla.position.set(0, 0.3, -0.095);
     for (let i = 0; i < 9; i++) {
       const p = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.014, 0.06, 6), ottone);
-      p.position.set(-0.26 + i * 0.065, 0, 0);
+      p.position.set(-0.2 + i * 0.05, 0, 0);
       tracolla.add(p);
     }
     this.corpo.add(tracolla);
     // le spalle chiodate
     for (const s of [-1, 1]) {
-      const spalla = new THREE.Mesh(new THREE.SphereGeometry(0.1, 10, 6, 0, Math.PI * 2, 0, Math.PI / 2), cuoio);
-      spalla.position.set(s * 0.24, 0.53, 0);
+      const spalla = new THREE.Mesh(new THREE.SphereGeometry(0.07, 10, 6, 0, Math.PI * 2, 0, Math.PI / 2), cuoio);
+      spalla.position.set(s * 0.17, 0.53, 0);
       this.corpo.add(spalla);
       for (let k = 0; k < 3; k++) {
         const c = new THREE.Mesh(new THREE.ConeGeometry(0.018, 0.07, 6), acciaio);
-        c.position.set(s * (0.2 + k * 0.035), 0.6 + (k === 1 ? 0.02 : 0), 0);
+        c.position.set(s * (0.14 + k * 0.03), 0.58 + (k === 1 ? 0.03 : 0), 0);
         this.corpo.add(c);
       }
     }
     // la testa: il viso dipinto, i capelli neri lunghissimi che scendono davanti e dietro le spalle
     this.testa.position.set(0, 0.7, 0);
-    const cranio = new THREE.Mesh(new THREE.SphereGeometry(0.15, 20, 16).scale(0.92, 1.1, 0.95), this.viso);
+    const cranio = new THREE.Mesh(new THREE.SphereGeometry(0.13, 20, 16).scale(0.86, 1.14, 0.92), this.viso);
     cranio.rotation.y = Math.PI / 2; // il centro della texture (la faccia) verso −z, verso chi guarda
     this.testa.add(cranio);
-    const calotta = new THREE.Mesh(new THREE.SphereGeometry(0.158, 16, 10, 0, Math.PI * 2, 0, Math.PI * 0.55).scale(0.95, 1.12, 1), nero);
+    const calotta = new THREE.Mesh(new THREE.SphereGeometry(0.136, 16, 10, 0, Math.PI * 2, 0, Math.PI * 0.55).scale(0.9, 1.15, 0.97), nero);
     calotta.rotation.x = 0.7; // tirata indietro: la fronte dipinta resta scoperta
     this.testa.add(calotta);
     for (let i = 0; i < 18; i++) {
       const a = -1.35 + (i / 17) * 2.7;
       const ciocca = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.7, 0.03).translate(0, -0.35, 0), nero);
-      ciocca.position.set(Math.sin(a) * 0.15, 0.08, Math.cos(a) * 0.13);
+      ciocca.position.set(Math.sin(a) * 0.125, 0.08, Math.cos(a) * 0.11);
       ciocca.rotation.y = a;
       this.testa.add(ciocca);
       this.capelli.push(ciocca);
@@ -146,18 +173,18 @@ export class Metallaro implements Ospite {
     this.corpo.add(this.testa);
     // le braccia: avambracci col bracciale chiodato, il pugno; il destro fa le corna
     const braccio = (g: THREE.Group, corna: boolean) => {
-      g.add(new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.055, 0.32, 8).translate(0, 0.16, 0), cuoio));
+      g.add(new THREE.Mesh(new THREE.CylinderGeometry(0.033, 0.038, 0.32, 8).translate(0, 0.16, 0), cuoio));
       const avambraccio = new THREE.Group();
       avambraccio.position.y = 0.32;
-      avambraccio.add(new THREE.Mesh(new THREE.CylinderGeometry(0.058, 0.058, 0.18, 10).translate(0, 0.13, 0), cuoio));
+      avambraccio.add(new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, 0.18, 10).translate(0, 0.13, 0), cuoio));
       for (let k = 0; k < 8; k++) {
         const c = new THREE.Mesh(new THREE.ConeGeometry(0.012, 0.05, 5), acciaio);
         const an = (k / 8) * Math.PI * 2;
-        c.position.set(Math.cos(an) * 0.065, 0.1 + (k % 2) * 0.06, Math.sin(an) * 0.065);
+        c.position.set(Math.cos(an) * 0.05, 0.1 + (k % 2) * 0.06, Math.sin(an) * 0.05);
         c.rotation.set(Math.sin(an) * Math.PI / 2, 0, -Math.cos(an) * Math.PI / 2);
         avambraccio.add(c);
       }
-      const pugno = new THREE.Mesh(new THREE.SphereGeometry(0.055, 10, 8).scale(1, 1.1, 0.9).translate(0, 0.27, 0), pelle);
+      const pugno = new THREE.Mesh(new THREE.SphereGeometry(0.042, 10, 8).scale(1, 1.1, 0.9).translate(0, 0.27, 0), pelle);
       avambraccio.add(pugno);
       if (corna) {
         for (const dx of [-0.03, 0.03]) {
@@ -171,8 +198,8 @@ export class Metallaro implements Ospite {
     };
     braccio(this.braccio, true);
     braccio(this.altro, false);
-    this.braccio.position.set(0.26, 0.5, 0);
-    this.altro.position.set(-0.26, 0.5, 0);
+    this.braccio.position.set(0.18, 0.5, 0);
+    this.altro.position.set(-0.18, 0.5, 0);
     this.corpo.add(this.braccio, this.altro);
     // l'origine ai piedi
     this.corpo.position.y = 0.74;
@@ -225,9 +252,9 @@ export class Metallaro implements Ospite {
     if (s.modo === "lato") {
       // di lato: nascosto dietro il bordo, si sporge piegandosi
       // in piedi sul pavimento dietro la carta, alto quanto basta perché la testa arrivi verso il bordo di sopra
-      const scala = Math.min(1.3, Math.max(0.95, (y0 + 0.5 - PAVIMENTO) / 1.75));
+      const scala = Math.min(1.0, Math.max(0.78, (y0 + 0.1 - PAVIMENTO) / 1.75));
       g.scale.setScalar(scala);
-      const off = LARGO / 2 - 0.42 + k * 0.3;
+      const off = LARGO / 2 - 0.25 + k * 0.38;
       g.position.copy(dietro).addScaledVector(lato, off * s.verso).setY(PAVIMENTO);
       // specchiato secondo il lato, così il braccio delle corna è sempre quello che sporge
       this.corpo.scale.x = s.verso > 0 ? -1 : 1;
