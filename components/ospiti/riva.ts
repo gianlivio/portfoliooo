@@ -176,9 +176,10 @@ export class Riva {
 
     /* la ruota panoramica: due cerchioni, i raggi, le cabine che restano diritte, le luci che rincorrono */
     {
+      // il luna park è un solo gruppo, raccolto: la ruota in mezzo, il resto attorno a profondità diverse
       const a = ANGOLO_ZONA + 1.72;
       const base = new THREE.Group();
-      base.position.copy(suAnello(a, 37, SU));
+      base.position.copy(suAnello(a, 38, SU));
       rivolgi(base, a);
       base.rotation.y += 0.22;
       const R = 4.3, C = 5.4;
@@ -242,10 +243,13 @@ export class Riva {
 
     /* le montagne russe: il binario sui piloni, le lucine, il trenino che corre */
     {
-      const a = ANGOLO_ZONA + 1.08, d = 38.5;
+      // davanti a sinistra della ruota, più vicine, girate di sbieco
+      const a = ANGOLO_ZONA + 1.53, d = 34.5;
       const g = new THREE.Group();
       g.position.copy(suAnello(a, d, SU));
       rivolgi(g, a);
+      g.rotation.y += 0.55;
+      g.scale.setScalar(0.62);
       const punti: THREE.Vector3[] = [];
       const N = 14;
       const alti = [2.2, 7.5, 3.0, 5.6, 2.4, 4.4, 3.4, 6.2, 2.6, 4.8, 2.2, 3.6, 2.0, 2.4];
@@ -284,8 +288,9 @@ export class Riva {
 
     /* la torre a caduta: luci che salgono lungo il palo, l'anello che sale piano e cade */
     {
-      const a = ANGOLO_ZONA + 2.08;
-      const p = suAnello(a, 38, SU);
+      // dietro a destra della ruota, più lontana
+      const a = ANGOLO_ZONA + 1.9;
+      const p = suAnello(a, 41, SU);
       const H = 10.5;
       this.torre.base.copy(p);
       this.torre.h = H;
@@ -322,9 +327,10 @@ export class Riva {
 
     /* il calcinculo: il palo, il cappello illuminato, i seggiolini che volano in fuori */
     {
-      const a = ANGOLO_ZONA + 2.33;
+      // davanti a destra, il più vicino
+      const a = ANGOLO_ZONA + 1.96;
       const g = this.calcinculo;
-      g.position.copy(suAnello(a, 37.5, SU));
+      g.position.copy(suAnello(a, 34, SU));
       const H = 5.2;
       const fisso = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.24, H, 10).translate(0, H / 2, 0), ferro);
       this.notte.add(fisso.translateX(g.position.x).translateY(g.position.y).translateZ(g.position.z));
@@ -359,13 +365,13 @@ export class Riva {
     }
 
     // il bagliore colorato sopra il luna park
-    const tinte: [string, number][] = [["#FF4FA0", ANGOLO_ZONA + 1.2], ["#7A5CFF", ANGOLO_ZONA + 1.72], ["#FFB04F", ANGOLO_ZONA + 2.2]];
+    const tinte: [string, number][] = [["#FF4FA0", ANGOLO_ZONA + 1.58], ["#7A5CFF", ANGOLO_ZONA + 1.74], ["#FFB04F", ANGOLO_ZONA + 1.9]];
     tinte.forEach(([col, a]) => {
       const tx = alone(col);
       this.texture.push(tx);
       const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: tx, transparent: true, opacity: 0.16, blending: THREE.AdditiveBlending, depthWrite: false, fog: false }));
       s.position.copy(suAnello(a, 40, 2.5));
-      s.scale.set(16, 8, 1);
+      s.scale.set(9, 7, 1);
       this.notte.add(s);
     });
     void r;

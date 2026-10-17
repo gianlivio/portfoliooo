@@ -21,6 +21,7 @@ import { Droni } from "./ospiti/drone";
 import { Robot } from "./ospiti/robot";
 import { Pterodattilo } from "./ospiti/pterodattilo";
 import { Fieno } from "./ospiti/fieno";
+import { Metallaro } from "./ospiti/metallaro";
 import { Anticitera, Tempio } from "./ospiti/ologrammi";
 
 /**
@@ -290,6 +291,7 @@ const creaDroni = () => new Droni();
 const creaRobot = () => new Robot();
 const creaPterodattilo = () => new Pterodattilo();
 const creaFieno = () => new Fieno();
+const creaMetallaro = () => new Metallaro();
 const creaAnticitera = () => new Anticitera();
 const creaTempio = () => new Tempio();
 
@@ -330,6 +332,7 @@ export default function Fauna({
       {c("pterodattilo") && <Presenza crea={creaPterodattilo} />}
       {c("robot") && <Presenza crea={creaRobot} />}
       {c("fieno") && <Presenza crea={creaFieno} />}
+      {c("metallaro") && <Presenza crea={creaMetallaro} />}
       {c("anticitera") && <Presenza crea={creaAnticitera} />}
       {c("tempio") && <Presenza crea={creaTempio} />}
     </>
