@@ -28,22 +28,19 @@ const CAMPANE_GIORNO = [440, 466.16, 587.33, 622.25, 739.99, 783.99, 880];
 /** La linea acida della notte: sedici passi per giro, [semitoni da la, accento, legato] o null per la pausa. */
 type Passo = [number, 0 | 1, 0 | 1] | null;
 const ACIDO: Passo[][] = [
-  // il giro della prima comparsa: poche note che tornano, il si bemolle e il tritono addosso alla tonica
-  [[0, 1, 0], null, [0, 0, 0], [1, 0, 1], [0, 0, 0], null, [12, 1, 0], [0, 0, 0], [0, 0, 0], [3, 0, 1], [1, 0, 0], null, [6, 1, 0], [3, 0, 1], [1, 0, 1], [0, 0, 0]],
-  [[0, 1, 0], [0, 0, 0], [12, 0, 1], [0, 0, 0], [3, 1, 0], null, [0, 0, 0], [1, 0, 1], [0, 1, 0], [12, 0, 0], [0, 0, 0], [10, 0, 1], [7, 1, 0], null, [3, 0, 1], [0, 0, 0]],
-  [[0, 1, 0], [12, 0, 1], [0, 0, 0], [0, 0, 0], [1, 1, 0], [0, 0, 0], [13, 0, 1], [12, 0, 0], [0, 1, 0], null, [7, 0, 1], [8, 0, 0], [0, 1, 0], [3, 0, 0], [12, 0, 1], [10, 0, 0]],
-  [[0, 1, 0], [0, 0, 1], [-2, 0, 1], [0, 0, 0], [12, 1, 0], [12, 0, 1], [15, 0, 1], [12, 0, 0], [0, 1, 0], [1, 0, 1], [0, 0, 0], null, [7, 1, 0], [6, 0, 1], [3, 0, 1], [1, 0, 0]],
+  // il giro della prima comparsa: scuro e insistente, la tonica che martella, il fa e il sol che tirano giù
+  [[0, 1, 0], [0, 0, 0], [12, 0, 1], [0, 0, 0], [3, 1, 0], [0, 0, 0], [8, 0, 1], [7, 0, 0], [0, 1, 0], [0, 0, 0], [12, 0, 1], [10, 0, 0], [8, 1, 0], [7, 0, 1], [3, 0, 1], [0, 0, 0]],
+  [[0, 1, 0], null, [0, 0, 0], [3, 0, 1], [0, 0, 0], [12, 1, 0], [10, 0, 1], [8, 0, 0], [0, 1, 0], [0, 0, 0], [15, 0, 1], [12, 0, 0], [0, 1, 0], [3, 0, 0], [5, 0, 1], [3, 0, 0]],
+  [[0, 1, 0], [12, 0, 1], [0, 0, 0], [0, 0, 0], [8, 1, 0], [7, 0, 1], [0, 0, 0], [3, 0, 0], [0, 1, 0], null, [10, 0, 1], [12, 0, 0], [0, 1, 0], [8, 0, 1], [7, 0, 1], [5, 0, 0]],
+  [[0, 1, 0], [0, 0, 1], [-2, 0, 1], [0, 0, 0], [12, 1, 0], [12, 0, 1], [15, 0, 1], [12, 0, 0], [0, 1, 0], [3, 0, 1], [0, 0, 0], null, [7, 1, 0], [8, 0, 1], [7, 0, 1], [3, 0, 0]],
 ];
-/**
- * Il tappeto di notte, cupo: voci basse e strette, semitoni che stridono. La con si bemolle addosso (frigio),
- * fa minore sopra il la, re minore col si bemolle, e un mi bemolle a tritono quando la strofa chiude.
- */
+/** Gli accordi del tappeto di notte: la minore nona e la minore undicesima, cinque voci, in la come il fondo. */
 const ACCORDI_NOTTE = [
-  [110, 116.54, 130.81, 164.81, 220],
-  [110, 130.81, 174.61, 207.65, 261.63],
-  [110, 146.83, 174.61, 220, 233.08],
-  [110, 155.56, 164.81, 233.08, 311.13],
+  [220, 261.63, 329.63, 392, 493.88],
+  [220, 293.66, 329.63, 392, 523.25],
 ];
+/** Il cancello del tappeto, due battute di sedicesimi: 1 aperto, 0 chiuso. */
+const CANCELLO = [1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 0, 1, 1, 0];
 /** La scala hijaz (frigia dominante), in semitoni dalla tonica. */
 const HIJAZ = [0, 1, 4, 5, 7, 8, 10];
 /** Le frasi dell'oud: quattro battute, sei colpi per battuta (gradi della scala; null = pausa). */
@@ -452,14 +449,23 @@ class Suono {
     if (s % 4 === 0) this.cassa(t, 1);
     if (s === 14 && battuta % 2 === 1) this.cassa(t, 0.45);
     // metallo: lamiera battuta sui levare, ogni tanto doppia
-    if (s % 4 === 2 || (s === 7 && battuta % 2 === 0)) this.metallo(t, n ? 0.05 : 0.075, n ? 2.2 : 1.6);
+    if (s % 4 === 2 || (s === 7 && battuta % 2 === 0)) this.metallo(t, n ? 0.05 : 0.075, n ? 1.5 : 2); // rapporti intonati: mi sopra il la di notte, la all'ottava di giorno
     // di giorno lamiera anche in controtempo: una fabbrica che lavora piano
-    if (!n && (s === 3 || s === 11 || (s === 13 && battuta % 2 === 1))) this.metallo(t, 0.05, 1.2);
+    if (!n && (s === 3 || s === 11 || (s === 13 && battuta % 2 === 1))) this.metallo(t, 0.05, 1.3348); // il re
     // charleston: chiuso sui levare, aperto sul levare del quarto (di giorno)
     if (s % 4 === 2) this.charleston(t, n ? 0.05 : 0.07, n ? 0.05 : 0.09);
     else if (s % 2 === 1) this.charleston(t, n ? 0.022 : 0.035, 0.03);
     // battito di mani, morbido, sul due e sul quattro
     if (s === 4 || s === 12) this.mani(t, n ? 0.12 : 0.16);
+    if (n) {
+      const b16 = battuta % 16;
+      // nella seconda metà della strofa il charleston aperto sui levare spinge
+      if (b16 >= 8 && s % 4 === 2) this.charleston(t, 0.045, 0.14);
+      // l'ultima battuta: rullata di mani che cresce verso la strofa nuova
+      if (b16 === 15 && s >= 8) this.mani(t, 0.04 + (s - 8) * 0.014);
+      // all'attacco della strofa un piatto lungo
+      if (b16 === 0 && s === 0 && battuta > 0) this.charleston(t, 0.07, 1.4);
+    }
     // basso che rotola
     const radice = n ? 55 : 36.71;
     const giro = n ? [0, 0, 3, 0, 7, 0, 5, 3] : [0, 0, 0, 0, 1, 0, 0, 0];
@@ -470,8 +476,8 @@ class Suono {
     // di notte, al posto dell'arpeggio: la linea acida e gli stab sporchi
     if (n) {
       this.cancello(s, battuta, t);
-      // la strofa è di sedici battute: l'acido entra nelle ultime quattro; gli stab chiudono la strofa
-      if (battuta % 16 >= 12) this.acida(s, battuta, t);
+      // la strofa è di sedici battute: l'acido entra a metà e la porta fino in fondo; gli stab chiudono la strofa
+      if (battuta % 16 >= 8) this.acida(s, battuta, t);
       else if (this.acido) this.acido.g.gain.setTargetAtTime(0, t, 0.01);
       if (battuta % 16 === 15 && (s === 10 || s === 14)) this.stab(t, s === 14 ? 1 : 0.7);
     }
@@ -619,7 +625,7 @@ class Suono {
     const g = c.createGain();
     g.gain.value = 0;
     const dopo = c.createGain();
-    dopo.gain.value = 0.32;
+    dopo.gain.value = 0.42;
     o.connect(f);
     f.connect(secco).connect(g);
     f.connect(this.distorsione(9)).connect(sporco).connect(g);
@@ -639,8 +645,8 @@ class Suono {
     const c = this.ctx as AudioContext;
     const f = c.createBiquadFilter();
     f.type = "lowpass";
-    f.Q.value = 3.5;
-    f.frequency.value = 500;
+    f.Q.value = 2;
+    f.frequency.value = 900;
     const g = c.createGain();
     g.gain.value = 0;
     f.connect(g);
@@ -663,21 +669,22 @@ class Suono {
   }
 
   /**
-   * Il tappeto cupo: niente cancello, respira lento. Ogni battuta si gonfia e ricade; l'accordo scivola ogni quattro
-   * battute (le voci scendono o salgono di un semitono, non saltano); il filtro resta basso e si apre appena sulla strofa.
+   * Il cancello: il tappeto si apre a sedicesimi secondo uno schema; l'accordo cambia ogni quattro battute
+   * (la minore nona, la minore undicesima), il filtro respira sulla strofa.
    */
   private cancello(s: number, battuta: number, t: number) {
     const v = this.voceTappeto();
+    const dur = 60 / this.bpm / 4;
     if (s === 0 && battuta % 4 === 0) {
       const acc = ACCORDI_NOTTE[Math.floor(battuta / 4) % ACCORDI_NOTTE.length];
-      v.o.forEach((x, i) => x.frequency.setTargetAtTime(acc[Math.floor(i / 2)], t, 0.35));
+      v.o.forEach((x, i) => x.frequency.setValueAtTime(acc[Math.floor(i / 2)], t));
     }
-    if (s === 0) {
-      const fase = (battuta % 16) / 16;
-      v.f.frequency.setTargetAtTime(340 + 520 * Math.sin(fase * Math.PI), t, 1.2);
-      v.g.gain.setTargetAtTime(0.034, t, 0.5);
+    const fase = (battuta % 16) / 16;
+    v.f.frequency.setTargetAtTime(600 + 1400 * Math.sin(fase * Math.PI), t, 0.2);
+    if (CANCELLO[(battuta % 2) * 16 + s]) {
+      v.g.gain.setTargetAtTime(0.022, t, 0.004);
+      v.g.gain.setTargetAtTime(0, t + dur * 0.55, 0.02);
     }
-    if (s === 8) v.g.gain.setTargetAtTime(0.016, t, 0.9);
   }
 
   /**
@@ -688,7 +695,7 @@ class Suono {
     const v = this.voceAcida();
     // quanto è sporco: zero alla prima comparsa, cresce battuta dopo battuta e strofa dopo strofa
     const strofa = Math.floor(battuta / 16);
-    const sporco = Math.min(1, (strofa * 4 + (battuta % 16) - 12) / 14);
+    const sporco = Math.min(1, (strofa * 8 + (battuta % 16) - 8) / 24);
     if (s === 0) {
       v.secco.gain.setTargetAtTime(1 - sporco * 0.75, t, 0.05);
       v.sporco.gain.setTargetAtTime(sporco * 0.55, t, 0.05);
@@ -713,7 +720,7 @@ class Suono {
     if (!(prossimo && prossimo[2])) v.g.gain.setTargetAtTime(0, t + dur * 0.62, 0.012);
   }
 
-  /** Uno stab cattivo: un grappolo dissonante (la, si bemolle, mi) di seghe scordate, distorto, il filtro che si chiude. */
+  /** Uno stab cattivo: la minore di seghe scordate, distorto, il filtro che si chiude di colpo. */
   private stab(t: number, forza: number) {
     const c = this.ctx as AudioContext;
     const fl = c.createBiquadFilter();
@@ -726,7 +733,7 @@ class Suono {
     fl.connect(this.distorsione(14)).connect(g);
     g.connect(this.loopBus);
     g.connect(this.eco);
-    for (const f of [110, 116.54, 164.81, 220, 233.08]) {
+    for (const f of [110, 164.81, 220, 261.63, 329.63]) {
       for (const sc of [-12, 12]) {
         const o = c.createOscillator();
         o.type = "sawtooth";
@@ -750,7 +757,7 @@ class Suono {
     const o = c.createOscillator();
     // la coda della cassa sulla tonica: la di notte, re di giorno
     o.frequency.setValueAtTime(this.eNotte ? 190 : 165, t);
-    o.frequency.exponentialRampToValueAtTime(this.eNotte ? 42 : 36.71, t + 0.09);
+    o.frequency.exponentialRampToValueAtTime(this.eNotte ? 55 : 36.71, t + 0.09);
     const g = c.createGain();
     this.inviluppo(g, t, forza, 0.003, 0.42);
     o.connect(g).connect(this.loopBus);
@@ -764,8 +771,8 @@ class Suono {
     const a = c.createOscillator();
     const b = c.createOscillator();
     a.type = b.type = "square";
-    a.frequency.value = 410;
-    b.frequency.value = 410 * rapporto;
+    a.frequency.value = 440; // il la: la lamiera suona nella tonalità, di notte e di giorno (quinta del re)
+    b.frequency.value = 440 * rapporto;
     const anello = c.createGain();
     anello.gain.value = 0;
     b.connect(anello.gain);
@@ -939,7 +946,7 @@ class Suono {
       return n;
     };
     if (tipo === "nave") {
-      [440, 554.37].forEach((f, i) => {
+      [440, 523.25].forEach((f, i) => { // la e do: la minore, come il resto della notte
         const o = parti(c.createOscillator()) as OscillatorNode;
         o.type = "sine";
         o.frequency.value = f;
@@ -983,7 +990,7 @@ class Suono {
       coro.connect(lf).connect(cg).connect(uscita);
     } else {
       const cassa = parti(c.createOscillator()) as OscillatorNode;
-      cassa.frequency.value = 52;
+      cassa.frequency.value = 55;
       const colpi = parti(c.createOscillator()) as OscillatorNode;
       colpi.type = "sawtooth";
       colpi.frequency.value = BPM / 60;
