@@ -709,6 +709,7 @@ function ZonaSviluppatore({ notte, ridotto, testi }: { notte: boolean; ridotto: 
   useEffect(() => {
     document.body.style.cursor = sopra ? "pointer" : "";
     zona.mostraTitolo(sopra?.tipo === "libro" ? sopra.indice : null);
+    zona.evidenziaMusica(sopra?.tipo === "drum");
     return () => {
       document.body.style.cursor = "";
     };

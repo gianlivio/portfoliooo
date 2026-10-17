@@ -3,7 +3,7 @@ import { PELO_ACQUA } from "../condivisi";
 import { ANGOLO_ZONA } from "../zona";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import { alone, bruma, generatore, liberaTutto, tela } from "./comuni";
-import { PeritoMoreno, alhambra, labirinto } from "./meraviglie";
+import { alhambra, bologna, labirinto } from "./meraviglie";
 
 /**
  * L'orizzonte a sinistra dello sviluppatore, fino alla città: tutto in lontananza.
@@ -11,7 +11,7 @@ import { PeritoMoreno, alhambra, labirinto } from "./meraviglie";
  * un faro su uno scoglio col fascio che gira. Di giorno colline siciliane d'erba secca,
  * pale eoliche sulla cresta e una fila di radiotelescopi sull'altopiano.
  */
-const A = ANGOLO_ZONA - 0.55; // verso lo sviluppatore
+
 const SU = PELO_ACQUA - 0.3;
 
 const suAnello = (a: number, d: number, y = 0) => new THREE.Vector3(Math.sin(a) * d, y, -Math.cos(a) * d);
@@ -32,7 +32,6 @@ export class Lontano {
   private ciminiere: THREE.Vector3[] = [];
   private fiamme: { cuore: THREE.Sprite; fiamma: THREE.Sprite; alone: THREE.Sprite; base: THREE.Vector3 }[] = [];
   private fumi: { s: THREE.Sprite; da: THREE.Vector3; fase: number }[] = [];
-  private moreno!: PeritoMoreno;
   private fumoTorce: { s: THREE.Sprite; da: THREE.Vector3; fase: number }[] = [];
   private rotori: THREE.Object3D[] = [];
   private parabole: { az: THREE.Object3D; el: THREE.Object3D; fase: number }[] = [];
@@ -237,7 +236,7 @@ export class Lontano {
   private colline(r: () => number) {
     // due crinali: quello dietro più alto e più velato, quello davanti con l'altopiano dei radiotelescopi
     const cielo = new THREE.Color("#BFD6EA");
-    // le colline stanno nel mezzo: verso la città il Perito Moreno, verso lo sviluppatore l'Alhambra
+    // le colline stanno nel mezzo: verso la città Bologna e San Luca, verso lo sviluppatore l'Alhambra
     const C0 = ANGOLO_ZONA - 1.92, C1 = ANGOLO_ZONA - 1.02;
     const ang = (u: number) => C0 + (C1 - C0) * u;
     const crinale = (d: number, alto: number, velo: number, piani: [number, number, number][], seme: number) => {
@@ -294,9 +293,9 @@ export class Lontano {
     this.giorno.add(lab);
     // l'Alhambra e il Perito Moreno
     this.giorno.add(alhambra(ANGOLO_ZONA - 0.76));
-    this.moreno = new PeritoMoreno(ANGOLO_ZONA - 2.22);
-    this.texture.push(...this.moreno.texture);
-    this.giorno.add(this.moreno.gruppo);
+    const bo = bologna(ANGOLO_ZONA - 2.22);
+    this.texture.push(bo.userData.texture as THREE.Texture);
+    this.giorno.add(bo);
 
     // le pale eoliche sulla cresta di dietro
     const bianco = new THREE.MeshLambertMaterial({ color: "#F4F5F7", fog: false });
@@ -393,7 +392,6 @@ export class Lontano {
       return;
     }
     this.rotori.forEach((ro) => (ro.rotation.z = t * ro.userData.v));
-    this.moreno.aggiorna(t);
     // le parabole si muovono insieme, lente, come se seguissero la stessa sorgente
     this.parabole.forEach(({ az, el, fase }) => {
       az.rotation.y = Math.sin(t * 0.05 + fase * 0.1) * 0.9;

@@ -80,6 +80,9 @@ class Studio {
   private testi = ["", ""];
   private acceso = -1;
   private raggio: THREE.Sprite;
+  private cartello!: THREE.Mesh;
+  private sopra = false;
+  private gonfio = 1;
 
   constructor(texture: THREE.Texture[]) {
     const p = POSIZIONI.studio;
@@ -169,6 +172,9 @@ class Studio {
     // spostata un po' verso la mensola: dall'altra parte c'è la prima carta, che la coprirebbe
     cartello.position.set(0.45, 1.72, -0.05);
     cartello.rotation.y = Math.PI;
+    // la scritta è un bottone vero: cliccarla accende e spegne la musica come il tavolino
+    cartello.userData.azione = { tipo: "drum" } satisfies Azione;
+    this.cartello = cartello;
     this.gruppo.add(cartello);
     const lama = tela(64, 256, (x) => {
       const v = x.createLinearGradient(0, 256, 0, 0);
@@ -192,6 +198,11 @@ class Studio {
     this.disegna(0, false);
   }
 
+  /** Il puntatore è sopra il tavolino o sopra la scritta. */
+  evidenzia(si: boolean) {
+    this.sopra = si;
+  }
+
   /** I testi della scritta, nella lingua della pagina: [accendi, spegni]. */
   setTesti(accendi: string, spegni: string) {
     this.testi = [accendi, spegni];
@@ -201,19 +212,33 @@ class Studio {
   private scrivi(acceso: boolean) {
     const { x, t } = this.scritta;
     x.clearRect(0, 0, 768, 160);
-    // una fascia scura sotto il testo: si legge sul cielo chiaro del giorno come su quello della notte
-    x.fillStyle = "rgba(14,10,24,0.82)";
+    // un bottone: fascia scura col bordo, a sinistra il tasto tondo con play o stop, poi il testo
+    x.fillStyle = "rgba(14,10,24,0.86)";
     x.beginPath();
     x.roundRect(6, 12, 756, 136, 68);
     x.fill();
     x.strokeStyle = "#E05BFF";
     x.lineWidth = 5;
     x.stroke();
+    x.fillStyle = acceso ? "#E05BFF" : "#FFFFFF";
+    x.beginPath();
+    x.arc(80, 80, 48, 0, Math.PI * 2);
+    x.fill();
+    x.fillStyle = acceso ? "#FFFFFF" : "#1A1024";
+    if (acceso) x.fillRect(62, 62, 36, 36);
+    else {
+      x.beginPath();
+      x.moveTo(66, 56);
+      x.lineTo(104, 80);
+      x.lineTo(66, 104);
+      x.closePath();
+      x.fill();
+    }
     x.fillStyle = "#FFFFFF";
-    x.font = "700 78px ui-monospace, monospace";
+    x.font = "700 64px ui-monospace, monospace";
     x.textAlign = "center";
     x.textBaseline = "middle";
-    x.fillText((acceso ? this.testi[1] : this.testi[0]).toUpperCase(), 384, 84, 700);
+    x.fillText((acceso ? this.testi[1] : this.testi[0]).toUpperCase(), 450, 84, 600);
     t.needsUpdate = true;
   }
 
@@ -289,6 +314,10 @@ class Studio {
       this.scrivi(b.attivo);
     }
     this.raggio.material.opacity = ridotto ? 0.4 : b.attivo ? 0.3 + 0.4 * Math.exp(-b.fase * 5) : 0.32 + 0.1 * Math.sin(t * 2);
+    // il bottone: sotto il puntatore si gonfia; a musica spenta respira appena, per invitare al clic
+    const meta = this.sopra ? 1.1 : b.attivo || ridotto ? 1 : 1 + 0.035 * Math.sin(t * 3.2);
+    this.gonfio += (meta - this.gonfio) * 0.2;
+    this.cartello.scale.setScalar(this.gonfio);
     // a loop acceso: il sedicesimo vero; spento: un passo ogni mezzo secondo, piano
     const passo = b.attivo ? b.n * 4 + Math.floor(b.fase * 4) : ridotto ? 0 : Math.floor(t * 2);
     if (passo !== this.passo) {
@@ -648,6 +677,11 @@ export class Zona {
   }
 
   /** Il titolo di un libro sopra il libro, al passaggio del puntatore. */
+  /** Il puntatore sopra la musica: il bottone si gonfia. */
+  evidenziaMusica(si: boolean) {
+    this.studio.evidenzia(si);
+  }
+
   mostraTitolo(indice: number | null) {
     if (indice === null) this.pannello.spegni();
     else this.pannello.mostra(indice);

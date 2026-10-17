@@ -1,12 +1,12 @@
 import * as THREE from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import { PELO_ACQUA } from "../condivisi";
-import { alone, generatore } from "./comuni";
+import { generatore } from "./comuni";
 
 /*
  * Tre cose lontane sull'orizzonte di giorno, a sinistra dello sviluppatore:
  * l'Alhambra sulla collina della Sabika con la Sierra Nevada innevata dietro;
- * il Perito Moreno, il fronte del ghiacciaio sul lago con le Ande alle spalle, da cui ogni tanto si stacca un blocco;
+ * Bologna con il Colle della Guardia, il santuario di San Luca in cima e il portico che vi sale a tornanti;
  * il Labirinto di Arianna, la grande opera di Fiumara d'Arte, in cima alla collina delle pale.
  * Tutto è a colori cotti: la luce del sole e la foschia della distanza sono già nei vertici, il materiale non fa calcoli.
  */
@@ -135,165 +135,178 @@ export function alhambra(a: number) {
   return g;
 }
 
-/* --------------------------------------------------------------- il Perito Moreno */
+/* ----------------------------------------------------------- Bologna e San Luca */
 
-type Blocco = { m: THREE.Mesh; inizio: number; x: number; schizzi: THREE.Sprite[] };
+/** La facciata del portico: pilastri color ocra, archi a tutto sesto scuri, la cornice sopra. Un arco per ripetizione. */
+function arcata() {
+  const c = document.createElement("canvas");
+  c.width = 64;
+  c.height = 48;
+  const x = c.getContext("2d") as CanvasRenderingContext2D;
+  x.fillStyle = "#D29A5E";
+  x.fillRect(0, 0, 64, 48);
+  x.fillStyle = "#E3B47A";
+  x.fillRect(0, 0, 64, 7);
+  x.fillStyle = "#5A3A2A";
+  x.beginPath();
+  x.moveTo(12, 48);
+  x.lineTo(12, 26);
+  x.arc(32, 26, 20, Math.PI, 0);
+  x.lineTo(52, 48);
+  x.closePath();
+  x.fill();
+  // la luce dentro il portico, appena più calda in fondo
+  x.fillStyle = "rgba(160,96,60,0.45)";
+  x.fillRect(16, 34, 32, 14);
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  t.wrapS = THREE.RepeatWrapping;
+  t.anisotropy = 4;
+  return t;
+}
 
-export class PeritoMoreno {
-  gruppo: THREE.Group;
-  private blocchi: Blocco[] = [];
-  private prossimo = 6;
-  private FRONTE = 4.3;
-  private r = generatore(57);
-  texture: THREE.Texture[] = [];
-
-  constructor(a: number) {
-    const r = this.r;
-    // alzato: il fronte del ghiacciaio deve spuntare sopra le carte, il lago lo coprono comunque
-    this.gruppo = sulRing(a, 41.5, 3.2);
-    const pezzi: THREE.BufferGeometry[] = [];
-    // le Ande: cime aguzze, roccia scura, neve in alto
-    pezzi.push(
-      colora(
-        rilievo(-14, 14, 7, 11, 110, 6, (x, z) => {
-          const k = Math.sin(((z - 7) / 4) * Math.PI);
-          const cime = 9.5 + 2.6 * Math.abs(Math.sin(x * 0.55 + 0.4)) + 1.6 * Math.abs(Math.sin(x * 1.7)) + 0.5 * Math.sin(x * 4.3);
-          return (cime * Math.min(1, (14 - Math.abs(x)) / 3) + 0.8) * Math.pow(k, 0.5) - 0.8;
-        }),
-        "#55545A",
-        0.38,
-        (p) => new THREE.Color(p.y > 7.6 + Math.sin(p.x * 1.9) * 0.7 ? "#F4F7FA" : p.y > 4 ? "#4E4D55" : "#3F5A3A")
-      )
-    );
-    // i fianchi della valle, boscosi in basso, ai due lati del ghiacciaio
-    for (const s of [-1, 1]) {
-      pezzi.push(
-        colora(
-          rilievo(s < 0 ? -15 : 6.5, s < 0 ? -6.5 : 15, -3, 8, 34, 22, (x, z) => {
-            const dentro = Math.min(1, Math.max(0, (Math.abs(x) - 6.5) / 3));
-            const cresta = 8.2 + 1.8 * Math.sin(z * 0.6 + x * 0.7) + 0.6 * Math.abs(Math.sin(z * 2.3 + x));
-            return cresta * Math.pow(dentro, 0.7) * Math.min(1, (z + 3) / 2.5) - 0.4;
-          }),
-          "#2F4A2E",
-          0.28,
-          (p) => new THREE.Color(p.y > 8.4 + Math.sin(p.z * 3) * 0.4 ? "#EEF1F4" : p.y > 5.2 ? "#55545B" : "#2F4A2E")
-        )
-      );
-    }
-    // la superficie del ghiacciaio: sale dal fronte verso le montagne, irta di seracchi
-    const F = this.FRONTE;
-    const sup = (x: number, z: number) => F + Math.max(0, z + 2) * 0.32 + 0.22 * Math.abs(Math.sin(x * 3.1 + z * 2.2)) * Math.abs(Math.sin(z * 4.7 - x));
-    pezzi.push(
-      colora(rilievo(-7.5, 7.5, -2, 8, 90, 40, sup), "#F2F7FB", 0.24, (p) => {
-        // bianco, appena azzurro nei crepacci; e le morene, strisce scure che scendono con il ghiaccio
-        const crepa = Math.max(0, Math.sin(p.x * 3.1 + p.z * 2.2) * Math.sin(p.z * 4.7 - p.x));
-        const c = new THREE.Color("#F4F8FB").lerp(new THREE.Color("#A8CDE6"), crepa * 0.55);
-        for (const mx of [-4.4, -1.1, 2.0, 5.0]) {
-          const d = Math.abs(p.x - mx - Math.sin(p.z * 0.6) * 0.4);
-          if (d < 0.22) c.lerp(new THREE.Color("#6E6A66"), (1 - d / 0.22) * 0.75);
-        }
-        return c;
-      })
-    );
-    // il fronte: una parete verticale frastagliata, azzurra, più blu in basso, con le colonne di ghiaccio
-    {
-      const N = 120;
-      const pos: number[] = [];
-      for (let i = 0; i < N; i++) {
-        // la cresta del fronte: guglie e seracchi, irregolari
-        const cima = (x: number) => sup(x, -2) + 0.6 * Math.pow(Math.abs(Math.sin(x * 2.9)), 3) + 0.2 * Math.sin(x * 7.3) + 0.12 * Math.sin(x * 17.1);
-        const x0 = -7.5 + (15 * i) / N, x1 = -7.5 + (15 * (i + 1)) / N;
-        const t0 = cima(x0), t1 = cima(x1);
-        const z = -2 - 0.12 * Math.sin(i * 1.7);
-        pos.push(x0, 0, z, x1, 0, z, x1, t1, z, x0, 0, z, x1, t1, z, x0, t0, z);
-      }
-      const g = new THREE.BufferGeometry();
-      g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
-      pezzi.push(
-        colora(g, "#8CC0E0", 0.18, (p) => {
-          const fascia = 0.5 + 0.5 * Math.sin(p.x * 5.1) * Math.sin(p.x * 1.3);
-          return new THREE.Color("#4F93C8").lerp(new THREE.Color("#E6F2FA"), Math.min(1, p.y / F) * 0.7 + fascia * 0.3);
-        })
-      );
-    }
-    // il lago, azzurro lattiginoso
-    pezzi.push(colora(new THREE.PlaneGeometry(30, 8).rotateX(-Math.PI / 2).translate(0, 0.02, -6), "#8CC3CF", 0.15));
-    this.gruppo.add(unisci(pezzi));
-
-    // i blocchi che si staccano, e gli spruzzi quando toccano l'acqua
-    const tx = alone("#FFFFFF");
-    for (let k = 0; k < 2; k++) {
-      const geo = new THREE.BoxGeometry(1.1, 1.8, 0.8, 3, 4, 2);
-      const p = geo.attributes.position as THREE.BufferAttribute;
-      for (let i = 0; i < p.count; i++) p.setXYZ(i, p.getX(i) * (0.85 + r() * 0.3), p.getY(i) * (0.9 + r() * 0.2), p.getZ(i) * (0.8 + r() * 0.4));
-      geo.translate(0, 0.9, 0.4); // il perno in basso, sul bordo verso il lago
-      const m = new THREE.Mesh(
-        colora(geo, "#A9D2EC", 0.15, (_p, n) => new THREE.Color(n.y > 0.5 ? "#F3F8FC" : "#7DB4DC")),
-        new THREE.MeshBasicMaterial({ vertexColors: true, transparent: true, fog: false })
-      );
-      m.visible = false;
-      const schizzi = Array.from({ length: 8 }, () => {
-        const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: tx, transparent: true, opacity: 0, depthWrite: false, fog: false }));
-        this.gruppo.add(s);
-        return s;
-      });
-      this.gruppo.add(m);
-      this.blocchi.push({ m, inizio: -1, x: 0, schizzi });
-    }
-    this.texture.push(tx);
+/**
+ * Bologna dal basso, con il Colle della Guardia a destra: la città rossa di tetti e torri (le Due Torri,
+ * la Garisenda che pende, le altre torri, San Petronio con la facciata a metà), e sul colle il santuario
+ * di San Luca, raggiunto dal portico che sale a tornanti dall'Arco del Meloncello.
+ */
+export function bologna(a: number) {
+  const r = generatore(83);
+  const g = sulRing(a, 41, 2.0);
+  const pezzi: THREE.BufferGeometry[] = [];
+  const box = (x: number, y: number, z: number, l: number, h: number, p: number, c: THREE.ColorRepresentation, velo = 0.22) =>
+    pezzi.push(colora(new THREE.BoxGeometry(l, h, p).translate(x, y + h / 2, z), c, velo));
+  /** Un tetto a due falde, colmo lungo x. */
+  const tetto = (x: number, y: number, z: number, l: number, p: number, h: number, c: THREE.ColorRepresentation) => {
+    const f = new THREE.Shape();
+    f.moveTo(-p / 2, 0);
+    f.lineTo(p / 2, 0);
+    f.lineTo(0, h);
+    f.closePath();
+    const geo = new THREE.ExtrudeGeometry(f, { depth: l, bevelEnabled: false }).translate(0, 0, -l / 2).rotateY(Math.PI / 2).translate(x, y, z);
+    pezzi.push(colora(geo, c, 0.22));
+  };
+  // l'Appennino dietro, verde e velato
+  pezzi.push(
+    colora(
+      rilievo(-15, 15, 7, 11, 80, 6, (x, z) => (4.6 + 1.2 * Math.sin(x * 0.35 + 2) + 0.6 * Math.sin(x * 0.9)) * Math.sin(((z - 7) / 4) * Math.PI) - 0.4),
+      "#6F8152",
+      0.48
+    )
+  );
+  // il Colle della Guardia: sale da sinistra, cima a destra
+  const colle = (x: number, z: number) => {
+    // un colle largo e tondo, non un cono: la cima ampia, i fianchi che scendono morbidi
+    const dx = (x - 8) / 6.8, dz = (z - 2.2) / 3.8;
+    const k = Math.max(0, 1 - (dx * dx + dz * dz));
+    return Math.max(0, 6.2 * Math.pow(k, 0.85) * (1 - 0.15 * k) + 0.1 * Math.sin(x * 3 + z * 2)) - 0.2;
+  };
+  pezzi.push(colora(rilievo(-1, 15, -2, 8, 90, 40, colle), "#55703F", 0.2, (p) => new THREE.Color(Math.sin(p.x * 2.7) * Math.sin(p.z * 3.1) > 0.45 ? "#8C9A5A" : "#4F6A3A")));
+  // gli alberi sul colle, a ciuffi
+  for (let k = 0; k < 220; k++) {
+    const x = 1.5 + r() * 12.5, z = -1.5 + r() * 6;
+    const y = colle(x, z);
+    if (y < 0.4) continue;
+    const t = 0.1 + r() * 0.12;
+    pezzi.push(colora(new THREE.IcosahedronGeometry(t, 1).scale(1, 0.85, 1).translate(x, y + t * 0.6, z), r() < 0.5 ? "#3D5A30" : "#4A6636", 0.22));
   }
-
-  /** Ogni tanto un blocco si stacca: s'incrina, si piega verso il lago, cade, schizza, poi galleggia e si allontana. */
-  aggiorna(t: number) {
-    if (t > this.prossimo) {
-      const b = this.blocchi.find((x) => x.inizio < 0 || t - x.inizio > 24);
-      if (b) {
-        b.inizio = t;
-        b.x = (this.r() * 2 - 1) * 5.5;
-      }
-      this.prossimo = t + 7 + this.r() * 7;
-    }
-    const F = this.FRONTE;
-    this.blocchi.forEach((b) => {
-      if (b.inizio < 0) return;
-      const e = t - b.inizio;
-      const m = b.m;
-      m.visible = true;
-      let y = F - 1.8, z = -2.4, rx = 0, op = 1;
-      if (e < 0.8) rx = -0.05 * Math.sin(e * 40) * (e / 0.8); // s'incrina, trema
-      else if (e < 2.2) {
-        const k = (e - 0.8) / 1.4;
-        rx = -k * k * 1.5; // si piega verso il lago
-        y = F - 1.8 - k * k * (F - 0.6);
-        z = -2.4 - k * 0.9;
-      } else {
-        const k = e - 2.2;
-        rx = -1.5 + Math.min(0.3, k * 0.2);
-        y = -0.6 + Math.sin(k * 1.6) * 0.06 * Math.exp(-k * 0.3); // affonda per metà e dondola
-        z = -3.3 - k * 0.12;
-        op = Math.max(0, 1 - k / 20);
-      }
-      m.position.set(b.x, y, z);
-      m.rotation.x = rx;
-      (m.material as THREE.MeshBasicMaterial).opacity = op;
-      // gli spruzzi all'impatto
-      const s = e - 2.1;
-      b.schizzi.forEach((sp, i) => {
-        if (s < 0 || s > 1.4) {
-          sp.material.opacity = 0;
-          return;
-        }
-        const an = (i / b.schizzi.length) * Math.PI - Math.PI / 2;
-        sp.position.set(b.x + Math.sin(an) * s * 1.6, 0.2 + s * 2.2 * (1 - s / 1.4) + (i % 3) * 0.2, -3.2 - Math.cos(an) * s * 0.6);
-        sp.scale.setScalar(0.5 + s * 1.2);
-        sp.material.opacity = 0.85 * (1 - s / 1.4);
-      });
-      if (op <= 0) {
-        b.inizio = -1;
-        m.visible = false;
-      }
-    });
+  // la città: isolati fitti, muri ocra e rossi, tetti di coppi
+  const muri = ["#C98B4E", "#D29A5E", "#B8653F", "#C4744A", "#DDB07A"];
+  for (let i = 0; i < 230; i++) {
+    const x = -13 + r() * 13.5, z = -1.8 + r() * 4.2;
+    if (x > -0.5 && z < 0) continue;
+    const l = 0.35 + r() * 0.45, p = 0.3 + r() * 0.3, h = 0.35 + r() * 0.5;
+    box(x, -0.2, z, l, h + 0.2, p, muri[Math.floor(r() * muri.length)]);
+    tetto(x, h, z, l + 0.04, p + 0.06, 0.16 + r() * 0.06, r() < 0.8 ? "#A9472F" : "#B85A3A");
   }
+  // le torri: Asinelli altissima con la rocchetta in cima, Garisenda bassa e pendente, e altre torri gentilizie
+  box(-6, -0.2, 0.2, 0.32, 5.4, 0.32, "#A8643F");
+  box(-6, 5.2, 0.2, 0.22, 0.35, 0.22, "#B87250");
+  {
+    const gar = new THREE.BoxGeometry(0.38, 2.7, 0.38).translate(0, 1.35, 0).rotateZ(-0.075).translate(-5.55, -0.2, 0.15);
+    pezzi.push(colora(gar, "#A05C3A", 0.22));
+  }
+  for (const [x, z, h] of [[-9.8, 0.6, 3.2], [-7.6, -0.4, 2.6], [-4.4, 0.9, 3.0], [-3.1, -0.2, 2.2], [-10.9, -0.6, 2.4]]) {
+    box(x, -0.2, z, 0.26, h, 0.26, "#AE6A44");
+    box(x, h - 0.2, z, 0.3, 0.08, 0.3, "#9A5838");
+  }
+  // San Petronio: la grande navata, la facciata a metà (marmo sotto, mattone sopra)
+  box(-8.5, -0.2, 0.9, 1.5, 1.7, 2.6, "#B5704A");
+  tetto(-8.5, 1.5, 0.9, 2.6, 1.6, 0.5, "#9A4A30");
+  {
+    const facciata = new THREE.BoxGeometry(1.55, 1.9, 0.06);
+    pezzi.push(colora(facciata.translate(-8.5, 0.75, -0.42), "#C27A50", 0.2, (q) => new THREE.Color(q.y < 0.55 ? "#E8DCCB" : "#B4704A")));
+  }
+  // Palazzo d'Accursio con la torre dell'orologio
+  box(-7.2, -0.2, -0.9, 1.4, 1.1, 0.6, "#B86A42");
+  box(-6.75, 0.9, -0.9, 0.3, 0.9, 0.3, "#B86A42");
+  // San Luca in cima al colle: la chiesa ellittica, il tamburo, la cupola, la lanterna, il pronao davanti
+  const SX = 8, SZ = 2.2, SY = colle(8, 2.2) - 0.1;
+  pezzi.push(colora(new THREE.CylinderGeometry(0.75, 0.78, 0.75, 28).scale(1.25, 1, 1).translate(SX, SY + 0.37, SZ), "#D08A5C", 0.18));
+  pezzi.push(colora(new THREE.CylinderGeometry(0.46, 0.48, 0.42, 24).translate(SX, SY + 0.95, SZ), "#D9976A", 0.18));
+  pezzi.push(colora(new THREE.SphereGeometry(0.5, 24, 10, 0, Math.PI * 2, 0, Math.PI / 2).scale(1, 1.15, 1).translate(SX, SY + 1.16, SZ), "#9E8C7C", 0.18));
+  pezzi.push(colora(new THREE.CylinderGeometry(0.1, 0.12, 0.3, 10).translate(SX, SY + 1.88, SZ), "#E2C9A8", 0.18));
+  box(SX, SY, SZ - 0.95, 0.9, 0.62, 0.35, "#E0A472", 0.18);
+  tetto(SX, SY + 0.62, SZ - 0.95, 0.5, 0.95, 0.22, "#9A4A30");
+  // le due ali curve davanti, basse
+  for (const s of [-1, 1]) box(SX + s * 0.95, SY, SZ - 0.6, 0.6, 0.45, 0.3, "#D29462", 0.18);
+
+  const solidi = unisci(pezzi);
+  g.add(solidi);
+
+  // il portico: dall'Arco del Meloncello sale a tornanti lungo il colle fino al santuario
+  const tappe: [number, number][] = [
+    [0.3, -1.2], [1.8, -1.5], [3.2, -0.9], [2.6, -0.1], [3.9, 0.5], [5.4, 0.1], [6.2, 0.9], [5.3, 1.5], [6.6, 2.0], [7.4, 1.4], [SX, SZ - 1.15],
+  ];
+  const via = new THREE.CatmullRomCurve3(tappe.map(([x, z]) => new THREE.Vector3(x, colle(x, z), z)), false, "catmullrom", 0.3);
+  const N = 420;
+  const punti = via.getSpacedPoints(N).map((q) => q.setY(Math.max(colle(q.x, q.z), 0) + 0.01));
+  const H = 0.3, LARGO = 0.2, ARCO = 0.13;
+  const fronte: number[] = [], uv: number[] = [], tetti: number[] = [];
+  let lungo = 0;
+  for (let i = 0; i < N; i++) {
+    const a0 = punti[i], a1 = punti[i + 1];
+    const tratto = a0.distanceTo(a1);
+    const u0 = lungo / ARCO, u1 = (lungo + tratto) / ARCO;
+    lungo += tratto;
+    // la parete con gli archi, il lato verso valle (verso chi guarda)
+    fronte.push(a0.x, a0.y, a0.z, a1.x, a1.y, a1.z, a1.x, a1.y + H, a1.z, a0.x, a0.y, a0.z, a1.x, a1.y + H, a1.z, a0.x, a0.y + H, a0.z);
+    uv.push(u0, 0, u1, 0, u1, 1, u0, 0, u1, 1, u0, 1);
+    // il tetto di coppi, appena spiovente verso valle
+    const d = new THREE.Vector3().subVectors(a1, a0).normalize();
+    const n = new THREE.Vector3(-d.z, 0, d.x).multiplyScalar(LARGO);
+    tetti.push(
+      a0.x, a0.y + H + 0.04, a0.z, a1.x, a1.y + H + 0.04, a1.z, a1.x + n.x, a1.y + H - 0.01, a1.z + n.z,
+      a0.x, a0.y + H + 0.04, a0.z, a1.x + n.x, a1.y + H - 0.01, a1.z + n.z, a0.x + n.x, a0.y + H - 0.01, a0.z + n.z
+    );
+  }
+  const tx = arcata();
+  const gFronte = new THREE.BufferGeometry();
+  gFronte.setAttribute("position", new THREE.Float32BufferAttribute(fronte, 3));
+  gFronte.setAttribute("uv", new THREE.Float32BufferAttribute(uv, 2));
+  const portico = new THREE.Mesh(gFronte, new THREE.MeshBasicMaterial({ map: tx, color: "#F3EDE6", side: THREE.DoubleSide, fog: false }));
+  const gTetti = new THREE.BufferGeometry();
+  gTetti.setAttribute("position", new THREE.Float32BufferAttribute(tetti, 3));
+  const coppi = new THREE.Mesh(gTetti, new THREE.MeshBasicMaterial({ color: "#9C4A32", side: THREE.DoubleSide, fog: false }));
+  g.add(portico, coppi);
+  // l'Arco del Meloncello, alla partenza
+  {
+    const m: THREE.BufferGeometry[] = [];
+    const arco = new THREE.Shape();
+    arco.moveTo(-0.45, 0);
+    arco.lineTo(-0.45, 0.75);
+    arco.lineTo(0.45, 0.75);
+    arco.lineTo(0.45, 0);
+    arco.lineTo(0.2, 0);
+    arco.lineTo(0.2, 0.32);
+    arco.absarc(0, 0.32, 0.2, 0, Math.PI, false);
+    arco.lineTo(-0.2, 0);
+    arco.closePath();
+    m.push(colora(new THREE.ExtrudeGeometry(arco, { depth: 0.3, bevelEnabled: false }).translate(0.3, colle(0.3, -1.2), -1.35), "#D9A066", 0.2));
+    g.add(unisci(m));
+  }
+  g.userData.texture = tx;
+  return g;
 }
 
 /* --------------------------------------------------------- il Labirinto di Arianna */
@@ -304,7 +317,8 @@ export class PeritoMoreno {
  */
 export function labirinto(): THREE.Mesh {
   const pezzi: THREE.BufferGeometry[] = [];
-  const cemento = "#F1EEE6";
+  // il colore vero dell'opera: un rosso chiaro, da terracotta
+  const cemento = "#C97B69";
   // i muri: cinque anelli concentrici, ognuno interrotto in un punto diverso
   for (let k = 0; k < 5; k++) {
     const R = 0.45 + k * 0.42;
@@ -332,7 +346,7 @@ export function labirinto(): THREE.Mesh {
   arco.quadraticCurveTo(-0.28, 1.35, -0.3, 0.9);
   arco.lineTo(-0.3, 0);
   arco.closePath();
-  pezzi.push(colora(new THREE.ExtrudeGeometry(arco, { depth: 0.22, bevelEnabled: false }).translate(0, 0, -2.75), "#CFC6B3", 0.18));
+  pezzi.push(colora(new THREE.ExtrudeGeometry(arco, { depth: 0.22, bevelEnabled: false }).translate(0, 0, -2.75), "#BF6E5C", 0.18));
   // il prato su cui sta, rasato
   pezzi.push(colora(new THREE.CylinderGeometry(2.6, 2.75, 0.12, 40).translate(0, -0.06, 0), "#7E8B4E", 0.2));
   return unisci(pezzi);

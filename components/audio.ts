@@ -25,6 +25,13 @@ const CHIAVE = "audio";
 const VOLUME = 0.16; // volume generale, basso
 /** Le campanelle del giorno: note della scala hijaz su re. */
 const CAMPANE_GIORNO = [440, 466.16, 587.33, 622.25, 739.99, 783.99, 880];
+/** La linea acida della notte: sedici passi per giro, [semitoni da la, accento, legato] o null per la pausa. */
+type Passo = [number, 0 | 1, 0 | 1] | null;
+const ACIDO: Passo[][] = [
+  [[0, 1, 0], [0, 0, 0], [12, 0, 1], [0, 0, 0], [3, 1, 0], null, [0, 0, 0], [1, 0, 1], [0, 1, 0], [12, 0, 0], [0, 0, 0], [10, 0, 1], [7, 1, 0], null, [3, 0, 1], [0, 0, 0]],
+  [[0, 1, 0], [12, 0, 1], [0, 0, 0], [0, 0, 0], [1, 1, 0], [0, 0, 0], [13, 0, 1], [12, 0, 0], [0, 1, 0], null, [7, 0, 1], [8, 0, 0], [0, 1, 0], [3, 0, 0], [12, 0, 1], [10, 0, 0]],
+  [[0, 1, 0], [0, 0, 1], [-2, 0, 1], [0, 0, 0], [12, 1, 0], [12, 0, 1], [15, 0, 1], [12, 0, 0], [0, 1, 0], [1, 0, 1], [0, 0, 0], null, [7, 1, 0], [6, 0, 1], [3, 0, 1], [1, 0, 0]],
+];
 /** La scala hijaz (frigia dominante), in semitoni dalla tonica. */
 const HIJAZ = [0, 1, 4, 5, 7, 8, 10];
 /** Le frasi dell'oud: quattro battute, sei colpi per battuta (gradi della scala; null = pausa). */
@@ -443,19 +450,18 @@ class Suono {
       const semi = giro[(battuta % 2) * 4 + Math.floor(s / 4)];
       this.basso(t, radice * Math.pow(2, semi / 12), n ? 0.22 : 0.24, n ? 380 : 300);
     }
-    // arpeggio pizzicato, nell'eco: più rado, sotto il metallo
-    const arp = n ? [0, 3, 7, 10, 12, 10, 7, 3] : [0, 5, 7, 12, 14, 12, 9, 7];
-    if (n && s % 4 === 0 && battuta % 2 === 0) {
-      const semi = arp[(s / 2 + battuta) % arp.length];
-      const f = (n ? 220 : 293.66) * Math.pow(2, semi / 12);
-      this.pizzico(t, f, n ? 0.045 : 0.05);
+    // di notte, al posto dell'arpeggio: la linea acida e gli stab sporchi
+    if (n) {
+      this.acida(s, battuta, t);
+      if ((s === 0 && battuta % 4 === 0) || (s === 10 && battuta % 4 === 2) || (s === 7 && battuta % 8 === 7)) this.stab(t, s === 0 ? 1 : 0.7);
     }
     // ogni quattro battute un accordo lungo che apre
     if (!n) this.andaluso(s, battuta, t);
-    if (s === 0 && battuta % 4 === 0) {
-      // di notte un accordo che apre; di giorno solo una quinta vuota, bassa e sporca
-      const acc = n ? [220, 261.63, 329.63, 392] : [73.42, 110];
-      acc.forEach((f) => this.nota(d, f, t, (60 / this.bpm) * 6, n ? 0.018 : 0.03, "sawtooth", n ? 900 : 420));
+    // passando al giorno l'acido tace: la sua voce resta accesa, il cancello si chiude
+    if (!n && this.acido) this.acido.g.gain.setTargetAtTime(0, t, 0.01);
+    if (!n && s === 0 && battuta % 4 === 0) {
+      // di giorno una quinta vuota, bassa e sporca
+      [73.42, 110].forEach((f) => this.nota(d, f, t, (60 / this.bpm) * 6, 0.03, "sawtooth", 420));
     }
   }
 
@@ -552,6 +558,97 @@ class Suono {
     lfo.start(t);
     o.stop(t + durata + 0.05);
     lfo.stop(t + durata + 0.05);
+  }
+
+  /* -------------------------------------------------- la notte: acido e stab */
+
+  /** Una distorsione dura, per l'acido e gli stab: più cattiva della saturazione del loop. */
+  private distorsione(quanto: number) {
+    const c = this.ctx as AudioContext;
+    const w = c.createWaveShaper();
+    const curva = new Float32Array(2048);
+    for (let i = 0; i < 2048; i++) {
+      const x = (i / 2047) * 2 - 1;
+      curva[i] = ((1 + quanto) * x) / (1 + quanto * Math.abs(x));
+    }
+    w.curve = curva;
+    w.oversample = "4x";
+    return w;
+  }
+
+  private acido: { o: OscillatorNode; f: BiquadFilterNode; g: GainNode } | null = null;
+
+  /** La voce acida: un solo oscillatore sempre acceso, come la 303, così le note possono scivolare l'una nell'altra. */
+  private voceAcida() {
+    if (this.acido) return this.acido;
+    const c = this.ctx as AudioContext;
+    const o = c.createOscillator();
+    o.type = "sawtooth";
+    o.frequency.value = 110;
+    const f = c.createBiquadFilter();
+    f.type = "lowpass";
+    f.Q.value = 17;
+    f.frequency.value = 300;
+    const g = c.createGain();
+    g.gain.value = 0;
+    const dopo = c.createGain();
+    dopo.gain.value = 0.55;
+    o.connect(f).connect(this.distorsione(9)).connect(g).connect(dopo);
+    dopo.connect(this.loopBus);
+    dopo.connect(this.eco);
+    o.start();
+    this.acido = { o, f, g };
+    return this.acido;
+  }
+
+  /**
+   * La linea acida: sedici passi in la, frigia (il si bemolle accanto alla tonica), con accenti e legati.
+   * Il filtro si apre e si chiude lento sulle battute, come una manopola girata a mano; sugli accenti strilla.
+   */
+  private acida(s: number, battuta: number, t: number) {
+    const v = this.voceAcida();
+    const giro = ACIDO[Math.floor(battuta / 4) % ACIDO.length];
+    const passo = giro[s];
+    const dur = 60 / this.bpm / 4;
+    if (!passo) return;
+    const [semi, accento, legato] = passo;
+    const fr = 110 * Math.pow(2, semi / 12);
+    if (legato) v.o.frequency.setTargetAtTime(fr, t, 0.035);
+    else v.o.frequency.setValueAtTime(fr, t);
+    const manopola = 0.5 - 0.5 * Math.cos((battuta % 16) / 16 * Math.PI * 2);
+    const base = 220 + 1100 * manopola;
+    v.f.frequency.cancelScheduledValues(t);
+    v.f.frequency.setValueAtTime(base + (accento ? 3600 : 1500) * (0.6 + manopola * 0.4), t);
+    v.f.frequency.setTargetAtTime(base, t + 0.004, accento ? 0.09 : 0.06);
+    v.g.gain.setTargetAtTime(accento ? 0.2 : 0.13, t, 0.003);
+    const prossimo = giro[(s + 1) % 16];
+    if (!(prossimo && prossimo[2])) v.g.gain.setTargetAtTime(0, t + dur * 0.62, 0.012);
+  }
+
+  /** Uno stab cattivo: un grappolo dissonante (la, si bemolle, mi) di seghe scordate, distorto, il filtro che si chiude. */
+  private stab(t: number, forza: number) {
+    const c = this.ctx as AudioContext;
+    const fl = c.createBiquadFilter();
+    fl.type = "bandpass";
+    fl.Q.value = 1.4;
+    fl.frequency.setValueAtTime(2800, t);
+    fl.frequency.exponentialRampToValueAtTime(380, t + 0.35);
+    const g = c.createGain();
+    this.inviluppo(g, t, 0.06 * forza, 0.004, 0.42);
+    fl.connect(this.distorsione(14)).connect(g);
+    g.connect(this.loopBus);
+    g.connect(this.eco);
+    for (const f of [110, 116.54, 164.81, 220, 233.08]) {
+      for (const sc of [-12, 12]) {
+        const o = c.createOscillator();
+        o.type = "sawtooth";
+        o.frequency.value = f;
+        o.detune.value = sc;
+        o.connect(fl);
+        o.start(t);
+        o.stop(t + 0.45);
+      }
+    }
   }
 
   private inviluppo(g: GainNode, t: number, picco: number, attacco: number, durata: number) {
