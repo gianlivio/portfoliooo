@@ -3,6 +3,7 @@ import { PELO_ACQUA } from "../condivisi";
 import { ANGOLO_ZONA } from "../zona";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import { alone, bruma, generatore, liberaTutto, tela } from "./comuni";
+import { PeritoMoreno, alhambra, labirinto } from "./meraviglie";
 
 /**
  * L'orizzonte a sinistra dello sviluppatore, fino alla città: tutto in lontananza.
@@ -10,8 +11,6 @@ import { alone, bruma, generatore, liberaTutto, tela } from "./comuni";
  * un faro su uno scoglio col fascio che gira. Di giorno colline siciliane d'erba secca,
  * pale eoliche sulla cresta e una fila di radiotelescopi sull'altopiano.
  */
-
-const DA = ANGOLO_ZONA - 2.5; // verso la città
 const A = ANGOLO_ZONA - 0.55; // verso lo sviluppatore
 const SU = PELO_ACQUA - 0.3;
 
@@ -33,6 +32,7 @@ export class Lontano {
   private ciminiere: THREE.Vector3[] = [];
   private fiamme: { cuore: THREE.Sprite; fiamma: THREE.Sprite; alone: THREE.Sprite; base: THREE.Vector3 }[] = [];
   private fumi: { s: THREE.Sprite; da: THREE.Vector3; fase: number }[] = [];
+  private moreno!: PeritoMoreno;
   private fumoTorce: { s: THREE.Sprite; da: THREE.Vector3; fase: number }[] = [];
   private rotori: THREE.Object3D[] = [];
   private parabole: { az: THREE.Object3D; el: THREE.Object3D; fase: number }[] = [];
@@ -157,7 +157,7 @@ export class Lontano {
       cuore.position.copy(p).setY(p.y + 0.5);
       fiamma.position.copy(p).setY(p.y + 0.9);
       alone_.position.copy(p).setY(p.y + 1);
-      alone_.scale.setScalar(9);
+      alone_.scale.setScalar(5);
       this.notte.add(cuore, fiamma, alone_);
       this.fiamme.push({ cuore, fiamma, alone: alone_, base: p });
     });
@@ -237,19 +237,26 @@ export class Lontano {
   private colline(r: () => number) {
     // due crinali: quello dietro più alto e più velato, quello davanti con l'altopiano dei radiotelescopi
     const cielo = new THREE.Color("#BFD6EA");
-    const crinale = (d: number, alto: number, velo: number, piano: [number, number] | null, seme: number) => {
+    // le colline stanno nel mezzo: verso la città il Perito Moreno, verso lo sviluppatore l'Alhambra
+    const C0 = ANGOLO_ZONA - 1.92, C1 = ANGOLO_ZONA - 1.02;
+    const ang = (u: number) => C0 + (C1 - C0) * u;
+    const crinale = (d: number, alto: number, velo: number, piani: [number, number, number][], seme: number) => {
       const N = 140, M = 8;
       const pos: number[] = [], col: number[] = [], idx: number[] = [];
       const toni = ["#C8A85E", "#B99A58", "#D2B670", "#9C9456", "#A88E55"].map((c) => new THREE.Color(c));
       const quota = (u: number) => {
         let h = 0.55 + 0.25 * Math.sin(u * 9 + seme) + 0.15 * Math.sin(u * 23 + seme * 2) + 0.06 * Math.sin(u * 61);
-        if (piano && u > piano[0] && u < piano[1]) h = 0.78; // l'altopiano
+        // gli altopiani, raccordati dolcemente al crinale
+        for (const [da, a, q] of piani) {
+          const k = Math.min(1, Math.max(0, Math.min(u - da, a - u) / 0.05 + 0.5));
+          h += (q - h) * k * k * (3 - 2 * k);
+        }
         const bordo = Math.min(1, u / 0.08, (1 - u) / 0.08);
         return Math.max(0, h) * alto * bordo;
       };
       for (let i = 0; i <= N; i++) {
         const u = i / N;
-        const a = DA + (A - DA) * u;
+        const a = ang(u);
         const h = quota(u);
         for (let j = 0; j <= M; j++) {
           const v = j / M; // 0 davanti, 1 dietro
@@ -272,14 +279,30 @@ export class Lontano {
       this.giorno.add(new THREE.Mesh(g, new THREE.MeshLambertMaterial({ vertexColors: true, flatShading: true, side: THREE.DoubleSide, fog: false })));
       return (u: number) => SU - 1 + quota(u) + 1;
     };
-    const dietro = crinale(41, 9.5, 0.35, null, 1.3);
-    const davanti = crinale(36.5, 6.5, 0.12, [0.52, 0.72], 4.1);
+    const dietro = crinale(41, 6.4, 0.35, [], 1.3);
+    // davanti: in cima il pianoro del labirinto, più in qua quello dei radiotelescopi
+    const davanti = crinale(36.5, 4.6, 0.12, [[0.2, 0.36, 1], [0.55, 0.75, 0.78]], 4.1);
+    // il labirinto sul pendio, appena sotto la cima e inclinato col terreno: da lontano se ne vedono gli anelli
+    const aL = ang(0.28);
+    const lab = new THREE.Group();
+    lab.position.copy(suAnello(aL, 35.6, davanti(0.28) - 0.55));
+    lab.rotation.y = Math.PI - aL;
+    const disco = labirinto();
+    disco.rotation.x = -0.5;
+    disco.scale.setScalar(0.75);
+    lab.add(disco);
+    this.giorno.add(lab);
+    // l'Alhambra e il Perito Moreno
+    this.giorno.add(alhambra(ANGOLO_ZONA - 0.76));
+    this.moreno = new PeritoMoreno(ANGOLO_ZONA - 2.22);
+    this.texture.push(...this.moreno.texture);
+    this.giorno.add(this.moreno.gruppo);
 
     // le pale eoliche sulla cresta di dietro
     const bianco = new THREE.MeshLambertMaterial({ color: "#F4F5F7", fog: false });
-    for (let k = 0; k < 11; k++) {
-      const u = 0.12 + k * 0.075 + (r() - 0.5) * 0.02;
-      const a = DA + (A - DA) * u;
+    for (let k = 0; k < 8; k++) {
+      const u = 0.1 + k * 0.11 + (r() - 0.5) * 0.02;
+      const a = ang(u);
       const t = new THREE.Group();
       t.position.copy(suAnello(a, 41, dietro(u) - 0.2));
       rivolgi(t, a);
@@ -297,6 +320,7 @@ export class Lontano {
       this.rotori.push(rotore);
       t.add(rotore);
       t.rotation.y += (r() - 0.5) * 0.3;
+      t.scale.setScalar(0.8);
       this.giorno.add(t);
     }
 
@@ -308,8 +332,8 @@ export class Lontano {
     const grigio = new THREE.MeshLambertMaterial({ color: "#C9CCD2", fog: false });
     const piattoM = new THREE.MeshLambertMaterial({ color: "#F7F7F5", side: THREE.DoubleSide, fog: false });
     for (let k = 0; k < 4; k++) {
-      const u = 0.55 + k * 0.045;
-      const a = DA + (A - DA) * u;
+      const u = 0.58 + k * 0.045;
+      const a = ang(u);
       const base = new THREE.Group();
       base.position.copy(suAnello(a, 36.5, davanti(u) - 0.1));
       rivolgi(base, a);
@@ -343,10 +367,10 @@ export class Lontano {
       // le torce: fiamme che tremano e si piegano al vento
       this.fiamme.forEach(({ cuore, fiamma, alone, base }, i) => {
         const v = 0.75 + 0.25 * Math.sin(t * 9 + i * 3) * Math.sin(t * 5.3 + i) + 0.1 * Math.sin(t * 23 + i);
-        cuore.scale.set(1.1 * v, 2.2 * v, 1);
-        cuore.position.set(base.x + 0.08 * Math.sin(t * 1.7 + i), base.y + 0.9 * v, base.z);
-        fiamma.scale.set(2.4 * v, 4.6 * (0.85 + 0.3 * Math.sin(t * 3.1 + i * 2)), 1);
-        fiamma.position.set(base.x + 0.3 * Math.sin(t * 1.3 + i), base.y + 1.9 * v, base.z);
+        cuore.scale.set(0.6 * v, 1.2 * v, 1);
+        cuore.position.set(base.x + 0.05 * Math.sin(t * 1.7 + i), base.y + 0.5 * v, base.z);
+        fiamma.scale.set(1.3 * v, 2.5 * (0.85 + 0.3 * Math.sin(t * 3.1 + i * 2)), 1);
+        fiamma.position.set(base.x + 0.16 * Math.sin(t * 1.3 + i), base.y + 1.05 * v, base.z);
         alone.material.opacity = 0.2 + 0.1 * v;
       });
       // il vapore: sale, si allarga, svanisce
@@ -369,6 +393,7 @@ export class Lontano {
       return;
     }
     this.rotori.forEach((ro) => (ro.rotation.z = t * ro.userData.v));
+    this.moreno.aggiorna(t);
     // le parabole si muovono insieme, lente, come se seguissero la stessa sorgente
     this.parabole.forEach(({ az, el, fase }) => {
       az.rotation.y = Math.sin(t * 0.05 + fase * 0.1) * 0.9;
