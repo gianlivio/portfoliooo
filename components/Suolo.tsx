@@ -275,7 +275,8 @@ function Specchio({
   const txFossile = useMemo(() => fossile(), []);
   const acqua = useMemo(() => {
     // risoluzione del riflesso: 45% su desktop, 35% su schermi stretti
-    const scala = stretto ? 0.35 : 0.45;
+    // sul telefono lo schermo è denso: sotto 0.6 il riflesso si sfoca troppo
+    const scala = stretto ? 0.6 : 0.45;
     const r = new Reflector(new THREE.CircleGeometry(60, 64), {
       textureWidth: Math.round(size.width * viewport.dpr * scala),
       textureHeight: Math.round(size.height * viewport.dpr * scala),
