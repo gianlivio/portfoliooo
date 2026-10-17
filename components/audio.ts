@@ -119,14 +119,25 @@ class Suono {
 
   /** Al primo gesto, se la scelta salvata era "acceso", si accende davvero. */
   gesto() {
-    if (this.voluto !== "spento" && this.modo === "spento") {
+    if (this.voluto !== "spento" && !this.suona()) {
       this.avvia();
       this.applica();
     }
   }
 
+  /** Suona davvero? Il contesto resta sospeso finché il browser non riconosce un gesto valido. */
+  private suona() {
+    return !!this.ctx && this.ctx.state === "running" && this.modo !== "spento";
+  }
+
   /** Il pulsante dell'interfaccia: acceso/spento. */
   interruttore() {
+    // acceso ma ancora muto (il browser aspettava un gesto): il primo clic lo fa partire, non lo spegne
+    if (this.voluto !== "spento" && !this.suona()) {
+      this.avvia();
+      this.applica();
+      return;
+    }
     this.imposta(this.voluto === "spento" ? "ambiente" : "spento");
   }
 

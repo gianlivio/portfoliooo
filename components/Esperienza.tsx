@@ -91,13 +91,18 @@ export default function Esperienza({
     if (!ambiente) return;
     const via = suono.ascolta(setAudio);
     suono.prepara(ambiente.ridotto);
-    const gesto = () => suono.gesto();
-    window.addEventListener("pointerdown", gesto);
-    window.addEventListener("keydown", gesto);
+    // il primo gesto fa partire l'audio salvato come acceso. Più eventi, perché i browser non sono d'accordo
+    // su quale valga (sul telefono il tocco conta al rilascio, non alla pressione). Il bottone dell'audio
+    // fa da sé: se lo accendesse anche questo, il suo clic subito dopo lo spegnerebbe.
+    const gesto = (e: Event) => {
+      if ((e.target as Element | null)?.closest?.(".audio")) return;
+      suono.gesto();
+    };
+    const eventi = ["pointerdown", "pointerup", "touchend", "click", "keydown"] as const;
+    eventi.forEach((n) => window.addEventListener(n, gesto));
     return () => {
       via();
-      window.removeEventListener("pointerdown", gesto);
-      window.removeEventListener("keydown", gesto);
+      eventi.forEach((n) => window.removeEventListener(n, gesto));
     };
   }, [ambiente?.ridotto]); // eslint-disable-line react-hooks/exhaustive-deps
 
