@@ -28,10 +28,19 @@ const CAMPANE_GIORNO = [440, 466.16, 587.33, 622.25, 739.99, 783.99, 880];
 /** La linea acida della notte: sedici passi per giro, [semitoni da la, accento, legato] o null per la pausa. */
 type Passo = [number, 0 | 1, 0 | 1] | null;
 const ACIDO: Passo[][] = [
+  // il giro della prima comparsa: cantabile, poche note che tornano
+  [[0, 1, 0], null, [12, 0, 0], [0, 0, 0], [7, 0, 1], [10, 0, 0], null, [12, 1, 0], [0, 0, 0], [3, 0, 1], [5, 0, 0], null, [7, 1, 0], [5, 0, 1], [3, 0, 1], [0, 0, 0]],
   [[0, 1, 0], [0, 0, 0], [12, 0, 1], [0, 0, 0], [3, 1, 0], null, [0, 0, 0], [1, 0, 1], [0, 1, 0], [12, 0, 0], [0, 0, 0], [10, 0, 1], [7, 1, 0], null, [3, 0, 1], [0, 0, 0]],
   [[0, 1, 0], [12, 0, 1], [0, 0, 0], [0, 0, 0], [1, 1, 0], [0, 0, 0], [13, 0, 1], [12, 0, 0], [0, 1, 0], null, [7, 0, 1], [8, 0, 0], [0, 1, 0], [3, 0, 0], [12, 0, 1], [10, 0, 0]],
   [[0, 1, 0], [0, 0, 1], [-2, 0, 1], [0, 0, 0], [12, 1, 0], [12, 0, 1], [15, 0, 1], [12, 0, 0], [0, 1, 0], [1, 0, 1], [0, 0, 0], null, [7, 1, 0], [6, 0, 1], [3, 0, 1], [1, 0, 0]],
 ];
+/** Gli accordi del tappeto di notte: la minore nona e la minore undicesima, cinque voci. */
+const ACCORDI_NOTTE = [
+  [220, 261.63, 329.63, 392, 493.88],
+  [220, 293.66, 329.63, 392, 523.25],
+];
+/** Il cancello del tappeto, due battute di sedicesimi: 1 aperto, 0 chiuso. */
+const CANCELLO = [1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 0, 1, 1, 0];
 /** La scala hijaz (frigia dominante), in semitoni dalla tonica. */
 const HIJAZ = [0, 1, 4, 5, 7, 8, 10];
 /** Le frasi dell'oud: quattro battute, sei colpi per battuta (gradi della scala; null = pausa). */
@@ -111,8 +120,10 @@ class Suono {
     };
   }
 
+  /** Quello che si sente davvero: finché il browser tiene sospeso l'audio, per il bottone è spento. */
   private avvisa() {
-    this.ascoltatori.forEach((f) => f(this.voluto));
+    const vero: Modo = this.ctx && this.ctx.state === "running" ? this.voluto : "spento";
+    this.ascoltatori.forEach((f) => f(vero));
   }
 
   /** Da chiamare dentro un gesto (click, tasto): crea il contesto audio e applica la scelta. */
@@ -185,6 +196,8 @@ class Suono {
     if (!AC) return;
     const c = new AC();
     this.ctx = c;
+    // quando il browser sblocca o sospende l'audio, il bottone si aggiorna
+    c.onstatechange = () => this.avvisa();
     this.master = c.createGain();
     this.master.gain.value = 0;
     const limita = c.createDynamicsCompressor();
@@ -278,6 +291,7 @@ class Suono {
     }
     if (m !== "spento" && !this.campanelle) this.campanella();
     this.modo = m;
+    this.avvisa();
     if (m === "spento") {
       // a volume zero il contesto si sospende: niente calcolo inutile
       setTimeout(() => {
@@ -452,13 +466,17 @@ class Suono {
     }
     // di notte, al posto dell'arpeggio: la linea acida e gli stab sporchi
     if (n) {
-      this.acida(s, battuta, t);
-      if ((s === 0 && battuta % 4 === 0) || (s === 10 && battuta % 4 === 2) || (s === 7 && battuta % 8 === 7)) this.stab(t, s === 0 ? 1 : 0.7);
+      this.cancello(s, battuta, t);
+      // la strofa è di sedici battute: l'acido entra nelle ultime quattro; gli stab chiudono la strofa
+      if (battuta % 16 >= 12) this.acida(s, battuta, t);
+      else if (this.acido) this.acido.g.gain.setTargetAtTime(0, t, 0.01);
+      if (battuta % 16 === 15 && (s === 10 || s === 14)) this.stab(t, s === 14 ? 1 : 0.7);
     }
     // ogni quattro battute un accordo lungo che apre
     if (!n) this.andaluso(s, battuta, t);
     // passando al giorno l'acido tace: la sua voce resta accesa, il cancello si chiude
     if (!n && this.acido) this.acido.g.gain.setTargetAtTime(0, t, 0.01);
+    if (!n && this.tappetoNotte) this.tappetoNotte.g.gain.setTargetAtTime(0, t, 0.01);
     if (!n && s === 0 && battuta % 4 === 0) {
       // di giorno una quinta vuota, bassa e sporca
       [73.42, 110].forEach((f) => this.nota(d, f, t, (60 / this.bpm) * 6, 0.03, "sawtooth", 420));
@@ -576,9 +594,12 @@ class Suono {
     return w;
   }
 
-  private acido: { o: OscillatorNode; f: BiquadFilterNode; g: GainNode } | null = null;
+  private acido: { o: OscillatorNode; f: BiquadFilterNode; g: GainNode; secco: GainNode; sporco: GainNode } | null = null;
 
-  /** La voce acida: un solo oscillatore sempre acceso, come la 303, così le note possono scivolare l'una nell'altra. */
+  /**
+   * La voce acida: un solo oscillatore sempre acceso, come la 303, così le note possono scivolare l'una nell'altra.
+   * Il segnale si divide: pulito e distorto, e la miscela si sposta verso lo sporco col passare delle strofe.
+   */
   private voceAcida() {
     if (this.acido) return this.acido;
     const c = this.ctx as AudioContext;
@@ -587,18 +608,74 @@ class Suono {
     o.frequency.value = 110;
     const f = c.createBiquadFilter();
     f.type = "lowpass";
-    f.Q.value = 17;
+    f.Q.value = 6;
     f.frequency.value = 300;
+    const secco = c.createGain(), sporco = c.createGain();
+    secco.gain.value = 1;
+    sporco.gain.value = 0;
     const g = c.createGain();
     g.gain.value = 0;
     const dopo = c.createGain();
-    dopo.gain.value = 0.55;
-    o.connect(f).connect(this.distorsione(9)).connect(g).connect(dopo);
+    dopo.gain.value = 0.32;
+    o.connect(f);
+    f.connect(secco).connect(g);
+    f.connect(this.distorsione(9)).connect(sporco).connect(g);
+    g.connect(dopo);
     dopo.connect(this.loopBus);
     dopo.connect(this.eco);
     o.start();
-    this.acido = { o, f, g };
+    this.acido = { o, f, g, secco, sporco };
     return this.acido;
+  }
+
+  private tappetoNotte: { o: OscillatorNode[]; f: BiquadFilterNode; g: GainNode } | null = null;
+
+  /** Il tappeto della notte: un accordo di seghe scordate, sempre acceso dietro un cancello che si apre a sedicesimi. */
+  private voceTappeto() {
+    if (this.tappetoNotte) return this.tappetoNotte;
+    const c = this.ctx as AudioContext;
+    const f = c.createBiquadFilter();
+    f.type = "lowpass";
+    f.Q.value = 2;
+    f.frequency.value = 900;
+    const g = c.createGain();
+    g.gain.value = 0;
+    f.connect(g);
+    g.connect(this.loopBus);
+    g.connect(this.eco);
+    const o: OscillatorNode[] = [];
+    for (let i = 0; i < 5; i++) {
+      for (const sc of [-9, 9]) {
+        const x = c.createOscillator();
+        x.type = "sawtooth";
+        x.frequency.value = ACCORDI_NOTTE[0][i];
+        x.detune.value = sc;
+        x.connect(f);
+        x.start();
+        o.push(x);
+      }
+    }
+    this.tappetoNotte = { o, f, g };
+    return this.tappetoNotte;
+  }
+
+  /**
+   * Il cancello: il tappeto si apre a sedicesimi secondo uno schema, come nella trance; l'accordo cambia ogni quattro
+   * battute (la minore nona, la minore undicesima), il filtro respira sulla strofa.
+   */
+  private cancello(s: number, battuta: number, t: number) {
+    const v = this.voceTappeto();
+    const dur = 60 / this.bpm / 4;
+    if (s === 0 && battuta % 4 === 0) {
+      const acc = ACCORDI_NOTTE[Math.floor(battuta / 4) % ACCORDI_NOTTE.length];
+      v.o.forEach((x, i) => x.frequency.setValueAtTime(acc[Math.floor(i / 2)], t));
+    }
+    const fase = (battuta % 16) / 16;
+    v.f.frequency.setTargetAtTime(600 + 1400 * Math.sin(fase * Math.PI), t, 0.2);
+    if (CANCELLO[(battuta % 2) * 16 + s]) {
+      v.g.gain.setTargetAtTime(0.022, t, 0.004);
+      v.g.gain.setTargetAtTime(0, t + dur * 0.55, 0.02);
+    }
   }
 
   /**
@@ -607,7 +684,16 @@ class Suono {
    */
   private acida(s: number, battuta: number, t: number) {
     const v = this.voceAcida();
-    const giro = ACIDO[Math.floor(battuta / 4) % ACIDO.length];
+    // quanto è sporco: zero alla prima comparsa, cresce battuta dopo battuta e strofa dopo strofa
+    const strofa = Math.floor(battuta / 16);
+    const sporco = Math.min(1, (strofa * 4 + (battuta % 16) - 12) / 14);
+    if (s === 0) {
+      v.secco.gain.setTargetAtTime(1 - sporco * 0.75, t, 0.05);
+      v.sporco.gain.setTargetAtTime(sporco * 0.55, t, 0.05);
+      v.f.Q.setTargetAtTime(6 + sporco * 12, t, 0.05);
+    }
+    // la prima strofa ha il giro melodico, quello che resta in testa; poi i giri più storti
+    const giro = strofa === 0 ? ACIDO[0] : ACIDO[(strofa + Math.floor(battuta / 2)) % ACIDO.length];
     const passo = giro[s];
     const dur = 60 / this.bpm / 4;
     if (!passo) return;
@@ -618,9 +704,9 @@ class Suono {
     const manopola = 0.5 - 0.5 * Math.cos((battuta % 16) / 16 * Math.PI * 2);
     const base = 220 + 1100 * manopola;
     v.f.frequency.cancelScheduledValues(t);
-    v.f.frequency.setValueAtTime(base + (accento ? 3600 : 1500) * (0.6 + manopola * 0.4), t);
+    v.f.frequency.setValueAtTime(base + (accento ? 1400 + 2200 * sporco : 700 + 800 * sporco) * (0.6 + manopola * 0.4), t);
     v.f.frequency.setTargetAtTime(base, t + 0.004, accento ? 0.09 : 0.06);
-    v.g.gain.setTargetAtTime(accento ? 0.2 : 0.13, t, 0.003);
+    v.g.gain.setTargetAtTime(accento ? 0.15 : 0.1, t, 0.003);
     const prossimo = giro[(s + 1) % 16];
     if (!(prossimo && prossimo[2])) v.g.gain.setTargetAtTime(0, t + dur * 0.62, 0.012);
   }
@@ -634,7 +720,7 @@ class Suono {
     fl.frequency.setValueAtTime(2800, t);
     fl.frequency.exponentialRampToValueAtTime(380, t + 0.35);
     const g = c.createGain();
-    this.inviluppo(g, t, 0.06 * forza, 0.004, 0.42);
+    this.inviluppo(g, t, 0.035 * forza, 0.004, 0.42);
     fl.connect(this.distorsione(14)).connect(g);
     g.connect(this.loopBus);
     g.connect(this.eco);
