@@ -238,7 +238,8 @@ export class Lontano {
     const cielo = new THREE.Color("#BFD6EA");
     // le colline stanno nel mezzo: verso la città Bologna e San Luca, verso lo sviluppatore l'Alhambra
     // da sinistra a destra (per chi guarda): Bologna, le colline, l'Albaicín, l'Alhambra; ognuno a una distanza sua
-    const C0 = ANGOLO_ZONA - 2.08, C1 = ANGOLO_ZONA - 1.28;
+    // le colline dove prima stava Bologna; Bologna passa sopra la carta più bassa, perché San Luca si veda
+    const C0 = ANGOLO_ZONA - 2.4, C1 = ANGOLO_ZONA - 1.74;
     const ang = (u: number) => C0 + (C1 - C0) * u;
     const crinale = (d: number, alto: number, velo: number, piani: [number, number, number][], seme: number) => {
       const N = 140, M = 8;
@@ -298,7 +299,8 @@ export class Lontano {
     const al = alhambra(ANGOLO_ZONA - 0.02);
     al.scale.setScalar(1.35);
     this.giorno.add(al);
-    const bo = bologna(ANGOLO_ZONA - 2.56);
+    // San Luca (a sinistra nel gruppo) cade sopra la carta più bassa dell'anello; le torri stanno più a destra
+    const bo = bologna(ANGOLO_ZONA - 1.16);
     bo.scale.setScalar(1.5);
     this.texture.push(bo.userData.texture as THREE.Texture);
     this.giorno.add(bo);

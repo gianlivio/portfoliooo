@@ -17,6 +17,7 @@ import { Etna } from "./ospiti/etna";
 import { Citta } from "./ospiti/citta";
 import { Lontano } from "./ospiti/lontano";
 import { Riva } from "./ospiti/riva";
+import { Luoghi } from "./ospiti/luoghi";
 
 /**
  * La scena: chi visita sta al centro di un anello di carte, una per lavoro.
@@ -781,6 +782,17 @@ function Riviera({ notte, ridotto }: { notte: boolean; ridotto: boolean }) {
   return <primitive object={riva.gruppo} />;
 }
 
+/** I luoghi di Livio: Sicilia, Argentina, le maschere. Ognuno si spegne in ATTIVI (ospiti/luoghi.ts). */
+function Posti({ notte, ridotto }: { notte: boolean; ridotto: boolean }) {
+  const [luoghi] = useState(() => new Luoghi(notte));
+  useEffect(() => () => luoghi.libera(), [luoghi]);
+  useEffect(() => luoghi.setNotte(notte), [luoghi, notte]);
+  useFrame(({ clock, camera }) => {
+    if (!ridotto) luoghi.aggiorna(clock.elapsedTime, camera);
+  });
+  return <primitive object={luoghi.gruppo} />;
+}
+
 const ALBA_VERT = `varying vec3 vD; void main(){ vD = normalize(position); gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`;
 const ALBA_FRAG = `
 uniform float uK;
@@ -1063,6 +1075,7 @@ export default function Scena(props: Props) {
       <Metropoli notte={tema === "scuro"} ridotto={props.ridotto} />
       <Orizzonte notte={tema === "scuro"} ridotto={props.ridotto} />
       <Riviera notte={tema === "scuro"} ridotto={props.ridotto} />
+      <Posti notte={tema === "scuro"} ridotto={props.ridotto} />
       <Transizione tema={tema} ridotto={props.ridotto} />
       {tema === "chiaro" && <CieloDiGiorno orizzonte={p.fondo} />}
       <Fauna

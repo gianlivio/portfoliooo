@@ -11,12 +11,12 @@ import { generatore } from "./comuni";
  * Tutto è a colori cotti: la luce del sole e la foschia della distanza sono già nei vertici, il materiale non fa calcoli.
  */
 
-const SU = PELO_ACQUA - 0.3;
-const CIELO = new THREE.Color("#BFD6EA");
+export const SU = PELO_ACQUA - 0.3;
+export const CIELO = new THREE.Color("#BFD6EA");
 /** La luce, nelle coordinate di ogni gruppo (x lungo l'orizzonte, y in alto, −z verso chi guarda). */
 const SOLE = new THREE.Vector3(0.35, 0.78, -0.52).normalize();
 
-const suAnello = (a: number, d: number, y = 0) => new THREE.Vector3(Math.sin(a) * d, y, -Math.cos(a) * d);
+export const suAnello = (a: number, d: number, y = 0) => new THREE.Vector3(Math.sin(a) * d, y, -Math.cos(a) * d);
 
 /** Un gruppo messo sull'anello, rivolto verso il centro. */
 export function sulRing(a: number, d: number, alzo = 0) {
@@ -27,7 +27,7 @@ export function sulRing(a: number, d: number, alzo = 0) {
 }
 
 /** Colora una geometria: colore pieno (o per vertice, se `per` è dato), luce del sole, foschia. Toglie le uv, per poterle unire. */
-function colora(g: THREE.BufferGeometry, colore: THREE.ColorRepresentation, velo: number, per?: (p: THREE.Vector3, n: THREE.Vector3) => THREE.Color) {
+export function colora(g: THREE.BufferGeometry, colore: THREE.ColorRepresentation, velo: number, per?: (p: THREE.Vector3, n: THREE.Vector3) => THREE.Color) {
   const geo = g.index ? g.toNonIndexed() : g;
   if (geo !== g) g.dispose();
   geo.deleteAttribute("uv");
@@ -45,14 +45,14 @@ function colora(g: THREE.BufferGeometry, colore: THREE.ColorRepresentation, velo
   return geo;
 }
 
-const unisci = (pezzi: THREE.BufferGeometry[]) => {
+export const unisci = (pezzi: THREE.BufferGeometry[]) => {
   const m = new THREE.Mesh(mergeGeometries(pezzi), new THREE.MeshBasicMaterial({ vertexColors: true, fog: false }));
   pezzi.forEach((p) => p.dispose());
   return m;
 };
 
 /** Un crinale come striscia alzata: x da x0 a x1, profondità da z0 a z1, la quota data da h(x, z). */
-function rilievo(x0: number, x1: number, z0: number, z1: number, nx: number, nz: number, h: (x: number, z: number) => number) {
+export function rilievo(x0: number, x1: number, z0: number, z1: number, nx: number, nz: number, h: (x: number, z: number) => number) {
   const g = new THREE.PlaneGeometry(x1 - x0, z1 - z0, nx, nz).rotateX(-Math.PI / 2).translate((x0 + x1) / 2, 0, (z0 + z1) / 2);
   const pos = g.attributes.position as THREE.BufferAttribute;
   for (let i = 0; i < pos.count; i++) pos.setY(i, h(pos.getX(i), pos.getZ(i)));
@@ -172,7 +172,7 @@ function arcata() {
  */
 export function bologna(a: number) {
   const r = generatore(83);
-  const g = sulRing(a, 41.5, 2.0);
+  const g = sulRing(a, 41.5, 2.6);
   const pezzi: THREE.BufferGeometry[] = [];
   const box = (x: number, y: number, z: number, l: number, h: number, p: number, c: THREE.ColorRepresentation, velo = 0.22) =>
     pezzi.push(colora(new THREE.BoxGeometry(l, h, p).translate(x, y + h / 2, z), c, velo));
