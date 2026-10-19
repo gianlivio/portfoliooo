@@ -17,7 +17,7 @@ feed = prodotti.filter(p => p.stock > 0).map(perKelkoo)`,
   osservatorio: `# 90 report ministeriali, 2016–2025
 for pdf in report:
     serie += leggi_tabelle(pdfplumber.open(pdf), "MSNA")
-archivio = unisci(anac_2015_2025)   # 18.104 contratti
+archivio = unisci(anac_2015_2025)   # 18.058 contratti
 diretti = archivio[archivio.procedura == "diretto"]`,
 
   livellozero: `// il committente scrive, il sito pubblica
@@ -35,23 +35,24 @@ OTP · inviti · IBAN · referral · checkout
 502 · 409 · inviti duplicati silenti
 regression test dopo ogni fix`,
 
-  ndnluxury: `pagine nuove
-resina, microcemento
-animazioni 3D
-manutenzione`,
+  ndnluxury: `Search Console: il concorrente omonimo
+Lighthouse 100 · accessibilità, SEO
+JSON-LD, FAQ
+correlati per punteggio`,
 
-  esh: `alloggi, città, date
-pagine nuove
-manutenzione`,
+  esh: `ogni dato sulla sua fonte
+IT · EN · ES
+piani per città
+Next.js, Neon, Vercel`,
 
   blog: `WordPress
 indice → sezione, scorrimento dolce
 articoli dentro lo shop`,
 
-  allstudios: `struttura del sito e dell'app
-pagine, sezioni, contenuti
-copy
-test prima del lancio`,
+  allstudios: `nove pagine riscritte
+vocabolario: Canvas, Node, Troupe
+annuncio = copia del progetto
+crediti prenotati, poi confermati`,
 
   jointoyou: `WordPress, da zero
 articoli
@@ -75,7 +76,7 @@ feed = products.filter(p => p.stock > 0).map(toKelkoo)`,
   osservatorio: `# 90 ministry reports, 2016–2025
 for pdf in reports:
     series += read_tables(pdfplumber.open(pdf), "MSNA")
-archive = merge(anac_2015_2025)   # 18,104 contracts
+archive = merge(anac_2015_2025)   # 18,058 contracts
 direct = archive[archive.procedure == "direct"]`,
 
   livellozero: `// the client writes, the site publishes
@@ -93,23 +94,24 @@ OTP · invites · IBAN · referral · checkout
 502 · 409 · silent duplicate invites
 regression testing after every fix`,
 
-  ndnluxury: `new pages
-resin, microcement
-3D animation
-maintenance`,
+  ndnluxury: `Search Console: the namesake competitor
+Lighthouse 100 · accessibility, SEO
+JSON-LD, FAQ
+related by score`,
 
-  esh: `homes, cities, dates
-new pages
-maintenance`,
+  esh: `every figure to its source
+IT · EN · ES
+city-by-city plans
+Next.js, Neon, Vercel`,
 
   blog: `WordPress
 table of contents → section, smooth scroll
 articles inside the shop`,
 
-  allstudios: `site and app structure
-pages, sections, content
-copy
-testing before launch`,
+  allstudios: `nine pages rewritten
+vocabulary: Canvas, Node, Troupe
+listing = copy of the project
+credits held, then confirmed`,
 
   jointoyou: `WordPress, from scratch
 articles
@@ -133,7 +135,7 @@ feed = productos.filter(p => p.stock > 0).map(paraKelkoo)`,
   osservatorio: `# 90 informes ministeriales, 2016–2025
 for pdf in informes:
     series += leer_tablas(pdfplumber.open(pdf), "MSNA")
-archivo = unir(anac_2015_2025)   # 18.104 contratos
+archivo = unir(anac_2015_2025)   # 18.058 contratos
 directos = archivo[archivo.procedimiento == "directo"]`,
 
   livellozero: `// el cliente escribe, el sitio publica
@@ -151,23 +153,24 @@ OTP · invitaciones · IBAN · referral · checkout
 502 · 409 · invitaciones duplicadas silenciosas
 regression testing tras cada corrección`,
 
-  ndnluxury: `páginas nuevas
-resina, microcemento
-animación 3D
-mantenimiento`,
+  ndnluxury: `Search Console: el competidor homónimo
+Lighthouse 100 · accesibilidad, SEO
+JSON-LD, FAQ
+relacionados por puntuación`,
 
-  esh: `alojamientos, ciudades, fechas
-páginas nuevas
-mantenimiento`,
+  esh: `cada dato a su fuente
+IT · EN · ES
+planes por ciudad
+Next.js, Neon, Vercel`,
 
   blog: `WordPress
 índice → sección, desplazamiento suave
 artículos dentro de la tienda`,
 
-  allstudios: `estructura del sitio y de la app
-páginas, secciones, contenidos
-copy
-pruebas antes del lanzamiento`,
+  allstudios: `nueve páginas reescritas
+vocabulario: Canvas, Node, Troupe
+anuncio = copia del proyecto
+créditos reservados, luego confirmados`,
 
   jointoyou: `WordPress, desde cero
 artículos

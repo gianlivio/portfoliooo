@@ -32,18 +32,18 @@
       "strumenti": "Open2B/Scriggo · PHP · JavaScript · HTML/CSS · API REST y webhooks · Google Tag Manager · GA4"
     },
     "osservatorio": {
-      "tipo": "Datos públicos · código abierto",
+      "tipo": "Datos públicos · open source",
       "titolo": "Osservatorio Accoglienza",
-      "riga": "Archivo público sobre los contratos de acogida de migrantes en Italia, construido desde cero: once años de contratación pública cruzados con los datos ministeriales, consultables por provincia y por año.",
-      "ruolo": "Proyecto personal · código abierto",
+      "riga": "Archivo público de los contratos para la acogida de migrantes en Italia, provincia por provincia, reconstruido cruzando tres conjuntos de datos abiertos de ANAC. Nace de mis años como educador con menores extranjeros no acompañados.",
+      "ruolo": "Proyecto personal · open source",
       "compiti": [
-        "Recogida y limpieza en Python de 18.104 contratos de tres datasets de ANAC, de 2015 a 2025.",
-        "Parser de 90 informes ministeriales en PDF (pdfplumber) con los datos sobre menores extranjeros no acompañados, de 2016 a 2025.",
-        "Agregaciones por provincia y por año, con la proporción de adjudicaciones directas.",
-        "Sitio estático en Next.js y TypeScript en Vercel; actualización de los datos automatizada con GitHub Actions.",
-        "SEO técnico y datos estructurados; código público en GitHub."
+        "Pipeline en Python sobre 18.058 contratos de 2015 a 2025, de tres conjuntos de datos de ANAC unidos por el código CIG.",
+        "Filtro por códigos CPV y texto para aislar la acogida, corregido con la indicación de una trabajadora del sector.",
+        "Parser con pdfplumber para unos 90 informes ministeriales sobre menores extranjeros no acompañados.",
+        "Una tesis inicial desmentida por los datos: el salto de las adjudicaciones directas era un efecto del registro, y el sitio muestra ambas series.",
+        "Sitio estático Next.js de 116 páginas, LCP de 11 a 1 segundo; actualización mensual guiada por GitHub Actions."
       ],
-      "strumenti": "Python · pdfplumber · Next.js · TypeScript · GitHub Actions · Vercel"
+      "strumenti": "Python · pdfplumber · Next.js 16 · React 19 · TypeScript · GitHub Actions · Vercel"
     },
     "livellozero": {
       "tipo": "Sitio editorial · CMS a medida",
@@ -59,32 +59,32 @@
       "strumenti": "Next.js · TypeScript · Vercel"
     },
     "ndnluxury": {
-      "tipo": "Sitio corporativo, SEO y contenidos",
+      "tipo": "Sitio corporativo · SEO y accesibilidad",
       "titolo": "NDN Luxury",
-      "riga": "Sitio Next.js de una empresa de pavimentos de resina y microcemento de Legnano, con clientes particulares y B2B (restauración, hoteles, industria). Desarrollé páginas nuevas y me ocupé del posicionamiento orgánico y de los contenidos.",
-      "ruolo": "Freelance",
+      "riga": "Sitio Next.js de una empresa de pavimentos de resina y microcemento del norte de Milán. SEO técnico, datos estructurados, accesibilidad y blog: Lighthouse de 96 a 100 en accesibilidad y de 92 a 100 en SEO.",
+      "ruolo": "Desarrollador web y responsable de SEO y contenidos · freelance",
       "compiti": [
-        "Páginas nuevas y animaciones 3D.",
-        "Datos estructurados Schema.org (área de servicio, catálogo de servicios, FAQ).",
-        "Secciones “Lee también” que eligen los artículos relacionados con una puntuación de pertinencia en lugar de por fecha.",
-        "Análisis de Search Console: diferencia de CTR entre escritorio y móvil, páginas con muchas impresiones y pocos clics que optimizar.",
-        "Plan editorial, revisión de los artículos, categorías del blog reordenadas en cuatro.",
-        "Configuración de campañas de Meta y Google Ads dirigidas a la zona, construidas sobre búsquedas reales."
+        "Search Console: separadas del tráfico real las búsquedas de un competidor con un nombre casi idéntico; CTR real cerca del 5% en lugar del 3,2% aparente.",
+        "Datos estructurados JSON-LD alineados entre páginas: zona de servicio, catálogo de servicios, FAQ.",
+        "Artículos relacionados elegidos por una puntuación de pertinencia en lugar de por fecha, válidos también para los artículos futuros.",
+        "Accesibilidad: botones reales en lugar de div y enlaces sin destino; el rosa más cercano al original que supera el umbral de contraste WCAG.",
+        "Plan editorial, revisión de borradores, propuesta de captación de clientes con campañas de pago."
       ],
-      "strumenti": "Next.js, TypeScript, Vercel, JSON-LD, Google Search Console, Meta Ads, Google Ads"
+      "strumenti": "Next.js · TypeScript · Tailwind CSS · JSON-LD · Vercel · Google Search Console · Lighthouse"
     },
     "esh": {
-      "tipo": "Plataforma web",
+      "tipo": "Plataforma web · desarrollo y SEO multilingüe",
       "titolo": "ESH – Erasmus Student Housing",
-      "riga": "Plataforma europea que pone en contacto a estudiantes Erasmus con propietarios verificados en varias ciudades. Desarrollé funcionalidades en el código Next.js y coordiné el blog multilingüe para el posicionamiento orgánico.",
-      "ruolo": "Freelance",
+      "riga": "Plataforma europea de alojamiento para estudiantes de movilidad, con anfitriones verificados en 26 ciudades. Desarrollo sobre el código Next.js y coordinación del blog en tres idiomas: artículos generados con IA, verificados y corregidos a mano.",
+      "ruolo": "Desarrollador y coordinador editorial · freelance",
       "compiti": [
-        "Páginas y funcionalidades nuevas.",
-        "Revisión sistemática de las traducciones al italiano, inglés y español para encontrar cadenas sin traducir.",
-        "Revisión de los artículos del blog, enlaces internos, términos de marca coherentes entre idiomas.",
-        "Mantenimiento."
+        "Nuevas páginas y funcionalidades en el código Next.js; mantenimiento de la infraestructura (Vercel, Neon, Resend).",
+        "Verificación de cada dato citado en la fuente primaria: corregidos signos invertidos, atribuciones erróneas, una universidad contada dos veces, líneas de metro inexactas.",
+        "Control de canibalización de los planes editoriales frente al archivo publicado, antes de escribir.",
+        "Revisión de las versiones española e inglesa, trasladando la terminología fiscal y contractual italiana a un público internacional.",
+        "Planificación por ciudad con datos reales de Search Console."
       ],
-      "strumenti": "Next.js (App Router), TypeScript, Prisma, PostgreSQL (Neon), shadcn/ui, pnpm, Vercel"
+      "strumenti": "Next.js · TypeScript · Prisma · PostgreSQL (Neon) · Vercel · Stripe · Google Search Console"
     },
     "blog": {
       "tipo": "Blog · WordPress",
@@ -99,17 +99,18 @@
       "strumenti": "WordPress"
     },
     "allstudios": {
-      "tipo": "Aplicación web",
-      "titolo": "All Studios",
-      "riga": "Aplicación para equipos de diseñadores gráficos: un espacio de trabajo compartido con herramientas avanzadas e inteligencia artificial. Todavía en construcción.",
-      "ruolo": "Web developer · estructura y pruebas",
+      "tipo": "Plataforma web · copy y desarrollo",
+      "titolo": "ALLSTUDIA",
+      "riga": "Plataforma de producción de contenidos con IA que funciona en el navegador. Reescribí el sitio, definí el vocabulario del producto y desarrollé el marketplace de proyectos, desde el esquema de la base de datos hasta la interfaz.",
+      "ruolo": "Copy, naming y desarrollo full-stack · con el CTO de la empresa",
       "compiti": [
-        "Estructura del sitio y de la app: páginas, secciones, organización de los contenidos.",
-        "Copy de las páginas.",
-        "Desarrollo de algunas páginas.",
-        "Pruebas de la aplicación antes del lanzamiento."
+        "Reescritura en inglés de las nueve páginas del sitio, con una voz tomada del léxico de la producción cinematográfica.",
+        "Vocabulario de producto (Canvas, Node, Troupe, Dailies…), descartando tras verificarlos los nombres ya ocupados en el sector.",
+        "Esquema de la base de datos del marketplace y dos migraciones sobre una base de datos compartida, cada una aprobada antes de ejecutarse.",
+        "Publicación, moderación, compra y entrega: el anuncio es una copia del proyecto; los créditos se reservan y se devuelven si la entrega falla.",
+        "Eliminación del marketplace anterior, que entregaba proyectos con los archivos ilegibles."
       ],
-      "strumenti": ""
+      "strumenti": "Next.js 16 · TypeScript · Prisma · PostgreSQL (Neon) · Inngest · Cloudflare R2 · Stripe"
     },
     "jointoyou": {
       "tipo": "Blog WordPress · contenidos · datos",
@@ -149,15 +150,16 @@
     "futuraauthor": {
       "tipo": "Plataforma · agentes de IA",
       "titolo": "Futura Auctor",
-      "riga": "Plataforma editorial en la que agentes de IA escriben contenidos pensados para la búsqueda en Google y en los modelos generativos, siempre con revisión humana. Diseñada y desarrollada desde la idea hasta el lanzamiento; todavía en construcción.",
-      "ruolo": "Full stack developer, editor, copywriter SEO/GEO · con un colega",
+      "riga": "Plataforma que produce y publica contenidos pensados para la búsqueda en Google y en los motores generativos, escritos por agentes de IA y revisados por personas. Proyecto propio, desarrollado con un colega, todavía en construcción.",
+      "ruolo": "Desarrollo web, estrategia editorial y prompt engineering · con un colega",
       "compiti": [
-        "Desarrollo de la plataforma en Next.js y TypeScript.",
-        "Redacción de los prompts para los agentes de IA que generan los contenidos.",
-        "Línea editorial: revisión de los textos y calibración del tono de voz de cada cliente.",
-        "Optimización SEO y GEO, análisis de los datos de Google Search Console."
+        "Desarrollo del sitio en Next.js y Tailwind.",
+        "Prompts para los agentes editoriales y reglas de escritura, con la semiótica como herramienta de trabajo.",
+        "Auditoría del pipeline de generación de contenidos: la corrección correcta estaba en el código, no en el prompt.",
+        "Análisis de Search Console y planificación editorial.",
+        "Posicionamiento y copy institucional."
       ],
-      "strumenti": "Next.js · TypeScript · agentes de IA · Google Search Console"
+      "strumenti": "Next.js · TypeScript · Tailwind CSS · Neon · Vercel · Google Search Console"
     },
     "beautybroker": {
       "tipo": "Software · desarrollo y pruebas",
