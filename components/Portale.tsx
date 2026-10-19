@@ -67,18 +67,26 @@ void main(){
   gl_FragColor = vec4(col, uOpacita);
 }`;
 
-function etichetta(righe: string[], mono: string, serif: string) {
+/** La scritta è un bottone: fascia scura col bordo nel colore della luce, così si legge su qualsiasi sfondo. */
+function etichetta(righe: string[], mono: string, serif: string, bordo: string) {
   const tela = document.createElement("canvas");
   tela.width = 1024;
   tela.height = 200;
   const c = tela.getContext("2d");
   if (c) {
+    c.fillStyle = "rgba(14,12,22,0.88)";
+    c.beginPath();
+    c.roundRect(150, 8, 724, 184, 40);
+    c.fill();
+    c.strokeStyle = bordo;
+    c.lineWidth = 6;
+    c.stroke();
     c.fillStyle = "#FFFFFF";
     c.textAlign = "center";
-    c.font = `300 84px ${serif}`;
-    c.fillText(righe[0], 512, 92);
+    c.font = `300 80px ${serif}`;
+    c.fillText(righe[0], 512, 94, 680);
     c.font = `400 30px ${mono}`;
-    c.fillText(righe[1].toUpperCase(), 512, 160);
+    c.fillText(righe[1].toUpperCase(), 512, 156, 680);
   }
   const t = new THREE.CanvasTexture(tela);
   t.colorSpace = THREE.SRGBColorSpace;
@@ -151,7 +159,7 @@ export default function Portale({
 }) {
   const [sopra, setSopra] = useState(false);
   const forza = useRef(0);
-  const scritta = useMemo(() => etichetta([titolo, sotto], mono, serif), [titolo, sotto, mono, serif]);
+  const scritta = useMemo(() => etichetta([titolo, sotto], mono, serif, notte ? COLORI.notte.bordo : COLORI.giorno.bordo), [titolo, sotto, mono, serif, notte]);
   const punto = useMemo(() => morbida(), []);
   const lama = useMemo(() => morbida(true), []);
   const col = notte ? COLORI.notte : COLORI.giorno;
@@ -219,9 +227,11 @@ export default function Portale({
     legno.color.set(col.legno);
   }, [col, vortice, bordo, cornici, scintille, lamaMat, colonnaMat, legno]);
 
+  // la scritta si ridisegna al cambio di tema (il bordo prende il colore della luce): si libera ogni volta
+  useEffect(() => () => scritta.dispose(), [scritta]);
   useEffect(
     () => () => {
-      [scritta, punto, lama, vortice, lamaMat, colonnaMat, legno, interno].forEach((x) => x.dispose());
+      [punto, lama, vortice, lamaMat, colonnaMat, legno, interno].forEach((x) => x.dispose());
       [bordo, ...cornici].forEach((l) => {
         l.geometry.dispose();
         (l.material as THREE.Material).dispose();
@@ -351,9 +361,25 @@ export default function Portale({
       <sprite position={[C.x, BOCCA.y + 0.45, BOCCA_Z]} scale={[0.5, 0.95, 1]} material={colonnaMat} raycast={() => null} />
       <primitive object={scintille} />
       {/* la scritta, sopra la luce, rivolta verso chi guarda */}
-      <mesh position={[C.x, 2.35, BOCCA_Z]} rotation={[0, Math.PI, 0]} raycast={() => null}>
+      {/* si clicca anche la scritta: apre il modulo come il cassetto */}
+      <mesh
+        position={[C.x, 2.35, BOCCA_Z]}
+        rotation={[0, Math.PI, 0]}
+        scale={sopra ? 1.06 : 1}
+        onPointerOver={(e: ThreeEvent<PointerEvent>) => {
+          e.stopPropagation();
+          setSopra(true);
+          onSfiora?.();
+        }}
+        onPointerOut={() => setSopra(false)}
+        onClick={(e: ThreeEvent<MouseEvent>) => {
+          e.stopPropagation();
+          if (e.delta > 6) return;
+          onApri();
+        }}
+      >
         <planeGeometry args={[2.7, 2.7 * (200 / 1024)]} />
-        <meshBasicMaterial ref={scrittaMat} map={scritta} color={col.scritta} transparent opacity={0} depthWrite={false} toneMapped={false} />
+        <meshBasicMaterial ref={scrittaMat} map={scritta} transparent opacity={0} depthWrite={false} toneMapped={false} />
       </mesh>
       {/* dove si clicca: la cassettiera e la colonna di luce, un po' più larghe del disegno */}
       <mesh

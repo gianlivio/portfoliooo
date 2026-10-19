@@ -237,7 +237,8 @@ export class Lontano {
     // due crinali: quello dietro più alto e più velato, quello davanti con l'altopiano dei radiotelescopi
     const cielo = new THREE.Color("#BFD6EA");
     // le colline stanno nel mezzo: verso la città Bologna e San Luca, verso lo sviluppatore l'Alhambra
-    const C0 = ANGOLO_ZONA - 1.92, C1 = ANGOLO_ZONA - 1.02;
+    // da sinistra a destra (per chi guarda): Bologna, le colline, l'Albaicín, l'Alhambra; ognuno a una distanza sua
+    const C0 = ANGOLO_ZONA - 2.08, C1 = ANGOLO_ZONA - 1.28;
     const ang = (u: number) => C0 + (C1 - C0) * u;
     const crinale = (d: number, alto: number, velo: number, piani: [number, number, number][], seme: number) => {
       const N = 140, M = 8;
@@ -278,13 +279,13 @@ export class Lontano {
       this.giorno.add(new THREE.Mesh(g, new THREE.MeshLambertMaterial({ vertexColors: true, flatShading: true, side: THREE.DoubleSide, fog: false })));
       return (u: number) => SU - 1 + quota(u) + 1;
     };
-    const dietro = crinale(41, 6.4, 0.35, [], 1.3);
+    const dietro = crinale(43, 6.4, 0.4, [], 1.3);
     // davanti: in cima il pianoro del labirinto, più in qua quello dei radiotelescopi
-    const davanti = crinale(36.5, 4.6, 0.12, [[0.2, 0.36, 1], [0.55, 0.75, 0.78]], 4.1);
+    const davanti = crinale(37.5, 4.6, 0.14, [[0.2, 0.36, 1], [0.55, 0.75, 0.78]], 4.1);
     // il labirinto sul pendio, appena sotto la cima e inclinato col terreno: da lontano se ne vedono gli anelli
     const aL = ang(0.28);
     const lab = new THREE.Group();
-    lab.position.copy(suAnello(aL, 35.6, davanti(0.28) - 0.55));
+    lab.position.copy(suAnello(aL, 36.6, davanti(0.28) - 0.55));
     lab.rotation.y = Math.PI - aL;
     const disco = labirinto();
     disco.rotation.x = -0.5;
@@ -292,8 +293,10 @@ export class Lontano {
     lab.add(disco);
     this.giorno.add(lab);
     // l'Alhambra e il Perito Moreno
-    this.giorno.add(alhambra(ANGOLO_ZONA - 0.76));
-    const bo = bologna(ANGOLO_ZONA - 2.22);
+    // l'Alhambra a destra dell'Albaicín (che sta in citta.ts, più vicino): fra i due la valle del Darro
+    // nel tratto di cielo libero sopra lo sviluppatore: lì le carte non la coprono
+    this.giorno.add(alhambra(ANGOLO_ZONA - 0.05));
+    const bo = bologna(ANGOLO_ZONA - 2.56);
     this.texture.push(bo.userData.texture as THREE.Texture);
     this.giorno.add(bo);
 
@@ -303,7 +306,7 @@ export class Lontano {
       const u = 0.1 + k * 0.11 + (r() - 0.5) * 0.02;
       const a = ang(u);
       const t = new THREE.Group();
-      t.position.copy(suAnello(a, 41, dietro(u) - 0.2));
+      t.position.copy(suAnello(a, 43, dietro(u) - 0.2));
       rivolgi(t, a);
       t.add(new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.12, 3.6, 8).translate(0, 1.8, 0), bianco));
       t.add(new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.2, 0.55).translate(0, 3.65, 0.08), bianco));
@@ -334,7 +337,7 @@ export class Lontano {
       const u = 0.58 + k * 0.045;
       const a = ang(u);
       const base = new THREE.Group();
-      base.position.copy(suAnello(a, 36.5, davanti(u) - 0.1));
+      base.position.copy(suAnello(a, 37.5, davanti(u) - 0.1));
       rivolgi(base, a);
       base.add(new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.3, 1.1, 10).translate(0, 0.55, 0), grigio));
       const az = new THREE.Group();

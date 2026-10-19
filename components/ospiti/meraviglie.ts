@@ -63,16 +63,16 @@ function rilievo(x0: number, x1: number, z0: number, z1: number, nx: number, nz:
 
 export function alhambra(a: number) {
   const r = generatore(31);
-  // alzata: la base la coprono comunque le carte, così si vede la fortezza e non solo la cima delle torri
-  const g = sulRing(a, 39, 1.2);
+  // nel tratto di cielo libero sopra lo sviluppatore: poggia sull'orizzonte, nessuna carta davanti
+  const g = sulRing(a, 40.5, 0);
   const pezzi: THREE.BufferGeometry[] = [];
   // la Sierra Nevada, dietro, innevata in alto
   pezzi.push(
     colora(
-      rilievo(-15, 15, 6, 10, 90, 6, (x, z) => {
+      rilievo(-14, 8, 6, 10, 70, 6, (x, z) => {
         const k = Math.sin(((z - 6) / 4) * Math.PI);
         const cime = 6.2 + 1.6 * Math.sin(x * 0.42 + 1) + 0.9 * Math.abs(Math.sin(x * 1.3)) + 0.4 * Math.sin(x * 3.7);
-        return (cime * Math.min(1, (15 - Math.abs(x)) / 4) + 0.6) * Math.pow(k, 0.6) - 0.6;
+        return (cime * Math.min(1, (14 + x) / 4, (8 - x) / 3) + 0.6) * Math.pow(k, 0.6) - 0.6;
       }),
       "#8E8A86",
       0.5,
@@ -172,7 +172,7 @@ function arcata() {
  */
 export function bologna(a: number) {
   const r = generatore(83);
-  const g = sulRing(a, 41, 2.0);
+  const g = sulRing(a, 41.5, 2.0);
   const pezzi: THREE.BufferGeometry[] = [];
   const box = (x: number, y: number, z: number, l: number, h: number, p: number, c: THREE.ColorRepresentation, velo = 0.22) =>
     pezzi.push(colora(new THREE.BoxGeometry(l, h, p).translate(x, y + h / 2, z), c, velo));

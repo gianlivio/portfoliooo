@@ -67,9 +67,10 @@ type Ascoltatore = (m: Modo) => void;
 function leggiScelta(): Modo {
   try {
     const v = localStorage.getItem(CHIAVE);
-    return v === "ambiente" || v === "loop" ? v : "spento";
+    // all'arrivo suona solo il fondo, anche se la volta prima c'era il loop; chi l'ha spento lo ritrova spento
+    return v === "spento" ? "spento" : "ambiente";
   } catch {
-    return "spento";
+    return "ambiente";
   }
 }
 
@@ -110,6 +111,12 @@ class Suono {
   /** Legge la scelta salvata. Con "riduci movimento" non si riattiva da sola: solo a mano. */
   prepara(ridotto: boolean) {
     this.voluto = ridotto ? "spento" : leggiScelta();
+    // prova a partire subito: se il browser lo consente (sito già frequentato, permessi dati) si sente all'arrivo;
+    // altrimenti il contesto resta sospeso e parte al primo tocco, clic o tasto, ovunque sulla pagina
+    if (this.voluto !== "spento") {
+      this.avvia();
+      this.applica();
+    }
     this.avvisa();
   }
 

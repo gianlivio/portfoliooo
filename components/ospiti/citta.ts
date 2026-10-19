@@ -176,8 +176,8 @@ function facciata(v: number) {
   });
 }
 
-/** Dove sta l'Albaicín: accanto all'Alhambra (ANGOLO_ZONA − 0.76), di fronte, più vicino e più basso. */
-const ALBAICIN = { a: ANGOLO_ZONA - 0.25, d: 37, scala: 0.42 };
+/** Dove sta l'Albaicín: a sinistra dell'Alhambra (ANGOLO_ZONA − 0.56), di fronte, più vicino e più basso. */
+const ALBAICIN = { a: ANGOLO_ZONA - 0.4, d: 35, scala: 0.5 };
 
 function paese(r: () => number, texture: THREE.Texture[], pale: THREE.Object3D[]) {
   const g = new THREE.Group();
