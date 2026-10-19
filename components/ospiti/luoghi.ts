@@ -7,9 +7,9 @@ import { colora, rilievo, sulRing, unisci } from "./meraviglie";
 /*
  * I luoghi di Livio, da valutare uno per uno: ognuno si accende o si spegne in ATTIVI.
  * Sicilia: Punta Secca col faro e la casa di Montalbano, Comiso (la cupola azzurra dell'Annunziata, la pagoda
- * della pace, la medaglia), Ragusa Ibla col Duomo di San Giorgio, San Giorgio di Modica sulla scalinata,
+ * della pace), Ragusa Ibla col Duomo di San Giorgio, San Giorgio di Modica sulla scalinata,
  * il Liotru ai piedi dell'Etna. Argentina: le cascate dell'Iguazú, il Cerro de los Siete Colores, l'Obelisco,
- * il Perito Moreno rifatto. E sul pavimento la figura delle maschere: uno, nessuno e centomila.
+ * il Perito Moreno rifatto. E a terra una maschera sola che cambia: uno, nessuno e centomila.
  * Gli angoli sono contati dalla zona dello sviluppatore; i posti scelti cadono negli spazi fra le carte
  * o dietro le carte più basse.
  */
@@ -87,7 +87,7 @@ function puntaSecca() {
 
 /* ------------------------------------------------------------------ Comiso */
 
-/** La basilica dell'Annunziata con la cupola azzurra, la pagoda della pace, la stele con la medaglia, le case basse. */
+/** La basilica dell'Annunziata con la cupola azzurra, la pagoda della pace, le case basse. */
 function comiso() {
   const g = sulRing(Z + Math.PI, 36, 3.2);
   g.scale.setScalar(1.3);
@@ -130,7 +130,7 @@ function comiso() {
   cupola(p, ax, 5.35, cz, 0.16, "#3C78B8", 1.3);
   blocco(p, ax, 5.53, cz, 0.02, 0.22, 0.02, "#4A4440");
   // la basilica domina il paese: la ingrandisco attorno alla sua base
-  for (let i = n0; i < p.length; i++) p[i].translate(-ax, 0.3, 0).scale(1.4, 1.4, 1.4).translate(ax, -0.3, 0);
+  for (let i = n0; i < p.length; i++) p[i].translate(-ax, 0.3, 0).scale(1.15, 1.15, 1.15).translate(ax, -0.3, 0);
   // il campanile in pietra, cuspide di pietra
   blocco(p, 2.1, -0.3, -0.9, 0.7, 3.2, 0.7, "#E1D2B0");
   blocco(p, 2.1, 2.9, -0.9, 0.8, 0.08, 0.8, "#EDE2C6");
@@ -144,12 +144,6 @@ function comiso() {
   for (let k = 0; k < 7; k++) tamburo(p, px, 1.87 + k * 0.14, 0.8, 0.2 - k * 0.022, 0.08, "#D4A73C");
   p.push(colora(new THREE.ConeGeometry(0.06, 0.5, 8).translate(px, 3.05, 0.8), "#D4A73C", 0.18));
   blocco(p, px, 0.75, -0.32, 0.5, 0.6, 0.06, "#C9A04A");
-  // la stele con la medaglia: pietra grigia, il disco di bronzo, il nastro azzurro
-  const sx = -2.6;
-  blocco(p, sx, -0.3, -0.6, 0.7, 1.5, 0.3, "#9A968E");
-  blocco(p, sx, 0.98, -0.77, 0.24, 0.3, 0.03, "#2A5FB0");
-  p.push(colora(new THREE.CylinderGeometry(0.2, 0.2, 0.05, 28).rotateX(Math.PI / 2).translate(sx, 0.78, -0.78), "#B08A3E", 0.15));
-  p.push(colora(new THREE.TorusGeometry(0.2, 0.025, 6, 28).translate(sx, 0.78, -0.8), "#8E6C2C", 0.15));
   g.add(unisci(p));
   return g;
 }
@@ -234,12 +228,13 @@ function modica() {
 
 /* ------------------------------------------------------------------ il Liotru */
 
-/** L'elefante di pietra lavica con l'obelisco sul dorso, sul basamento di marmo bianco con la fontana. Vicino, sul pavimento. */
+/** L'elefante di pietra lavica con l'obelisco sul dorso, sul basamento di marmo bianco con la fontana. Dietro le carte, ai piedi dell'Etna. */
 class Liotru {
   gruppo = new THREE.Group();
   private tx: THREE.Texture;
   constructor() {
-    const a = Z + 1.2, d = 3.7;
+    // dietro le carte, nel varco fra la prima e la seconda, ai piedi dell'Etna
+    const a = Z + 1.21, d = 10;
     this.gruppo.position.set(Math.sin(a) * d, PAV, -Math.cos(a) * d);
     this.gruppo.rotation.y = Math.PI - a + 0.6;
     const lava = new THREE.MeshStandardMaterial({ color: "#2B2927", roughness: 0.9 });
@@ -271,7 +266,7 @@ class Liotru {
     add(new THREE.SphereGeometry(0.04, 12, 8).translate(0.02, 1.78, 0), marmo);
     add(new THREE.BoxGeometry(0.012, 0.09, 0.012).translate(0.02, 1.85, 0), lava);
     add(new THREE.BoxGeometry(0.05, 0.012, 0.012).translate(0.02, 1.86, 0), lava);
-    this.gruppo.scale.setScalar(0.8);
+    this.gruppo.scale.setScalar(1.7);
   }
   libera() {
     liberaTutto(this.gruppo, [this.tx]);
@@ -287,11 +282,11 @@ class Iguazu {
   private nebbia: THREE.Sprite[] = [];
   private texture: THREE.Texture[] = [];
   constructor() {
-    this.gruppo = sulRing(Z + 1.93, 39, 3.6);
+    // a terra, ai piedi del Cerro de los Siete Colores
+    this.gruppo = sulRing(Z + 1.97, 36, 0);
     this.gruppo.scale.setScalar(1.6);
     const p: Pezzi = [];
     const R = 3.4, H = 3.8, N = 48;
-    zoccolo(p, 5.5, 4, 3, "#4A6A3A", 2);
     const arco = (rr: number, y0: number, y1: number) => {
       const g = new THREE.BufferGeometry();
       const pos: number[] = [], uv: number[] = [];
@@ -375,7 +370,7 @@ class Iguazu {
 /* ------------------------------------------------------------ Cerro de los Siete Colores */
 
 function sieteColores() {
-  const g = sulRing(Z + 2.17, 43, 1.0);
+  const g = sulRing(Z + 1.9, 44, 0);
   const fasce = ["#B4513B", "#D98C6E", "#C9A15A", "#7F8A58", "#8C5E7C", "#9A8F86", "#E2CBA6", "#A85A3E"].map((c) => new THREE.Color(c));
   const h = (x: number, z: number) => {
     const k = Math.max(0, 1 - (x / 9) ** 2) * Math.sin(((z + 1) / 7) * Math.PI);
@@ -395,9 +390,9 @@ function sieteColores() {
 /* ------------------------------------------------------------------ l'Obelisco */
 
 function obelisco() {
-  const g = sulRing(Z + 2.36, 34, 2.2);
+  const g = sulRing(Z + 1.72, 33, 0);
+  g.scale.setScalar(1.2);
   const p: Pezzi = [];
-  zoccolo(p, 2.6, 2.6, 2.4, "#9A9A92");
   blocco(p, 0, -0.3, 0, 3.2, 0.12, 3.2, "#BDB7AC");
   p.push(colora(new THREE.CylinderGeometry(0.28, 0.5, 7.6, 4, 1).rotateY(Math.PI / 4).translate(0, 3.7, 0), "#F2EFE8", 0.18));
   p.push(colora(new THREE.ConeGeometry(0.3, 0.55, 4).rotateY(Math.PI / 4).translate(0, 7.77, 0), "#F2EFE8", 0.18));
@@ -416,8 +411,9 @@ class PeritoMoreno {
   private r = generatore(57);
   private F = 3.2;
   constructor() {
-    this.gruppo = sulRing(Z - 2.68, 38, 3.6);
-    this.gruppo.scale.setScalar(1.1);
+    // con le altre cose argentine, il fronte che cade nel Lago Argentino, a pelo d'acqua
+    this.gruppo = sulRing(Z + 2.3, 40, 0);
+    this.gruppo.scale.setScalar(1.4);
     const p: Pezzi = [];
     const F = this.F;
     // le Ande dietro: granito scuro, neve in alto
@@ -450,13 +446,12 @@ class PeritoMoreno {
       const geo = new THREE.BufferGeometry();
       geo.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
       p.push(colora(geo, "#A9D3EC", 0.12, (q) => {
-        const fessura = Math.abs(Math.sin(q.x * 9.1)) < 0.18;
-        const base = new THREE.Color("#2F78B4").lerp(new THREE.Color("#E9F4FB"), Math.min(1, q.y / F) * 0.75);
+        const fessura = Math.abs(Math.sin(q.x * 6.3 + Math.sin(q.x * 1.7) * 2.4)) < 0.22;
+        const base = new THREE.Color("#2A6FAE").lerp(new THREE.Color("#DDEFF9"), Math.min(1, q.y / F) * 0.6);
         return fessura ? base.lerp(new THREE.Color("#1F5E99"), 0.6) : base;
       }));
     }
-    zoccolo(p, 7, 3.5, 3.8, "#5E7F58", 0.5);
-    p.push(colora(new THREE.PlaneGeometry(14, 3.5).rotateX(-Math.PI / 2).translate(0, 0.03, -3.2), "#7FBCCB", 0.15));
+    p.push(colora(new THREE.PlaneGeometry(16, 6).rotateX(-Math.PI / 2).translate(0, 0.03, -4.4), "#86B8C6", 0.15));
     this.gruppo.add(unisci(p));
     for (let k = 0; k < 2; k++) {
       const geo = new THREE.BoxGeometry(0.9, 1.5, 0.7, 3, 4, 2);
@@ -511,8 +506,9 @@ class PeritoMoreno {
 /* --------------------------------------------- le maschere: uno, nessuno e centomila */
 
 /**
- * Un manichino senza volto col mantello e uno specchio in mano. Ogni volta che lo sguardo torna su di lui
- * ha una maschera diversa: il Mamuthone sardo, il Krampus delle Alpi, la bauta veneziana, la maschera tragica greca.
+ * Una maschera sola, a terra. All'inizio è un moai dell'isola di Pasqua che emerge dal pavimento; ogni volta che
+ * lo sguardo la lascia e poi torna è un'altra: il Mamuthone sardo, il Krampus delle Alpi, la bauta veneziana,
+ * la maschera tragica greca, e di nuovo il moai.
  */
 class Maschere {
   gruppo = new THREE.Group();
@@ -523,36 +519,36 @@ class Maschere {
   private verso = new THREE.Vector3();
   private texture: THREE.Texture[] = [];
   constructor() {
-    const a = Z - 1.6, d = 3.6;
+    const a = Z - 1.6, d = 3.5;
     this.gruppo.position.set(Math.sin(a) * d, PAV, -Math.cos(a) * d);
     this.gruppo.rotation.y = Math.PI - a;
-    const mantello = new THREE.MeshStandardMaterial({ color: "#8E8698", roughness: 0.8, side: THREE.DoubleSide });
-    const legno = new THREE.MeshStandardMaterial({ color: "#3B3027", roughness: 0.8 });
-    // il corpo: un mantello lungo, le spalle, la vita stretta, la veste che si allarga in basso
-    const profilo = [[0.001, 0], [0.34, 0], [0.3, 0.2], [0.2, 0.62], [0.15, 0.85], [0.19, 1.08], [0.2, 1.17], [0.12, 1.24], [0.05, 1.27], [0.001, 1.28]].map(([x, y]) => new THREE.Vector2(x, y));
-    this.gruppo.add(new THREE.Mesh(new THREE.LatheGeometry(profilo, 28).scale(1, 1, 0.75), mantello));
-    // il braccio che regge lo specchio
-    this.gruppo.add(new THREE.Mesh(new THREE.CapsuleGeometry(0.04, 0.32, 4, 8).rotateZ(-0.5).rotateX(0.6).translate(0.18, 0.95, -0.12), mantello));
-    this.gruppo.add(new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.05, 0.12, 10).translate(0, 1.28, 0), mantello));
-    this.gruppo.scale.setScalar(0.62);
-    // lo specchio, tenuto davanti
-    const specchio = new THREE.Group();
-    specchio.position.set(0.2, 0.9, -0.22);
-    specchio.rotation.set(0.2, 0.5, 0.2);
-    specchio.add(new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.11, 0.02, 24).rotateX(Math.PI / 2), legno));
-    specchio.add(new THREE.Mesh(new THREE.CircleGeometry(0.095, 24).rotateY(Math.PI).translate(0, 0, -0.012), new THREE.MeshStandardMaterial({ color: "#CFE0EA", roughness: 0.15, metalness: 0.2, emissive: "#6F8796", emissiveIntensity: 0.5 })));
-    specchio.add(new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.16, 8).translate(0, -0.18, 0), legno));
-    this.gruppo.add(specchio);
-    const faccia = (disegna: (x: CanvasRenderingContext2D) => void, colore: string) => {
+    // il moai: il profilo di lato (fronte piatta, arcata sporgente, labbra a broncio, mento in fuori) estruso per
+    // tutta la larghezza del volto; il naso lungo e stretto a parte; le orecchie allungate sui fianchi
+    const moai = new THREE.Group();
+    const tufo = new THREE.MeshStandardMaterial({ color: "#7D7367", roughness: 1, flatShading: true });
+    const estrudi = (punti: [number, number][], largo: number) => {
+      const forma = new THREE.Shape(punti.map(([f, y]) => new THREE.Vector2(f, y)));
+      return new THREE.ExtrudeGeometry(forma, { depth: largo, bevelEnabled: false }).translate(0, 0, -largo / 2).rotateY(Math.PI / 2);
+    };
+    moai.add(new THREE.Mesh(estrudi([[-0.3, -0.2], [-0.3, 1.25], [0.2, 1.3], [0.25, 1.06], [0.34, 0.98], [0.33, 0.93], [0.23, 0.88], [0.22, 0.5], [0.3, 0.42], [0.35, 0.34], [0.27, 0.3], [0.32, 0.22], [0.3, 0.12], [0.39, 0.06], [0.36, -0.2]], 0.6), tufo));
+    moai.add(new THREE.Mesh(estrudi([[0.2, 0.93], [0.43, 0.5], [0.4, 0.45], [0.2, 0.46]], 0.16), tufo));
+    moai.add(new THREE.Mesh(estrudi([[0.2, 0.55], [0.39, 0.49], [0.37, 0.44], [0.2, 0.46]], 0.27), tufo));
+    for (const sgn of [-1, 1]) moai.add(new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.6, 0.16).translate(sgn * 0.32, 0.68, 0.0), tufo));
+    moai.scale.setScalar(0.6);
+    moai.rotation.y = 0.55;
+    moai.position.y = -0.05;
+    // le altre: gusci di volto appoggiati a terra, inclinati verso chi guarda
+    const faccia = (disegna: (x: CanvasRenderingContext2D) => void) => {
       const t = tela(128, 160, disegna);
       this.texture.push(t);
       const g = new THREE.Group();
-      const m = new THREE.Mesh(new THREE.SphereGeometry(0.15, 20, 14, Math.PI, Math.PI, 0.15, Math.PI * 0.75).scale(1, 1.25, 0.8), new THREE.MeshStandardMaterial({ map: t, color: colore, roughness: 0.6, side: THREE.DoubleSide }));
-      g.add(m);
-      g.position.set(0, 1.5, -0.02);
+      g.add(new THREE.Mesh(new THREE.SphereGeometry(0.15, 20, 14, Math.PI, Math.PI, 0.15, Math.PI * 0.75).scale(1, 1.25, 0.8), new THREE.MeshStandardMaterial({ map: t, roughness: 0.6, side: THREE.DoubleSide })));
+      g.scale.setScalar(2.4);
+      g.position.set(0, 0.4, 0);
+      g.rotation.x = 0.25;
       return g;
     };
-    // il Mamuthone: legno nero, rughe profonde, pelli di pecora e campanacci
+    // il Mamuthone: legno nero, rughe profonde, la pelle di pecora attorno
     const mamuthone = faccia((x) => {
       x.fillStyle = "#1C1612";
       x.fillRect(0, 0, 128, 160);
@@ -567,14 +563,12 @@ class Maschere {
       x.beginPath(); x.ellipse(44, 70, 10, 7, 0, 0, 7); x.fill();
       x.beginPath(); x.ellipse(84, 70, 10, 7, 0, 0, 7); x.fill();
       x.fillRect(52, 118, 24, 8);
-    }, "#FFFFFF");
+    });
     const pelle = new THREE.MeshStandardMaterial({ color: "#3A2F28", roughness: 1 });
     for (let k = 0; k < 14; k++) {
       const an = (k / 14) * Math.PI * 2;
-      mamuthone.add(new THREE.Mesh(new THREE.IcosahedronGeometry(0.07, 0).translate(Math.cos(an) * 0.17, -0.2 + (k % 3) * 0.03, Math.sin(an) * 0.13), pelle));
+      mamuthone.add(new THREE.Mesh(new THREE.IcosahedronGeometry(0.06, 0).translate(Math.cos(an) * 0.16, 0.05 + Math.sin(an) * 0.17, 0.05), pelle));
     }
-    const ferro = new THREE.MeshStandardMaterial({ color: "#6A5A40", metalness: 0.7, roughness: 0.4 });
-    for (const s of [-1, 1]) mamuthone.add(new THREE.Mesh(new THREE.ConeGeometry(0.05, 0.1, 10).translate(s * 0.14, -0.32, 0.08), ferro));
     // il Krampus: legno rosso scuro, ghigno, corna lunghe
     const krampus = faccia((x) => {
       x.fillStyle = "#5A1E16";
@@ -584,13 +578,13 @@ class Maschere {
       x.beginPath(); x.moveTo(98, 62); x.lineTo(70, 74); x.lineTo(96, 80); x.fill();
       x.fillStyle = "#E8E0CC";
       for (let i = 0; i < 6; i++) { x.beginPath(); x.moveTo(36 + i * 10, 112); x.lineTo(41 + i * 10, 128); x.lineTo(46 + i * 10, 112); x.fill(); }
-    }, "#FFFFFF");
+    });
     const corno = new THREE.MeshStandardMaterial({ color: "#D9CFB8", roughness: 0.5 });
     for (const s of [-1, 1]) {
       const c = new THREE.TubeGeometry(new THREE.CatmullRomCurve3([new THREE.Vector3(s * 0.08, 0.12, 0), new THREE.Vector3(s * 0.2, 0.26, 0.02), new THREE.Vector3(s * 0.22, 0.42, 0.08)]), 10, 0.025, 8);
       krampus.add(new THREE.Mesh(c, corno));
     }
-    // la bauta: bianca e oro, il mento sporgente, il tricorno nero
+    // la bauta: bianca e oro, il tricorno nero
     const bauta = faccia((x) => {
       x.fillStyle = "#F4F1EA";
       x.fillRect(0, 0, 128, 160);
@@ -600,7 +594,7 @@ class Maschere {
       x.fillStyle = "#111";
       x.beginPath(); x.ellipse(44, 70, 10, 6, 0, 0, 7); x.fill();
       x.beginPath(); x.ellipse(84, 70, 10, 6, 0, 0, 7); x.fill();
-    }, "#FFFFFF");
+    });
     bauta.add(new THREE.Mesh(new THREE.ConeGeometry(0.2, 0.12, 3).rotateX(Math.PI).translate(0, 0.2, 0), new THREE.MeshStandardMaterial({ color: "#151515" })));
     // la maschera tragica: bianca, la bocca all'ingiù, le sopracciglia sollevate
     const tragica = faccia((x) => {
@@ -614,14 +608,14 @@ class Maschere {
       x.beginPath(); x.ellipse(44, 72, 9, 7, 0, 0, 7); x.fill();
       x.beginPath(); x.ellipse(84, 72, 9, 7, 0, 0, 7); x.fill();
       x.beginPath(); x.moveTo(40, 128); x.quadraticCurveTo(64, 98, 88, 128); x.quadraticCurveTo(64, 116, 40, 128); x.fill();
-    }, "#FFFFFF");
-    this.volti = [mamuthone, krampus, bauta, tragica];
+    });
+    this.volti = [moai, mamuthone, krampus, bauta, tragica];
     this.volti.forEach((v, i) => {
       v.visible = i === 0;
       this.gruppo.add(v);
     });
   }
-  /** Quando lo sguardo lo lascia e poi torna, la maschera è cambiata. */
+  /** Quando lo sguardo la lascia e poi torna, la maschera è cambiata. */
   aggiorna(_t: number, camera: THREE.Camera) {
     const dir = camera.getWorldDirection(this.dir);
     const verso = this.verso.copy(this.gruppo.position).sub(camera.position).normalize();

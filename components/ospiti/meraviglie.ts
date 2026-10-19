@@ -82,11 +82,12 @@ export function alhambra(a: number) {
   // la Sabika: la collina boscosa, lunga, piatta in cima
   const TOP = 3.6;
   const quota = (x: number, z: number) => {
-    const fianchi = Math.min(1, Math.max(0, (7.5 - Math.abs(x)) / 2.6));
-    const dorso = Math.max(0, 1 - Math.pow(Math.abs(z) / 2.6, 2.4));
+    // a destra (x negativo) la collina si allunga fin sotto la Torre de la Vela
+    const fianchi = Math.min(1, Math.max(0, ((x < 0 ? 9.2 : 7.5) - Math.abs(x)) / 2.6));
+    const dorso = Math.max(0, 1 - Math.pow(Math.abs(z) / 2.9, 2.6));
     return TOP * Math.pow(fianchi, 0.8) * dorso + 0.08 * Math.sin(x * 2.3 + z) - 0.3;
   };
-  pezzi.push(colora(rilievo(-9, 9, -2.8, 2.8, 72, 14, quota), "#5F6E3E", 0.22, () => new THREE.Color(r() < 0.25 ? "#7F7A4A" : "#566637")));
+  pezzi.push(colora(rilievo(-10.6, 9, -2.8, 2.8, 80, 14, quota), "#5F6E3E", 0.22, () => new THREE.Color(r() < 0.25 ? "#7F7A4A" : "#566637")));
   // gli alberi sui fianchi
   for (let k = 0; k < 70; k++) {
     const x = (r() * 2 - 1) * 7.8, z = -2.4 + r() * 1.6;
