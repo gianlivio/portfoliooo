@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { ANGOLO_ZONA } from "../zona";
 import { PELO_ACQUA } from "../condivisi";
-import { bruma, generatore, liberaTutto, tela } from "./comuni";
+import { bruma, casuale, generatore, liberaTutto, tela } from "./comuni";
 import { colora, rilievo, sulRing, unisci } from "./meraviglie";
 
 /*
@@ -9,7 +9,8 @@ import { colora, rilievo, sulRing, unisci } from "./meraviglie";
  * Sicilia: Punta Secca col faro e la casa di Montalbano, Comiso (la cupola azzurra dell'Annunziata, la pagoda
  * della pace), Ragusa Ibla col Duomo di San Giorgio, San Giorgio di Modica sulla scalinata,
  * il Liotru ai piedi dell'Etna. Argentina: le cascate dell'Iguazú, il Cerro de los Siete Colores, l'Obelisco,
- * il Perito Moreno rifatto. E dietro le carte una maschera sola, a terra, che cambia: uno, nessuno e centomila.
+ * il Perito Moreno rifatto. Dietro le carte: un tablao di flamenco ai piedi di Granada, e ogni tanto la processione
+ * dei Mamuthones.
  * Gli angoli sono contati dalla zona dello sviluppatore; i posti scelti cadono negli spazi fra le carte
  * o dietro le carte più basse.
  */
@@ -23,7 +24,8 @@ export const ATTIVI = {
   sieteColores: true,
   obelisco: true,
   peritoMoreno: true,
-  maschere: true,
+  flamenco: true,
+  mamuthones: true,
 };
 
 const Z = ANGOLO_ZONA;
@@ -503,134 +505,314 @@ class PeritoMoreno {
   }
 }
 
-/* --------------------------------------------- le maschere: uno, nessuno e centomila */
+/* ------------------------------------------------------------------ figure piccole */
+
+/** Materiale opaco per le figure vicine, illuminate dalla scena. */
+const stoffa = (colore: THREE.ColorRepresentation, extra: THREE.MeshStandardMaterialParameters = {}) =>
+  new THREE.MeshStandardMaterial({ color: colore, roughness: 0.85, ...extra });
+const PELLE = "#C9936C";
+
+/** Un pezzo appeso a un perno: il gruppo ruota attorno al perno, il pezzo pende verso il basso per "lungo". */
+function arto(materiale: THREE.Material, raggio: number, lungo: number) {
+  const g = new THREE.Group();
+  g.add(new THREE.Mesh(new THREE.CapsuleGeometry(raggio, lungo, 3, 8).translate(0, -lungo / 2, 0), materiale));
+  return g;
+}
+
+/** Testa con i capelli: la pelle davanti, la calotta scura dietro e sopra. */
+function testa(capelli: string, r = 0.075) {
+  const g = new THREE.Group();
+  g.add(new THREE.Mesh(new THREE.SphereGeometry(r, 14, 10), stoffa(PELLE)));
+  g.add(new THREE.Mesh(new THREE.SphereGeometry(r * 1.06, 14, 10, 0, Math.PI * 2, 0, Math.PI * 0.55).rotateX(-0.5), stoffa(capelli)));
+  return g;
+}
+
+/* ------------------------------------------------------------------ il flamenco */
+
+type Musico = { braccio?: THREE.Group; mani?: THREE.Group[]; corpo: THREE.Group; tipo: "chitarra" | "palmas" | "cajon"; fase: number };
 
 /**
- * Una maschera sola, a terra. All'inizio è un moai dell'isola di Pasqua che emerge dal pavimento; ogni volta che
- * lo sguardo la lascia e poi torna è un'altra: il Mamuthone sardo, il Krampus delle Alpi, la bauta veneziana,
- * la maschera tragica greca, e di nuovo il moai.
+ * Ai piedi di Granada, dietro le carte, come il Liotru ai piedi dell'Etna: un tablao rotondo, i musicisti in cerchio
+ * (tre chitarristi seduti, uno sul cajón, due che battono le palmas) e al centro una bailaora col vestito rosso
+ * a balze che gira su sé stessa con le braccia alte, e un bailaor che batte i piedi.
+ * Le figure sono costruite col davanti verso +z e voltate verso il centro.
  */
-class Maschere {
+class Flamenco {
   gruppo = new THREE.Group();
-  private volti: THREE.Group[] = [];
-  private corrente = 0;
-  private visto = true;
-  private dir = new THREE.Vector3();
-  private verso = new THREE.Vector3();
-  private texture: THREE.Texture[] = [];
+  private musici: Musico[] = [];
+  private bailaora = new THREE.Group();
+  private gonna = new THREE.Group();
+  private braccia: THREE.Group[] = [];
+  private bailaor = new THREE.Group();
+  private gambe: THREE.Group[] = [];
+  private bracciaLui: THREE.Group[] = [];
+
   constructor() {
-    // dietro le carte, nel varco fra due di esse
-    const a = Z - 1.69, d = 10;
+    // nel varco fra due carte, sotto l'Albaicín
+    const a = Z - 0.725, d = 9.5;
     this.gruppo.position.set(Math.sin(a) * d, PAV, -Math.cos(a) * d);
     this.gruppo.rotation.y = Math.PI - a;
-    this.gruppo.scale.setScalar(2.6);
-    // il moai: il profilo di lato (fronte piatta, arcata sporgente, labbra a broncio, mento in fuori) estruso per
-    // tutta la larghezza del volto; il naso lungo e stretto a parte; le orecchie allungate sui fianchi
-    const moai = new THREE.Group();
-    const tufo = new THREE.MeshStandardMaterial({ color: "#7D7367", roughness: 1, flatShading: true });
-    const estrudi = (punti: [number, number][], largo: number) => {
-      const forma = new THREE.Shape(punti.map(([f, y]) => new THREE.Vector2(f, y)));
-      return new THREE.ExtrudeGeometry(forma, { depth: largo, bevelEnabled: false }).translate(0, 0, -largo / 2).rotateY(Math.PI / 2);
-    };
-    moai.add(new THREE.Mesh(estrudi([[-0.3, -0.2], [-0.3, 1.25], [0.2, 1.3], [0.25, 1.06], [0.34, 0.98], [0.33, 0.93], [0.23, 0.88], [0.22, 0.5], [0.3, 0.42], [0.35, 0.34], [0.27, 0.3], [0.32, 0.22], [0.3, 0.12], [0.39, 0.06], [0.36, -0.2]], 0.6), tufo));
-    moai.add(new THREE.Mesh(estrudi([[0.2, 0.93], [0.43, 0.5], [0.4, 0.45], [0.2, 0.46]], 0.16), tufo));
-    moai.add(new THREE.Mesh(estrudi([[0.2, 0.55], [0.39, 0.49], [0.37, 0.44], [0.2, 0.46]], 0.27), tufo));
-    for (const sgn of [-1, 1]) moai.add(new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.6, 0.16).translate(sgn * 0.32, 0.68, 0.0), tufo));
-    moai.scale.setScalar(0.6);
-    moai.rotation.y = 0.55;
-    moai.position.y = -0.05;
-    // le altre: gusci di volto appoggiati a terra, inclinati verso chi guarda
-    const faccia = (disegna: (x: CanvasRenderingContext2D) => void) => {
-      const t = tela(128, 160, disegna);
-      this.texture.push(t);
+    // il tablao
+    this.gruppo.add(new THREE.Mesh(new THREE.CylinderGeometry(1.55, 1.6, 0.05, 40).translate(0, 0.025, 0), stoffa("#8A6440")));
+    const legno = stoffa("#5E3F26");
+    const nero = stoffa("#1D1C21");
+    // il cerchio: angoli misurati dal fondo (+z, lontano da chi guarda); davanti resta aperto
+    const posti: [number, Musico["tipo"]][] = [[-2.2, "palmas"], [-1.35, "chitarra"], [-0.55, "chitarra"], [0.25, "cajon"], [1.0, "chitarra"], [1.8, "palmas"], [2.45, "palmas"]];
+    posti.forEach(([ang, tipo], i) => {
+      const x = Math.sin(ang) * 1.25, z = Math.cos(ang) * 1.25;
       const g = new THREE.Group();
-      g.add(new THREE.Mesh(new THREE.SphereGeometry(0.15, 20, 14, Math.PI, Math.PI, 0.15, Math.PI * 0.75).scale(1, 1.25, 0.8), new THREE.MeshStandardMaterial({ map: t, roughness: 0.6, side: THREE.DoubleSide })));
-      g.scale.setScalar(2.4);
-      g.position.set(0, 0.4, 0);
-      g.rotation.x = 0.25;
+      g.position.set(x, 0.05, z);
+      g.rotation.y = Math.atan2(-x, -z);
+      const camicia = stoffa(i % 2 ? "#1D1C21" : "#E9E4DA");
+      const m: Musico = { corpo: g, tipo, fase: i * 0.7 };
+      if (tipo === "palmas") {
+        // in piedi, le mani davanti al petto che si battono
+        for (const sx of [-1, 1]) g.add(new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.46, 0.09).translate(sx * 0.055, 0.23, 0), nero));
+        g.add(new THREE.Mesh(new THREE.CapsuleGeometry(0.1, 0.26, 3, 8).translate(0, 0.62, 0), camicia));
+        const tt = testa("#1A1410");
+        tt.position.y = 0.9;
+        g.add(tt);
+        m.mani = [-1, 1].map((sx) => {
+          const b = arto(camicia, 0.025, 0.2);
+          b.position.set(sx * 0.12, 0.76, 0.02);
+          g.add(b);
+          return b;
+        });
+      } else {
+        // seduto: sedia o cajón, cosce in avanti, stinchi giù
+        if (tipo === "cajon") g.add(new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.4, 0.26).translate(0, 0.2, -0.02), legno));
+        else {
+          g.add(new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.04, 0.28).translate(0, 0.38, -0.02), legno));
+          g.add(new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.32, 0.03).translate(0, 0.56, -0.16), legno));
+          for (const [lx, lz] of [[-0.13, -0.14], [0.13, -0.14], [-0.13, 0.11], [0.13, 0.11]]) g.add(new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.38, 0.03).translate(lx, 0.19, lz), legno));
+        }
+        const yS = tipo === "cajon" ? 0.4 : 0.4;
+        for (const sx of [-1, 1]) {
+          g.add(new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.08, 0.3).translate(sx * 0.06, yS + 0.04, 0.1), nero));
+          g.add(new THREE.Mesh(new THREE.BoxGeometry(0.08, yS, 0.08).translate(sx * 0.06, yS / 2, 0.24), nero));
+        }
+        const busto = new THREE.Group();
+        busto.position.y = yS + 0.06;
+        busto.add(new THREE.Mesh(new THREE.CapsuleGeometry(0.1, 0.24, 3, 8).translate(0, 0.2, 0), camicia));
+        const tt = testa("#1A1410");
+        tt.position.y = 0.48;
+        busto.add(tt);
+        g.add(busto);
+        if (tipo === "chitarra") {
+          // la chitarra sulla coscia destra, il manico in su verso sinistra
+          const ch = new THREE.Group();
+          const cassa = stoffa("#C88A44");
+          ch.add(new THREE.Mesh(new THREE.SphereGeometry(0.1, 14, 10).scale(1, 1, 0.3).translate(-0.06, 0, 0), cassa));
+          ch.add(new THREE.Mesh(new THREE.SphereGeometry(0.08, 14, 10).scale(1, 1, 0.3).translate(0.07, 0, 0), cassa));
+          ch.add(new THREE.Mesh(new THREE.CircleGeometry(0.025, 12).translate(0.0, 0, 0.032), stoffa("#2A1E14")));
+          ch.add(new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.035, 0.02).translate(0.31, 0, 0), legno));
+          ch.position.set(-0.02, yS + 0.2, 0.17);
+          ch.rotation.z = 0.5;
+          g.add(ch);
+          // il braccio destro che fa il rasgueado sulla buca, il sinistro sul manico
+          const dx = arto(camicia, 0.025, 0.24);
+          dx.position.set(-0.12, yS + 0.36, 0.02);
+          dx.rotation.set(-0.9, 0, -0.2);
+          g.add(dx);
+          m.braccio = dx;
+          const sx = arto(camicia, 0.025, 0.26);
+          sx.position.set(0.12, yS + 0.36, 0.02);
+          sx.rotation.set(-1.0, 0, 0.9);
+          g.add(sx);
+        } else {
+          // il cajón: le mani battono sul legno fra le ginocchia
+          busto.rotation.x = 0.35;
+          m.mani = [-1, 1].map((sx) => {
+            const b = arto(camicia, 0.025, 0.26);
+            b.position.set(sx * 0.11, yS + 0.33, 0.06);
+            g.add(b);
+            return b;
+          });
+        }
+      }
+      this.gruppo.add(g);
+      this.musici.push(m);
+    });
+
+    // la bailaora: il vestito rosso a balze, il busto stretto, le braccia alte, il fiore nei capelli
+    const rosso = stoffa("#B5142C"), rossoScuro = stoffa("#8C0E22"), balza = stoffa("#F2E6D8");
+    this.bailaora.position.set(-0.32, 0.05, 0.05);
+    const balze: [number, number, number, number, THREE.Material][] = [[0.085, 0.13, 0.5, 0.2, rosso], [0.12, 0.19, 0.32, 0.2, rossoScuro], [0.18, 0.26, 0.12, 0.22, rosso], [0.255, 0.28, 0.06, 0.07, balza]];
+    balze.forEach(([r0, r1, y, h, m]) => this.gonna.add(new THREE.Mesh(new THREE.CylinderGeometry(r0, r1, h, 24, 1, true).translate(0, y + h / 2 - 0.03, 0), (m as THREE.MeshStandardMaterial).clone())));
+    this.gonna.children.forEach((c) => (((c as THREE.Mesh).material as THREE.MeshStandardMaterial).side = THREE.DoubleSide));
+    this.bailaora.add(this.gonna);
+    this.bailaora.add(new THREE.Mesh(new THREE.CapsuleGeometry(0.075, 0.18, 3, 8).translate(0, 0.78, 0), rosso));
+    const lei = testa("#120E0C", 0.07);
+    lei.position.y = 1.0;
+    lei.add(new THREE.Mesh(new THREE.SphereGeometry(0.045, 10, 8).translate(0, 0.02, -0.08), stoffa("#120E0C")));
+    lei.add(new THREE.Mesh(new THREE.SphereGeometry(0.03, 8, 6).translate(0.06, 0.05, -0.02), stoffa("#D8263A")));
+    this.bailaora.add(lei);
+    for (const sx of [-1, 1]) {
+      const b = arto(stoffa(PELLE), 0.022, 0.3);
+      b.position.set(sx * 0.09, 0.88, 0);
+      this.bailaora.add(b);
+      this.braccia.push(b);
+    }
+    this.gruppo.add(this.bailaora);
+
+    // il bailaor: pantaloni neri a vita alta, camicia bianca, gilet corto; batte i piedi
+    this.bailaor.position.set(0.36, 0.05, 0.12);
+    for (const sx of [-1, 1]) {
+      const gamba = arto(nero, 0.045, 0.42);
+      gamba.position.set(sx * 0.06, 0.5, 0);
+      this.bailaor.add(gamba);
+      this.gambe.push(gamba);
+    }
+    this.bailaor.add(new THREE.Mesh(new THREE.CapsuleGeometry(0.095, 0.26, 3, 8).translate(0, 0.72, 0), stoffa("#EEE9E0")));
+    this.bailaor.add(new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.16, 0.17).translate(0, 0.7, 0), nero));
+    const lui = testa("#1A1410", 0.072);
+    lui.position.y = 1.0;
+    this.bailaor.add(lui);
+    for (const sx of [-1, 1]) {
+      const b = arto(stoffa("#EEE9E0"), 0.025, 0.3);
+      b.position.set(sx * 0.12, 0.86, 0);
+      this.bailaor.add(b);
+      this.bracciaLui.push(b);
+    }
+    this.gruppo.add(this.bailaor);
+  }
+
+  aggiorna(t: number) {
+    const compas = t * 2.6;
+    this.musici.forEach((m) => {
+      if (m.braccio) m.braccio.rotation.x = -0.9 + Math.sin(t * 14 + m.fase) * 0.22;
+      if (m.mani) {
+        const batti = Math.pow(Math.abs(Math.sin(compas * Math.PI * 0.5 + m.fase)), 3);
+        if (m.tipo === "palmas") m.mani.forEach((b, k) => b.rotation.set(-1.3, 0, (k ? 1 : -1) * (0.15 + 0.35 * (1 - batti))));
+        else m.mani.forEach((b, k) => b.rotation.set(-0.5 - 0.35 * Math.abs(Math.sin(t * 7 + k * 1.6)), 0, 0));
+      }
+      m.corpo.position.y = 0.05 + (m.tipo === "palmas" ? Math.abs(Math.sin(compas * Math.PI * 0.5)) * 0.01 : 0);
+    });
+    // la bailaora: ondeggia, e ogni cinque secondi fa un giro completo, con la gonna che si apre
+    const ciclo = t % 5;
+    const giro = ciclo < 1.2 ? THREE.MathUtils.smootherstep(ciclo, 0, 1.2) : 1;
+    const velocita = ciclo < 1.2 ? Math.sin((ciclo / 1.2) * Math.PI) : 0;
+    this.bailaora.rotation.y = Math.floor(t / 5) * Math.PI * 2 + giro * Math.PI * 2 + Math.sin(t * 0.9) * 0.5;
+    this.gonna.scale.set(1 + velocita * 0.35, 1 - velocita * 0.08, 1 + velocita * 0.35);
+    this.braccia.forEach((b, k) => {
+      const s = k ? 1 : -1;
+      b.rotation.set(Math.sin(t * 1.7 + k) * 0.3, 0, s * (2.5 + Math.sin(t * 2.2 + k * 2) * 0.35));
+    });
+    // il bailaor: zapateado, i piedi che battono a turno; il busto dritto, un braccio in alto, l'altro al fianco
+    this.gambe.forEach((g, k) => (g.rotation.x = -Math.max(0, Math.sin(t * 13 + k * Math.PI)) * 0.45));
+    this.bailaor.position.y = 0.05 + Math.abs(Math.sin(t * 13)) * 0.012;
+    this.bailaor.rotation.y = Math.PI * 0.15 + Math.sin(t * 0.6) * 0.6;
+    this.bracciaLui[0].rotation.set(0, 0, -2.6 + Math.sin(t * 1.4) * 0.2);
+    this.bracciaLui[1].rotation.set(0.2, 0, 0.6);
+  }
+
+  libera() {
+    liberaTutto(this.gruppo);
+  }
+}
+
+/* ------------------------------------------------------------------ i Mamuthones */
+
+type Maschera = { g: THREE.Group; avanti: number; fianco: number; fila: number; issohadore: boolean };
+
+/**
+ * Di giorno, ogni tanto, passa dietro le carte una piccola processione di Mamuthones: pochi individui
+ * con la maschera di legno nera, il fazzoletto in testa, le pelli di montone nere e i campanacci sulla schiena,
+ * in due file, che avanzano a balzi tutti insieme; davanti e di fianco gli Issohadores con la giubba rossa,
+ * la maschera bianca e la fune in mano.
+ */
+class Mamuthones {
+  gruppo = new THREE.Group();
+  private figure: Maschera[] = [];
+  private stato = { prossima: 8, inizio: -1, durata: 48, verso: 1 };
+  private R = 8.6;
+  private A0 = Z - 1.8;
+  private A1 = Z - 0.62;
+
+  constructor() {
+    const vello = stoffa("#16120F", { roughness: 1 });
+    const ciocca = stoffa("#2A221C", { roughness: 1, flatShading: true });
+    const legnoNero = stoffa("#0E0C0B", { roughness: 0.45 });
+    const fazzoletto = stoffa("#5A3A22");
+    const velluto = stoffa("#3B2A1F");
+    const bronzo = stoffa("#8A6A35", { metalness: 0.6, roughness: 0.4 });
+    const giubba = stoffa("#B1201E");
+    const bianco = stoffa("#EDEAE3");
+    const mamuthone = () => {
+      const g = new THREE.Group();
+      for (const sx of [-1, 1]) g.add(new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.24, 0.07).translate(sx * 0.05, 0.12, 0), velluto));
+      // la mastruca: il vello nero, irsuto
+      g.add(new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.19, 0.5, 12).translate(0, 0.45, 0), vello));
+      for (let k = 0; k < 16; k++) {
+        const an = (k / 16) * Math.PI * 2;
+        g.add(new THREE.Mesh(new THREE.IcosahedronGeometry(0.06, 0).translate(Math.sin(an) * 0.17, 0.3 + (k % 4) * 0.1, Math.cos(an) * 0.16), ciocca));
+      }
+      // i campanacci sulla schiena
+      for (let k = 0; k < 6; k++) g.add(new THREE.Mesh(new THREE.ConeGeometry(0.045, 0.09, 8).translate((k % 3 - 1) * 0.08, 0.5 + Math.floor(k / 3) * 0.12, -0.19), bronzo));
+      // la testa: il fazzoletto marrone e la maschera nera di legno
+      g.add(new THREE.Mesh(new THREE.SphereGeometry(0.085, 12, 10).translate(0, 0.8, -0.01), fazzoletto));
+      g.add(new THREE.Mesh(new THREE.SphereGeometry(0.075, 12, 10, 0, Math.PI, 0.3, Math.PI * 0.7).scale(1, 1.2, 0.8).translate(0, 0.78, 0.035), legnoNero));
       return g;
     };
-    // il Mamuthone: legno nero, rughe profonde, la pelle di pecora attorno
-    const mamuthone = faccia((x) => {
-      x.fillStyle = "#1C1612";
-      x.fillRect(0, 0, 128, 160);
-      x.strokeStyle = "#6A5442";
-      x.lineWidth = 4;
-      for (let i = 0; i < 5; i++) { x.beginPath(); x.arc(64, 22 + i * 8, 44, 0.25 * Math.PI, 0.75 * Math.PI); x.stroke(); }
-      x.fillStyle = "#5A4636";
-      x.beginPath(); x.moveTo(58, 72); x.lineTo(70, 72); x.lineTo(74, 104); x.lineTo(54, 104); x.fill();
-      x.strokeStyle = "#7A6250";
-      x.beginPath(); x.moveTo(30, 60); x.lineTo(56, 64); x.moveTo(98, 60); x.lineTo(72, 64); x.stroke();
-      x.fillStyle = "#000";
-      x.beginPath(); x.ellipse(44, 70, 10, 7, 0, 0, 7); x.fill();
-      x.beginPath(); x.ellipse(84, 70, 10, 7, 0, 0, 7); x.fill();
-      x.fillRect(52, 118, 24, 8);
-    });
-    const pelle = new THREE.MeshStandardMaterial({ color: "#3A2F28", roughness: 1 });
-    for (let k = 0; k < 14; k++) {
-      const an = (k / 14) * Math.PI * 2;
-      mamuthone.add(new THREE.Mesh(new THREE.IcosahedronGeometry(0.06, 0).translate(Math.cos(an) * 0.16, 0.05 + Math.sin(an) * 0.17, 0.05), pelle));
+    const issohadore = () => {
+      const g = new THREE.Group();
+      for (const sx of [-1, 1]) g.add(new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.38, 0.07).translate(sx * 0.05, 0.19, 0), bianco));
+      g.add(new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.3, 0.14).translate(0, 0.53, 0), giubba));
+      g.add(new THREE.Mesh(new THREE.TorusGeometry(0.12, 0.012, 6, 16).rotateZ(0.7).translate(0, 0.55, 0.075), bronzo));
+      g.add(new THREE.Mesh(new THREE.SphereGeometry(0.075, 12, 10).translate(0, 0.79, 0), bianco));
+      g.add(new THREE.Mesh(new THREE.ConeGeometry(0.07, 0.16, 10).rotateX(-0.6).translate(0, 0.9, -0.04), stoffa("#151515")));
+      // la soha, la fune arrotolata in mano
+      g.add(new THREE.Mesh(new THREE.TorusGeometry(0.07, 0.01, 6, 16).translate(0.15, 0.42, 0.06), stoffa("#B89B6A")));
+      return g;
+    };
+    // due file di tre Mamuthones; un Issohadore davanti e uno di fianco
+    for (let fila = 0; fila < 2; fila++)
+      for (let k = 0; k < 3; k++) {
+        const g = mamuthone();
+        this.gruppo.add(g);
+        this.figure.push({ g, avanti: -k * 0.55, fianco: fila ? 0.24 : -0.24, fila, issohadore: false });
+      }
+    for (const [avanti, fianco] of [[0.75, 0], [-0.5, 0.65]]) {
+      const g = issohadore();
+      this.gruppo.add(g);
+      this.figure.push({ g, avanti, fianco, fila: 0, issohadore: true });
     }
-    // il Krampus: legno rosso scuro, ghigno, corna lunghe
-    const krampus = faccia((x) => {
-      x.fillStyle = "#5A1E16";
-      x.fillRect(0, 0, 128, 160);
-      x.fillStyle = "#200806";
-      x.beginPath(); x.moveTo(30, 62); x.lineTo(58, 74); x.lineTo(32, 80); x.fill();
-      x.beginPath(); x.moveTo(98, 62); x.lineTo(70, 74); x.lineTo(96, 80); x.fill();
-      x.fillStyle = "#E8E0CC";
-      for (let i = 0; i < 6; i++) { x.beginPath(); x.moveTo(36 + i * 10, 112); x.lineTo(41 + i * 10, 128); x.lineTo(46 + i * 10, 112); x.fill(); }
-    });
-    const corno = new THREE.MeshStandardMaterial({ color: "#D9CFB8", roughness: 0.5 });
-    for (const s of [-1, 1]) {
-      const c = new THREE.TubeGeometry(new THREE.CatmullRomCurve3([new THREE.Vector3(s * 0.08, 0.12, 0), new THREE.Vector3(s * 0.2, 0.26, 0.02), new THREE.Vector3(s * 0.22, 0.42, 0.08)]), 10, 0.025, 8);
-      krampus.add(new THREE.Mesh(c, corno));
+    this.gruppo.visible = false;
+  }
+
+  aggiorna(t: number) {
+    const s = this.stato;
+    if (s.inizio < 0) {
+      if (t < s.prossima) return;
+      s.inizio = t;
+      s.verso = -s.verso;
+      this.gruppo.visible = true;
     }
-    // la bauta: bianca e oro, il tricorno nero
-    const bauta = faccia((x) => {
-      x.fillStyle = "#F4F1EA";
-      x.fillRect(0, 0, 128, 160);
-      x.strokeStyle = "#C9A04A";
-      x.lineWidth = 3;
-      x.beginPath(); x.moveTo(20, 50); x.quadraticCurveTo(64, 30, 108, 50); x.stroke();
-      x.fillStyle = "#111";
-      x.beginPath(); x.ellipse(44, 70, 10, 6, 0, 0, 7); x.fill();
-      x.beginPath(); x.ellipse(84, 70, 10, 6, 0, 0, 7); x.fill();
-    });
-    bauta.add(new THREE.Mesh(new THREE.ConeGeometry(0.2, 0.12, 3).rotateX(Math.PI).translate(0, 0.2, 0), new THREE.MeshStandardMaterial({ color: "#151515" })));
-    // la maschera tragica: bianca, la bocca all'ingiù, le sopracciglia sollevate
-    const tragica = faccia((x) => {
-      x.fillStyle = "#EDE9E1";
-      x.fillRect(0, 0, 128, 160);
-      x.strokeStyle = "#2A2622";
-      x.lineWidth = 4;
-      x.beginPath(); x.moveTo(26, 56); x.quadraticCurveTo(44, 40, 58, 58); x.stroke();
-      x.beginPath(); x.moveTo(102, 56); x.quadraticCurveTo(84, 40, 70, 58); x.stroke();
-      x.fillStyle = "#111";
-      x.beginPath(); x.ellipse(44, 72, 9, 7, 0, 0, 7); x.fill();
-      x.beginPath(); x.ellipse(84, 72, 9, 7, 0, 0, 7); x.fill();
-      x.beginPath(); x.moveTo(40, 128); x.quadraticCurveTo(64, 98, 88, 128); x.quadraticCurveTo(64, 116, 40, 128); x.fill();
-    });
-    this.volti = [moai, mamuthone, krampus, bauta, tragica];
-    this.volti.forEach((v, i) => {
-      v.visible = i === 0;
-      this.gruppo.add(v);
+    const k = (t - s.inizio) / s.durata;
+    if (k >= 1) {
+      s.inizio = -1;
+      s.prossima = t + casuale(30, 60);
+      this.gruppo.visible = false;
+      return;
+    }
+    const [da, a] = s.verso > 0 ? [this.A0, this.A1] : [this.A1, this.A0];
+    const th = da + (a - da) * k;
+    // il passo: un balzo collettivo, le spalle che girano per far suonare i campanacci
+    const passo = t * 1.25 * Math.PI;
+    const balzo = Math.abs(Math.sin(passo)) * 0.06;
+    this.figure.forEach((f) => {
+      // posizione: sulla direzione di marcia (tangente all'anello) e di fianco (raggio)
+      const ang = th + (f.avanti / this.R) * s.verso;
+      const r = this.R + f.fianco;
+      f.g.position.set(Math.sin(ang) * r, PAV + (f.issohadore ? Math.abs(Math.sin(passo * 0.5)) * 0.02 : balzo), -Math.cos(ang) * r);
+      // il davanti (+z) verso la direzione di marcia
+      const tx = Math.cos(ang) * s.verso, tz = Math.sin(ang) * s.verso;
+      f.g.rotation.set(0, Math.atan2(tx, tz) + (f.issohadore ? 0 : Math.sin(passo + f.fila * Math.PI) * 0.22), 0);
     });
   }
-  /** Quando lo sguardo la lascia e poi torna, la maschera è cambiata. */
-  aggiorna(_t: number, camera: THREE.Camera) {
-    const dir = camera.getWorldDirection(this.dir);
-    const verso = this.verso.copy(this.gruppo.position).sub(camera.position).normalize();
-    const visto = dir.dot(verso) > 0.55;
-    if (visto && !this.visto) {
-      this.volti[this.corrente].visible = false;
-      this.corrente = (this.corrente + 1) % this.volti.length;
-      this.volti[this.corrente].visible = true;
-    }
-    this.visto = visto;
-  }
+
   libera() {
-    liberaTutto(this.gruppo, this.texture);
+    liberaTutto(this.gruppo);
   }
 }
 
@@ -640,6 +822,8 @@ export class Luoghi {
   gruppo = new THREE.Group();
   private giorno = new THREE.Group();
   private sempre = new THREE.Group();
+  /** Le figure piccole vicine, solo di giorno: illuminate dalla scena, senza colori cotti. */
+  private vicini = new THREE.Group();
   private vivi: { aggiorna?: (t: number, camera: THREE.Camera) => void; libera?: () => void }[] = [];
   private texture: THREE.Texture[] = [];
 
@@ -666,12 +850,17 @@ export class Luoghi {
       this.sempre.add(l.gruppo);
       this.vivi.push({ libera: () => l.libera() });
     }
-    if (A.maschere) {
-      const m = new Maschere();
-      this.sempre.add(m.gruppo);
-      this.vivi.push({ aggiorna: (t, c) => m.aggiorna(t, c), libera: () => m.libera() });
+    if (A.flamenco) {
+      const f = new Flamenco();
+      this.vicini.add(f.gruppo);
+      this.vivi.push({ aggiorna: (t) => f.aggiorna(t), libera: () => f.libera() });
     }
-    this.gruppo.add(this.giorno, this.sempre);
+    if (A.mamuthones) {
+      const m = new Mamuthones();
+      this.vicini.add(m.gruppo);
+      this.vivi.push({ aggiorna: (t) => m.aggiorna(t), libera: () => m.libera() });
+    }
+    this.gruppo.add(this.giorno, this.sempre, this.vicini);
     this.gruppo.traverse((o) => {
       o.raycast = () => undefined;
     });
@@ -684,6 +873,7 @@ export class Luoghi {
 
   setNotte(notte: boolean) {
     this.giorno.visible = !notte;
+    this.vicini.visible = !notte;
   }
 
   aggiorna(t: number, camera: THREE.Camera) {

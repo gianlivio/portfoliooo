@@ -100,7 +100,7 @@ export const competenzeDi: Record<string, string[]> = {
   copystudio: ["copy", "brand", "ia"],
   futuraauthor: ["next", "react", "ts", "tailwind", "sql", "prompt", "seo", "geo", "gsc", "editoriale", "copy"],
   beautybroker: ["qa", "rest", "git", "js"],
-  hetaweb: ["seo", "copy", "editoriale", "gsc"],
+  hetaweb: ["wordpress", "seo", "copy", "editoriale", "gsc"],
 };
 
 export function nomeCompetenza(c: Competenza, lingua: string) {

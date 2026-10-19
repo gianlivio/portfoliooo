@@ -138,14 +138,15 @@
     "hetaweb": {
       "tipo": "SEO · editorial",
       "titolo": "Hetaweb",
-      "riga": "Editorial and SEO management of the agency's client blogs.",
+      "riga": "Editorial and SEO management of the agency's client blogs, all on WordPress.",
       "ruolo": "SEO copywriter · Lucca",
       "compiti": [
-        "Editorial management of the blogs of 30+ clients, including the Italian National Rugby Team.",
+        "Editorial management of the WordPress blogs of 30+ clients: clinics, hair salons, jewellers, law firms, tax and financial consultants, and the Italian National Rugby Team.",
         "Writing and SEO optimisation of articles: title, lead, H2s, meta description.",
+        "On-page checks of meta tags and headings with META SEO inspector.",
         "Performance analysis on Google Search Console."
       ],
-      "strumenti": "Google Search Console"
+      "strumenti": "WordPress, META SEO inspector, Google Search Console"
     },
     "futuraauthor": {
       "tipo": "Platform · AI agents",

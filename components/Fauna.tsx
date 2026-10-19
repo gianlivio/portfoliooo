@@ -6,6 +6,8 @@ import * as THREE from "three";
 import { PELO_ACQUA, gocce } from "./condivisi";
 import { type Ospite, assi, attesa, azzeraRegia, casuale, pausaRegia, solo } from "./ospiti/comuni";
 import { Nave } from "./ospiti/nave";
+import { Drago } from "./ospiti/drago";
+import { Gufo } from "./ospiti/gufo";
 import { Achille } from "./ospiti/achille";
 import { Icaro } from "./ospiti/icaro";
 import { Aereo, Jet } from "./ospiti/cieli";
@@ -28,7 +30,7 @@ import { Anticitera, Tempio } from "./ospiti/ologrammi";
  * alla volta per ciascuna traccia (in acqua o a terra, e in cielo), con pause brevi, e si ferma
  * quando è aperta una scheda o il modulo.
  * Notte, in acqua: la nave di Ulisse, la feluca della caccia al pesce spada, un galeone pirata;
- * in cielo: un aereo di linea, la Stazione spaziale. Sempre: stelle cadenti, gocce,
+ * in cielo: un drago che sputa fuoco, un gufo reale, un aereo di linea, la Stazione spaziale. Sempre: stelle cadenti, gocce,
  * un elettrodotto che si allontana come un viale.
  * Giorno, a terra: Achille e la tartaruga; in aria: Icaro, i droni, uno pterodattilo;
  * in cielo: un jet con le scie, un dirigibile. Sempre: nuvole lente e un sole dall'alba al tramonto,
@@ -275,6 +277,8 @@ function Presenza({ crea }: { crea: () => Ospite }) {
 }
 
 const creaNave = () => new Nave();
+const creaDrago = () => new Drago();
+const creaGufo = () => new Gufo();
 const creaAchille = () => new Achille();
 const creaIcaro = () => new Icaro();
 const creaAereo = () => new Aereo();
@@ -311,6 +315,8 @@ export default function Fauna({
       {c("stelle") && <StelleCadenti />}
       {c("gocce") && <Gocce />}
       {c("nave") && <Presenza crea={creaNave} />}
+      {c("drago") && <Presenza crea={creaDrago} />}
+      {c("gufo") && <Presenza crea={creaGufo} />}
       {c("aereo") && <Presenza crea={creaAereo} />}
       {c("feluca") && <Presenza crea={creaFeluca} />}
       {c("galeone") && <Presenza crea={creaGaleone} />}
