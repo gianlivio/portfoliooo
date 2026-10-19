@@ -10,9 +10,11 @@ import { alone, bruma, casuale, liberaTutto } from "./comuni";
  * Non si muove la montagna: solo lava, fumo e nuvole, che con "riduci movimento" restano fermi.
  */
 
-const DIST = 39; // dentro la volta delle stelle (42), che altrimenti gli passerebbero davanti
+const DIST = 41; // dentro la volta delle stelle (42), che altrimenti gli passerebbero davanti
 // nella finestra di cielo libera sopra la zona dello sviluppatore, subito a sinistra della prima carta: lì non lo copre niente
-const AZ = ANGOLO_ZONA + 0.22;
+// gigante, a destra dello sviluppatore, dove prima stavano le isole: come stare ai suoi piedi
+const AZ = ANGOLO_ZONA + 1.2;
+const GRANDE = 4.2;
 const ALTO = 3.4;
 const BASE = 6.2;
 
@@ -95,6 +97,7 @@ export class Etna {
       this.gruppo.add(s);
     }
     this.gruppo.position.set(Math.sin(AZ) * DIST, PELO_ACQUA - 0.3, -Math.cos(AZ) * DIST);
+    this.gruppo.scale.setScalar(GRANDE);
     this.gruppo.traverse((o) => {
       o.raycast = () => undefined;
       o.renderOrder = -0.8;

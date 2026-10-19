@@ -12,8 +12,9 @@ import { alone, bruma, generatore, liberaTutto } from "./comuni";
  */
 
 const SU = PELO_ACQUA - 0.3;
-const A0 = ANGOLO_ZONA + 0.62;
-const A1 = ANGOLO_ZONA + 2.52;
+// le isole, piccole e lontane, raccolte nell'ultimo tratto prima della città (l'Etna occupa il resto)
+const A0 = ANGOLO_ZONA + 1.95;
+const A1 = ANGOLO_ZONA + 2.6;
 const suAnello = (a: number, d: number, y = 0) => new THREE.Vector3(Math.sin(a) * d, y, -Math.cos(a) * d);
 const rivolgi = (o: THREE.Object3D, a: number) => (o.rotation.y = Math.PI - a);
 const CIELO = new THREE.Color("#BFD6EA");
@@ -97,7 +98,8 @@ function isola(i: Isola, r: () => number) {
   }
   const m = new THREE.Mesh(g, new THREE.MeshBasicMaterial({ vertexColors: true, fog: false }));
   const a = A0 + (A1 - A0) * i.u;
-  m.position.copy(suAnello(a, i.d, SU));
+  m.position.copy(suAnello(a, i.d + 2, SU));
+  m.scale.set(0.5, 0.6, 0.5);
   rivolgi(m, a);
   return m;
 }
@@ -150,7 +152,7 @@ export class Riva {
     // Stromboli fuma sempre un poco
     const s = ISOLE[ISOLE.length - 1];
     const a = A0 + (A1 - A0) * s.u;
-    this.cimaStromboli.copy(suAnello(a, s.d, SU + s.h));
+    this.cimaStromboli.copy(suAnello(a, s.d + 2, SU + s.h * 0.6));
     const tx = bruma(9);
     this.texture.push(tx);
     for (let k = 0; k < 6; k++) {

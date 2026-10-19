@@ -166,11 +166,12 @@ class Studio {
     texture.push(tx);
     this.scritta = { x: c.getContext("2d") as CanvasRenderingContext2D, t: tx };
     const cartello = new THREE.Mesh(
-      new THREE.PlaneGeometry(1.75, 1.75 * (160 / 768)),
+      new THREE.PlaneGeometry(2.4, 2.4 * (160 / 768)),
       new THREE.MeshBasicMaterial({ map: tx, transparent: true, depthWrite: false, toneMapped: false })
     );
-    // spostata un po' verso la mensola: dall'altra parte c'è la prima carta, che la coprirebbe
-    cartello.position.set(0.45, 1.72, -0.05);
+    // più lontana e più a destra di prima (per chi guarda), sopra il fondo del tavolino
+    cartello.position.set(0.32, 2.0, 0.45);
+    cartello.renderOrder = 10; // dopo le carte: è più vicina di loro, non deve finirci sotto
     cartello.rotation.y = Math.PI;
     // la scritta è un bottone vero: cliccarla accende e spegne la musica come il tavolino
     cartello.userData.azione = { tipo: "drum" } satisfies Azione;
@@ -212,33 +213,37 @@ class Studio {
   private scrivi(acceso: boolean) {
     const { x, t } = this.scritta;
     x.clearRect(0, 0, 768, 160);
-    // un bottone: fascia scura col bordo, a sinistra il tasto tondo con play o stop, poi il testo
-    x.fillStyle = "rgba(14,10,24,0.86)";
+    // lo stesso bottone della domanda sul cassetto: fascia scura, bordo sottile, testo in serif; colori sobri
+    const serif = getComputedStyle(document.documentElement).getPropertyValue("--font-serif").trim() || "Georgia, serif";
+    x.fillStyle = "rgba(14,12,22,0.88)";
     x.beginPath();
-    x.roundRect(6, 12, 756, 136, 68);
+    x.roundRect(6, 10, 756, 140, 34);
     x.fill();
-    x.strokeStyle = "#E05BFF";
-    x.lineWidth = 5;
+    x.strokeStyle = "#A99FC2";
+    x.lineWidth = 4;
     x.stroke();
-    x.fillStyle = acceso ? "#E05BFF" : "#FFFFFF";
+    // il segno: play o stop, sottile, nello stesso lilla spento
+    x.strokeStyle = "#A99FC2";
+    x.lineWidth = 3;
     x.beginPath();
-    x.arc(80, 80, 48, 0, Math.PI * 2);
-    x.fill();
-    x.fillStyle = acceso ? "#FFFFFF" : "#1A1024";
-    if (acceso) x.fillRect(62, 62, 36, 36);
+    x.arc(86, 80, 36, 0, Math.PI * 2);
+    x.stroke();
+    x.fillStyle = "#D9D3E8";
+    if (acceso) x.fillRect(73, 67, 26, 26);
     else {
       x.beginPath();
-      x.moveTo(66, 56);
+      x.moveTo(76, 62);
       x.lineTo(104, 80);
-      x.lineTo(66, 104);
+      x.lineTo(76, 98);
       x.closePath();
       x.fill();
     }
     x.fillStyle = "#FFFFFF";
-    x.font = "700 64px ui-monospace, monospace";
+    x.font = `300 58px ${serif}`;
     x.textAlign = "center";
     x.textBaseline = "middle";
-    x.fillText((acceso ? this.testi[1] : this.testi[0]).toUpperCase(), 450, 84, 600);
+    const testo = acceso ? this.testi[1] : this.testi[0];
+    x.fillText(testo.charAt(0).toUpperCase() + testo.slice(1).toLowerCase(), 440, 82, 580);
     t.needsUpdate = true;
   }
 

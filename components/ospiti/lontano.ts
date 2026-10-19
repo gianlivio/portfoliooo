@@ -295,8 +295,11 @@ export class Lontano {
     // l'Alhambra e il Perito Moreno
     // l'Alhambra a destra dell'Albaicín (che sta in citta.ts, più vicino): fra i due la valle del Darro
     // nel tratto di cielo libero sopra lo sviluppatore: lì le carte non la coprono
-    this.giorno.add(alhambra(ANGOLO_ZONA - 0.05));
+    const al = alhambra(ANGOLO_ZONA - 0.02);
+    al.scale.setScalar(1.35);
+    this.giorno.add(al);
     const bo = bologna(ANGOLO_ZONA - 2.56);
+    bo.scale.setScalar(1.5);
     this.texture.push(bo.userData.texture as THREE.Texture);
     this.giorno.add(bo);
 

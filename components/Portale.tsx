@@ -81,12 +81,13 @@ function etichetta(righe: string[], mono: string, serif: string, bordo: string) 
     c.strokeStyle = bordo;
     c.lineWidth = 6;
     c.stroke();
+    // una riga sola, la domanda: "Scrivimi" resta implicito, il bottone si capisce da sé
     c.fillStyle = "#FFFFFF";
     c.textAlign = "center";
-    c.font = `300 80px ${serif}`;
-    c.fillText(righe[0], 512, 94, 680);
-    c.font = `400 30px ${mono}`;
-    c.fillText(righe[1].toUpperCase(), 512, 156, 680);
+    c.textBaseline = "middle";
+    c.font = `300 62px ${serif}`;
+    c.fillText(righe[0], 512, 102, 660);
+    void mono;
   }
   const t = new THREE.CanvasTexture(tela);
   t.colorSpace = THREE.SRGBColorSpace;
@@ -144,10 +145,11 @@ const COLORI = {
 };
 
 export default function Portale({
-  notte, titolo, sotto, mono, serif, opacita, ridotto, onApri, onSfiora,
+  notte, sotto, mono, serif, opacita, ridotto, onApri, onSfiora,
 }: {
   notte: boolean;
-  titolo: string;
+  /** non più disegnato: resta per chi la monta (la scritta è solo la domanda) */
+  titolo?: string;
   sotto: string;
   mono: string;
   serif: string;
@@ -159,7 +161,7 @@ export default function Portale({
 }) {
   const [sopra, setSopra] = useState(false);
   const forza = useRef(0);
-  const scritta = useMemo(() => etichetta([titolo, sotto], mono, serif, notte ? COLORI.notte.bordo : COLORI.giorno.bordo), [titolo, sotto, mono, serif, notte]);
+  const scritta = useMemo(() => etichetta([sotto], mono, serif, notte ? COLORI.notte.bordo : COLORI.giorno.bordo), [sotto, mono, serif, notte]);
   const punto = useMemo(() => morbida(), []);
   const lama = useMemo(() => morbida(true), []);
   const col = notte ? COLORI.notte : COLORI.giorno;
@@ -366,6 +368,7 @@ export default function Portale({
         position={[C.x, 2.35, BOCCA_Z]}
         rotation={[0, Math.PI, 0]}
         scale={sopra ? 1.06 : 1}
+        renderOrder={10}
         onPointerOver={(e: ThreeEvent<PointerEvent>) => {
           e.stopPropagation();
           setSopra(true);

@@ -64,16 +64,6 @@ const SCALA = [220, 261.63, 293.66, 329.63, 392, 440, 523.25, 587.33, 659.25, 78
 
 type Ascoltatore = (m: Modo) => void;
 
-function leggiScelta(): Modo {
-  try {
-    const v = localStorage.getItem(CHIAVE);
-    // all'arrivo suona solo il fondo, anche se la volta prima c'era il loop; chi l'ha spento lo ritrova spento
-    return v === "spento" ? "spento" : "ambiente";
-  } catch {
-    return "ambiente";
-  }
-}
-
 function salvaScelta(m: Modo) {
   try {
     localStorage.setItem(CHIAVE, m);
@@ -110,7 +100,8 @@ class Suono {
 
   /** Legge la scelta salvata. Con "riduci movimento" non si riattiva da sola: solo a mano. */
   prepara(ridotto: boolean) {
-    this.voluto = ridotto ? "spento" : leggiScelta();
+    // a ogni arrivo il fondo è acceso (solo il fondo); si spegne col bottone, per quella visita
+    this.voluto = ridotto ? "spento" : "ambiente";
     // prova a partire subito: se il browser lo consente (sito già frequentato, permessi dati) si sente all'arrivo;
     // altrimenti il contesto resta sospeso e parte al primo tocco, clic o tasto, ovunque sulla pagina
     if (this.voluto !== "spento") {
