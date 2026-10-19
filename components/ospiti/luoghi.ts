@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { ANGOLO_ZONA } from "../zona";
 import { PELO_ACQUA } from "../condivisi";
-import { bruma, casuale, generatore, liberaTutto, tela } from "./comuni";
+import { bruma, generatore, liberaTutto, tela } from "./comuni";
 import { colora, rilievo, sulRing, unisci } from "./meraviglie";
 
 /*
@@ -9,8 +9,7 @@ import { colora, rilievo, sulRing, unisci } from "./meraviglie";
  * Sicilia: Punta Secca col faro e la casa di Montalbano, Comiso (la cupola azzurra dell'Annunziata, la pagoda
  * della pace), Ragusa Ibla col Duomo di San Giorgio, San Giorgio di Modica sulla scalinata,
  * il Liotru ai piedi dell'Etna. Argentina: le cascate dell'Iguazú, il Cerro de los Siete Colores, l'Obelisco,
- * il Perito Moreno rifatto. Dietro le carte: un tablao di flamenco ai piedi di Granada, e ogni tanto la processione
- * dei Mamuthones.
+ * il Perito Moreno rifatto. Dietro le carte: un tablao di flamenco ai piedi di Granada.
  * Gli angoli sono contati dalla zona dello sviluppatore; i posti scelti cadono negli spazi fra le carte
  * o dietro le carte più basse.
  */
@@ -25,7 +24,6 @@ export const ATTIVI = {
   obelisco: true,
   peritoMoreno: true,
   flamenco: true,
-  mamuthones: true,
 };
 
 const Z = ANGOLO_ZONA;
@@ -711,111 +709,6 @@ class Flamenco {
   }
 }
 
-/* ------------------------------------------------------------------ i Mamuthones */
-
-type Maschera = { g: THREE.Group; avanti: number; fianco: number; fila: number; issohadore: boolean };
-
-/**
- * Di giorno, ogni tanto, passa dietro le carte una piccola processione di Mamuthones: pochi individui
- * con la maschera di legno nera, il fazzoletto in testa, le pelli di montone nere e i campanacci sulla schiena,
- * in due file, che avanzano a balzi tutti insieme; davanti e di fianco gli Issohadores con la giubba rossa,
- * la maschera bianca e la fune in mano.
- */
-class Mamuthones {
-  gruppo = new THREE.Group();
-  private figure: Maschera[] = [];
-  private stato = { prossima: 8, inizio: -1, durata: 48, verso: 1 };
-  private R = 8.6;
-  private A0 = Z - 1.8;
-  private A1 = Z - 0.62;
-
-  constructor() {
-    const vello = stoffa("#16120F", { roughness: 1 });
-    const ciocca = stoffa("#2A221C", { roughness: 1, flatShading: true });
-    const legnoNero = stoffa("#0E0C0B", { roughness: 0.45 });
-    const fazzoletto = stoffa("#5A3A22");
-    const velluto = stoffa("#3B2A1F");
-    const bronzo = stoffa("#8A6A35", { metalness: 0.6, roughness: 0.4 });
-    const giubba = stoffa("#B1201E");
-    const bianco = stoffa("#EDEAE3");
-    const mamuthone = () => {
-      const g = new THREE.Group();
-      for (const sx of [-1, 1]) g.add(new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.24, 0.07).translate(sx * 0.05, 0.12, 0), velluto));
-      // la mastruca: il vello nero, irsuto
-      g.add(new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.19, 0.5, 12).translate(0, 0.45, 0), vello));
-      for (let k = 0; k < 16; k++) {
-        const an = (k / 16) * Math.PI * 2;
-        g.add(new THREE.Mesh(new THREE.IcosahedronGeometry(0.06, 0).translate(Math.sin(an) * 0.17, 0.3 + (k % 4) * 0.1, Math.cos(an) * 0.16), ciocca));
-      }
-      // i campanacci sulla schiena
-      for (let k = 0; k < 6; k++) g.add(new THREE.Mesh(new THREE.ConeGeometry(0.045, 0.09, 8).translate((k % 3 - 1) * 0.08, 0.5 + Math.floor(k / 3) * 0.12, -0.19), bronzo));
-      // la testa: il fazzoletto marrone e la maschera nera di legno
-      g.add(new THREE.Mesh(new THREE.SphereGeometry(0.085, 12, 10).translate(0, 0.8, -0.01), fazzoletto));
-      g.add(new THREE.Mesh(new THREE.SphereGeometry(0.075, 12, 10, 0, Math.PI, 0.3, Math.PI * 0.7).scale(1, 1.2, 0.8).translate(0, 0.78, 0.035), legnoNero));
-      return g;
-    };
-    const issohadore = () => {
-      const g = new THREE.Group();
-      for (const sx of [-1, 1]) g.add(new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.38, 0.07).translate(sx * 0.05, 0.19, 0), bianco));
-      g.add(new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.3, 0.14).translate(0, 0.53, 0), giubba));
-      g.add(new THREE.Mesh(new THREE.TorusGeometry(0.12, 0.012, 6, 16).rotateZ(0.7).translate(0, 0.55, 0.075), bronzo));
-      g.add(new THREE.Mesh(new THREE.SphereGeometry(0.075, 12, 10).translate(0, 0.79, 0), bianco));
-      g.add(new THREE.Mesh(new THREE.ConeGeometry(0.07, 0.16, 10).rotateX(-0.6).translate(0, 0.9, -0.04), stoffa("#151515")));
-      // la soha, la fune arrotolata in mano
-      g.add(new THREE.Mesh(new THREE.TorusGeometry(0.07, 0.01, 6, 16).translate(0.15, 0.42, 0.06), stoffa("#B89B6A")));
-      return g;
-    };
-    // due file di tre Mamuthones; un Issohadore davanti e uno di fianco
-    for (let fila = 0; fila < 2; fila++)
-      for (let k = 0; k < 3; k++) {
-        const g = mamuthone();
-        this.gruppo.add(g);
-        this.figure.push({ g, avanti: -k * 0.55, fianco: fila ? 0.24 : -0.24, fila, issohadore: false });
-      }
-    for (const [avanti, fianco] of [[0.75, 0], [-0.5, 0.65]]) {
-      const g = issohadore();
-      this.gruppo.add(g);
-      this.figure.push({ g, avanti, fianco, fila: 0, issohadore: true });
-    }
-    this.gruppo.visible = false;
-  }
-
-  aggiorna(t: number) {
-    const s = this.stato;
-    if (s.inizio < 0) {
-      if (t < s.prossima) return;
-      s.inizio = t;
-      s.verso = -s.verso;
-      this.gruppo.visible = true;
-    }
-    const k = (t - s.inizio) / s.durata;
-    if (k >= 1) {
-      s.inizio = -1;
-      s.prossima = t + casuale(30, 60);
-      this.gruppo.visible = false;
-      return;
-    }
-    const [da, a] = s.verso > 0 ? [this.A0, this.A1] : [this.A1, this.A0];
-    const th = da + (a - da) * k;
-    // il passo: un balzo collettivo, le spalle che girano per far suonare i campanacci
-    const passo = t * 1.25 * Math.PI;
-    const balzo = Math.abs(Math.sin(passo)) * 0.06;
-    this.figure.forEach((f) => {
-      // posizione: sulla direzione di marcia (tangente all'anello) e di fianco (raggio)
-      const ang = th + (f.avanti / this.R) * s.verso;
-      const r = this.R + f.fianco;
-      f.g.position.set(Math.sin(ang) * r, PAV + (f.issohadore ? Math.abs(Math.sin(passo * 0.5)) * 0.02 : balzo), -Math.cos(ang) * r);
-      // il davanti (+z) verso la direzione di marcia
-      const tx = Math.cos(ang) * s.verso, tz = Math.sin(ang) * s.verso;
-      f.g.rotation.set(0, Math.atan2(tx, tz) + (f.issohadore ? 0 : Math.sin(passo + f.fila * Math.PI) * 0.22), 0);
-    });
-  }
-
-  libera() {
-    liberaTutto(this.gruppo);
-  }
-}
-
 /* ------------------------------------------------------------------ l'insieme */
 
 export class Luoghi {
@@ -854,11 +747,6 @@ export class Luoghi {
       const f = new Flamenco();
       this.vicini.add(f.gruppo);
       this.vivi.push({ aggiorna: (t) => f.aggiorna(t), libera: () => f.libera() });
-    }
-    if (A.mamuthones) {
-      const m = new Mamuthones();
-      this.vicini.add(m.gruppo);
-      this.vivi.push({ aggiorna: (t) => m.aggiorna(t), libera: () => m.libera() });
     }
     this.gruppo.add(this.giorno, this.sempre, this.vicini);
     this.gruppo.traverse((o) => {
