@@ -7,8 +7,8 @@ import { alone, generatore, liberaTutto, tela } from "./comuni";
  * La città sullo sfondo, alle spalle di chi guarda la zona dello sviluppatore: la stessa città che cambia.
  * Di notte una metropoli come Manhattan: torri alte con le finestre accese, luci rosse in cima,
  * fasci di riflettori che spazzano il cielo, un bagliore arancio sopra i tetti.
- * Di giorno un paese bianco sul mare, come quelli delle Cicladi: un promontorio di roccia, case a cubo
- * a calce fitte una sull'altra a terrazze, porte e scuri blu, chiese con la cupola azzurra, mulini in cima.
+ * Di giorno, qui, niente: il quartiere bianco a terrazze (l'Albaicín) sta di fronte all'Alhambra, sopra la zona
+ * dello sviluppatore.
  */
 
 const DIST = 38; // dentro la volta delle stelle (42)
@@ -28,6 +28,8 @@ export class Citta {
   private cime: THREE.Sprite[] = [];
   private texture: THREE.Texture[] = [];
   private pale: THREE.Object3D[] = [];
+  /** L'Albaicín: vive col giorno della città (compare e sparisce con lei), ma sta accanto all'Alhambra. */
+  albaicin!: THREE.Group;
 
   constructor(eNotte: boolean) {
     const r = generatore(41);
@@ -102,8 +104,10 @@ export class Citta {
       this.notte.add(f);
     }
 
-    /* --------------------------------------- il paese bianco sul mare, di giorno */
-    this.giorno.add(paese(r, this.texture, this.pale));
+    /* ------------------------- l'Albaicín, di giorno: non qui, ma di fronte all'Alhambra */
+    // di giorno qui non c'è niente: il quartiere bianco sta accanto all'Alhambra, sopra la zona dello sviluppatore
+    this.albaicin = paese(r, this.texture, this.pale);
+    this.giorno.add(this.albaicin);
 
     this.gruppo.add(this.notte, this.giorno);
     this.gruppo.traverse((o) => {
@@ -172,10 +176,15 @@ function facciata(v: number) {
   });
 }
 
+/** Dove sta l'Albaicín: accanto all'Alhambra (ANGOLO_ZONA − 0.76), di fronte, più vicino e più basso. */
+const ALBAICIN = { a: ANGOLO_ZONA - 0.25, d: 37, scala: 0.42 };
+
 function paese(r: () => number, texture: THREE.Texture[], pale: THREE.Object3D[]) {
   const g = new THREE.Group();
-  g.position.copy(suArco(0, DIST + 1)).setY(PELO_ACQUA - 0.3);
-  g.rotation.y = Math.PI - AZ; // +z locale verso fuori, −z verso chi guarda
+  const A = ALBAICIN.a;
+  g.position.set(Math.sin(A) * ALBAICIN.d, PELO_ACQUA - 0.3, -Math.cos(A) * ALBAICIN.d);
+  g.rotation.y = Math.PI - A; // +z locale verso fuori, −z verso chi guarda
+  g.scale.setScalar(ALBAICIN.scala);
   const m = new THREE.Matrix4(), q = new THREE.Quaternion(), s = new THREE.Vector3(), p = new THREE.Vector3(), c = new THREE.Color();
   const lambert = (o: THREE.MeshLambertMaterialParameters) => new THREE.MeshLambertMaterial({ fog: false, ...o });
 
