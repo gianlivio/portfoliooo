@@ -9,7 +9,7 @@ import { colora, rilievo, sulRing, unisci } from "./meraviglie";
  * Sicilia: Punta Secca col faro e la casa di Montalbano, Comiso (la cupola azzurra dell'Annunziata, la pagoda
  * della pace), Ragusa Ibla col Duomo di San Giorgio, San Giorgio di Modica sulla scalinata,
  * il Liotru ai piedi dell'Etna. Argentina: le cascate dell'Iguazú, il Cerro de los Siete Colores, l'Obelisco,
- * il Perito Moreno rifatto. E a terra una maschera sola che cambia: uno, nessuno e centomila.
+ * il Perito Moreno rifatto. E dietro le carte una maschera sola, a terra, che cambia: uno, nessuno e centomila.
  * Gli angoli sono contati dalla zona dello sviluppatore; i posti scelti cadono negli spazi fra le carte
  * o dietro le carte più basse.
  */
@@ -519,9 +519,11 @@ class Maschere {
   private verso = new THREE.Vector3();
   private texture: THREE.Texture[] = [];
   constructor() {
-    const a = Z - 1.6, d = 3.5;
+    // dietro le carte, nel varco fra due di esse
+    const a = Z - 1.69, d = 10;
     this.gruppo.position.set(Math.sin(a) * d, PAV, -Math.cos(a) * d);
     this.gruppo.rotation.y = Math.PI - a;
+    this.gruppo.scale.setScalar(2.6);
     // il moai: il profilo di lato (fronte piatta, arcata sporgente, labbra a broncio, mento in fuori) estruso per
     // tutta la larghezza del volto; il naso lungo e stretto a parte; le orecchie allungate sui fianchi
     const moai = new THREE.Group();

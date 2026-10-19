@@ -81,7 +81,7 @@ function etichetta(righe: string[], mono: string, serif: string, bordo: string) 
     c.strokeStyle = bordo;
     c.lineWidth = 6;
     c.stroke();
-    // una riga sola, la domanda: "Scrivimi" resta implicito, il bottone si capisce da sé
+    // una riga sola: SCRIVIMI
     c.fillStyle = "#FFFFFF";
     c.textAlign = "center";
     c.textBaseline = "middle";
