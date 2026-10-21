@@ -2,6 +2,7 @@ import { getDizionario, type Lingua } from "@/dictionaries";
 import { recapiti, curriculum } from "@/content/collegamenti";
 import { lavori } from "@/content/lavori";
 import { urlSito } from "@/content/sito";
+import { competenze } from "@/content/competenze";
 import Esperienza from "@/components/Esperienza";
 
 export default async function Pagina({
@@ -13,13 +14,38 @@ export default async function Pagina({
   const d = getDizionario(lang);
   const lingua = (["it", "en", "es"].includes(lang) ? lang : "it") as Lingua;
 
+  const persona = `${urlSito}/#persona`;
   const jsonLd = {
     "@context": "https://schema.org",
-    "@type": "Person",
-    name: d.nome,
-    jobTitle: "Full Stack Web Developer",
-    url: `${urlSito}/${lingua}`,
-    sameAs: [recapiti.linkedin.href, recapiti.github.href],
+    "@graph": [
+      {
+        "@type": "Person",
+        "@id": persona,
+        name: d.nome,
+        jobTitle: d.meta.mestiere,
+        description: d.meta.descrizione,
+        url: `${urlSito}/${lingua}`,
+        image: `${urlSito}/og.png`,
+        email: recapiti.email.valore,
+        address: { "@type": "PostalAddress", addressRegion: "Sicilia", addressCountry: "IT" },
+        alumniOf: {
+          "@type": "CollegeOrUniversity",
+          name: "Università di Bologna",
+          sameAs: "https://www.unibo.it",
+        },
+        knowsAbout: competenze.map((c) => (typeof c.nome === "string" ? c.nome : c.nome[lingua])),
+        sameAs: [recapiti.linkedin.href, recapiti.github.href],
+      },
+      {
+        "@type": "WebSite",
+        "@id": `${urlSito}/#sito`,
+        url: urlSito,
+        name: d.nome,
+        inLanguage: lingua,
+        author: { "@id": persona },
+        publisher: { "@id": persona },
+      },
+    ],
   };
 
   return (
