@@ -16,7 +16,7 @@ import type { Luogo, Media } from "@/content/olio";
  * davanti e si aprono a tutto schermo con un clic.
  */
 
-export type Quadro = { media: Media; luogo: Luogo; didascalia: string };
+export type Quadro = { media: Media; luogo: Luogo; didascalia: string; /** indice della tappa del testo a cui è legato */ tappa: number };
 /** Dove sta un quadro: la base, il punto verso cui guarda, l'altezza del centro, l'altezza massima, il sostegno. */
 type Posto = { pos: THREE.Vector3; verso: THREE.Vector3; y: number; alto: number; sostegno: "pali" | "cavalletto" };
 
@@ -31,6 +31,8 @@ type Props = {
   onApri: (i: number) => void;
   /** dopo i primi fotogrammi: la scena è pronta, il velo può sfumare */
   onPronta: () => void;
+  /** da che parte sta il testo di ogni tappa: i quadri stanno dall'altra */
+  lati: ("sx" | "dx" | "centro")[];
 };
 
 /** Il cammino, da dove si entra al frantoio: sale e scende appena, piega a destra e a sinistra. */
@@ -58,38 +60,36 @@ function destra(p: number, out = new THREE.Vector3()) {
   return out.set(-t.z, 0, t.x).normalize();
 }
 
-/** I tratti del cammino (in parametro della curva) dei primi due luoghi. */
-const TRATTI: Record<"alberi" | "raccolta", [number, number]> = { alberi: [0.05, 0.33], raccolta: [0.37, 0.62] };
-
 /**
- * Dispone i quadri: in ogni luogo si distribuiscono lungo il suo tratto alternando i lati;
- * al frantoio in arco attorno alla macina, rivolti verso chi arriva.
+ * Dispone i quadri: ognuno qualche metro più avanti della tappa del testo a cui è legato, dalla parte
+ * libera dal pannello; quelli dell'ultima tappa in arco dietro la macina, rivolti verso chi arriva.
  */
-function disponi(quadri: Quadro[], stretto: boolean): Posto[] {
-  const conta: Record<Luogo, number> = { alberi: 0, raccolta: 0, frantoio: 0 };
-  const totale: Record<Luogo, number> = { alberi: 0, raccolta: 0, frantoio: 0 };
-  quadri.forEach((q) => totale[q.luogo]++);
+function disponi(quadri: Quadro[], stretto: boolean, lati: ("sx" | "dx" | "centro")[]): Posto[] {
+  const N = lati.length;
   const fine = sulCammino(1), avanti = CAMMINO.getTangentAt(1).setY(0).normalize(), lato = destra(1);
   const arrivo = sulCammino(FINE_CAMERA);
+  const inArco = quadri.filter((q) => q.tappa === N - 1).length;
+  const perTappa: Record<number, number> = {};
   return quadri.map((q) => {
-    const k = conta[q.luogo]++;
-    const n = totale[q.luogo];
-    if (q.luogo === "frantoio") {
-      // in arco dietro la macina, da sinistra a destra
-      const a = n === 1 ? 0 : -1.15 + (2.3 * k) / (n - 1);
-      const pos = fine.clone().add(avanti.clone().multiplyScalar(Math.cos(a) * 3.1)).add(lato.clone().multiplyScalar(Math.sin(a) * 3.4));
-      return { pos, verso: arrivo.clone(), y: 1.6, alto: 1.15, sostegno: "pali" };
+    const k = (perTappa[q.tappa] = (perTappa[q.tappa] ?? -1) + 1);
+    if (q.tappa === N - 1) {
+      // l'ultima tappa: in arco dietro la macina
+      const a = inArco === 1 ? 0 : -1.1 + (2.2 * k) / (inArco - 1);
+      const pos = fine.clone().add(avanti.clone().multiplyScalar(Math.cos(a) * 3.6)).add(lato.clone().multiplyScalar(Math.sin(a) * 4.0));
+      return { pos, verso: arrivo.clone(), y: 1.9, alto: inArco === 1 ? 2.4 : 1.9, sostegno: "pali" };
     }
-    const [p0, p1] = TRATTI[q.luogo];
-    const p = p0 + ((k + 0.5) / n) * (p1 - p0);
-    const parte = k % 2 ? -1 : 1;
-    const dist = q.luogo === "alberi" ? (stretto ? 1.6 : 2.4) : stretto ? 1.4 : 1.9;
-    const pos = sulCammino(p).add(destra(p).multiplyScalar(parte * dist));
-    // guarda il cammino un poco indietro: lo si vede venendo avanti
-    const verso = sulCammino(Math.max(0, p - 0.05));
-    return q.luogo === "alberi"
-      ? { pos, verso, y: 1.75, alto: 1.25, sostegno: "pali" }
-      : { pos, verso, y: 1.0, alto: 0.85, sostegno: "cavalletto" };
+    // dove ci si ferma per leggere la tappa, e qualche metro più avanti; il secondo quadro accanto al primo
+    const fermo = (q.tappa / (N - 1)) * FINE_CAMERA;
+    // il secondo sta più avanti e più in fuori: davanti a chi legge si vedono tutti e due, e alla tappa
+    // successiva è già alle spalle; sul telefono i quadri stanno più al centro, sopra il pannello
+    const p = fermo + (stretto ? 0.095 : 0.075) + k * 0.03;
+    const parte: 1 | -1 = lati[q.tappa] === "sx" ? 1 : lati[q.tappa] === "dx" ? -1 : k % 2 ? -1 : 1;
+    const pos = sulCammino(p).add(destra(p).multiplyScalar(parte * (stretto ? 0.9 + k * 1.1 : 1.6 + k * 1.45)));
+    // guarda chi arriva da dove si legge
+    const verso = sulCammino(fermo);
+    return q.luogo === "raccolta"
+      ? { pos, verso, y: 1.4, alto: 1.6, sostegno: "cavalletto" }
+      : { pos, verso, y: 1.7, alto: 2.0, sostegno: "pali" };
   });
 }
 
@@ -106,7 +106,7 @@ export default function Uliveto(props: Props) {
       <Ulivi notte={props.notte} ridotto={props.ridotto} />
       <Frantoio notte={props.notte} ridotto={props.ridotto} />
       <Raccolta notte={props.notte} />
-      {disponi(props.quadri, props.stretto).map((posto, i) => (
+      {disponi(props.quadri, props.stretto, props.lati).map((posto, i) => (
         <QuadroFraGliUlivi key={i} quadro={props.quadri[i]} posto={posto} indice={i} notte={props.notte} vuoto={props.vuoto} onApri={props.onApri} />
       ))}
       {props.notte && !props.ridotto && <Lucciole />}
@@ -686,8 +686,8 @@ function QuadroFraGliUlivi({
     document.body.style.cursor = sopra ? "pointer" : "";
   }, [sopra]);
 
-  // alto quanto il luogo consente, largo al massimo una volta e mezza tanto
-  const alto = Math.min(dove.alto, (dove.alto * 1.5) / aspetto);
+  // alto quanto il luogo consente; i video orizzontali al massimo larghi 2,8
+  const alto = Math.min(dove.alto, 2.8 / aspetto);
   const largo = alto * aspetto;
   const Y = dove.y;
   const acceso = useRef(0);
@@ -695,9 +695,9 @@ function QuadroFraGliUlivi({
     const g = gruppo.current;
     if (!g) return;
     const d = camera.position.distanceTo(posto);
-    const vicino = d < 6.5 ? 1 : 0;
+    const vicino = d < 9 ? 1 : 0;
     acceso.current += (vicino - acceso.current) * Math.min(1, dt * 2.5);
-    if (mat.current) mat.current.color.setScalar((notte ? 0.22 : 0.35) + (notte ? 0.5 : 0.65) * acceso.current);
+    if (mat.current) mat.current.color.setScalar((notte ? 0.45 : 0.6) + (notte ? 0.35 : 0.4) * acceso.current);
     const k = 1 + acceso.current * 0.04 + (sopra ? 0.04 : 0);
     g.scale.setScalar(k);
     const v = video;

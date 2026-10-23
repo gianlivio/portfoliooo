@@ -256,30 +256,30 @@
     },
     "occhiello": "Chiaramonte Gulfi · Montes Hibleos",
     "titolo": "El aceite",
-    "attacco": "Hice aceite con mi familia desde niño. Luego se convirtió en mi trabajo: agricultor profesional, con tierras propias, aceite de Chiaramonte Gulfi vendido en toda Italia y en Europa.",
+    "attacco": "Hice aceite con mi familia desde niño, y luego como oficio: agricultor profesional, con tierras propias en Chiaramonte Gulfi. Aceite prensado en frío en menos de veinticuatro horas desde la cosecha, vendido en toda Italia y en Europa.",
     "storiaTitolo": "De dónde viene",
     "storia": [
-      "Chiaramonte Gulfi está en los Montes Hibleos, en la provincia de Ragusa, en Sicilia. Allí tenía mis tierras y allí hacía mi aceite: solo con las aceitunas de esos árboles.",
-      "Seguía los métodos más estrictos, porque la calidad de un aceite se decide en pocas horas: molienda en menos de veinticuatro horas desde la cosecha, extracción en frío, sin atajos.",
-      "El aceite salía hacia toda Italia y Europa. Seguí cada paso: el campo, la almazara, las botellas, los clientes."
+      "Chiaramonte Gulfi está en los Montes Hibleos, en la provincia de Ragusa: olivos viejos, troncos abiertos por el tiempo, tierra roja. Allí tenía mis tierras, y mi aceite salía solo de esos árboles.",
+      "La cosecha se hacía en familia. Las redes tendidas bajo los árboles, las varas entre las ramas, las aceitunas en cajas; mi madre en la caja de la camioneta, colocando la carga del día.",
+      "Seguía los métodos más estrictos, porque la calidad de un aceite se decide en pocas horas: molienda en menos de veinticuatro horas desde la cosecha, extracción en frío, sin atajos. Luego el aceite salía hacia Italia y Europa, y también me ocupaba de eso."
     ],
     "metodoTitolo": "El método",
     "metodo": [
       {
         "titolo": "La cosecha",
-        "testo": "De mis propios olivos, en Chiaramonte Gulfi."
+        "testo": "De los olivos de la finca: redes tendidas en el suelo, varas entre las ramas, las aceitunas recogidas en cajas."
       },
       {
         "titolo": "En menos de veinticuatro horas",
-        "testo": "Del árbol a la almazara en menos de un día: cuanto más espera la aceituna, más pierde el aceite."
+        "testo": "Del árbol a la almazara en menos de un día: cuanto más espera la aceituna, más aroma pierde el aceite y más defectos coge."
       },
       {
         "titolo": "Prensado en frío",
-        "testo": "Una extracción a baja temperatura conserva aromas y polifenoles."
+        "testo": "Molienda y prensado a baja temperatura, para que el aceite conserve aromas y polifenoles. Recién hecho sale verde y turbio."
       },
       {
         "titolo": "Italia y Europa",
-        "testo": "Embotellado y enviado a quien lo elegía, en Italia y en el extranjero."
+        "testo": "Embotellado y enviado a quien lo elegía, en Italia y en el extranjero. También me ocupaba de la venta."
       }
     ],
     "videoTitolo": "En el campo y en la almazara",
@@ -288,8 +288,8 @@
     "torna": "Volver a la sala",
     "suoni": "Sonidos del campo",
     "silenzio": "Silencio",
-    "percheTitolo": "Por qué lo cuento",
-    "perche": "Hoy hago páginas web. Si tu empresa produce aceite, conozco el trabajo que hay detrás de cada botella: el campo, la almazara, los plazos cortos, los clientes en Italia y en el extranjero. Eso ayuda a contarlo en la web sin frases hechas.",
+    "percheTitolo": "Para quien hace aceite",
+    "perche": "Hoy hago páginas web. Para una empresa de aceite sé qué contar y cómo venderlo: el campo, la almazara, los plazos cortos de la cosecha; las fichas de cada aceite, una tienda que envía a Italia y a Europa, la visibilidad en Google para quien busca aceite. Conozco el trabajo como productor y como desarrollador: puedo hacer la web, la tienda y los textos.",
     "scorri": "Desplázate para recorrer el olivar",
     "guarda": "Ver",
     "chiudi": "Cerrar",
@@ -297,6 +297,11 @@
       "alberi": "El olivar",
       "raccolta": "La cosecha",
       "frantoio": "La almazara"
-    }
+    },
+    "storiaTitoli": [
+      "La tierra",
+      "La familia",
+      "La regla"
+    ]
   }
 }

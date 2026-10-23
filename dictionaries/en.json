@@ -256,30 +256,30 @@
     },
     "occhiello": "Chiaramonte Gulfi · Hyblaean Mountains",
     "titolo": "Olive oil",
-    "attacco": "I have made olive oil with my family since I was a child. Then it became my job: a professional farmer with my own land, making Chiaramonte Gulfi oil sold across Italy and Europe.",
+    "attacco": "I made olive oil with my family from the time I was a child, and later as a profession: a professional farmer with my own land in Chiaramonte Gulfi. Oil cold-pressed within twenty-four hours of the harvest, sold across Italy and Europe.",
     "storiaTitolo": "Where it comes from",
     "storia": [
-      "Chiaramonte Gulfi lies in the Hyblaean Mountains, in the province of Ragusa, Sicily. My land was there, and so was my oil: made only from the olives of those trees.",
-      "I followed the strictest methods, because the quality of an oil is decided in a few hours: milling within twenty-four hours of harvest, cold extraction, no shortcuts.",
-      "The oil went all over Italy and Europe. I followed every step: the grove, the mill, the bottles, the customers."
+      "Chiaramonte Gulfi lies in the Hyblaean Mountains, in the province of Ragusa: old olive trees, trunks split open by time, red earth. My land was there, and my oil came only from those trees.",
+      "The harvest was a family job. Nets spread under the trees, poles among the branches, olives in crates; my mother on the truck bed, stacking the day's load.",
+      "I followed the strictest methods, because the quality of an oil is decided in a few hours: milling within twenty-four hours of the harvest, cold extraction, no shortcuts. Then the oil left for Italy and Europe, and I followed that too."
     ],
     "metodoTitolo": "The method",
     "metodo": [
       {
         "titolo": "The harvest",
-        "testo": "From my own olive trees, in Chiaramonte Gulfi."
+        "testo": "From the trees on the farm: nets spread on the ground, poles among the branches, olives gathered into crates."
       },
       {
         "titolo": "Within twenty-four hours",
-        "testo": "From tree to mill in less than a day: the longer an olive waits, the more the oil loses."
+        "testo": "From tree to mill in less than a day: the longer an olive waits, the more the oil loses aroma and picks up defects."
       },
       {
         "titolo": "Cold-pressed",
-        "testo": "Extraction at low temperature keeps aromas and polyphenols."
+        "testo": "Crushing and pressing at low temperature, so the oil keeps its aromas and polyphenols. Freshly made, it comes out green and cloudy."
       },
       {
         "titolo": "Italy and Europe",
-        "testo": "Bottled and shipped to those who chose it, in Italy and abroad."
+        "testo": "Bottled and shipped to those who chose it, in Italy and abroad. I handled the sales as well."
       }
     ],
     "videoTitolo": "In the grove and at the mill",
@@ -288,8 +288,8 @@
     "torna": "Back to the room",
     "suoni": "Sounds of the countryside",
     "silenzio": "Silence",
-    "percheTitolo": "Why I tell this",
-    "perche": "Today I build websites. If your company makes olive oil, I know the work behind every bottle: the grove, the mill, the tight timing, the customers in Italy and abroad. That helps tell it online without clichés.",
+    "percheTitolo": "For olive oil producers",
+    "perche": "Today I build websites. For an olive oil company I know what to tell and how to sell it: the grove, the mill, the tight timing of the harvest; product pages for each oil, a shop that ships across Italy and Europe, visibility on Google for people looking for oil. I know the work as a producer and as a developer: I can build the site, the shop and the copy.",
     "scorri": "Scroll to walk through the grove",
     "guarda": "Watch",
     "chiudi": "Close",
@@ -297,6 +297,11 @@
       "alberi": "The grove",
       "raccolta": "The harvest",
       "frantoio": "The mill"
-    }
+    },
+    "storiaTitoli": [
+      "The land",
+      "The family",
+      "The rule"
+    ]
   }
 }

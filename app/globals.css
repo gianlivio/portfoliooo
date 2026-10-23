@@ -478,7 +478,7 @@ html[data-tema="chiaro"] .olio{--oro:#7D6A16;--oro-tenue:rgba(125,106,22,.3);--p
 .tappa--dx{justify-content:flex-end}
 .tappa--centro{justify-content:center;align-items:flex-start;padding-top:18vh}
 .tappa-pannello{
-  pointer-events:auto;max-width:31rem;padding:1.6rem 1.8rem;border-radius:6px;
+  pointer-events:auto;max-width:33rem;padding:2rem 2.3rem 2.2rem;border-radius:6px;
   background:var(--pannello);color:var(--pannello-testo);
   backdrop-filter:blur(10px) saturate(1.1);-webkit-backdrop-filter:blur(10px) saturate(1.1);
   border:1px solid var(--oro-tenue);
@@ -494,11 +494,11 @@ html[data-tema="chiaro"] .olio{--oro:#7D6A16;--oro-tenue:rgba(125,106,22,.3);--p
 .olio-scorri{margin-top:2.2rem;font-family:var(--mono);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--oro);display:flex;align-items:center;gap:.8rem}
 .olio-scorri::after{content:"";width:1px;height:2.2rem;background:linear-gradient(var(--oro),transparent);animation:olio-scendi 2.4s var(--curva) infinite}
 @keyframes olio-scendi{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
-.tappa h2{font-family:var(--mono);font-size:.78rem;font-weight:400;text-transform:uppercase;letter-spacing:.14em;color:var(--oro);margin-bottom:1rem}
-.tappa h3{font-family:var(--serif);font-weight:400;font-size:clamp(1.6rem,3vw,2.2rem);line-height:1.15;margin-bottom:.7rem}
-.olio-numero{font-family:var(--mono);font-size:.75rem;color:var(--oro);margin-bottom:.5rem}
-.tappa-testo{font-family:var(--serif);font-weight:300;font-size:clamp(1.15rem,2vw,1.45rem);line-height:1.45;color:var(--pannello-tenue)}
-.tappa--storia .tappa-testo,.tappa--frantoio .tappa-testo{color:var(--pannello-testo)}
+/* il pannello: l'occhiello in monospaziato d'oro, il titolo grande in serif, un filo d'oro, il testo */
+.tappa-occhiello{font-family:var(--mono);font-size:.72rem;text-transform:uppercase;letter-spacing:.16em;color:var(--oro);margin-bottom:.9rem}
+.tappa-titolo{font-family:var(--serif);font-weight:400;font-size:clamp(2rem,3.6vw,2.9rem);line-height:1.05;letter-spacing:-.01em;margin-bottom:1.1rem}
+.tappa-titolo::after{content:"";display:block;width:2.6rem;height:1px;background:var(--oro);margin-top:1.1rem}
+.tappa-testo{font-family:var(--serif);font-weight:300;font-size:clamp(1.15rem,1.8vw,1.38rem);line-height:1.55;color:var(--pannello-testo)}
 .olio-azioni{display:flex;flex-wrap:wrap;align-items:center;gap:1.5rem;margin-top:1.8rem;font-family:var(--mono);font-size:.8rem}
 .olio-scrivimi{
   padding:.85rem 1.6rem;border-radius:999px;

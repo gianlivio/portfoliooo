@@ -5,7 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import type { Dizionario, Lingua } from "@/dictionaries";
 import { lingue } from "@/dictionaries";
-import { mediaOlio, type Luogo, type Media } from "@/content/olio";
+import { mediaOlio, type Media } from "@/content/olio";
 import type { Quadro } from "./Uliveto";
 import Modulo from "./Modulo";
 import { Campagna } from "./campagna";
@@ -20,7 +20,7 @@ const Uliveto = dynamic(() => import("./Uliveto"), { ssr: false });
  * Senza WebGL restano le tappe, su fondo pieno. I suoni della campagna si accendono a mano.
  */
 
-type Tappa = { id: string; titolo?: string; testo?: string; numero?: string; lato: "sx" | "dx" | "centro" };
+type Tappa = { id: string; occhiello?: string; titolo?: string; testo?: string; lato: "sx" | "dx" | "centro" };
 
 export default function Olio({ d, lingua }: { d: Dizionario; lingua: Lingua }) {
   const o = d.olio;
@@ -37,20 +37,24 @@ export default function Olio({ d, lingua }: { d: Dizionario; lingua: Lingua }) {
   const tappe = useMemo<Tappa[]>(
     () => [
       { id: "apertura", lato: "sx" },
-      ...o.storia.map((t, i): Tappa => ({ id: `storia-${i}`, titolo: i === 0 ? o.storiaTitolo : undefined, testo: t, lato: i % 2 ? "dx" : "sx" })),
-      ...o.metodo.map((m, i): Tappa => ({ id: `metodo-${i}`, titolo: m.titolo, testo: m.testo, numero: String(i + 1).padStart(2, "0"), lato: i % 2 ? "sx" : "dx" })),
-      { id: "frantoio", titolo: o.percheTitolo, testo: o.perche, lato: "sx" },
+      ...o.storia.map((t, i): Tappa => ({ id: `storia-${i}`, occhiello: o.storiaTitolo, titolo: o.storiaTitoli[i], testo: t, lato: i % 2 ? "dx" : "sx" })),
+      ...o.metodo.map((m, i): Tappa => ({ id: `metodo-${i}`, occhiello: `${o.metodoTitolo} · ${String(i + 1).padStart(2, "0")}`, titolo: m.titolo, testo: m.testo, lato: i % 2 ? "sx" : "dx" })),
+      { id: "frantoio", occhiello: o.luoghi.frantoio, titolo: o.percheTitolo, testo: o.perche, lato: "sx" },
     ],
     [o]
   );
 
   // i quadri: nel luogo del loro contenuto, non nelle tappe
   const quadri = useMemo<Quadro[]>(
-    () => mediaOlio.map((v) => ({ media: v.media, luogo: v.luogo, didascalia: v.didascalia?.[lingua] ?? o.luoghi[v.luogo] })),
-    [o, lingua]
+    () =>
+      mediaOlio.map((v) => ({
+        media: v.media,
+        luogo: v.luogo,
+        didascalia: v.didascalia?.[lingua] ?? o.luoghi[v.luogo],
+        tappa: Math.max(0, tappe.findIndex((t) => t.id === v.tappa)),
+      })),
+    [o, lingua, tappe]
   );
-  /** Senza la scena: i quadri di un luogo stanno sotto l'ultima tappa di quel luogo. */
-  const luogoDellaTappa: Record<string, Luogo> = { "storia-2": "alberi", "metodo-1": "raccolta", frantoio: "frantoio" };
 
   // arrivando dalla stanza: la pagina scorre e la musica della stanza tace
   useEffect(() => {
@@ -134,6 +138,7 @@ export default function Olio({ d, lingua }: { d: Dizionario; lingua: Lingua }) {
             vuoto={o.videoInArrivo}
             onApri={setAperto}
             onPronta={() => setPronta(true)}
+            lati={tappe.map((t) => t.lato)}
           />
         </div>
       )}
@@ -178,11 +183,11 @@ export default function Olio({ d, lingua }: { d: Dizionario; lingua: Lingua }) {
               </div>
             ) : (
               <div className="tappa-pannello">
-                {t.numero && <p className="olio-numero">{t.numero}</p>}
-                {t.titolo && (t.numero ? <h3>{t.titolo}</h3> : <h2>{t.titolo}</h2>)}
+                {t.occhiello && <p className="tappa-occhiello">{t.occhiello}</p>}
+                {t.titolo && <h2 className="tappa-titolo">{t.titolo}</h2>}
                 {t.testo && <p className="tappa-testo">{t.testo}</p>}
                 {/* senza la scena, i video della tappa stanno qui sotto */}
-                {!con3d && luogoDellaTappa[t.id] && <QuadriPiani quadri={quadri.filter((q) => q.luogo === luogoDellaTappa[t.id])} vuoto={o.videoInArrivo} />}
+                {!con3d && <QuadriPiani quadri={quadri.filter((q) => q.tappa === tappe.indexOf(t))} vuoto={o.videoInArrivo} />}
                 {t.id === "frantoio" && (
                   <div className="olio-azioni">
                     <button className="olio-scrivimi" onClick={() => setModulo(true)}>
