@@ -239,7 +239,7 @@ function Terra({ notte }: { notte: boolean }) {
       destra(p, d);
       // la trazzera segue la terra, appena sopra: altrimenti le onde del suolo la bucano
       const ax = v.x - d.x * 0.75, az = v.z - d.z * 0.75, bx = v.x + d.x * 0.75, bz = v.z + d.z * 0.75;
-      sp.push(ax, quota(ax, az) + 0.035, az, bx, quota(bx, bz) + 0.035, bz);
+      sp.push(ax, quota(ax, az) + 0.06, az, bx, quota(bx, bz) + 0.06, bz);
       if (i < n) idx.push(i * 2, i * 2 + 1, i * 2 + 2, i * 2 + 1, i * 2 + 3, i * 2 + 2);
     }
     const s = new THREE.BufferGeometry();
@@ -618,6 +618,23 @@ function telaVuota(testo: string, didascalia: string) {
   return t;
 }
 
+/** La targhetta sotto il quadro: la didascalia in serif chiaro su fondo scuro. */
+function targhetta(testo: string) {
+  const c = document.createElement("canvas");
+  c.width = 1024;
+  c.height = 96;
+  const x = c.getContext("2d") as CanvasRenderingContext2D;
+  x.fillStyle = "rgba(20,18,14,0.82)";
+  x.fillRect(0, 0, 1024, 96);
+  x.fillStyle = "#F3EEDF";
+  x.font = "400 46px Georgia, serif";
+  x.textBaseline = "middle";
+  x.fillText(testo, 28, 50, 968);
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  return t;
+}
+
 function QuadroFraGliUlivi({
   quadro, posto: dove, indice, notte, vuoto, onApri,
 }: { quadro: Quadro; posto: Posto; indice: number; notte: boolean; vuoto: string; onApri: (i: number) => void }) {
@@ -627,33 +644,44 @@ function QuadroFraGliUlivi({
   const [sopra, setSopra] = useState(false);
   const posto = dove.pos;
   const verso = dove.verso;
-  const { textura, video } = useMemo(() => {
+  // la tela: vuota, una foto, o il fotogramma del video finché il video non parte; poi il video
+  const { textura, filmato, video } = useMemo(() => {
     const m = quadro.media;
-    if (!m) return { textura: telaVuota(vuoto, quadro.didascalia), video: null };
-    if (m.tipo === "foto") {
-      const t = new THREE.TextureLoader().load(m.src, (tx) => {
-        const im = tx.image as HTMLImageElement;
-        setAspetto(im.width / im.height);
-      });
-      t.colorSpace = THREE.SRGBColorSpace;
-      return { textura: t, video: null };
-    }
+    if (!m) return { textura: telaVuota(vuoto, quadro.didascalia), filmato: null, video: null };
+    const immagine = m.tipo === "foto" ? m.src : m.poster;
+    const t = immagine
+      ? new THREE.TextureLoader().load(immagine, (tx) => {
+          const im = tx.image as HTMLImageElement;
+          setAspetto(im.width / im.height);
+        })
+      : telaVuota(vuoto, quadro.didascalia);
+    t.colorSpace = THREE.SRGBColorSpace;
+    if (m.tipo === "foto") return { textura: t, filmato: null, video: null };
     const v = document.createElement("video");
     v.src = m.src;
     v.muted = true;
     v.loop = true;
     v.playsInline = true;
-    v.preload = "metadata";
-    v.crossOrigin = "anonymous";
-    v.addEventListener("loadedmetadata", () => setAspetto(v.videoWidth / v.videoHeight || 0.8));
-    const t = new THREE.VideoTexture(v);
-    t.colorSpace = THREE.SRGBColorSpace;
-    return { textura: t, video: v };
+    // si scarica solo quando ci si avvicina
+    v.preload = "none";
+    const f = new THREE.VideoTexture(v);
+    f.colorSpace = THREE.SRGBColorSpace;
+    return { textura: t, filmato: f, video: v };
   }, [quadro.media, quadro.didascalia, vuoto]);
+  const [inMoto, setInMoto] = useState(false);
+  const scritta = useMemo(() => (quadro.media ? targhetta(quadro.didascalia) : null), [quadro.media, quadro.didascalia]);
+  useEffect(() => () => scritta?.dispose(), [scritta]);
+  useEffect(() => {
+    if (!video) return;
+    const parte = () => setInMoto(true);
+    video.addEventListener("playing", parte);
+    return () => video.removeEventListener("playing", parte);
+  }, [video]);
   useEffect(() => () => {
     textura.dispose();
+    filmato?.dispose();
     video?.pause();
-  }, [textura, video]);
+  }, [textura, filmato, video]);
   useEffect(() => {
     document.body.style.cursor = sopra ? "pointer" : "";
   }, [sopra]);
@@ -729,8 +757,14 @@ function QuadroFraGliUlivi({
         }}
       >
         <planeGeometry args={[largo, alto]} />
-        <meshBasicMaterial ref={mat} map={textura} toneMapped={false} fog={false} />
+        <meshBasicMaterial ref={mat} map={inMoto && filmato ? filmato : textura} toneMapped={false} fog={false} />
       </mesh>
+      {scritta && (
+        <mesh position={[0, Y - alto / 2 - 0.1, 0.01]}>
+          <planeGeometry args={[Math.max(largo, 0.9), Math.max(largo, 0.9) * (96 / 1024)]} />
+          <meshBasicMaterial map={scritta} transparent toneMapped={false} fog={false} />
+        </mesh>
+      )}
     </group>
   );
 }

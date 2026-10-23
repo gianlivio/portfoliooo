@@ -3,12 +3,14 @@
 import { BPM } from "./condivisi";
 
 /**
- * Il suono del sito, tutto sintetizzato con la Web Audio API: nessun file.
+ * Il suono del sito: il fondo e gli effetti sintetizzati con la Web Audio API, la musica da file.
  * Sempre spento di default; si accende solo dopo un gesto di chi visita (il pulsante in alto
  * o la drum machine sulla scrivania). La scelta resta in localStorage, chiave "audio":
- *   "spento" · "ambiente" (solo il fondo) · "loop" (fondo più il loop della drum machine).
+ *   "spento" · "ambiente" (solo il fondo) · "loop" (fondo più la musica della drum machine).
  * Il fondo cambia fra giorno (arioso, luminoso) e notte (profondo, col respiro del mare),
- * con una dissolvenza al cambio di tema. Il loop a 130 BPM ha anch'esso una variante per tema.
+ * con una dissolvenza al cambio di tema. La musica sono brani registrati, due per il giorno
+ * (bossa nova, flamenco) e due per la notte (flamenco), che si susseguono; al cambio di tema si passa
+ * dall'una all'altra coppia in dissolvenza.
  * Sopra, effetti discreti agganciati a eventi che esistono già (gocce, remi, carte, cassetto, tema)
  * e le note delle carte: passando da una carta all'altra con le frecce si suona un arpeggio.
  */
@@ -22,43 +24,25 @@ export type Modo = "spento" | "ambiente" | "loop";
 export const SOTTOFONDO: { url: string | null; volume: number } = { url: null, volume: 0.5 };
 
 const CHIAVE = "audio";
+/**
+ * I brani della drum machine, in public/audio/ (da Pixabay, licenza d'uso libera). bpm serve solo
+ * a far battere le luci della drum machine, all'incirca; guadagno pareggia il volume dei brani.
+ */
+const BRANI: Record<"giorno" | "notte", { src: string; bpm: number; guadagno: number }[]> = {
+  giorno: [
+    { src: "/audio/bossa-nova.m4a", bpm: 76, guadagno: 1.05 },
+    { src: "/audio/flamenco-cortile.m4a", bpm: 99, guadagno: 0.65 },
+  ],
+  notte: [
+    { src: "/audio/flamenco-buleria.m4a", bpm: 89, guadagno: 0.66 },
+    { src: "/audio/flamenco-legna.m4a", bpm: 72, guadagno: 0.62 },
+  ],
+};
+/** Il volume della musica rispetto al fondo. */
+const MUSICA = 2.4;
 const VOLUME = 0.16; // volume generale, basso
 /** Le campanelle del giorno: note della scala hijaz su re. */
 const CAMPANE_GIORNO = [440, 466.16, 587.33, 622.25, 739.99, 783.99, 880];
-/** La linea acida della notte: sedici passi per giro, [semitoni da la, accento, legato] o null per la pausa. */
-type Passo = [number, 0 | 1, 0 | 1] | null;
-const ACIDO: Passo[][] = [
-  // il giro della prima comparsa: scuro e insistente, la tonica che martella, il fa e il sol che tirano giù
-  [[0, 1, 0], [0, 0, 0], [12, 0, 1], [0, 0, 0], [3, 1, 0], [0, 0, 0], [8, 0, 1], [7, 0, 0], [0, 1, 0], [0, 0, 0], [12, 0, 1], [10, 0, 0], [8, 1, 0], [7, 0, 1], [3, 0, 1], [0, 0, 0]],
-  [[0, 1, 0], null, [0, 0, 0], [3, 0, 1], [0, 0, 0], [12, 1, 0], [10, 0, 1], [8, 0, 0], [0, 1, 0], [0, 0, 0], [15, 0, 1], [12, 0, 0], [0, 1, 0], [3, 0, 0], [5, 0, 1], [3, 0, 0]],
-  [[0, 1, 0], [12, 0, 1], [0, 0, 0], [0, 0, 0], [8, 1, 0], [7, 0, 1], [0, 0, 0], [3, 0, 0], [0, 1, 0], null, [10, 0, 1], [12, 0, 0], [0, 1, 0], [8, 0, 1], [7, 0, 1], [5, 0, 0]],
-  [[0, 1, 0], [0, 0, 1], [-2, 0, 1], [0, 0, 0], [12, 1, 0], [12, 0, 1], [15, 0, 1], [12, 0, 0], [0, 1, 0], [3, 0, 1], [0, 0, 0], null, [7, 1, 0], [8, 0, 1], [7, 0, 1], [3, 0, 0]],
-];
-/** Gli accordi del tappeto di notte: la minore nona e la minore undicesima, cinque voci, in la come il fondo. */
-const ACCORDI_NOTTE = [
-  [220, 261.63, 329.63, 392, 493.88],
-  [220, 293.66, 329.63, 392, 523.25],
-];
-/** Il cancello del tappeto, due battute di sedicesimi: 1 aperto, 0 chiuso. */
-const CANCELLO = [1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 0, 1, 1, 0];
-/** La scala hijaz (frigia dominante), in semitoni dalla tonica. */
-const HIJAZ = [0, 1, 4, 5, 7, 8, 10];
-/** Le frasi dell'oud: quattro battute, sei colpi per battuta (gradi della scala; null = pausa). */
-const FRASI: (number | null)[][][] = [
-  [[0, 1, 2, null, 1, 0], [2, 3, 4, 3, 2, 1], [4, 5, 4, null, 3, 2], [1, 2, 1, 0, null, 0]],
-  [[4, null, 4, 5, 4, 2], [3, 2, 1, null, 2, 3], [4, 6, 5, 4, 3, 2], [2, 1, 1, 0, null, null]],
-];
-/** La cadenza andalusa in re: sol minore, fa, mi bemolle, re. Le corde dal basso. */
-const CADENZA = [
-  [98, 146.83, 196, 233.08, 293.66],
-  [87.31, 130.81, 174.61, 220, 261.63],
-  [77.78, 116.54, 155.56, 196, 233.08],
-  [73.42, 110, 146.83, 185, 220, 293.66],
-];
-
-/** Di notte 130 BPM; di giorno più lento e più pesante. */
-const BPM_GIORNO = 108;
-
 /** La scala delle carte: la minore pentatonica di la, su due ottave abbondanti. */
 const SCALA = [220, 261.63, 293.66, 329.63, 392, 440, 523.25, 587.33, 659.25, 783.99, 880, 1046.5, 1174.66, 1318.51];
 
@@ -82,15 +66,10 @@ class Suono {
   private eco!: DelayNode;
   private riverbero!: ConvolverNode;
   private rumore!: AudioBuffer;
-  private scheduler: ReturnType<typeof setInterval> | null = null;
-  private passo = 0;
-  private prossimo = 0;
-  private inizioLoop = 0;
+  /** un lettore per tema: l'elemento audio, il suo volume, quale brano sta suonando */
+  private lettori: Record<"giorno" | "notte", { a: HTMLAudioElement; g: GainNode; i: number } | null> = { giorno: null, notte: null };
   private campanelle: ReturnType<typeof setTimeout> | null = null;
   private eNotte = true;
-  /** Il tempo del loop, e da dove contare i quarti dopo l'ultimo cambio di tempo. */
-  private bpm = BPM;
-  private ancora = { t: 0, q: 0 };
   private ascoltatori = new Set<Ascoltatore>();
   modo: Modo = "spento";
   /** la scelta salvata, in attesa del primo gesto per diventare suono */
@@ -159,6 +138,12 @@ class Suono {
 
   /** Uscendo dalla stanza (verso la pagina dell'olio): tutto tace, la scelta resta; al ritorno prepara() riprende. */
   sospendi() {
+    // il contesto si ferma subito: i brani si fermano a mano, la dissolvenza non arriverebbe
+    Object.values(this.lettori).forEach((l) => {
+      if (!l) return;
+      l.a.pause();
+      l.g.gain.value = 0;
+    });
     if (this.campanelle) {
       clearTimeout(this.campanelle);
       this.campanelle = null;
@@ -172,8 +157,9 @@ class Suono {
   }
 
   setNotte(notte: boolean) {
+    const cambia = notte !== this.eNotte;
     this.eNotte = notte;
-    this.cambiaTempo();
+    if (cambia && this.modo === "loop") this.musica();
     const c = this.ctx;
     if (!c) return;
     const t = c.currentTime;
@@ -185,11 +171,61 @@ class Suono {
 
   /** Il battito del loop: fase dentro il quarto (0–1) e numero del quarto. Null a loop spento. */
   battito(): { fase: number; n: number } | null {
-    const c = this.ctx;
-    if (!c || this.modo !== "loop") return null;
-    const q = this.ancora.q + (c.currentTime - this.ancora.t) / (60 / this.bpm);
-    if (c.currentTime < this.inizioLoop) return null;
+    if (!this.ctx || this.modo !== "loop") return null;
+    const l = this.lettori[this.eNotte ? "notte" : "giorno"];
+    if (!l || l.a.paused) return null;
+    const q = l.a.currentTime / (60 / BRANI[this.eNotte ? "notte" : "giorno"][l.i].bpm);
     return { fase: q - Math.floor(q), n: Math.floor(q) };
+  }
+
+  /* ---------------------------------------------------------------- la musica */
+
+  /** Il lettore di un tema: un elemento audio collegato al grafo, che a fine brano passa al successivo. */
+  private lettore(tema: "giorno" | "notte") {
+    const c = this.ctx as AudioContext;
+    let l = this.lettori[tema];
+    if (l) return l;
+    const a = new Audio();
+    a.preload = "none";
+    const g = c.createGain();
+    g.gain.value = 0;
+    c.createMediaElementSource(a).connect(g).connect(this.loopBus);
+    l = { a, g, i: 0 };
+    const nuovo = l;
+    a.src = BRANI[tema][0].src;
+    a.addEventListener("ended", () => {
+      nuovo.i = (nuovo.i + 1) % BRANI[tema].length;
+      a.src = BRANI[tema][nuovo.i].src;
+      g.gain.setTargetAtTime(BRANI[tema][nuovo.i].guadagno * MUSICA, c.currentTime, 0.05);
+      a.play().catch(() => undefined);
+    });
+    this.lettori[tema] = l;
+    return l;
+  }
+
+  /** Accende la musica del tema in corso e spegne in dissolvenza quella dell'altro. */
+  private musica() {
+    const c = this.ctx;
+    if (!c) return;
+    const qui = this.eNotte ? "notte" : "giorno";
+    const altro = this.eNotte ? "giorno" : "notte";
+    const l = this.lettore(qui);
+    l.g.gain.cancelScheduledValues(c.currentTime);
+    l.g.gain.setTargetAtTime(BRANI[qui][l.i].guadagno * MUSICA, c.currentTime, 0.6);
+    l.a.play().catch(() => undefined);
+    this.zittisci(altro);
+  }
+
+  private zittisci(tema: "giorno" | "notte") {
+    const c = this.ctx;
+    const l = this.lettori[tema];
+    if (!c || !l) return;
+    l.g.gain.cancelScheduledValues(c.currentTime);
+    l.g.gain.setTargetAtTime(0, c.currentTime, 0.5);
+    const a = l.a;
+    setTimeout(() => {
+      if (l.g.gain.value < 0.02) a.pause();
+    }, 2500);
   }
 
   /* ---------------------------------------------------------------- grafo */
@@ -227,7 +263,7 @@ class Suono {
 
     // eco a tempo (un ottavo puntato), per il loop e qualche effetto
     this.eco = c.createDelay(1.5);
-    this.eco.delayTime.value = (60 / this.bpm) * 0.75;
+    this.eco.delayTime.value = (60 / BPM) * 0.75;
     const ritorno = c.createGain();
     ritorno.gain.value = 0.32;
     const filtroEco = c.createBiquadFilter();
@@ -248,18 +284,8 @@ class Suono {
 
     this.loopBus = c.createGain();
     this.loopBus.gain.value = 0;
-    // il loop passa da una saturazione: più sporco, più industriale
-    const sporco = c.createWaveShaper();
-    const curva = new Float32Array(1024);
-    for (let i = 0; i < 1024; i++) {
-      const x = (i / 1023) * 2 - 1;
-      curva[i] = Math.tanh(x * 2.6);
-    }
-    sporco.curve = curva;
-    sporco.oversample = "2x";
-    const dopo = c.createGain();
-    dopo.gain.value = 0.7;
-    this.loopBus.connect(sporco).connect(dopo).connect(this.master);
+    // la musica va dritta al volume generale: brani registrati, niente saturazione né riverbero
+    this.loopBus.connect(this.master);
 
     this.effetti = c.createGain();
     this.effetti.gain.value = 0.7;
@@ -285,16 +311,10 @@ class Suono {
     this.master.gain.setTargetAtTime(m === "spento" ? 0 : VOLUME, t, 0.4);
     this.loopBus.gain.cancelScheduledValues(t);
     this.loopBus.gain.setTargetAtTime(m === "loop" ? 1 : 0, t, 0.25);
-    if (m === "loop" && !this.scheduler) {
-      this.passo = 0;
-      this.prossimo = t + 0.08;
-      this.inizioLoop = this.prossimo;
-      this.ancora = { t: this.prossimo, q: 0 };
-      this.scheduler = setInterval(() => this.programma(), 25);
-    }
-    if (m !== "loop" && this.scheduler) {
-      clearInterval(this.scheduler);
-      this.scheduler = null;
+    if (m === "loop") this.musica();
+    else {
+      this.zittisci("giorno");
+      this.zittisci("notte");
     }
     if (m !== "spento" && !this.campanelle) this.campanella();
     this.modo = m;
@@ -419,451 +439,10 @@ class Suono {
     this.campanelle = setTimeout(() => this.campanella(), 4000 + Math.random() * 6000);
   }
 
-  /* ------------------------------------------------------------------ il loop */
-
-  /** Al cambio di tema il tempo cambia dal prossimo sedicesimo, e i quarti continuano a contare da lì. */
-  private cambiaTempo() {
-    const bpm = this.eNotte ? BPM : BPM_GIORNO;
-    if (bpm === this.bpm) return;
-    const c = this.ctx;
-    if (c && this.modo === "loop" && this.prossimo > 0) {
-      const q = this.ancora.q + (this.prossimo - this.ancora.t) / (60 / this.bpm);
-      this.ancora = { t: this.prossimo, q };
-    }
-    this.bpm = bpm;
-    if (this.eco && c) this.eco.delayTime.setTargetAtTime((60 / bpm) * 0.75, c.currentTime, 0.2);
-  }
-
-  private programma() {
-    const c = this.ctx;
-    if (!c) return;
-    while (this.prossimo < c.currentTime + 0.12) {
-      this.colpo(this.passo % 16, Math.floor(this.passo / 16), this.prossimo);
-      this.prossimo += 60 / this.bpm / 4;
-      this.passo++;
-    }
-  }
-
-  /**
-   * Un sedicesimo del loop: techno industriale. Cassa saturata in quattro, metallo battuto sui levare,
-   * rumore stretto al posto del charleston, basso a dente di sega che rotola.
-   * Notte: in la minore, cupa e piena d'eco. Giorno: in re, più aperta.
-   */
-  private colpo(s: number, battuta: number, t: number) {
-    const n = this.eNotte;
-    const d = this.loopBus;
-    // cassa in quattro, e un colpo fantasma prima del quattro
-    if (s % 4 === 0) this.cassa(t, 1);
-    if (s === 14 && battuta % 2 === 1) this.cassa(t, 0.45);
-    // metallo: lamiera battuta sui levare, ogni tanto doppia
-    if (s % 4 === 2 || (s === 7 && battuta % 2 === 0)) this.metallo(t, n ? 0.05 : 0.075, n ? 1.5 : 2); // rapporti intonati: mi sopra il la di notte, la all'ottava di giorno
-    // di giorno lamiera anche in controtempo: una fabbrica che lavora piano
-    if (!n && (s === 3 || s === 11 || (s === 13 && battuta % 2 === 1))) this.metallo(t, 0.05, 1.3348); // il re
-    // charleston: chiuso sui levare, aperto sul levare del quarto (di giorno)
-    if (s % 4 === 2) this.charleston(t, n ? 0.05 : 0.07, n ? 0.05 : 0.09);
-    else if (s % 2 === 1) this.charleston(t, n ? 0.022 : 0.035, 0.03);
-    // battito di mani, morbido, sul due e sul quattro
-    if (s === 4 || s === 12) this.mani(t, n ? 0.12 : 0.16);
-    if (n) {
-      const b16 = battuta % 16;
-      // nella seconda metà della strofa il charleston aperto sui levare spinge
-      if (b16 >= 8 && s % 4 === 2) this.charleston(t, 0.045, 0.14);
-      // l'ultima battuta: rullata di mani che cresce verso la strofa nuova
-      if (b16 === 15 && s >= 8) this.mani(t, 0.04 + (s - 8) * 0.014);
-      // all'attacco della strofa un piatto lungo
-      if (b16 === 0 && s === 0 && battuta > 0) this.charleston(t, 0.07, 1.4);
-    }
-    // basso che rotola
-    const radice = n ? 55 : 36.71;
-    const giro = n ? [0, 0, 3, 0, 7, 0, 5, 3] : [0, 0, 0, 0, 1, 0, 0, 0];
-    if (s % 4 !== 0) {
-      const semi = giro[(battuta % 2) * 4 + Math.floor(s / 4)];
-      this.basso(t, radice * Math.pow(2, semi / 12), n ? 0.22 : 0.24, n ? 380 : 300);
-    }
-    // di notte, al posto dell'arpeggio: la linea acida e gli stab sporchi
-    if (n) {
-      this.cancello(s, battuta, t);
-      // la strofa è di sedici battute: l'acido entra a metà e la porta fino in fondo; gli stab chiudono la strofa
-      if (battuta % 16 >= 8) this.acida(s, battuta, t);
-      else if (this.acido) this.acido.g.gain.setTargetAtTime(0, t, 0.01);
-      if (battuta % 16 === 15 && (s === 10 || s === 14)) this.stab(t, s === 14 ? 1 : 0.7);
-    }
-    // ogni quattro battute un accordo lungo che apre
-    if (!n) this.andaluso(s, battuta, t);
-    // passando al giorno l'acido tace: la sua voce resta accesa, il cancello si chiude
-    if (!n && this.acido) this.acido.g.gain.setTargetAtTime(0, t, 0.01);
-    if (!n && this.tappetoNotte) this.tappetoNotte.g.gain.setTargetAtTime(0, t, 0.01);
-    if (!n && s === 0 && battuta % 4 === 0) {
-      // di giorno una quinta vuota, bassa e sporca
-      [73.42, 110].forEach((f) => this.nota(d, f, t, (60 / this.bpm) * 6, 0.03, "sawtooth", 420));
-    }
-  }
-
-  /**
-   * Il giorno, sopra la fabbrica: un'altra riva del Mediterraneo. Scala hijaz su re (frigia dominante).
-   * Ogni otto battute: quattro di oud a due voci (la seconda una terza sotto, nella scala),
-   * quattro di rasgueado flamenco sulla cadenza andalusa (sol minore, fa, mi bemolle, re).
-   * Ogni sedici, sopra l'oud, una voce lunga che sale per melismi.
-   */
-  private andaluso(s: number, battuta: number, t: number) {
-    const b8 = battuta % 8;
-    const re = 146.83;
-    const grado = (k: number) => re * Math.pow(2, (Math.floor(k / 7) * 12 + HIJAZ[((k % 7) + 7) % 7]) / 12);
-    if (b8 < 4) {
-      // l'oud: 3+3+2, come un tresillo
-      const posti = [0, 3, 6, 8, 11, 14];
-      const k = posti.indexOf(s);
-      if (k >= 0) {
-        const frase = FRASI[(Math.floor(battuta / 8) % FRASI.length)][b8];
-        const g = frase[k];
-        if (g !== null) {
-          this.corda(t, grado(g), 0.055, 0.7);
-          this.corda(t + 0.004, grado(g - 2), 0.03, 0.6);
-        }
-      }
-    } else {
-      // il rasgueado: colpo pieno sull'uno, accenti sul sei e sul dieci
-      const acc = CADENZA[b8 - 4];
-      if (s === 0 || s === 6 || s === 10) {
-        const giu = s !== 6;
-        const corde = giu ? acc : [...acc].reverse();
-        corde.forEach((f, i) => this.corda(t + i * 0.013, f, s === 0 ? 0.03 : 0.02, s === 0 ? 0.9 : 0.4));
-      }
-    }
-    // la voce, ogni sedici battute, sulle battute 8–11: una nota lunga per battuta
-    if (battuta % 16 >= 8 && battuta % 16 < 12 && s === 0) {
-      const g = [4, 5, 4, 1][battuta % 16 - 8];
-      this.canto(t, grado(g + 7), (60 / this.bpm) * 3.7, 0.03);
-    }
-  }
-
-  /** Una corda pizzicata: oud o chitarra. L'attacco cala appena di intonazione, il timbro si chiude in fretta. */
-  private corda(t: number, f: number, forza: number, durata: number) {
-    const c = this.ctx as AudioContext;
-    const o = c.createOscillator();
-    o.type = "sawtooth";
-    o.frequency.setValueAtTime(f * 1.012, t);
-    o.frequency.exponentialRampToValueAtTime(f, t + 0.03);
-    const fl = c.createBiquadFilter();
-    fl.type = "lowpass";
-    fl.Q.value = 3;
-    fl.frequency.setValueAtTime(3800, t);
-    fl.frequency.exponentialRampToValueAtTime(650, t + durata * 0.5);
-    const g = c.createGain();
-    this.inviluppo(g, t, forza, 0.002, durata);
-    o.connect(fl).connect(g);
-    g.connect(this.loopBus);
-    g.connect(this.eco);
-    o.start(t);
-    o.stop(t + durata + 0.05);
-  }
-
-  /** Una voce lunga, nasale come un ney: entra scivolando da sotto, poi vibrato. */
-  private canto(t: number, f: number, durata: number, forza: number) {
-    const c = this.ctx as AudioContext;
-    const o = c.createOscillator();
-    o.type = "sawtooth";
-    o.frequency.setValueAtTime(f * 0.94, t);
-    o.frequency.exponentialRampToValueAtTime(f * 1.02, t + 0.18);
-    o.frequency.exponentialRampToValueAtTime(f, t + 0.32);
-    // a metà nota un abbellimento: un semitono su e giù
-    o.frequency.setValueAtTime(f, t + durata * 0.55);
-    o.frequency.exponentialRampToValueAtTime(f * 1.059, t + durata * 0.6);
-    o.frequency.exponentialRampToValueAtTime(f, t + durata * 0.68);
-    const lfo = c.createOscillator();
-    lfo.frequency.value = 5.3;
-    const prof = c.createGain();
-    prof.gain.setValueAtTime(0, t);
-    prof.gain.linearRampToValueAtTime(f * 0.012, t + 0.6);
-    lfo.connect(prof).connect(o.frequency);
-    const fl = c.createBiquadFilter();
-    fl.type = "bandpass";
-    fl.frequency.value = 1150;
-    fl.Q.value = 1.6;
-    const g = c.createGain();
-    g.gain.setValueAtTime(0.0001, t);
-    g.gain.exponentialRampToValueAtTime(forza, t + 0.25);
-    g.gain.setValueAtTime(forza, t + durata * 0.8);
-    g.gain.exponentialRampToValueAtTime(0.0001, t + durata);
-    o.connect(fl).connect(g);
-    g.connect(this.loopBus);
-    g.connect(this.eco);
-    o.start(t);
-    lfo.start(t);
-    o.stop(t + durata + 0.05);
-    lfo.stop(t + durata + 0.05);
-  }
-
-  /* -------------------------------------------------- la notte: acido e stab */
-
-  /** Una distorsione dura, per l'acido e gli stab: più cattiva della saturazione del loop. */
-  private distorsione(quanto: number) {
-    const c = this.ctx as AudioContext;
-    const w = c.createWaveShaper();
-    const curva = new Float32Array(2048);
-    for (let i = 0; i < 2048; i++) {
-      const x = (i / 2047) * 2 - 1;
-      curva[i] = ((1 + quanto) * x) / (1 + quanto * Math.abs(x));
-    }
-    w.curve = curva;
-    w.oversample = "4x";
-    return w;
-  }
-
-  private acido: { o: OscillatorNode; f: BiquadFilterNode; g: GainNode; secco: GainNode; sporco: GainNode } | null = null;
-
-  /**
-   * La voce acida: un solo oscillatore sempre acceso, come la 303, così le note possono scivolare l'una nell'altra.
-   * Il segnale si divide: pulito e distorto, e la miscela si sposta verso lo sporco col passare delle strofe.
-   */
-  private voceAcida() {
-    if (this.acido) return this.acido;
-    const c = this.ctx as AudioContext;
-    const o = c.createOscillator();
-    o.type = "sawtooth";
-    o.frequency.value = 110;
-    const f = c.createBiquadFilter();
-    f.type = "lowpass";
-    f.Q.value = 6;
-    f.frequency.value = 300;
-    const secco = c.createGain(), sporco = c.createGain();
-    secco.gain.value = 1;
-    sporco.gain.value = 0;
-    const g = c.createGain();
-    g.gain.value = 0;
-    const dopo = c.createGain();
-    dopo.gain.value = 0.42;
-    o.connect(f);
-    f.connect(secco).connect(g);
-    f.connect(this.distorsione(9)).connect(sporco).connect(g);
-    g.connect(dopo);
-    dopo.connect(this.loopBus);
-    dopo.connect(this.eco);
-    o.start();
-    this.acido = { o, f, g, secco, sporco };
-    return this.acido;
-  }
-
-  private tappetoNotte: { o: OscillatorNode[]; f: BiquadFilterNode; g: GainNode } | null = null;
-
-  /** Il tappeto della notte: un accordo di seghe scordate, sempre acceso dietro un cancello che si apre a sedicesimi. */
-  private voceTappeto() {
-    if (this.tappetoNotte) return this.tappetoNotte;
-    const c = this.ctx as AudioContext;
-    const f = c.createBiquadFilter();
-    f.type = "lowpass";
-    f.Q.value = 2;
-    f.frequency.value = 900;
-    const g = c.createGain();
-    g.gain.value = 0;
-    f.connect(g);
-    g.connect(this.loopBus);
-    g.connect(this.eco);
-    const o: OscillatorNode[] = [];
-    for (let i = 0; i < 5; i++) {
-      for (const sc of [-9, 9]) {
-        const x = c.createOscillator();
-        x.type = "sawtooth";
-        x.frequency.value = ACCORDI_NOTTE[0][i];
-        x.detune.value = sc;
-        x.connect(f);
-        x.start();
-        o.push(x);
-      }
-    }
-    this.tappetoNotte = { o, f, g };
-    return this.tappetoNotte;
-  }
-
-  /**
-   * Il cancello: il tappeto si apre a sedicesimi secondo uno schema; l'accordo cambia ogni quattro battute
-   * (la minore nona, la minore undicesima), il filtro respira sulla strofa.
-   */
-  private cancello(s: number, battuta: number, t: number) {
-    const v = this.voceTappeto();
-    const dur = 60 / this.bpm / 4;
-    if (s === 0 && battuta % 4 === 0) {
-      const acc = ACCORDI_NOTTE[Math.floor(battuta / 4) % ACCORDI_NOTTE.length];
-      v.o.forEach((x, i) => x.frequency.setValueAtTime(acc[Math.floor(i / 2)], t));
-    }
-    const fase = (battuta % 16) / 16;
-    v.f.frequency.setTargetAtTime(600 + 1400 * Math.sin(fase * Math.PI), t, 0.2);
-    if (CANCELLO[(battuta % 2) * 16 + s]) {
-      v.g.gain.setTargetAtTime(0.022, t, 0.004);
-      v.g.gain.setTargetAtTime(0, t + dur * 0.55, 0.02);
-    }
-  }
-
-  /**
-   * La linea acida: sedici passi in la, frigia (il si bemolle accanto alla tonica), con accenti e legati.
-   * Il filtro si apre e si chiude lento sulle battute, come una manopola girata a mano; sugli accenti strilla.
-   */
-  private acida(s: number, battuta: number, t: number) {
-    const v = this.voceAcida();
-    // quanto è sporco: zero alla prima comparsa, cresce battuta dopo battuta e strofa dopo strofa
-    const strofa = Math.floor(battuta / 16);
-    const sporco = Math.min(1, (strofa * 8 + (battuta % 16) - 8) / 24);
-    if (s === 0) {
-      v.secco.gain.setTargetAtTime(1 - sporco * 0.75, t, 0.05);
-      v.sporco.gain.setTargetAtTime(sporco * 0.55, t, 0.05);
-      v.f.Q.setTargetAtTime(6 + sporco * 12, t, 0.05);
-    }
-    // la prima strofa ha il giro melodico, quello che resta in testa; poi i giri più storti
-    const giro = strofa === 0 ? ACIDO[0] : ACIDO[(strofa + Math.floor(battuta / 2)) % ACIDO.length];
-    const passo = giro[s];
-    const dur = 60 / this.bpm / 4;
-    if (!passo) return;
-    const [semi, accento, legato] = passo;
-    const fr = 110 * Math.pow(2, semi / 12);
-    if (legato) v.o.frequency.setTargetAtTime(fr, t, 0.035);
-    else v.o.frequency.setValueAtTime(fr, t);
-    const manopola = 0.5 - 0.5 * Math.cos((battuta % 16) / 16 * Math.PI * 2);
-    const base = 220 + 1100 * manopola;
-    v.f.frequency.cancelScheduledValues(t);
-    v.f.frequency.setValueAtTime(base + (accento ? 1400 + 2200 * sporco : 700 + 800 * sporco) * (0.6 + manopola * 0.4), t);
-    v.f.frequency.setTargetAtTime(base, t + 0.004, accento ? 0.09 : 0.06);
-    v.g.gain.setTargetAtTime(accento ? 0.15 : 0.1, t, 0.003);
-    const prossimo = giro[(s + 1) % 16];
-    if (!(prossimo && prossimo[2])) v.g.gain.setTargetAtTime(0, t + dur * 0.62, 0.012);
-  }
-
-  /** Uno stab cattivo: la minore di seghe scordate, distorto, il filtro che si chiude di colpo. */
-  private stab(t: number, forza: number) {
-    const c = this.ctx as AudioContext;
-    const fl = c.createBiquadFilter();
-    fl.type = "bandpass";
-    fl.Q.value = 1.4;
-    fl.frequency.setValueAtTime(2800, t);
-    fl.frequency.exponentialRampToValueAtTime(380, t + 0.35);
-    const g = c.createGain();
-    this.inviluppo(g, t, 0.035 * forza, 0.004, 0.42);
-    fl.connect(this.distorsione(14)).connect(g);
-    g.connect(this.loopBus);
-    g.connect(this.eco);
-    for (const f of [110, 164.81, 220, 261.63, 329.63]) {
-      for (const sc of [-12, 12]) {
-        const o = c.createOscillator();
-        o.type = "sawtooth";
-        o.frequency.value = f;
-        o.detune.value = sc;
-        o.connect(fl);
-        o.start(t);
-        o.stop(t + 0.45);
-      }
-    }
-  }
-
   private inviluppo(g: GainNode, t: number, picco: number, attacco: number, durata: number) {
     g.gain.setValueAtTime(0.0001, t);
     g.gain.exponentialRampToValueAtTime(picco, t + attacco);
     g.gain.exponentialRampToValueAtTime(0.0001, t + durata);
-  }
-
-  private cassa(t: number, forza: number) {
-    const c = this.ctx as AudioContext;
-    const o = c.createOscillator();
-    // la coda della cassa sulla tonica: la di notte, re di giorno
-    o.frequency.setValueAtTime(this.eNotte ? 190 : 165, t);
-    o.frequency.exponentialRampToValueAtTime(this.eNotte ? 55 : 36.71, t + 0.09);
-    const g = c.createGain();
-    this.inviluppo(g, t, forza, 0.003, 0.42);
-    o.connect(g).connect(this.loopBus);
-    o.start(t);
-    o.stop(t + 0.45);
-  }
-
-  /** Metallo battuto: due onde quadre stonate fra loro, moltiplicate e filtrate stretto. */
-  private metallo(t: number, forza: number, rapporto: number) {
-    const c = this.ctx as AudioContext;
-    const a = c.createOscillator();
-    const b = c.createOscillator();
-    a.type = b.type = "square";
-    a.frequency.value = 440; // il la: la lamiera suona nella tonalità, di notte e di giorno (quinta del re)
-    b.frequency.value = 440 * rapporto;
-    const anello = c.createGain();
-    anello.gain.value = 0;
-    b.connect(anello.gain);
-    a.connect(anello);
-    const f = c.createBiquadFilter();
-    f.type = "bandpass";
-    f.frequency.value = 3200;
-    f.Q.value = 3;
-    const g = c.createGain();
-    this.inviluppo(g, t, forza, 0.001, 0.16);
-    anello.connect(f).connect(g);
-    g.connect(this.loopBus);
-    g.connect(this.riverbero);
-    a.start(t);
-    b.start(t);
-    a.stop(t + 0.2);
-    b.stop(t + 0.2);
-  }
-
-  private charleston(t: number, forza: number, durata: number) {
-    const c = this.ctx as AudioContext;
-    const s = c.createBufferSource();
-    s.buffer = this.rumore;
-    const f = c.createBiquadFilter();
-    f.type = "bandpass";
-    f.frequency.value = 9000;
-    f.Q.value = 2.5;
-    const g = c.createGain();
-    this.inviluppo(g, t, forza, 0.002, durata);
-    s.connect(f).connect(g).connect(this.loopBus);
-    s.start(t, Math.random() * 1.5, durata + 0.02);
-  }
-
-  private mani(t: number, forza: number) {
-    const c = this.ctx as AudioContext;
-    for (let k = 0; k < 3; k++) {
-      const tt = t + k * 0.011;
-      const s = c.createBufferSource();
-      s.buffer = this.rumore;
-      const f = c.createBiquadFilter();
-      f.type = "bandpass";
-      f.frequency.value = 1350;
-      f.Q.value = 1.1;
-      const g = c.createGain();
-      this.inviluppo(g, tt, forza * (k === 2 ? 1 : 0.6), 0.002, k === 2 ? 0.18 : 0.03);
-      s.connect(f).connect(g).connect(this.loopBus);
-      g.connect(this.riverbero);
-      s.start(tt, Math.random(), 0.2);
-    }
-  }
-
-  private basso(t: number, f: number, forza: number, taglio: number) {
-    const c = this.ctx as AudioContext;
-    const o = c.createOscillator();
-    o.type = "sawtooth";
-    o.frequency.value = f;
-    const fl = c.createBiquadFilter();
-    fl.type = "lowpass";
-    fl.Q.value = 9;
-    fl.frequency.setValueAtTime(taglio * 3, t);
-    fl.frequency.exponentialRampToValueAtTime(taglio * 0.5, t + 0.1);
-    const g = c.createGain();
-    this.inviluppo(g, t, forza, 0.004, 0.13);
-    o.connect(fl).connect(g).connect(this.loopBus);
-    o.start(t);
-    o.stop(t + 0.16);
-  }
-
-  private pizzico(t: number, f: number, forza: number) {
-    const c = this.ctx as AudioContext;
-    const o = c.createOscillator();
-    o.type = "square";
-    o.frequency.value = f;
-    const fl = c.createBiquadFilter();
-    fl.type = "lowpass";
-    fl.frequency.setValueAtTime(2600, t);
-    fl.frequency.exponentialRampToValueAtTime(500, t + 0.18);
-    const g = c.createGain();
-    this.inviluppo(g, t, forza, 0.003, 0.22);
-    o.connect(fl).connect(g);
-    g.connect(this.loopBus);
-    g.connect(this.eco);
-    o.start(t);
-    o.stop(t + 0.25);
   }
 
   /** Una nota semplice, con un inviluppo morbido. */
