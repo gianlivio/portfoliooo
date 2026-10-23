@@ -1,12 +1,12 @@
 import * as THREE from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
-import { ANGOLO_ULIVETO } from "../zona";
+import { ANGOLO_ULIVETO, PASSO } from "../zona";
 import { PELO_ACQUA } from "../condivisi";
 import { alone, fra, generatore, liberaTutto, tela } from "./comuni";
 
 /*
- * Il podere dell'ulivo, sullo sfondo dell'ingresso dell'uliveto: oltre il cancello, verso la zona dello sviluppatore,
- * dove non ci sono carte a coprirlo. Tutto piccolo: una persona è alta circa trenta centimetri.
+ * Il podere dell'ulivo, a destra dell'ingresso dell'uliveto: l'albero nel varco fra il cancello e la prima carta,
+ * il resto sotto il bordo di quella carta. Tutto piccolo: una persona è alta circa trenta centimetri.
  * In due minuti la storia di un podere. L'ulivo nasce legato al suo palo e cresce; gli passano accanto
  * un bambino in triciclo e un carro coi buoi. Prima raccolta. Poi un contadino pianta una fila di ulivi
  * lungo la trazzera, altri crescono sullo sfondo, si tira su una casetta; il bambino ripassa ragazzo, in bici.
@@ -14,13 +14,15 @@ import { alone, fra, generatore, liberaTutto, tela } from "./comuni";
  * si allarga ancora. Terza raccolta: le cassette le porta via un'Ape. Poi tutto si dissolve e ricomincia.
  * Di notte niente persone: il podere cresciuto, gli ulivi accesi da faretti a terra, la finestra della casetta.
  * Davanti, sull'anello delle carte, c'è il cancello d'ingresso (ingresso.ts): il podere si vede oltre.
- * In queste coordinate +x è a sinistra per chi guarda, −z verso chi guarda.
+ * In queste coordinate, col gruppo specchiato, +x è a destra per chi guarda, −z verso chi guarda.
  */
 
-/** Dietro l'ingresso dell'uliveto, oltre il cancello. */
-// appena verso la zona: l'albero resta nel varco del cancello, il podere si allarga dove non ci sono carte
-const ANGOLO = ANGOLO_ULIVETO - 0.05;
-const DISTANZA = 9.9;
+/**
+ * A destra del cancello: l'ulivo nel varco fra il cancello e la prima carta; il podere si allarga verso destra,
+ * sotto il bordo di quella carta, che è alta. Il gruppo è specchiato: +x locale va a destra per chi guarda.
+ */
+const ANGOLO = ANGOLO_ULIVETO + PASSO * 0.5;
+const DISTANZA = 8.6;
 /** Una persona è alta circa un'unità: nel mondo trenta centimetri, quanto basta per stare sotto la carta. */
 const SCALA = 0.3;
 const CICLO = 120;
@@ -194,7 +196,8 @@ export class Ulivo {
     const caso = generatore(4242);
     this.gruppo.position.set(Math.sin(ANGOLO) * DISTANZA, PELO_ACQUA, -Math.cos(ANGOLO) * DISTANZA);
     this.gruppo.rotation.y = Math.PI - ANGOLO;
-    this.gruppo.scale.setScalar(SCALA);
+    // specchiato sull'asse x: il podere cresce verso destra (three.js gira da sé le facce)
+    this.gruppo.scale.set(-SCALA, SCALA, SCALA);
 
     // la terra rossa del podere, la trazzera chiara, il muretto a secco davanti
     const terra = new THREE.Mesh(new THREE.CircleGeometry(1, 48).rotateX(-Math.PI / 2).scale(6.2, 1, 3.4).translate(3.6, 0.012, 1.4), stoffa("#8E5638", { roughness: 1 }));

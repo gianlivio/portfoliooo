@@ -150,10 +150,10 @@ export class Ingresso {
     [-1, 1].forEach((s, i) => {
       const f = forma[i];
       const g = new THREE.Group();
-      // quello dalla parte della zona sta più indietro e più basso: non deve coprire il podere
-      g.position.set(s * (s < 0 ? 1.55 : 1.45), 0, s < 0 ? 2.3 : 1.2);
+      // tutti e due dentro e indietro: a destra c'è il podere, nel varco, che non va coperto
+      g.position.set(s * (s < 0 ? 1.55 : 0.85), 0, s < 0 ? 2.3 : 2.7);
       g.rotation.y = caso() * Math.PI * 2;
-      g.scale.setScalar(s < 0 ? 0.6 : 0.78);
+      g.scale.setScalar(0.6);
       const giorno = new THREE.Group();
       giorno.add(
         new THREE.Mesh(f.legnoGeo, new THREE.MeshStandardMaterial({ color: "#6A5E50", roughness: 1, flatShading: true })),
