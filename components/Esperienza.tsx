@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Dizionario, Lingua } from "@/dictionaries";
 import { lingue } from "@/dictionaries";
-import { lavori, ID_CONTATTO } from "@/content/lavori";
+import { lavori, ID_CONTATTO, ID_ULIVETO } from "@/content/lavori";
 import { frammenti } from "@/content/frammenti";
 import { curriculum } from "@/content/collegamenti";
 import schermate from "@/content/schermate.json";
@@ -188,10 +188,32 @@ export default function Esperienza({
         contatto: true,
       },
     });
+    // l'ingresso dell'uliveto: un posto sull'anello come le carte, ma sulla scena è un cancello
+    elenco.push({
+      id: ID_ULIVETO,
+      immagine: null,
+      frammento: "",
+      dati: {
+        numero: String(totale + 2).padStart(2, "0"),
+        tipo: d.olio.luoghi.alberi,
+        titolo: d.ulivo.scritta,
+        dominio: "",
+        anno: "",
+        tinta: "",
+        motivo: "testo",
+        contatto: false,
+        uliveto: true,
+      },
+    });
     return elenco;
   }, [d, lingua]);
 
   const seleziona = useCallback((id: string | null) => {
+    // l'ingresso dell'uliveto (da tastiera): il passaggio parte dal centro dello schermo
+    if (id === ID_ULIVETO) {
+      versoUliveto(window.innerWidth / 2, window.innerHeight / 2);
+      return;
+    }
     if (id === ID_CONTATTO) {
       setSelezionato(null);
       setModulo(true);
@@ -205,7 +227,7 @@ export default function Esperienza({
       setFocale(null);
       suono.effetto("apri");
     }
-  }, []);
+  }, [versoUliveto]);
 
   const interagisci = useCallback(() => {
     setMosso(true);

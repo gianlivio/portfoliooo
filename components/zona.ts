@@ -10,11 +10,15 @@ import { PELO_ACQUA } from "./condivisi";
  * lo sviluppatore dà le spalle a chi guarda. In queste coordinate +z va verso fuori, −z verso il centro.
  */
 
-/** Posti sull'anello: uno per lavoro, più l'ultimo per la zona. */
-export const POSTI = lavori.length + 1;
+/** Posti sull'anello: uno per lavoro, poi la zona, poi l'ingresso dell'uliveto. */
+export const POSTI = lavori.length + 2;
 export const POSTO_ZONA = lavori.length;
-export const ANGOLO_ZONA = (POSTO_ZONA / POSTI) * Math.PI * 2;
-export const RAGGIO_ZONA = 5.05;
+export const POSTO_ULIVETO = lavori.length + 1;
+/** L'angolo fra due posti vicini. */
+export const PASSO = (Math.PI * 2) / POSTI;
+export const ANGOLO_ZONA = POSTO_ZONA * PASSO;
+export const ANGOLO_ULIVETO = POSTO_ULIVETO * PASSO;
+export const RAGGIO_ZONA = 5.45;
 export const SCALA_ZONA = 0.55;
 
 /** Le cose della zona, in coordinate della scrivania (x di lato, y in alto, z verso fuori). */

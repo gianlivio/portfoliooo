@@ -123,3 +123,5 @@ export const lavori: Lavoro[] = [
 
 /** Identificativo della carta che apre il modulo di contatto, ultima sull'anello. */
 export const ID_CONTATTO = "contatto";
+/** L'ingresso dell'uliveto: un posto sull'anello, dopo la zona dello sviluppatore. */
+export const ID_ULIVETO = "uliveto";

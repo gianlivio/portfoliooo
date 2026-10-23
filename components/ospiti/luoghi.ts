@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { ANGOLO_ZONA } from "../zona";
+import { ANGOLO_ZONA, PASSO } from "../zona";
 import { PELO_ACQUA } from "../condivisi";
 import { bruma, generatore, liberaTutto, tela } from "./comuni";
 import { colora, rilievo, sulRing, unisci } from "./meraviglie";
@@ -233,8 +233,8 @@ class Liotru {
   gruppo = new THREE.Group();
   private tx: THREE.Texture;
   constructor() {
-    // dietro le carte, nel varco fra la prima e la seconda, ai piedi dell'Etna
-    const a = Z + 1.21, d = 10;
+    // dietro le carte, nel varco fra la seconda e la terza, ai piedi dell'Etna
+    const a = Z + PASSO * 3.5, d = 10.5;
     this.gruppo.position.set(Math.sin(a) * d, PAV, -Math.cos(a) * d);
     this.gruppo.rotation.y = Math.PI - a + 0.6;
     const lava = new THREE.MeshStandardMaterial({ color: "#2B2927", roughness: 0.9 });
@@ -547,7 +547,7 @@ class Flamenco {
 
   constructor() {
     // nel varco fra due carte, sotto l'Albaicín
-    const a = Z - 0.725, d = 9.5;
+    const a = Z - PASSO * 1.5, d = 9.9;
     this.gruppo.position.set(Math.sin(a) * d, PAV, -Math.cos(a) * d);
     this.gruppo.rotation.y = Math.PI - a;
     // il tablao

@@ -1,24 +1,26 @@
 import * as THREE from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
-import { ANGOLO_ZONA } from "../zona";
+import { ANGOLO_ULIVETO } from "../zona";
 import { PELO_ACQUA } from "../condivisi";
 import { alone, fra, generatore, liberaTutto, tela } from "./comuni";
 
 /*
- * L'ulivo dietro le carte, nel varco fra la prima carta e la seconda dopo la zona dello sviluppatore.
- * Tutto piccolo: l'albero sta nel varco, le persone passano e lavorano sotto il bordo della prima carta, che è alto.
+ * Il podere dell'ulivo, sullo sfondo dell'ingresso dell'uliveto: oltre il cancello, verso la zona dello sviluppatore,
+ * dove non ci sono carte a coprirlo. Tutto piccolo: una persona è alta circa trenta centimetri.
  * In due minuti la storia di un podere. L'ulivo nasce legato al suo palo e cresce; gli passano accanto
  * un bambino in triciclo e un carro coi buoi. Prima raccolta. Poi un contadino pianta una fila di ulivi
  * lungo la trazzera, altri crescono sullo sfondo, si tira su una casetta; il bambino ripassa ragazzo, in bici.
  * Seconda raccolta, con due squadre; il carro torna e porta via le cassette. La casetta fuma, l'uliveto
  * si allarga ancora. Terza raccolta: le cassette le porta via un'Ape. Poi tutto si dissolve e ricomincia.
  * Di notte niente persone: il podere cresciuto, gli ulivi accesi da faretti a terra, la finestra della casetta.
- * Sopra, nel cielo fra le carte, l'ingresso dell'uliveto: una piccola carta che porta alla pagina dell'olio.
+ * Davanti, sull'anello delle carte, c'è il cancello d'ingresso (ingresso.ts): il podere si vede oltre.
  * In queste coordinate +x è a sinistra per chi guarda, −z verso chi guarda.
  */
 
-const ANGOLO = ANGOLO_ZONA + (Math.PI * 2 / 13) * 1.5;
-const DISTANZA = 8.6;
+/** Dietro l'ingresso dell'uliveto, oltre il cancello. */
+// appena verso la zona: l'albero resta nel varco del cancello, il podere si allarga dove non ci sono carte
+const ANGOLO = ANGOLO_ULIVETO - 0.05;
+const DISTANZA = 9.9;
 /** Una persona è alta circa un'unità: nel mondo trenta centimetri, quanto basta per stare sotto la carta. */
 const SCALA = 0.3;
 const CICLO = 120;
@@ -162,14 +164,6 @@ const CASETTA = new THREE.Vector3(8.4, 0, 0.7);
 
 export class Ulivo {
   gruppo = new THREE.Group();
-  /** L'ingresso dell'uliveto: la sola cosa che risponde al puntatore. */
-  cartello: THREE.Mesh;
-  private ingresso: { x: CanvasRenderingContext2D; t: THREE.CanvasTexture };
-  private immagini: { giorno?: HTMLImageElement; notte?: HTMLImageElement } = {};
-  private testo = "";
-  private sopra = false;
-  private gonfio = 1;
-  private filo: THREE.Line;
   private piante: Pianta[] = [];
   private olive: THREE.InstancedMesh;
   private dati: Oliva[] = [];
@@ -552,99 +546,11 @@ export class Ulivo {
     }
     this.gruppo.add(this.persone);
 
-    // l'ingresso dell'uliveto: una piccola carta in alto, fra le carte, con la vista della trazzera
-    const cv = document.createElement("canvas");
-    cv.width = 768;
-    cv.height = 560;
-    const tx = new THREE.CanvasTexture(cv);
-    tx.colorSpace = THREE.SRGBColorSpace;
-    this.texture.push(tx);
-    this.ingresso = { x: cv.getContext("2d") as CanvasRenderingContext2D, t: tx };
-    const L = 1.55 / SCALA;
-    this.cartello = new THREE.Mesh(new THREE.PlaneGeometry(L, L * (560 / 768)), new THREE.MeshBasicMaterial({ map: tx, transparent: true, depthWrite: false, toneMapped: false, fog: false }));
-    const Y = (Math.tan(0.2) * DISTANZA + 1.22) / SCALA + (L * (560 / 768)) / 2;
-    this.cartello.position.set(0, Y, -0.4);
-    this.cartello.rotation.y = Math.PI;
-    this.cartello.renderOrder = 10;
-    this.cartello.userData.olio = true;
-    this.gruppo.add(this.cartello);
-    for (const tema of ["giorno", "notte"] as const) {
-      const im = new Image();
-      im.onload = () => {
-        this.immagini[tema] = im;
-        this.disegnaIngresso();
-      };
-      im.src = `/olio/ingresso-${tema}.jpg`;
-    }
-    this.filo = new THREE.Line(
-      new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, Y - (L * (560 / 768)) / 2, -0.4), new THREE.Vector3(0, 2.6, -0.4)]),
-      new THREE.LineBasicMaterial({ color: "#C9B45A", transparent: true, opacity: 0.45, depthWrite: false, fog: false })
-    );
-    this.gruppo.add(this.filo);
-
     this.gruppo.traverse((o) => {
       o.frustumCulled = false;
-      if (o !== this.cartello) o.raycast = () => undefined;
+      o.raycast = () => undefined;
     });
     this.setNotte(notte);
-  }
-
-  /** La carta dell'ingresso: la vista della trazzera, il bordo d'oro, la scritta sotto. */
-  private disegnaIngresso() {
-    const { x, t } = this.ingresso;
-    const W = 768, H = 560, F = 92;
-    x.clearRect(0, 0, W, H);
-    x.save();
-    x.beginPath();
-    x.roundRect(4, 4, W - 8, H - 8, 22);
-    x.clip();
-    const im = this.eNotte ? this.immagini.notte : this.immagini.giorno;
-    if (im) {
-      // la vista riempie la carta, tagliata al centro
-      const k = Math.max(W / im.width, (H - F) / im.height);
-      const w = im.width * k, h = im.height * k;
-      x.drawImage(im, (W - w) / 2, (H - F - h) / 2, w, h);
-    } else {
-      const g = x.createLinearGradient(0, 0, 0, H - F);
-      g.addColorStop(0, this.eNotte ? "#141A2A" : "#7C9CC4");
-      g.addColorStop(1, this.eNotte ? "#2A2620" : "#F0C487");
-      x.fillStyle = g;
-      x.fillRect(0, 0, W, H - F);
-    }
-    x.fillStyle = "rgba(16,16,10,0.9)";
-    x.fillRect(0, H - F, W, F);
-    x.restore();
-    x.strokeStyle = "#B9A84E";
-    x.lineWidth = 6;
-    x.beginPath();
-    x.roundRect(4, 4, W - 8, H - 8, 22);
-    x.stroke();
-    const serif = getComputedStyle(document.documentElement).getPropertyValue("--font-serif").trim() || "Georgia, serif";
-    x.fillStyle = "#FFFFFF";
-    x.font = `300 52px ${serif}`;
-    x.textAlign = "left";
-    x.textBaseline = "middle";
-    x.fillText(this.testo, 36, H - F / 2 + 2, W - 140);
-    x.strokeStyle = "#B9A84E";
-    x.lineWidth = 3;
-    x.beginPath();
-    x.moveTo(W - 92, H - F / 2);
-    x.lineTo(W - 44, H - F / 2);
-    x.moveTo(W - 62, H - F / 2 - 16);
-    x.lineTo(W - 44, H - F / 2);
-    x.lineTo(W - 62, H - F / 2 + 16);
-    x.stroke();
-    t.needsUpdate = true;
-  }
-
-  setTesto(testo: string) {
-    if (testo === this.testo) return;
-    this.testo = testo;
-    this.disegnaIngresso();
-  }
-
-  evidenzia(si: boolean) {
-    this.sopra = si;
   }
 
   setNotte(notte: boolean) {
@@ -656,15 +562,9 @@ export class Ulivo {
     this.coni.forEach((c) => (c.visible = notte));
     this.persone.visible = !notte;
     this.finestra.color.set(notte ? "#FFC97A" : "#3A4A56");
-    this.disegnaIngresso();
   }
 
   aggiorna(t: number, ridotto: boolean) {
-    const meta = this.sopra ? 1.08 : ridotto ? 1 : 1 + 0.02 * Math.sin(t * 2.4 + 1);
-    this.gonfio += (meta - this.gonfio) * 0.2;
-    this.cartello.scale.setScalar(this.gonfio);
-    (this.filo.material as THREE.LineBasicMaterial).opacity = (this.eNotte ? 0.6 : 0.45) * (0.85 + 0.15 * Math.sin(t * 1.7));
-
     // di notte e con "riduci movimento": il podere cresciuto, fermo, con le olive mature
     const notte = this.eNotte;
     const e = ridotto || notte ? 88 : t % CICLO;

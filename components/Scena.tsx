@@ -19,6 +19,7 @@ import { Lontano } from "./ospiti/lontano";
 import { Riva } from "./ospiti/riva";
 import { Luoghi } from "./ospiti/luoghi";
 import { Ulivo } from "./ospiti/ulivo";
+import { Ingresso } from "./ospiti/ingresso";
 
 /**
  * La scena: chi visita sta al centro di un anello di carte, una per lavoro.
@@ -80,7 +81,8 @@ export const PALETTE = {
   },
 } as const;
 
-const RAGGIO = 6;
+/** Il raggio dell'anello: largo abbastanza per quattordici posti con lo stesso respiro fra le carte. */
+const RAGGIO = 6.45;
 /** a riposo lo sguardo scende appena: si vede il suolo, e lo specchio d'acqua non degenera in orizzontale */
 const SGUARDO = -0.06;
 const LARGO = 2.4;
@@ -511,6 +513,8 @@ function Carte({
       {carte.map((c, i) => {
         const a = angoloDi(i, carte.length);
         const pos = direzione(a).multiplyScalar(RAGGIO);
+        // l'ingresso dell'uliveto non è una carta: al suo posto c'è il cancello (IngressoUliveto)
+        if (c.dati.uliveto) return null;
         if (c.dati.contatto) {
           // il contatto è il cassetto aperto, nella zona dello sviluppatore
           return (
@@ -743,24 +747,33 @@ function ZonaSviluppatore({ notte, ridotto, testi }: { notte: boolean; ridotto: 
   );
 }
 
-/** L'ulivo dietro le carte e la storia del suo podere; la piccola carta in alto è l'ingresso dell'uliveto. */
-function UlivoFraLeCarte({ notte, ridotto, testo, onApri }: { notte: boolean; ridotto: boolean; testo: string; onApri: (x: number, y: number) => void }) {
+/** Il podere dell'ulivo, sullo sfondo dell'ingresso dell'uliveto: si guarda soltanto, non si clicca. */
+function Podere({ notte, ridotto }: { notte: boolean; ridotto: boolean }) {
   const [ulivo] = useState(() => new Ulivo(notte));
   useEffect(() => () => ulivo.libera(), [ulivo]);
   useEffect(() => ulivo.setNotte(notte), [ulivo, notte]);
-  useEffect(() => ulivo.setTesto(testo), [ulivo, testo]);
+  useFrame(({ clock }) => ulivo.aggiorna(clock.elapsedTime, ridotto));
+  return <primitive object={ulivo.gruppo} />;
+}
+
+/** L'ingresso dell'uliveto, al suo posto sull'anello: il cancello si apre al passaggio, il clic porta dentro. */
+function IngressoUliveto({ notte, testo, onApri }: { notte: boolean; testo: string; onApri: (x: number, y: number) => void }) {
+  const [ingresso] = useState(() => new Ingresso(RAGGIO, notte));
+  useEffect(() => () => ingresso.libera(), [ingresso]);
+  useEffect(() => ingresso.setNotte(notte), [ingresso, notte]);
+  useEffect(() => ingresso.setTesto(testo), [ingresso, testo]);
   const [sopra, setSopra] = useState(false);
   useEffect(() => {
-    ulivo.evidenzia(sopra);
+    ingresso.evidenzia(sopra);
     document.body.style.cursor = sopra ? "pointer" : "";
     return () => {
       document.body.style.cursor = "";
     };
-  }, [sopra, ulivo]);
-  useFrame(({ clock }) => ulivo.aggiorna(clock.elapsedTime, ridotto));
+  }, [sopra, ingresso]);
+  useFrame(({ clock }, dt) => ingresso.aggiorna(clock.elapsedTime, Math.min(dt, 0.1)));
   return (
     <primitive
-      object={ulivo.gruppo}
+      object={ingresso.gruppo}
       onPointerOver={(e: ThreeEvent<PointerEvent>) => {
         if (!e.object.userData.olio) return;
         e.stopPropagation();
@@ -1109,7 +1122,8 @@ export default function Scena(props: Props) {
         sezioneEditoria={props.sezioneEditoria}
       />
       <ZonaSviluppatore notte={tema === "scuro"} ridotto={props.ridotto} testi={props.testiMusica} />
-      <UlivoFraLeCarte notte={tema === "scuro"} ridotto={props.ridotto} testo={props.testoUlivo} onApri={props.onOlio} />
+      <Podere notte={tema === "scuro"} ridotto={props.ridotto} />
+      <IngressoUliveto notte={tema === "scuro"} testo={props.testoUlivo} onApri={props.onOlio} />
       <Vulcano notte={tema === "scuro"} ridotto={props.ridotto} />
       <Metropoli notte={tema === "scuro"} ridotto={props.ridotto} />
       <Orizzonte notte={tema === "scuro"} ridotto={props.ridotto} />

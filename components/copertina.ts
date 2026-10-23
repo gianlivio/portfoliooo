@@ -32,6 +32,8 @@ export type DatiCopertina = {
   motivo: Motivo;
   immagine: HTMLImageElement | null;
   contatto: boolean;
+  /** l'ingresso dell'uliveto: non ha copertina, sull'anello c'è il cancello */
+  uliveto?: boolean;
   /** la finestra resta trasparente: dietro c'è il piano con la schermata che scorre */
   finestraVuota: boolean;
   /** per i lavori in costruzione: la scritta del cartello */
