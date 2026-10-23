@@ -245,5 +245,50 @@
     "musica": "Enciende la música",
     "silenzio": "Apaga la música"
   },
-  "avvio": "Semiosfera en alineación"
+  "avvio": "Semiosfera en alineación",
+  "ulivo": {
+    "scritta": "KRIPTONITA"
+  },
+  "olio": {
+    "meta": {
+      "titolo": "El aceite — Gianlivio Iemolo",
+      "descrizione": "Antes de las webs, el aceite: agricultor profesional en Chiaramonte Gulfi, aceite prensado en frío en menos de veinticuatro horas, vendido en Italia y en Europa."
+    },
+    "occhiello": "Chiaramonte Gulfi · Montes Hibleos",
+    "titolo": "El aceite",
+    "attacco": "Hice aceite con mi familia desde niño. Luego se convirtió en mi trabajo: agricultor profesional, con tierras propias, aceite de Chiaramonte Gulfi vendido en toda Italia y en Europa.",
+    "storiaTitolo": "De dónde viene",
+    "storia": [
+      "Chiaramonte Gulfi está en los Montes Hibleos, en la provincia de Ragusa, en Sicilia. Allí tenía mis tierras y allí hacía mi aceite: solo con las aceitunas de esos árboles.",
+      "Seguía los métodos más estrictos, porque la calidad de un aceite se decide en pocas horas: molienda en menos de veinticuatro horas desde la cosecha, extracción en frío, sin atajos.",
+      "El aceite salía hacia toda Italia y Europa. Seguí cada paso: el campo, la almazara, las botellas, los clientes."
+    ],
+    "metodoTitolo": "El método",
+    "metodo": [
+      {
+        "titolo": "La cosecha",
+        "testo": "De mis propios olivos, en Chiaramonte Gulfi."
+      },
+      {
+        "titolo": "En menos de veinticuatro horas",
+        "testo": "Del árbol a la almazara en menos de un día: cuanto más espera la aceituna, más pierde el aceite."
+      },
+      {
+        "titolo": "Prensado en frío",
+        "testo": "Una extracción a baja temperatura conserva aromas y polifenoles."
+      },
+      {
+        "titolo": "Italia y Europa",
+        "testo": "Embotellado y enviado a quien lo elegía, en Italia y en el extranjero."
+      }
+    ],
+    "videoTitolo": "En el campo y en la almazara",
+    "videoInArrivo": "Vídeo próximamente",
+    "scrivimi": "Escríbeme",
+    "torna": "Volver a la sala",
+    "suoni": "Sonidos del campo",
+    "silenzio": "Silencio",
+    "percheTitolo": "Por qué lo cuento",
+    "perche": "Hoy hago páginas web. Si tu empresa produce aceite, conozco el trabajo que hay detrás de cada botella: el campo, la almazara, los plazos cortos, los clientes en Italia y en el extranjero. Eso ayuda a contarlo en la web sin frases hechas."
+  }
 }

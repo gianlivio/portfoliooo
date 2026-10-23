@@ -5,8 +5,8 @@ import { urlSito } from "@/content/sito";
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = urlSito;
 
-  return lingue.map((lang) => ({
-    url: `${baseUrl}/${lang}`,
-    lastModified: new Date(),
-  }));
+  return lingue.flatMap((lang) => [
+    { url: `${baseUrl}/${lang}`, lastModified: new Date() },
+    { url: `${baseUrl}/${lang}/olio`, lastModified: new Date() },
+  ]);
 }

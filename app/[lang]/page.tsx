@@ -104,6 +104,10 @@ export default async function Pagina({
             </ul>
           </section>
         ))}
+        <h2>{d.olio.titolo}</h2>
+        <p>
+          {d.olio.attacco} <a href={`/${lingua}/olio`}>{d.olio.titolo}</a>
+        </p>
         <h2>{d.elenco.recapiti}</h2>
         <ul>
           {Object.entries(recapiti).map(([k, r]) => (

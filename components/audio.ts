@@ -157,6 +157,15 @@ class Suono {
     this.imposta(this.voluto === "spento" ? "ambiente" : "spento");
   }
 
+  /** Uscendo dalla stanza (verso la pagina dell'olio): tutto tace, la scelta resta; al ritorno prepara() riprende. */
+  sospendi() {
+    if (this.campanelle) {
+      clearTimeout(this.campanelle);
+      this.campanelle = null;
+    }
+    this.ctx?.suspend().catch(() => undefined);
+  }
+
   /** La drum machine: accende il loop (e il fondo), o lo spegne lasciando il fondo. */
   drum() {
     this.imposta(this.voluto === "loop" ? "ambiente" : "loop");

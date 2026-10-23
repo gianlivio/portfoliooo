@@ -18,6 +18,7 @@ import { Citta } from "./ospiti/citta";
 import { Lontano } from "./ospiti/lontano";
 import { Riva } from "./ospiti/riva";
 import { Luoghi } from "./ospiti/luoghi";
+import { Ulivo } from "./ospiti/ulivo";
 
 /**
  * La scena: chi visita sta al centro di un anello di carte, una per lavoro.
@@ -53,6 +54,9 @@ type Props = {
   sezioneEditoria: string;
   /** la scritta sopra il tavolino delle macchine: [accendi, spegni] */
   testiMusica: [string, string];
+  /** la scritta sopra l'ulivo, e dove porta */
+  testoUlivo: string;
+  onOlio: () => void;
 };
 
 /* Ogni tema cambia più dei colori: luce, densità, peso dei segni. */
@@ -241,7 +245,7 @@ function quotaVisibile(img: HTMLImageElement) {
 
 function Carte({
   carte, selezionato, focale, onSeleziona, ridotto, onPronta, tema, conIngresso, moduloAperto, attiva, sezioneEditoria,
-}: Omit<Props, "onInteragisci" | "stretto" | "lingua" | "testiMusica"> & { attiva: React.MutableRefObject<string | null> }) {
+}: Omit<Props, "onInteragisci" | "stretto" | "lingua" | "testiMusica" | "testoUlivo" | "onOlio"> & { attiva: React.MutableRefObject<string | null> }) {
   const [grafica, setGrafica] = useState<Grafica | null>(null);
   const [sopra, setSopra] = useState<string | null>(null);
   const gruppi = useRef<(THREE.Group | null)[]>([]);
@@ -738,6 +742,39 @@ function ZonaSviluppatore({ notte, ridotto, testi }: { notte: boolean; ridotto: 
   );
 }
 
+/** L'ulivo fra le carte: di giorno la raccolta e la potatura; la scritta sopra porta alla pagina dell'olio. */
+function UlivoFraLeCarte({ notte, ridotto, testo, onApri }: { notte: boolean; ridotto: boolean; testo: string; onApri: () => void }) {
+  const [ulivo] = useState(() => new Ulivo(notte));
+  useEffect(() => () => ulivo.libera(), [ulivo]);
+  useEffect(() => ulivo.setNotte(notte), [ulivo, notte]);
+  useEffect(() => ulivo.setTesto(testo), [ulivo, testo]);
+  const [sopra, setSopra] = useState(false);
+  useEffect(() => {
+    ulivo.evidenzia(sopra);
+    document.body.style.cursor = sopra ? "pointer" : "";
+    return () => {
+      document.body.style.cursor = "";
+    };
+  }, [sopra, ulivo]);
+  useFrame(({ clock }) => ulivo.aggiorna(clock.elapsedTime, ridotto));
+  return (
+    <primitive
+      object={ulivo.gruppo}
+      onPointerOver={(e: ThreeEvent<PointerEvent>) => {
+        if (!e.object.userData.olio) return;
+        e.stopPropagation();
+        setSopra(true);
+      }}
+      onPointerOut={() => setSopra(false)}
+      onClick={(e: ThreeEvent<MouseEvent>) => {
+        if (!e.object.userData.olio || e.delta > 6) return;
+        e.stopPropagation();
+        onApri();
+      }}
+    />
+  );
+}
+
 /** L'Etna all'orizzonte: lo stesso oggetto di giorno e di notte. */
 function Vulcano({ notte, ridotto }: { notte: boolean; ridotto: boolean }) {
   const [etna] = useState(() => new Etna(notte));
@@ -908,7 +945,7 @@ function Ambiente({ tema }: { tema: Tema }) {
 
 function Regia({
   carte, selezionato, focale, onSeleziona, onInteragisci, ridotto, stretto, conIngresso,
-}: Omit<Props, "onPronta" | "tema" | "sezioneEditoria" | "testiMusica">) {
+}: Omit<Props, "onPronta" | "tema" | "sezioneEditoria" | "testiMusica" | "testoUlivo" | "onOlio">) {
   const { camera, gl } = useThree();
   const s = useRef({
     // si comincia guardando la zona dello sviluppatore, il centro del mondo
@@ -1071,6 +1108,7 @@ export default function Scena(props: Props) {
         sezioneEditoria={props.sezioneEditoria}
       />
       <ZonaSviluppatore notte={tema === "scuro"} ridotto={props.ridotto} testi={props.testiMusica} />
+      <UlivoFraLeCarte notte={tema === "scuro"} ridotto={props.ridotto} testo={props.testoUlivo} onApri={props.onOlio} />
       <Vulcano notte={tema === "scuro"} ridotto={props.ridotto} />
       <Metropoli notte={tema === "scuro"} ridotto={props.ridotto} />
       <Orizzonte notte={tema === "scuro"} ridotto={props.ridotto} />

@@ -245,5 +245,50 @@
     "musica": "Play music",
     "silenzio": "Stop music"
   },
-  "avvio": "Semiosphere in alignment"
+  "avvio": "Semiosphere in alignment",
+  "ulivo": {
+    "scritta": "KRYPTONITE"
+  },
+  "olio": {
+    "meta": {
+      "titolo": "Olive oil — Gianlivio Iemolo",
+      "descrizione": "Before websites, olive oil: a professional farmer in Chiaramonte Gulfi, cold-pressed oil milled within twenty-four hours, sold across Italy and Europe."
+    },
+    "occhiello": "Chiaramonte Gulfi · Hyblaean Mountains",
+    "titolo": "Olive oil",
+    "attacco": "I have made olive oil with my family since I was a child. Then it became my job: a professional farmer with my own land, making Chiaramonte Gulfi oil sold across Italy and Europe.",
+    "storiaTitolo": "Where it comes from",
+    "storia": [
+      "Chiaramonte Gulfi lies in the Hyblaean Mountains, in the province of Ragusa, Sicily. My land was there, and so was my oil: made only from the olives of those trees.",
+      "I followed the strictest methods, because the quality of an oil is decided in a few hours: milling within twenty-four hours of harvest, cold extraction, no shortcuts.",
+      "The oil went all over Italy and Europe. I followed every step: the grove, the mill, the bottles, the customers."
+    ],
+    "metodoTitolo": "The method",
+    "metodo": [
+      {
+        "titolo": "The harvest",
+        "testo": "From my own olive trees, in Chiaramonte Gulfi."
+      },
+      {
+        "titolo": "Within twenty-four hours",
+        "testo": "From tree to mill in less than a day: the longer an olive waits, the more the oil loses."
+      },
+      {
+        "titolo": "Cold-pressed",
+        "testo": "Extraction at low temperature keeps aromas and polyphenols."
+      },
+      {
+        "titolo": "Italy and Europe",
+        "testo": "Bottled and shipped to those who chose it, in Italy and abroad."
+      }
+    ],
+    "videoTitolo": "In the grove and at the mill",
+    "videoInArrivo": "Video coming soon",
+    "scrivimi": "Write to me",
+    "torna": "Back to the room",
+    "suoni": "Sounds of the countryside",
+    "silenzio": "Silence",
+    "percheTitolo": "Why I tell this",
+    "perche": "Today I build websites. If your company makes olive oil, I know the work behind every bottle: the grove, the mill, the tight timing, the customers in Italy and abroad. That helps tell it online without clichés."
+  }
 }

@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import type { Dizionario, Lingua } from "@/dictionaries";
 import { lingue } from "@/dictionaries";
 import { lavori, ID_CONTATTO } from "@/content/lavori";
@@ -38,6 +39,7 @@ export default function Esperienza({
   d: Dizionario;
   lingua: Lingua;
 }) {
+  const router = useRouter();
   const [selezionato, setSelezionato] = useState<string | null>(null);
   const [focale, setFocale] = useState<number | null>(null);
   const [modulo, setModulo] = useState(false);
@@ -103,6 +105,7 @@ export default function Esperienza({
     return () => {
       via();
       eventi.forEach((n) => window.removeEventListener(n, gesto));
+      suono.sospendi();
     };
   }, [ambiente?.ridotto]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -112,6 +115,8 @@ export default function Esperienza({
 
   useEffect(() => {
     document.documentElement.classList.toggle("con-scena", !!ambiente?.webgl);
+    // uscendo dalla stanza la pagina torna a scorrere
+    return () => document.documentElement.classList.remove("con-scena");
   }, [ambiente?.webgl]);
 
   const cambiaTema = useCallback(() => {
@@ -319,6 +324,8 @@ export default function Esperienza({
             moduloAperto={modulo}
             sezioneEditoria={d.elenco.editoria}
             testiMusica={testiMusica}
+            testoUlivo={d.ulivo.scritta}
+            onOlio={() => router.push(`/${lingua}/olio`)}
           />
         </div>
 

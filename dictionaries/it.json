@@ -245,5 +245,50 @@
     "musica": "Accendi musica",
     "silenzio": "Spegni musica"
   },
-  "avvio": "Semiosfera in allineamento"
+  "avvio": "Semiosfera in allineamento",
+  "ulivo": {
+    "scritta": "CRIPTONITE"
+  },
+  "olio": {
+    "meta": {
+      "titolo": "L'olio — Gianlivio Iemolo",
+      "descrizione": "Prima dei siti, l'olio: da imprenditore agricolo professionale a Chiaramonte Gulfi, olio spremuto a freddo entro ventiquattro ore, venduto in Italia e in Europa."
+    },
+    "occhiello": "Chiaramonte Gulfi · Monti Iblei",
+    "titolo": "L'olio",
+    "attacco": "Ho fatto olio con la mia famiglia da quando ero bambino. Poi è diventato il mio lavoro: imprenditore agricolo professionale, terreni miei, olio di Chiaramonte Gulfi venduto in tutta Italia e in Europa.",
+    "storiaTitolo": "Da dove viene",
+    "storia": [
+      "Chiaramonte Gulfi sta sui Monti Iblei, in provincia di Ragusa. Lì avevo i miei terreni, e lì facevo il mio olio: solo con le olive di quelle piante.",
+      "Seguivo i metodi più rigidi, perché la qualità di un olio si decide in poche ore: frangitura entro ventiquattro ore dalla raccolta, estrazione a freddo, nessuna scorciatoia.",
+      "L'olio partiva per tutta Italia e per l'Europa. Ho seguito ogni passaggio: la campagna, il frantoio, le bottiglie, i clienti."
+    ],
+    "metodoTitolo": "Il metodo",
+    "metodo": [
+      {
+        "titolo": "La raccolta",
+        "testo": "Dai miei ulivi, a Chiaramonte Gulfi."
+      },
+      {
+        "titolo": "Entro ventiquattro ore",
+        "testo": "Dalla pianta al frantoio in meno di un giorno: più l'oliva aspetta, più l'olio perde."
+      },
+      {
+        "titolo": "Spremitura a freddo",
+        "testo": "Un'estrazione a temperatura bassa conserva profumi e polifenoli."
+      },
+      {
+        "titolo": "In Italia e in Europa",
+        "testo": "Imbottigliato e spedito a chi lo sceglieva, in Italia e all'estero."
+      }
+    ],
+    "videoTitolo": "In campagna e al frantoio",
+    "videoInArrivo": "Video in arrivo",
+    "scrivimi": "Scrivimi",
+    "torna": "Torna alla stanza",
+    "suoni": "Suoni della campagna",
+    "silenzio": "Silenzio",
+    "percheTitolo": "Perché lo racconto",
+    "perche": "Oggi faccio siti web. Se la tua azienda produce olio, conosco il lavoro che c'è dietro ogni bottiglia: la campagna, il frantoio, i tempi stretti, i clienti in Italia e all'estero. Questo aiuta a raccontarlo sul web senza frasi fatte."
+  }
 }
