@@ -5,6 +5,7 @@ import * as THREE from "three";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { accesaDaSotto, costruisciUlivo } from "./ospiti/ulivo";
 import { alone, generatore } from "./ospiti/comuni";
+import { cielo, modello, textura } from "./ospiti/polyhaven";
 import type { Luogo, Media } from "@/content/olio";
 
 /*
@@ -106,6 +107,7 @@ export default function Uliveto(props: Props) {
       <Ulivi notte={props.notte} ridotto={props.ridotto} />
       <Frantoio notte={props.notte} ridotto={props.ridotto} />
       <Raccolta notte={props.notte} />
+      <Sassi notte={props.notte} />
       {disponi(props.quadri, props.stretto, props.lati).map((posto, i) => (
         <QuadroFraGliUlivi key={i} quadro={props.quadri[i]} posto={posto} indice={i} notte={props.notte} vuoto={props.vuoto} onApri={props.onApri} />
       ))}
@@ -141,38 +143,61 @@ function Passo({ progresso, ridotto, onPronta }: { progresso: React.MutableRefOb
 /* ------------------------------------------------------------------ il cielo */
 
 const CIELO_V = `varying vec3 vD; void main(){ vD = normalize(position); gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`;
+/*
+ * Finché la foto del cielo non arriva, un gradiente disegnato; poi la foto (un HDRI di Poly Haven),
+ * girata in modo che il sole, o il chiarore della luna, stia in fondo al cammino. Sotto l'orizzonte
+ * sfuma nel colore della nebbia, così la terra lontana non ha un bordo.
+ */
 const CIELO_F = `
 uniform vec3 uBasso; uniform vec3 uAlto; uniform vec3 uSole; uniform vec3 uDirSole; uniform float uNotte;
+uniform sampler2D uMappa; uniform float uPronto; uniform float uGiro; uniform vec3 uNebbia;
 varying vec3 vD;
 void main(){
-  float h = clamp(vD.y * 1.8 + 0.08, 0.0, 1.0);
+  vec3 d = normalize(vD);
+  float h = clamp(d.y * 1.8 + 0.08, 0.0, 1.0);
   vec3 c = mix(uBasso, uAlto, pow(h, 0.7));
-  float s = max(dot(normalize(vD), normalize(uDirSole)), 0.0);
+  float s = max(dot(d, normalize(uDirSole)), 0.0);
   c += uSole * (pow(s, 600.0) * 1.4 + pow(s, 12.0) * 0.35) * (1.0 - uNotte);
   c += vec3(0.85, 0.88, 0.95) * pow(s, 900.0) * uNotte;
-  gl_FragColor = vec4(c, 1.0);
+  float u = fract(atan(d.z, d.x) / 6.2831853 + 0.5 + uGiro);
+  float v = asin(clamp(d.y, -1.0, 1.0)) / 3.1415926 + 0.5;
+  vec3 m = texture2D(uMappa, vec2(u, v)).rgb;
+  m = mix(m, uNebbia, smoothstep(0.05, -0.03, d.y));
+  gl_FragColor = vec4(mix(c, m, uPronto), 1.0);
 }`;
+
+/** Il colore della nebbia, lo stesso dell'orizzonte della foto: la terra lontana ci sfuma dentro. */
+const NEBBIA = { giorno: "#A99B85", notte: "#272D33" };
 
 function Cielo({ notte }: { notte: boolean }) {
   // il tramonto: orizzonte d'oro, cielo che sale all'azzurro; la notte: blu profondo, la luna al posto del sole
-  const mat = useMemo(
-    () =>
-      new THREE.ShaderMaterial({
-        vertexShader: CIELO_V,
-        fragmentShader: CIELO_F,
-        side: THREE.BackSide,
-        depthWrite: false,
-        fog: false,
-        uniforms: {
-          uBasso: { value: new THREE.Color(notte ? "#1A2033" : "#F0C487") },
-          uAlto: { value: new THREE.Color(notte ? "#05070D" : "#7C9CC4") },
-          uSole: { value: new THREE.Color("#FFD9A0") },
-          uDirSole: { value: new THREE.Vector3(notte ? -0.4 : 0.25, notte ? 0.35 : 0.07, -1) },
-          uNotte: { value: notte ? 1 : 0 },
-        },
-      }),
-    [notte]
-  );
+  const mat = useMemo(() => {
+    const nebbia = new THREE.Color().setStyle(notte ? NEBBIA.notte : NEBBIA.giorno, THREE.LinearSRGBColorSpace);
+    const m = new THREE.ShaderMaterial({
+      vertexShader: CIELO_V,
+      fragmentShader: CIELO_F,
+      side: THREE.BackSide,
+      depthWrite: false,
+      fog: false,
+      uniforms: {
+        uBasso: { value: new THREE.Color(notte ? "#1A2033" : "#F0C487") },
+        uAlto: { value: new THREE.Color(notte ? "#05070D" : "#7C9CC4") },
+        uSole: { value: new THREE.Color("#FFD9A0") },
+        uDirSole: { value: new THREE.Vector3(notte ? -0.4 : 0.25, notte ? 0.35 : 0.07, -1) },
+        uNotte: { value: notte ? 1 : 0 },
+        uMappa: { value: null as THREE.Texture | null },
+        uPronto: { value: 0 },
+        // il sole della foto (a 0,60 della larghezza) in fondo al cammino, appena a destra; la luna appena a sinistra
+        uGiro: { value: notte ? 0.42 : 0.31 },
+        uNebbia: { value: new THREE.Vector3(nebbia.r, nebbia.g, nebbia.b) },
+      },
+    });
+    // la foto si scarica una volta; quando c'è, il cielo disegnato le lascia il posto
+    m.uniforms.uMappa.value = cielo(notte, () => {
+      m.userData.arrivata = true;
+    });
+    return m;
+  }, [notte]);
   useEffect(() => () => mat.dispose(), [mat]);
   const stelle = useMemo(() => {
     const caso = generatore(11);
@@ -186,104 +211,178 @@ function Cielo({ notte }: { notte: boolean }) {
     g.setAttribute("position", new THREE.Float32BufferAttribute(p, 3));
     return g;
   }, []);
-  const cielo = useRef<THREE.Mesh>(null);
+  const volta = useRef<THREE.Mesh>(null);
   const stelleRif = useRef<THREE.Points>(null);
-  useFrame(({ camera }) => {
+  useFrame(({ camera }, dt) => {
     // il cielo segue chi cammina
-    cielo.current?.position.copy(camera.position);
+    volta.current?.position.copy(camera.position);
     stelleRif.current?.position.copy(camera.position);
+    // la foto del cielo entra sfumando
+    const m = volta.current?.material as THREE.ShaderMaterial | undefined;
+    if (m?.userData.arrivata && m.uniforms.uPronto.value < 1) m.uniforms.uPronto.value = Math.min(1, m.uniforms.uPronto.value + dt * 1.5);
   });
   return (
     <>
-      <mesh ref={cielo} material={mat} renderOrder={-10}>
+      <mesh ref={volta} material={mat} renderOrder={-10}>
         <sphereGeometry args={[120, 32, 16]} />
       </mesh>
       {notte && (
         <points ref={stelleRif} geometry={stelle}>
-          <pointsMaterial color="#E8ECF5" size={0.35} sizeAttenuation transparent opacity={0.8} fog={false} depthWrite={false} />
+          <pointsMaterial color="#E8ECF5" size={0.3} sizeAttenuation transparent opacity={0.55} fog={false} depthWrite={false} />
         </points>
       )}
-      <fog attach="fog" args={[notte ? "#141A2A" : "#E9C08C", notte ? 10 : 14, notte ? 52 : 70]} />
-      <hemisphereLight args={[notte ? "#5A6890" : "#FFE2B8", notte ? "#2A221C" : "#7A5236", notte ? 0.9 : 1.1]} />
-      <directionalLight position={notte ? [-8, 14, -20] : [10, 6, -40]} intensity={notte ? 0.7 : 1.6} color={notte ? "#AFC0E8" : "#FFC98A"} />
+      <fog attach="fog" args={[notte ? NEBBIA.notte : NEBBIA.giorno, notte ? 12 : 16, notte ? 56 : 72]} />
+      {/* di notte la luna sta alle spalle di chi cammina: la terra, i muretti e la macina si leggono, freddi */}
+      <hemisphereLight args={[notte ? "#7F90C0" : "#FFE2B8", notte ? "#3A3028" : "#7A5236", notte ? 2.0 : 1.1]} />
+      <directionalLight position={notte ? [-6, 12, 10] : [10, 6, -40]} intensity={notte ? 1.1 : 1.6} color={notte ? "#AFC0E8" : "#FFC98A"} />
     </>
   );
 }
 
 /* ------------------------------------------------------------------ la terra */
 
-function Terra({ notte }: { notte: boolean }) {
-  const [suolo, strada, pietre] = useMemo(() => {
-    const caso = generatore(7);
-    // la terra rossa, mossa appena, coi colori variati
-    const g = new THREE.PlaneGeometry(120, 160, 60, 80).rotateX(-Math.PI / 2).translate(0, 0, -40);
-    const pos = g.attributes.position as THREE.BufferAttribute;
-    const col = new Float32Array(pos.count * 3);
-    const a = new THREE.Color("#8A6048"), b = new THREE.Color("#A4876A"), c = new THREE.Color();
-    for (let i = 0; i < pos.count; i++) {
-      const x = pos.getX(i), z = pos.getZ(i);
-      pos.setY(i, quota(x, z));
-      c.copy(a).lerp(b, 0.5 + 0.5 * Math.sin(x * 0.7 + z * 1.1) * Math.sin(z * 0.3));
-      col.set([c.r, c.g, c.b], i * 3);
+/** I muretti a secco: a che distanza dal centro della trazzera, quanto spessi, quanto alti. */
+const MURETTO = { distanza: 1.12, spessore: 0.38, alto: 0.46 };
+
+/** La trazzera: una striscia che segue il cammino, piena al centro e sfumata ai bordi nella terra rossa. */
+function geometriaTrazzera() {
+  const n = 400;
+  // da sinistra a destra: bordo sfumato, pieno, pieno, bordo sfumato
+  const colonne = [
+    { d: -0.98, a: 0 },
+    { d: -0.6, a: 1 },
+    { d: 0.6, a: 1 },
+    { d: 0.98, a: 0 },
+  ];
+  const pos: number[] = [], uv: number[] = [], col: number[] = [], idx: number[] = [];
+  const v = new THREE.Vector3(), d = new THREE.Vector3(), prima = new THREE.Vector3();
+  let lungo = 0;
+  for (let i = 0; i <= n; i++) {
+    const p = i / n;
+    sulCammino(p, v);
+    destra(p, d);
+    if (i > 0) lungo += v.distanceTo(prima);
+    prima.copy(v);
+    colonne.forEach(({ d: k, a }) => {
+      const x = v.x + d.x * k, z = v.z + d.z * k;
+      // segue la terra, appena sopra: altrimenti le onde del suolo la bucano
+      pos.push(x, quota(x, z) + 0.07, z);
+      uv.push((k + 1) / 2, lungo / 2);
+      col.push(1, 1, 1, a);
+    });
+    if (i < n) {
+      for (let c = 0; c < 3; c++) {
+        const a = i * 4 + c, b = a + 4;
+        idx.push(a, a + 1, b, a + 1, b + 1, b);
+      }
     }
-    g.setAttribute("color", new THREE.BufferAttribute(col, 3));
-    g.computeVertexNormals();
-    // la trazzera: una striscia chiara che segue il cammino
-    const n = 400;
-    const sp: number[] = [];
-    const idx: number[] = [];
-    const v = new THREE.Vector3(), d = new THREE.Vector3();
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+  g.setAttribute("uv", new THREE.Float32BufferAttribute(uv, 2));
+  g.setAttribute("color", new THREE.Float32BufferAttribute(col, 4));
+  g.setIndex(idx);
+  g.computeVertexNormals();
+  return g;
+}
+
+/**
+ * I muretti a secco ai due lati: un nastro di pietra con la faccia verso la trazzera, il colmo e la faccia
+ * verso i campi, appena rastremato in alto; l'altezza varia un poco, come in un muro tirato su a mano.
+ */
+function geometriaMuretti() {
+  const n = 500;
+  const pos: number[] = [], uv: number[] = [], idx: number[] = [];
+  const v = new THREE.Vector3(), d = new THREE.Vector3(), prima = new THREE.Vector3();
+  const caso = generatore(13);
+  const { distanza, spessore, alto } = MURETTO;
+  let base = 0;
+  for (const lato of [-1, 1]) {
+    let lungo = 0;
+    const scarti: number[] = [];
+    for (let i = 0; i <= n; i++) scarti.push((caso() - 0.5) * 0.08);
     for (let i = 0; i <= n; i++) {
       const p = i / n;
       sulCammino(p, v);
       destra(p, d);
-      // la trazzera segue la terra, appena sopra: altrimenti le onde del suolo la bucano
-      const ax = v.x - d.x * 0.75, az = v.z - d.z * 0.75, bx = v.x + d.x * 0.75, bz = v.z + d.z * 0.75;
-      sp.push(ax, quota(ax, az) + 0.06, az, bx, quota(bx, bz) + 0.06, bz);
-      if (i < n) idx.push(i * 2, i * 2 + 1, i * 2 + 2, i * 2 + 1, i * 2 + 3, i * 2 + 2);
-    }
-    const s = new THREE.BufferGeometry();
-    s.setAttribute("position", new THREE.Float32BufferAttribute(sp, 3));
-    s.setIndex(idx);
-    s.computeVertexNormals();
-    // i muretti a secco ai due lati: pietre in fila, due corsi
-    const m: THREE.Matrix4[] = [];
-    const q = new THREE.Quaternion(), sc = new THREE.Vector3(), e = new THREE.Euler();
-    for (let i = 0; i < 1000; i++) {
-      const p = (i % 500) / 500;
-      const lato = i < 500 ? -1 : 1;
-      sulCammino(p, v);
-      destra(p, d);
-      for (let corso = 0; corso < 2; corso++) {
-        const k = 1.05 + caso() * 0.08;
-        e.set(caso() * 3, caso() * 3, caso() * 3);
-        q.setFromEuler(e);
-        sc.set(1.2 + caso() * 0.6, 0.7 + caso() * 0.3, 1 + caso() * 0.4).multiplyScalar(0.085);
-        const px = v.x + d.x * k * lato, pz = v.z + d.z * k * lato;
-        m.push(new THREE.Matrix4().compose(new THREE.Vector3(px, quota(px, pz) + 0.07 + corso * 0.11, pz), q, sc));
+      if (i > 0) lungo += v.distanceTo(prima);
+      prima.copy(v);
+      const h = alto + 0.05 * Math.sin(p * 90 + lato) + (scarti[i] + (scarti[i - 1] ?? 0) + (scarti[i + 1] ?? 0)) / 3;
+      const punto = (k: number, y: number) => {
+        const x = v.x + d.x * k * lato, z = v.z + d.z * k * lato;
+        return [x, quota(x, z) + y, z];
+      };
+      const dentro = distanza - spessore / 2, fuori = distanza + spessore / 2;
+      const u = lungo / 1.6;
+      // tre facce, ognuna coi suoi vertici: gli spigoli restano netti
+      pos.push(...punto(dentro, -0.1), ...punto(dentro + 0.05, h));
+      uv.push(u, 0, u, (h + 0.1) / 1.6);
+      pos.push(...punto(dentro + 0.05, h), ...punto(fuori - 0.05, h));
+      uv.push(u, 0, u, spessore / 1.6);
+      pos.push(...punto(fuori - 0.05, h), ...punto(fuori, -0.1));
+      uv.push(u, (h + 0.1) / 1.6, u, 0);
+      if (i < n) {
+        for (let f = 0; f < 3; f++) {
+          const a = base + i * 6 + f * 2, b = a + 6;
+          // l'ordine dei vertici dipende dal lato, perché le facce guardino fuori
+          if (lato > 0) idx.push(a, b, a + 1, a + 1, b, b + 1);
+          else idx.push(a, a + 1, b, a + 1, b + 1, b);
+        }
       }
     }
-    return [g, s, m];
+    base += (n + 1) * 6;
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+  g.setAttribute("uv", new THREE.Float32BufferAttribute(uv, 2));
+  g.setIndex(idx);
+  g.computeVertexNormals();
+  return g;
+}
+
+function Terra({ notte }: { notte: boolean }) {
+  const [suolo, strada, muri] = useMemo(() => {
+    // la terra rossa, mossa appena; il colore della foto variato a chiazze, perché la ripetizione non si veda
+    const g = new THREE.PlaneGeometry(120, 160, 120, 160).rotateX(-Math.PI / 2).translate(0, 0, -40);
+    const pos = g.attributes.position as THREE.BufferAttribute;
+    const col = new Float32Array(pos.count * 3);
+    const a = new THREE.Color("#C9B6A6"), b = new THREE.Color("#FFFFFF"), c = new THREE.Color();
+    for (let i = 0; i < pos.count; i++) {
+      const x = pos.getX(i), z = pos.getZ(i);
+      pos.setY(i, quota(x, z));
+      c.copy(a).lerp(b, 0.5 + 0.5 * Math.sin(x * 0.23 + z * 0.37) * Math.sin(z * 0.11 - x * 0.05));
+      col.set([c.r, c.g, c.b], i * 3);
+    }
+    g.setAttribute("color", new THREE.BufferAttribute(col, 3));
+    g.computeVertexNormals();
+    return [g, geometriaTrazzera(), geometriaMuretti()];
   }, []);
-  const muretti = useRef<THREE.InstancedMesh>(null);
-  useEffect(() => {
-    const im = muretti.current;
-    if (!im) return;
-    pietre.forEach((m, i) => im.setMatrixAt(i, m));
-    im.instanceMatrix.needsUpdate = true;
-  }, [pietre]);
+  // le foto di Poly Haven: la terra ogni 2,7 metri, la trazzera ogni 2, il muretto ogni 1,6
+  const terra = useMemo(() => ({ colore: textura("terra-colore.webp", true, [44, 58]), rilievo: textura("terra-rilievo.webp", false, [44, 58]) }), []);
+  const via = useMemo(() => ({ colore: textura("trazzera-colore.webp", true), rilievo: textura("trazzera-rilievo.webp", false) }), []);
+  const muro = useMemo(() => ({ colore: textura("muretto-colore.webp", true), rilievo: textura("muretto-rilievo.webp", false) }), []);
+  const rilievo = useMemo(() => new THREE.Vector2(1, 1), []);
   return (
     <>
       <mesh geometry={suolo}>
-        <meshLambertMaterial vertexColors color={notte ? "#8A8A9A" : "#FFFFFF"} />
+        <meshLambertMaterial vertexColors map={terra.colore} normalMap={terra.rilievo} normalScale={rilievo} color={notte ? "#7E8090" : "#FFFFFF"} />
       </mesh>
-      <mesh geometry={strada}>
-        <meshLambertMaterial color={notte ? "#9A948C" : "#D9C49A"} />
+      <mesh geometry={strada} renderOrder={1}>
+        <meshLambertMaterial
+          vertexColors
+          transparent
+          depthWrite={false}
+          map={via.colore}
+          normalMap={via.rilievo}
+          normalScale={rilievo}
+          color={notte ? "#8A8794" : "#F2E2C8"}
+          polygonOffset
+          polygonOffsetFactor={-2}
+        />
       </mesh>
-      <instancedMesh ref={muretti} args={[undefined, undefined, pietre.length]}>
-        <dodecahedronGeometry args={[1, 0]} />
-        <meshLambertMaterial color={notte ? "#6A6872" : "#D8CCB2"} flatShading />
-      </instancedMesh>
+      <mesh geometry={muri}>
+        <meshLambertMaterial map={muro.colore} normalMap={muro.rilievo} normalScale={rilievo} color={notte ? "#7A7884" : "#FFF4E2"} side={THREE.DoubleSide} />
+      </mesh>
     </>
   );
 }
@@ -464,6 +563,92 @@ function Lucciole() {
   );
 }
 
+/* ------------------------------------------------------------------ i modelli */
+
+/**
+ * Le copie di un modello di Poly Haven: lo si scarica una volta, poi un InstancedMesh per tutte le copie.
+ * Di notte il materiale è velato di blu, come il resto della campagna.
+ */
+function Istanze({ nome, matrici, notte }: { nome: string; matrici: THREE.Matrix4[]; notte: boolean }) {
+  const [dati, setDati] = useState<{ geometria: THREE.BufferGeometry; materiale: THREE.Material } | null>(null);
+  useEffect(() => {
+    let vivo = true;
+    modello(nome)
+      .then((m) => {
+        if (vivo) setDati(m);
+      })
+      .catch(() => undefined);
+    return () => {
+      vivo = false;
+    };
+  }, [nome]);
+  const materiale = useMemo(() => {
+    if (!dati) return null;
+    const m = (dati.materiale as THREE.MeshStandardMaterial).clone();
+    // il colore del modello resta (la cassetta è arancio nel fattore, non nella foto): lo si vela soltanto
+    m.color.multiply(new THREE.Color(notte ? "#6E7284" : "#FFF6EA"));
+    m.transparent = false;
+    // senza un ambiente da riflettere il metallo esce nero: pietra e legno opachi, e basta
+    m.metalness = 0;
+    m.metalnessMap = null;
+    return m;
+  }, [dati, notte]);
+  useEffect(() => () => materiale?.dispose(), [materiale]);
+  const rif = useRef<THREE.InstancedMesh>(null);
+  useEffect(() => {
+    const im = rif.current;
+    if (!im) return;
+    matrici.forEach((m, i) => im.setMatrixAt(i, m));
+    im.instanceMatrix.needsUpdate = true;
+    im.computeBoundingSphere();
+  }, [matrici, dati, materiale]);
+  if (!dati || !materiale) return null;
+  return <instancedMesh ref={rif} args={[dati.geometria, materiale, matrici.length]} />;
+}
+
+/**
+ * Pietre e massi fra gli ulivi, come in ogni campagna iblea: le pietre piccole fra il muretto e la prima
+ * fila d'alberi, i massi più in là, fra le file. Lasciano liberi i quadri, le reti e il frantoio.
+ */
+function Sassi({ notte }: { notte: boolean }) {
+  const { pietre, massi } = useMemo(() => {
+    const caso = generatore(41);
+    const pietre: THREE.Matrix4[] = [];
+    const massi: THREE.Matrix4[] = [];
+    const v = new THREE.Vector3(), d = new THREE.Vector3(), su = new THREE.Vector3(0, 1, 0);
+    const girata = (a: number) => new THREE.Quaternion().setFromAxisAngle(su, a);
+    for (let i = 0; i < 46; i++) {
+      const p = 0.02 + caso() * 0.9;
+      // dove stanno le reti, la fascia vicina resta più libera
+      if (p > 0.36 && p < 0.65 && i % 2) continue;
+      const lato = caso() < 0.5 ? -1 : 1;
+      sulCammino(p, v);
+      destra(p, d);
+      const k = 3.6 + caso() * 1.0;
+      const x = v.x + d.x * k * lato, z = v.z + d.z * k * lato;
+      const s = 0.28 + caso() * 0.3;
+      pietre.push(new THREE.Matrix4().compose(new THREE.Vector3(x, quota(x, z) - 0.04, z), girata(caso() * 6.28), new THREE.Vector3(s, s * (0.7 + caso() * 0.5), s)));
+    }
+    for (let i = 0; i < 12; i++) {
+      const p = 0.03 + (i / 12) * 0.85 + caso() * 0.04;
+      const lato = i % 2 ? -1 : 1;
+      sulCammino(p, v);
+      destra(p, d);
+      const k = 8.2 + caso() * 1.6;
+      const x = v.x + d.x * k * lato, z = v.z + d.z * k * lato;
+      const s = 1.0 + caso() * 0.8;
+      massi.push(new THREE.Matrix4().compose(new THREE.Vector3(x, quota(x, z) - 0.08, z), girata(caso() * 6.28), new THREE.Vector3(s, s, s)));
+    }
+    return { pietre, massi };
+  }, []);
+  return (
+    <>
+      <Istanze nome="masso.glb" matrici={pietre} notte={notte} />
+      <Istanze nome="masso.glb" matrici={massi} notte={notte} />
+    </>
+  );
+}
+
 /* ------------------------------------------------------------------ il frantoio */
 
 /** In fondo al cammino: il frantoio a cielo aperto, la vasca di pietra con la macina che gira, una tettoia. */
@@ -475,50 +660,69 @@ function Frantoio({ notte, ridotto }: { notte: boolean; ridotto: boolean }) {
   });
   const pietra = notte ? "#77746F" : "#CFC3AA";
   const legno = notte ? "#4A3A2C" : "#6B4A2E";
+  // le botti dell'olio nuovo, ai lati della tettoia: due a sinistra, una a destra
+  const botti = useMemo(
+    () =>
+      [
+        [-3.1, 0.9, 0.3],
+        [-3.0, 0.05, 1.1],
+        [3.15, 1.0, -0.6],
+      ].map(([x, z, r]) =>
+        new THREE.Matrix4().compose(
+          new THREE.Vector3(fine.x + x, quota(fine.x + x, fine.z + z) - 0.02, fine.z + z),
+          new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), r),
+          new THREE.Vector3(1.05, 1.05, 1.05)
+        )
+      ),
+    [fine]
+  );
   return (
-    <group position={[fine.x, 0, fine.z]}>
-      {/* la vasca */}
-      <mesh position={[0, 0.35, 0]}>
-        <cylinderGeometry args={[1.6, 1.7, 0.7, 32]} />
-        <meshLambertMaterial color={pietra} />
-      </mesh>
-      <mesh position={[0, 0.71, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <ringGeometry args={[0.2, 1.45, 32]} />
-        <meshLambertMaterial color={notte ? "#3B3A2A" : "#7C6B3E"} />
-      </mesh>
-      {/* la macina: una ruota di pietra in piedi, girata attorno al perno centrale */}
-      <group ref={macina} position={[0, 0.7, 0]}>
-        <mesh position={[0, 0.2, 0]}>
-          <cylinderGeometry args={[0.12, 0.12, 1.6, 10]} />
-          <meshLambertMaterial color={legno} />
-        </mesh>
-        <mesh position={[0.75, 0.55, 0]} rotation={[0, 0, Math.PI / 2]}>
-          <cylinderGeometry args={[0.55, 0.55, 0.35, 28]} />
+    <>
+      <Istanze nome="botte.glb" matrici={botti} notte={notte} />
+      <group position={[fine.x, 0, fine.z]}>
+        {/* la vasca */}
+        <mesh position={[0, 0.35, 0]}>
+          <cylinderGeometry args={[1.6, 1.7, 0.7, 32]} />
           <meshLambertMaterial color={pietra} />
         </mesh>
-        <mesh position={[0.55, 0.55, 0]} rotation={[0, 0, Math.PI / 2]}>
-          <cylinderGeometry args={[0.05, 0.05, 1.3, 8]} />
-          <meshLambertMaterial color={legno} />
+        <mesh position={[0, 0.71, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+          <ringGeometry args={[0.2, 1.45, 32]} />
+          <meshLambertMaterial color={notte ? "#3B3A2A" : "#7C6B3E"} />
         </mesh>
+        {/* la macina: una ruota di pietra in piedi, girata attorno al perno centrale */}
+        <group ref={macina} position={[0, 0.7, 0]}>
+          <mesh position={[0, 0.2, 0]}>
+            <cylinderGeometry args={[0.12, 0.12, 1.6, 10]} />
+            <meshLambertMaterial color={legno} />
+          </mesh>
+          <mesh position={[0.75, 0.55, 0]} rotation={[0, 0, Math.PI / 2]}>
+            <cylinderGeometry args={[0.55, 0.55, 0.35, 28]} />
+            <meshLambertMaterial color={pietra} />
+          </mesh>
+          <mesh position={[0.55, 0.55, 0]} rotation={[0, 0, Math.PI / 2]}>
+            <cylinderGeometry args={[0.05, 0.05, 1.3, 8]} />
+            <meshLambertMaterial color={legno} />
+          </mesh>
+        </group>
+        {/* la tettoia: quattro pali e un tetto di coppi */}
+        {[[-2.4, -2.2], [2.4, -2.2], [-2.4, 2.2], [2.4, 2.2]].map(([x, z], i) => (
+          <mesh key={i} position={[x, 1.5, z]}>
+            <boxGeometry args={[0.16, 3, 0.16]} />
+            <meshLambertMaterial color={legno} />
+          </mesh>
+        ))}
+        <mesh position={[0, 3.1, 0]} rotation={[0.08, 0, 0]}>
+          <boxGeometry args={[5.6, 0.14, 5.2]} />
+          <meshLambertMaterial color={notte ? "#5A3426" : "#A8553A"} />
+        </mesh>
+        {/* una lanterna, accesa di notte */}
+        <mesh position={[2.4, 2.6, -2.3]}>
+          <boxGeometry args={[0.18, 0.26, 0.18]} />
+          <meshBasicMaterial color={notte ? "#FFD08A" : "#3A3A38"} />
+        </mesh>
+        {notte && <pointLight position={[2.2, 2.5, -2.6]} intensity={6} distance={9} color="#FFC27A" />}
       </group>
-      {/* la tettoia: quattro pali e un tetto di coppi */}
-      {[[-2.4, -2.2], [2.4, -2.2], [-2.4, 2.2], [2.4, 2.2]].map(([x, z], i) => (
-        <mesh key={i} position={[x, 1.5, z]}>
-          <boxGeometry args={[0.16, 3, 0.16]} />
-          <meshLambertMaterial color={legno} />
-        </mesh>
-      ))}
-      <mesh position={[0, 3.1, 0]} rotation={[0.08, 0, 0]}>
-        <boxGeometry args={[5.6, 0.14, 5.2]} />
-        <meshLambertMaterial color={notte ? "#5A3426" : "#A8553A"} />
-      </mesh>
-      {/* una lanterna, accesa di notte */}
-      <mesh position={[2.4, 2.6, -2.3]}>
-        <boxGeometry args={[0.18, 0.26, 0.18]} />
-        <meshBasicMaterial color={notte ? "#FFD08A" : "#3A3A38"} />
-      </mesh>
-      {notte && <pointLight position={[2.2, 2.5, -2.6]} intensity={6} distance={9} color="#FFC27A" />}
-    </group>
+    </>
   );
 }
 
@@ -540,23 +744,23 @@ function Raccolta({ notte }: { notte: boolean }) {
       const base = v.clone().add(d.clone().multiplyScalar(lato * (2.9 + caso() * 0.4)));
       const n = 4 + Math.floor(caso() * 2);
       for (let k = 0; k < n; k++) {
-        const pos = base.clone().add(new THREE.Vector3((k % 2) * 0.48, quota(base.x, base.z) + 0.15 + Math.floor(k / 2) * 0.27, (caso() - 0.5) * 0.06));
-        casse.push(new THREE.Matrix4().compose(pos, new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), (caso() - 0.5) * 0.3), new THREE.Vector3(1, 1, 1)));
+        const pos = base.clone().add(new THREE.Vector3((k % 2) * 0.54, quota(base.x, base.z) + 0.15 + Math.floor(k / 2) * 0.255, (caso() - 0.5) * 0.06));
+        casse.push(new THREE.Matrix4().compose(pos, new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), (caso() - 0.5) * 0.12), new THREE.Vector3(1, 1, 1)));
       }
     });
     const scala = sulCammino(0.48).add(destra(0.48).multiplyScalar(4.4));
-    return { reti, casse, scala };
+    // la cassetta di plastica (Poly Haven) ha la base a terra: la si abbassa al fondo della scatola di prima
+    const giu = new THREE.Matrix4().makeTranslation(0, -0.13, 0);
+    const cassette = casse.map((m) => m.clone().multiply(giu));
+    return { reti, casse, cassette, scala };
   }, []);
-  const casse = useRef<THREE.InstancedMesh>(null);
   const olive = useRef<THREE.InstancedMesh>(null);
   useEffect(() => {
     dati.casse.forEach((m, i) => {
-      casse.current?.setMatrixAt(i, m);
       // il carico di olive, appena sotto il bordo
       const o = m.clone().multiply(new THREE.Matrix4().makeTranslation(0, 0.06, 0));
       olive.current?.setMatrixAt(i, o);
     });
-    if (casse.current) casse.current.instanceMatrix.needsUpdate = true;
     if (olive.current) olive.current.instanceMatrix.needsUpdate = true;
   }, [dati]);
   return (
@@ -567,12 +771,9 @@ function Raccolta({ notte }: { notte: boolean }) {
           <meshLambertMaterial color={notte ? "#24402C" : "#3E7A4C"} transparent opacity={0.92} side={THREE.DoubleSide} />
         </mesh>
       ))}
-      <instancedMesh ref={casse} args={[undefined, undefined, dati.casse.length]}>
-        <boxGeometry args={[0.46, 0.26, 0.34]} />
-        <meshLambertMaterial color={notte ? "#5A4630" : "#B88A55"} />
-      </instancedMesh>
+      <Istanze nome="cassetta.glb" matrici={dati.cassette} notte={notte} />
       <instancedMesh ref={olive} args={[undefined, undefined, dati.casse.length]}>
-        <boxGeometry args={[0.42, 0.16, 0.3]} />
+        <boxGeometry args={[0.46, 0.16, 0.36]} />
         <meshLambertMaterial color="#2B2230" />
       </instancedMesh>
       {/* la scala appoggiata a un ulivo */}
