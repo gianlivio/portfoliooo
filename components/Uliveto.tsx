@@ -1,6 +1,6 @@
 "use client";
 
-import { Canvas, useFrame, type ThreeEvent } from "@react-three/fiber";
+import { Canvas, useFrame, useThree, type ThreeEvent } from "@react-three/fiber";
 import * as THREE from "three";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { accesaDaSotto, costruisciUlivo } from "./ospiti/ulivo";
@@ -434,18 +434,16 @@ function Ulivi({ notte, ridotto }: { notte: boolean; ridotto: boolean }) {
     })();
     return { varianti, posti, cono };
   }, []);
-  // la corteccia grigia e fessurata, il folto delle foglie: la grana delle foto sopra i colori di sempre
+  // la corteccia grigia e fessurata sui tronchi: la grana della foto sopra il colore di sempre
   const materiali = useMemo(() => {
     const corteccia = textura("corteccia-colore.webp", true);
-    const fronde = textura("fronde-colore.webp", true);
     const legno = (m: THREE.MeshLambertMaterial | THREE.MeshBasicMaterial) => triplanare(m, corteccia, 2.2, 0.9, 0.2024);
-    const foglie = (m: THREE.MeshLambertMaterial | THREE.MeshBasicMaterial, forza: number) => triplanare(m, fronde, 2.8, forza, 0.1949);
     return {
       legnoGiorno: legno(new THREE.MeshLambertMaterial({ color: "#8A8073", flatShading: true })),
-      frondeGiorno: foglie(new THREE.MeshLambertMaterial({ color: "#93A07A", flatShading: true }), 0.75),
-      veloGiorno: foglie(new THREE.MeshLambertMaterial({ color: "#D2D6C2", flatShading: true, transparent: true, opacity: 0.4 }), 0.6),
+      frondeGiorno: new THREE.MeshLambertMaterial({ color: "#93A07A", flatShading: true }),
+      veloGiorno: new THREE.MeshLambertMaterial({ color: "#D2D6C2", flatShading: true, transparent: true, opacity: 0.4 }),
       legnoNotte: legno(new THREE.MeshBasicMaterial({ vertexColors: true })),
-      frondeNotte: foglie(new THREE.MeshBasicMaterial({ vertexColors: true }), 0.6),
+      frondeNotte: new THREE.MeshBasicMaterial({ vertexColors: true }),
     };
   }, []);
   useEffect(() => () => Object.values(materiali).forEach((m) => m.dispose()), [materiali]);
@@ -571,19 +569,13 @@ function Lucciole() {
 
 /* ------------------------------------------------------------------ i materiali */
 
-/**
- * Legno e pietra con la grana delle foto di Poly Haven, proiettata dai tre assi: pali, scala, cornici,
- * la vasca e la macina non hanno coordinate di texture adatte. Un materiale per colore, condiviso da tutti.
- */
+/** Un materiale semplice per colore, condiviso da tutti i pezzi di legno e di pietra che lo usano. */
 const materiali = new Map<string, THREE.MeshLambertMaterial>();
-function grana(foto: "legno" | "vasca" | "macina", colore: string) {
-  const chiave = `${foto}|${colore}`;
-  let m = materiali.get(chiave);
+function tinta(colore: string) {
+  let m = materiali.get(colore);
   if (!m) {
-    const media = { legno: 0.1319, vasca: 0.158, macina: 0.408 }[foto];
-    const scala = { legno: 2.5, vasca: 0.9, macina: 1.4 }[foto];
-    m = triplanare(new THREE.MeshLambertMaterial({ color: colore }), textura(`${foto}-colore.webp`, true), scala, 0.85, media);
-    materiali.set(chiave, m);
+    m = new THREE.MeshLambertMaterial({ color: colore });
+    materiali.set(colore, m);
   }
   return m;
 }
@@ -609,24 +601,40 @@ function Istanze({ nome, matrici, notte }: { nome: string; matrici: THREE.Matrix
   }, [nome]);
   const materiale = useMemo(() => {
     if (!dati) return null;
-    const m = (dati.materiale as THREE.MeshStandardMaterial).clone();
-    // il colore del modello resta (la cassetta è arancio nel fattore, non nella foto): lo si vela soltanto
-    m.color.multiply(new THREE.Color(notte ? "#6E7284" : "#FFF6EA"));
-    m.transparent = false;
-    // senza un ambiente da riflettere il metallo esce nero: pietra e legno opachi, e basta
-    m.metalness = 0;
-    m.metalnessMap = null;
+    // lo stesso materiale semplice del resto della scena, non quello fisico del modello: costa molto meno
+    // da compilare e da disegnare. Il colore del modello resta (la cassetta è arancio nel fattore, non nella
+    // foto): lo si vela soltanto
+    const o = dati.materiale as THREE.MeshStandardMaterial;
+    const m = new THREE.MeshLambertMaterial({
+      map: o.map ?? undefined,
+      normalMap: o.normalMap ?? undefined,
+      color: o.color.clone().multiply(new THREE.Color(notte ? "#6E7284" : "#FFF6EA")),
+      alphaTest: o.alphaTest,
+      side: o.side,
+    });
     return m;
   }, [dati, notte]);
   useEffect(() => () => materiale?.dispose(), [materiale]);
   const rif = useRef<THREE.InstancedMesh>(null);
+  const { gl, camera, scene } = useThree();
   useEffect(() => {
     const im = rif.current;
     if (!im) return;
     matrici.forEach((m, i) => im.setMatrixAt(i, m));
     im.instanceMatrix.needsUpdate = true;
     im.computeBoundingSphere();
-  }, [matrici, dati, materiale]);
+    // lo shader si compila in disparte, senza fermare la pagina; il modello compare quando è pronto
+    let vivo = true;
+    im.visible = false;
+    gl.compileAsync(im, camera, scene)
+      .catch(() => undefined)
+      .then(() => {
+        if (vivo) im.visible = true;
+      });
+    return () => {
+      vivo = false;
+    };
+  }, [matrici, dati, materiale, gl, camera, scene]);
   if (!dati || !materiale) return null;
   return <instancedMesh ref={rif} args={[dati.geometria, materiale, matrici.length]} />;
 }
@@ -676,14 +684,14 @@ function Sassi({ notte }: { notte: boolean }) {
 
 /**
  * L'erba secca d'autunno, a ciuffi: al piede dei muretti, dalla parte dei campi, e sparsa fra gli ulivi.
- * Sul telefono la metà.
+ * Sul telefono un terzo.
  */
 function Erba({ notte, stretto }: { notte: boolean; stretto: boolean }) {
   const ciuffi = useMemo(() => {
     const caso = generatore(53);
     const m: THREE.Matrix4[] = [];
     const v = new THREE.Vector3(), d = new THREE.Vector3(), su = new THREE.Vector3(0, 1, 0);
-    const n = stretto ? 110 : 240;
+    const n = stretto ? 40 : 120;
     for (let i = 0; i < n; i++) {
       const p = caso();
       const lato = caso() < 0.5 ? -1 : 1;
@@ -709,8 +717,8 @@ function Frantoio({ notte, ridotto }: { notte: boolean; ridotto: boolean }) {
   useFrame((_, dt) => {
     if (!ridotto && macina.current) macina.current.rotation.y += dt * 0.35;
   });
-  const pietra = notte ? "#8A8790" : "#DCD0B8";
-  const legno = notte ? "#5E5864" : "#8A7560";
+  const pietra = notte ? "#8A8790" : "#CFC3AA";
+  const legno = notte ? "#5E5864" : "#6B4A2E";
   const tetto = useMemo(() => {
     const coppi = new THREE.MeshLambertMaterial({
       map: textura("coppi-colore.webp", true, [5.6, 5.2]),
@@ -718,7 +726,7 @@ function Frantoio({ notte, ridotto }: { notte: boolean; ridotto: boolean }) {
       color: notte ? "#6E6A78" : "#FFFFFF",
     });
     // le facce del box: +x, -x, sopra, sotto, +z, -z
-    const tavole = grana("legno", legno);
+    const tavole = tinta(legno);
     return [coppi, coppi, coppi, tavole, coppi, coppi];
   }, [notte, legno]);
   useEffect(() => () => tetto[0].dispose(), [tetto]);
@@ -743,7 +751,7 @@ function Frantoio({ notte, ridotto }: { notte: boolean; ridotto: boolean }) {
       <Istanze nome="botte.glb" matrici={botti} notte={notte} />
       <group position={[fine.x, 0, fine.z]}>
         {/* la vasca */}
-        <mesh position={[0, 0.35, 0]} material={grana("vasca", pietra)}>
+        <mesh position={[0, 0.35, 0]} material={tinta(pietra)}>
           <cylinderGeometry args={[1.6, 1.7, 0.7, 32]} />
         </mesh>
         <mesh position={[0, 0.71, 0]} rotation={[-Math.PI / 2, 0, 0]}>
@@ -752,19 +760,19 @@ function Frantoio({ notte, ridotto }: { notte: boolean; ridotto: boolean }) {
         </mesh>
         {/* la macina: una ruota di pietra in piedi, girata attorno al perno centrale */}
         <group ref={macina} position={[0, 0.7, 0]}>
-          <mesh position={[0, 0.2, 0]} material={grana("legno", legno)}>
+          <mesh position={[0, 0.2, 0]} material={tinta(legno)}>
             <cylinderGeometry args={[0.12, 0.12, 1.6, 10]} />
           </mesh>
-          <mesh position={[0.75, 0.55, 0]} rotation={[0, 0, Math.PI / 2]} material={grana("macina", pietra)}>
+          <mesh position={[0.75, 0.55, 0]} rotation={[0, 0, Math.PI / 2]} material={tinta(pietra)}>
             <cylinderGeometry args={[0.55, 0.55, 0.35, 28]} />
           </mesh>
-          <mesh position={[0.55, 0.55, 0]} rotation={[0, 0, Math.PI / 2]} material={grana("legno", legno)}>
+          <mesh position={[0.55, 0.55, 0]} rotation={[0, 0, Math.PI / 2]} material={tinta(legno)}>
             <cylinderGeometry args={[0.05, 0.05, 1.3, 8]} />
           </mesh>
         </group>
         {/* la tettoia: quattro pali e un tetto di coppi */}
         {[[-2.4, -2.2], [2.4, -2.2], [-2.4, 2.2], [2.4, 2.2]].map(([x, z], i) => (
-          <mesh key={i} position={[x, 1.5, z]} material={grana("legno", legno)}>
+          <mesh key={i} position={[x, 1.5, z]} material={tinta(legno)}>
             <boxGeometry args={[0.16, 3, 0.16]} />
           </mesh>
         ))}
@@ -852,12 +860,12 @@ function Raccolta({ notte }: { notte: boolean }) {
       {/* la scala appoggiata a un ulivo */}
       <group position={[dati.scala.x, 0, dati.scala.z]} rotation={[0.3, 0.4, 0]}>
         {[-1, 1].map((s) => (
-          <mesh key={s} position={[s * 0.2, 1.3, 0]} material={grana("legno", notte ? "#6A6470" : "#D8C2A0")}>
+          <mesh key={s} position={[s * 0.2, 1.3, 0]} material={tinta(notte ? "#5E5864" : "#9C7C55")}>
             <boxGeometry args={[0.05, 2.6, 0.05]} />
           </mesh>
         ))}
         {Array.from({ length: 8 }, (_, k) => (
-          <mesh key={k} position={[0, 0.25 + k * 0.3, 0]} material={grana("legno", notte ? "#6A6470" : "#D8C2A0")}>
+          <mesh key={k} position={[0, 0.25 + k * 0.3, 0]} material={tinta(notte ? "#5E5864" : "#9C7C55")}>
             <boxGeometry args={[0.4, 0.035, 0.035]} />
           </mesh>
         ))}
@@ -992,7 +1000,7 @@ function QuadroFraGliUlivi({
       {dove.sostegno === "pali" ? (
         // due pali di legno piantati in terra, e il quadro fra loro
         [-1, 1].map((s) => (
-          <mesh key={s} position={[s * (largo / 2 + 0.06), (Y + alto / 2 + 0.15) / 2, -0.02]} material={grana("legno", notte ? "#5A5058" : "#8A6E52")}>
+          <mesh key={s} position={[s * (largo / 2 + 0.06), (Y + alto / 2 + 0.15) / 2, -0.02]} material={tinta(notte ? "#4A4248" : "#5E4630")}>
             <boxGeometry args={[0.06, Y + alto / 2 + 0.15, 0.06]} />
           </mesh>
         ))
@@ -1000,16 +1008,16 @@ function QuadroFraGliUlivi({
         // il cavalletto: due gambe davanti, una dietro
         <group>
           {[-1, 1].map((s) => (
-            <mesh key={s} position={[s * (largo / 2 - 0.05), Y / 2 + 0.1, 0.05]} rotation={[-0.12, 0, s * -0.08]} material={grana("legno", notte ? "#5A5058" : "#A08060")}>
+            <mesh key={s} position={[s * (largo / 2 - 0.05), Y / 2 + 0.1, 0.05]} rotation={[-0.12, 0, s * -0.08]} material={tinta(notte ? "#4A4248" : "#7A5C3C")}>
               <boxGeometry args={[0.04, Y + alto / 2 + 0.2, 0.04]} />
             </mesh>
           ))}
-          <mesh position={[0, Y / 2 + 0.1, -0.28]} rotation={[0.35, 0, 0]} material={grana("legno", notte ? "#5A5058" : "#A08060")}>
+          <mesh position={[0, Y / 2 + 0.1, -0.28]} rotation={[0.35, 0, 0]} material={tinta(notte ? "#4A4248" : "#7A5C3C")}>
             <boxGeometry args={[0.04, Y + alto / 2 + 0.1, 0.04]} />
           </mesh>
         </group>
       )}
-      <mesh position={[0, Y, -0.03]} material={grana("legno", notte ? "#2E2A2C" : "#4A3C30")}>
+      <mesh position={[0, Y, -0.03]} material={tinta(notte ? "#1E1A16" : "#2E2620")}>
         <boxGeometry args={[largo + 0.08, alto + 0.08, 0.04]} />
       </mesh>
       <mesh

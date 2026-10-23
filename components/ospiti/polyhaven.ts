@@ -8,16 +8,12 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
  *   terra-*.webp        ← red_laterite_soil_stones (la terra rossa)
  *   trazzera-*.webp     ← dirt_floor
  *   muretto-*.webp      ← stone_wall (pietra calcarea a secco)
- *   corteccia-*.webp    ← bark_willow_02 (grigia e fessurata, come quella dell'ulivo)
- *   fronde-*.webp       ← forest_leaves_02 (ne resta solo la grana, sul verde argento delle chiome)
- *   legno-*.webp        ← rough_wood (pali, scala, cornici, tettoia)
+ *   corteccia-colore.webp ← bark_willow_02 (grigia e fessurata, come quella dell'ulivo: solo sui tronchi)
  *   coppi-*.webp        ← clay_roof_tiles_02
- *   vasca-*.webp        ← old_sandstone_02
- *   macina-*.webp       ← sandstone_cracks
  *   botte.glb           ← wine_barrel_01
  *   masso.glb           ← namaqualand_boulder_05 (pietra chiara, quasi calcare: sassi e massi a scale diverse)
  *   cassetta.glb        ← plastic_crate_02 (la cassetta gialla della raccolta)
- *   erba.glb            ← grass_medium_02, un ciuffo solo, col colore "secco" e il suo canale alfa
+ *   erba.glb            ← grass_medium_02, un ciuffo solo, semplificato, col colore "secco" e il suo canale alfa
  * Le texture si caricano una volta sola e restano in memoria: passare dal giorno alla notte non le riscarica.
  */
 
