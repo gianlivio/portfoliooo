@@ -418,30 +418,36 @@ html.con-scena .elenco:focus-within{
   .avvio--chiude .avvio-anello{transform:none}
 }
 
-/* ---------- la pagina dell'olio: fuori dalla stanza, calda, a tutto schermo ---------- */
+/* ---------- la pagina dell'olio: un uliveto da attraversare scorrendo ---------- */
 .olio{
-  --oro:#B9A84E;
-  --oro-tenue:rgba(185,168,78,.35);
-  --foglia:#6F7D4E;
+  --oro:#D9C26A;
+  --oro-tenue:rgba(217,194,106,.3);
+  --pannello:rgba(12,13,10,.62);
+  --pannello-testo:#F3F1EB;
+  --pannello-tenue:#D5D2C6;
   min-height:100svh;
 }
-html[data-tema="chiaro"] .olio{--oro:#7D6A16;--oro-tenue:rgba(125,106,22,.3)}
+html[data-tema="chiaro"] .olio{--oro:#7D6A16;--oro-tenue:rgba(125,106,22,.3);--pannello:rgba(251,248,240,.72);--pannello-testo:#16171A;--pannello-tenue:#3F4044}
+.olio:not(.olio--3d){background:radial-gradient(120% 70% at 20% 0%,var(--oro-tenue),transparent 60%),var(--fondo)}
+.uliveto{position:fixed;inset:0;z-index:0}
+.uliveto canvas{touch-action:pan-y !important}
 .olio-testata{
   position:fixed;inset:0 0 auto;z-index:20;
   display:flex;justify-content:space-between;align-items:center;gap:1rem;
   padding:1rem clamp(1rem,3vw,2rem);
-  font-family:var(--mono);font-size:.75rem;letter-spacing:.06em;
-  background:linear-gradient(var(--fondo),transparent);
+  font-family:var(--mono);font-size:.75rem;letter-spacing:.06em;color:var(--pannello-testo);
 }
+.olio-testata::before{content:"";position:absolute;inset:0 0 -1.5rem;z-index:-1;background:linear-gradient(var(--pannello),transparent);pointer-events:none}
 .olio-torna{text-decoration:none;display:inline-flex;gap:.5rem;align-items:center;padding:.4rem 0}
 .olio-torna:hover{color:var(--oro)}
 .olio-comandi{display:flex;align-items:center;gap:.9rem}
-.olio-lingua{text-decoration:none;color:var(--grigio)}
-.olio-lingua[aria-current="page"]{color:var(--testo);text-decoration:underline;text-underline-offset:4px}
+.olio-lingua{text-decoration:none;opacity:.65}
+.olio-lingua[aria-current="page"]{opacity:1;text-decoration:underline;text-underline-offset:4px}
 .olio-suoni{
   display:inline-flex;align-items:center;gap:.55rem;
-  padding:.45rem .8rem;border:1px solid var(--bordo);border-radius:999px;
+  padding:.45rem .8rem;border:1px solid var(--oro-tenue);border-radius:999px;background:var(--pannello);
   font-family:var(--mono);font-size:.72rem;letter-spacing:.06em;
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
 }
 .olio-suoni:hover,.olio-suoni[aria-pressed="true"]{border-color:var(--oro)}
 .olio-onde{display:inline-flex;align-items:flex-end;gap:2px;height:12px}
@@ -451,53 +457,34 @@ html[data-tema="chiaro"] .olio{--oro:#7D6A16;--oro-tenue:rgba(125,106,22,.3)}
 .olio-onde--attive i:nth-child(3){animation-delay:.5s}
 @keyframes olio-onda{0%,100%{height:3px}50%{height:12px}}
 
-.olio-apertura{
-  position:relative;min-height:100svh;overflow:hidden;
-  display:flex;align-items:flex-end;
-  padding:0 clamp(1.25rem,6vw,6rem) clamp(4rem,12vh,8rem);
+/* le tappe: una per schermata, il testo da un lato, il quadro dall'altro (nella scena) */
+.olio-cammino{position:relative;z-index:1;pointer-events:none}
+.tappa{min-height:100vh;display:flex;align-items:center;padding:6rem clamp(1.25rem,6vw,6rem)}
+.tappa--dx{justify-content:flex-end}
+.tappa--centro{justify-content:center;align-items:flex-start;padding-top:18vh}
+.tappa-pannello{
+  pointer-events:auto;max-width:31rem;padding:1.6rem 1.8rem;border-radius:6px;
+  background:var(--pannello);color:var(--pannello-testo);
+  backdrop-filter:blur(10px) saturate(1.1);-webkit-backdrop-filter:blur(10px) saturate(1.1);
+  border:1px solid var(--oro-tenue);
+  opacity:.12;transform:translateY(18px);
+  transition:opacity .9s var(--curva),transform .9s var(--curva);
 }
-.olio-fronde,.olio-sfondo{
-  position:absolute;inset:-3%;width:106%;height:106%;object-fit:cover;
-}
-.olio-fronde{filter:blur(5px)}
-.olio-apertura::after{
-  content:"";position:absolute;inset:0;pointer-events:none;
-  background:linear-gradient(180deg,transparent 35%,var(--fondo) 98%);
-}
-.olio-apertura-testo{position:relative;z-index:1;max-width:46rem}
+.tappa--qui .tappa-pannello,.olio:not(.olio--3d) .tappa-pannello{opacity:1;transform:none}
+.tappa--centro .tappa-pannello{text-align:center;padding:.9rem 1.6rem}
+.tappa-apertura{max-width:38rem;padding:2rem 2.2rem}
 .olio-occhiello{font-family:var(--mono);font-size:.78rem;text-transform:uppercase;letter-spacing:.14em;color:var(--oro);margin-bottom:1.2rem}
-.olio-titolo{font-family:var(--serif);font-weight:300;font-size:clamp(4.2rem,15vw,11rem);line-height:.9;letter-spacing:-.02em;margin-bottom:1.6rem}
-.olio-attacco{font-family:var(--serif);font-weight:300;font-size:clamp(1.15rem,2.2vw,1.55rem);line-height:1.45;color:var(--testo-tenue);max-width:38rem}
-.olio-scendi{
-  position:absolute;z-index:1;left:50%;bottom:1.6rem;width:1px;height:3rem;
-  background:linear-gradient(var(--oro),transparent);
-  animation:olio-scendi 2.4s var(--curva) infinite;
-}
+.olio-titolo{font-family:var(--serif);font-weight:300;font-size:clamp(4.2rem,14vw,10rem);line-height:.9;letter-spacing:-.02em;margin-bottom:1.4rem}
+.olio-attacco{font-family:var(--serif);font-weight:300;font-size:clamp(1.15rem,2.1vw,1.5rem);line-height:1.45}
+.olio-scorri{margin-top:2.2rem;font-family:var(--mono);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--oro);display:flex;align-items:center;gap:.8rem}
+.olio-scorri::after{content:"";width:1px;height:2.2rem;background:linear-gradient(var(--oro),transparent);animation:olio-scendi 2.4s var(--curva) infinite}
 @keyframes olio-scendi{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
-
-.olio-corpo{max-width:72rem;margin:0 auto;padding:0 clamp(1.25rem,5vw,3rem) 8rem}
-.olio-corpo section{padding:clamp(4rem,10vh,7rem) 0;border-top:1px solid var(--bordo)}
-.olio-corpo section:first-child{border-top:0}
-.olio-corpo h2{font-family:var(--mono);font-size:.78rem;font-weight:400;text-transform:uppercase;letter-spacing:.14em;color:var(--oro);margin-bottom:2.2rem}
-.olio-storia p{font-family:var(--serif);font-weight:300;font-size:clamp(1.25rem,2.4vw,1.75rem);line-height:1.45;max-width:44rem}
-.olio-storia p+p{margin-top:1.3rem}
-.olio-metodo ol{list-style:none;display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(1rem,2.5vw,2rem)}
-.olio-metodo li{display:flex;flex-direction:column;gap:.6rem}
-.olio-numero{font-family:var(--mono);font-size:.75rem;color:var(--oro);margin-top:.6rem}
-.olio-metodo h3{font-family:var(--serif);font-weight:400;font-size:1.35rem;line-height:1.2}
-.olio-metodo li p:last-child{color:var(--testo-tenue);font-size:.95rem}
-.olio-cornice{display:block;width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:4px;background:var(--fondo-alto)}
-.olio-cornice--vuota{
-  display:flex;align-items:flex-end;padding:1rem;
-  border:1px dashed var(--oro-tenue);
-  background:
-    radial-gradient(120% 80% at 30% 20%,var(--oro-tenue),transparent 60%),
-    var(--fondo-alto);
-  font-family:var(--mono);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--grigio);
-}
-.olio-galleria{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(1rem,2.5vw,2rem)}
-.olio-perche p{font-family:var(--serif);font-weight:300;font-size:clamp(1.25rem,2.4vw,1.75rem);line-height:1.45;max-width:44rem}
-.olio-azioni{display:flex;flex-wrap:wrap;align-items:center;gap:1.5rem;margin-top:2.5rem;font-family:var(--mono);font-size:.8rem}
+.tappa h2{font-family:var(--mono);font-size:.78rem;font-weight:400;text-transform:uppercase;letter-spacing:.14em;color:var(--oro);margin-bottom:1rem}
+.tappa h3{font-family:var(--serif);font-weight:400;font-size:clamp(1.6rem,3vw,2.2rem);line-height:1.15;margin-bottom:.7rem}
+.olio-numero{font-family:var(--mono);font-size:.75rem;color:var(--oro);margin-bottom:.5rem}
+.tappa-testo{font-family:var(--serif);font-weight:300;font-size:clamp(1.15rem,2vw,1.45rem);line-height:1.45;color:var(--pannello-tenue)}
+.tappa--storia .tappa-testo,.tappa--frantoio .tappa-testo{color:var(--pannello-testo)}
+.olio-azioni{display:flex;flex-wrap:wrap;align-items:center;gap:1.5rem;margin-top:1.8rem;font-family:var(--mono);font-size:.8rem}
 .olio-scrivimi{
   padding:.85rem 1.6rem;border-radius:999px;
   background:var(--oro);color:#14130C;font-family:var(--mono);font-size:.8rem;letter-spacing:.08em;text-transform:uppercase;
@@ -505,21 +492,32 @@ html[data-tema="chiaro"] .olio{--oro:#7D6A16;--oro-tenue:rgba(125,106,22,.3)}
 .olio-scrivimi:hover{filter:brightness(1.1)}
 html[data-tema="chiaro"] .olio-scrivimi{color:#FBFAF7}
 
-/* comparsa salendo */
-.olio [data-rivela]{opacity:0;transform:translateY(24px);transition:opacity .9s var(--curva),transform .9s var(--curva)}
-.olio [data-rivela].visto{opacity:1;transform:none}
-.olio-metodo li[data-rivela]:nth-child(2){transition-delay:.12s}
-.olio-metodo li[data-rivela]:nth-child(3){transition-delay:.24s}
-.olio-metodo li[data-rivela]:nth-child(4){transition-delay:.36s}
+/* senza la scena: i video sotto il testo della tappa */
+.olio-piani{display:grid;grid-template-columns:repeat(auto-fit,minmax(9rem,1fr));gap:1rem;margin-top:1.4rem}
+.olio-cornice{display:block;width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:4px;background:var(--fondo-alto)}
+.olio-cornice--vuota{
+  display:flex;align-items:flex-end;padding:1rem;border:1px dashed var(--oro-tenue);
+  background:radial-gradient(120% 80% at 30% 20%,var(--oro-tenue),transparent 60%),var(--fondo-alto);
+  font-family:var(--mono);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--grigio);
+}
+
+/* il video aperto, a tutto schermo */
+.olio-schermo{position:fixed;inset:0;z-index:40;display:grid;place-items:center;background:rgba(6,6,5,.9);padding:4rem 1rem 2rem}
+.olio-schermo-dentro{position:relative;display:flex;flex-direction:column;align-items:center;gap:1rem}
+.olio-schermo video,.olio-schermo img{max-width:min(92vw,1400px);max-height:80vh;border-radius:4px;background:#000}
+.olio-schermo-chiudi{font-family:var(--mono);font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;color:#F3F1EB;border:1px solid rgba(243,241,235,.3);border-radius:999px;padding:.55rem 1.2rem}
 
 @media (max-width:760px){
-  .olio-metodo ol{grid-template-columns:1fr 1fr}
-  .olio-galleria{grid-template-columns:1fr}
+  .tappa{align-items:flex-end;padding:5rem 1rem 2.2rem}
+  .tappa--dx{justify-content:flex-start}
+  .tappa--centro{align-items:flex-start;padding-top:14vh}
+  .tappa-pannello{padding:1.2rem 1.3rem}
+  .tappa-apertura{align-self:center}
   .olio-testata{font-size:.7rem}
   .olio-suoni-testo{display:none}
   .olio-suoni{padding:.55rem .7rem}
 }
 @media (prefers-reduced-motion:reduce){
-  .olio-scendi,.olio-onde--attive i{animation:none}
-  .olio [data-rivela]{transition:none}
+  .olio-scorri::after,.olio-onde--attive i{animation:none}
+  .tappa-pannello{transition:none}
 }

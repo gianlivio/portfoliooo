@@ -1,38 +1,93 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import dynamic from "next/dynamic";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import type { Dizionario, Lingua } from "@/dictionaries";
 import { lingue } from "@/dictionaries";
-import { videoOlio, type Video } from "@/content/olio";
+import { mediaOlio, type Media } from "@/content/olio";
+import type { Quadro } from "./Uliveto";
 import Modulo from "./Modulo";
 import { Campagna } from "./campagna";
 import { suono } from "./audio";
 
+const Uliveto = dynamic(() => import("./Uliveto"), { ssr: false });
+
 /**
- * La pagina dell'olio: fuori dalla stanza, a tutto schermo. In alto la luce che passa fra le foglie
- * (o il video di sfondo, quando c'è), poi la storia, il metodo in quattro passi, i video, e perché lo racconto.
- * I suoni della campagna si accendono a mano. Il tema è quello scelto nella stanza.
+ * La pagina dell'olio: si attraversa un uliveto scorrendo. Dietro, fissa, la scena 3D (Uliveto);
+ * davanti, le tappe del cammino, una per schermata: il titolo, la storia, i quattro passi del metodo,
+ * i video, il frantoio. Ogni tappa ha il suo quadro fra gli ulivi, dalla parte opposta al testo.
+ * Senza WebGL restano le tappe, su fondo pieno. I suoni della campagna si accendono a mano.
  */
+
+type Tappa = { id: string; titolo?: string; testo?: string; numero?: string; lato: "sx" | "dx" | "centro" };
+
 export default function Olio({ d, lingua }: { d: Dizionario; lingua: Lingua }) {
   const o = d.olio;
   const [modulo, setModulo] = useState(false);
   const [suoni, setSuoni] = useState(false);
+  const [aperto, setAperto] = useState<number | null>(null);
+  const [ambiente, setAmbiente] = useState<{ webgl: boolean; ridotto: boolean; stretto: boolean } | null>(null);
+  const [notte, setNotte] = useState(true);
   const campagna = useRef<Campagna | null>(null);
+  const progresso = useRef(0);
 
-  // arrivando dalla stanza: la pagina scorre e la musica della stanza tace (la stanza, nella navigazione
-  // fra pagine, può restare montata di nascosto, e allora le sue pulizie non partono)
+  // le tappe del cammino, nell'ordine
+  const tappe = useMemo<Tappa[]>(
+    () => [
+      { id: "apertura", lato: "sx" },
+      ...o.storia.map((t, i): Tappa => ({ id: `storia-${i}`, titolo: i === 0 ? o.storiaTitolo : undefined, testo: t, lato: i % 2 ? "dx" : "sx" })),
+      ...o.metodo.map((m, i): Tappa => ({ id: `metodo-${i}`, titolo: m.titolo, testo: m.testo, numero: String(i + 1).padStart(2, "0"), lato: i % 2 ? "sx" : "dx" })),
+      { id: "video", titolo: o.videoTitolo, lato: "centro" },
+      { id: "frantoio", titolo: o.percheTitolo, testo: o.perche, lato: "sx" },
+    ],
+    [o]
+  );
+  const N = tappe.length;
+
+  // i quadri: uno per tappa della storia e del metodo, tre per la galleria; dalla parte opposta al testo
+  const quadri = useMemo<Quadro[]>(() => {
+    const pDi = (id: string) => tappe.findIndex((t) => t.id === id) / (tappe.length - 1);
+    const q: Quadro[] = [];
+    const lato = (t: Tappa) => (t.lato === "sx" ? 1 : -1) as 1 | -1;
+    mediaOlio.storia.forEach((m, i) => q.push({ media: m, p: pDi(`storia-${i}`), lato: lato(tappe[1 + i]), didascalia: o.storiaTitolo }));
+    mediaOlio.metodo.forEach((m, i) => q.push({ media: m, p: pDi(`metodo-${i}`), lato: lato(tappe[4 + i]), didascalia: o.metodo[i].titolo }));
+    const pv = pDi("video");
+    mediaOlio.galleria.forEach((m, i) => q.push({ media: m, p: pv - 0.035 + i * 0.035, lato: i % 2 ? -1 : 1, didascalia: o.videoTitolo }));
+    return q;
+  }, [tappe, o]);
+
+  // arrivando dalla stanza: la pagina scorre e la musica della stanza tace
   useEffect(() => {
     document.documentElement.classList.remove("con-scena");
     suono.sospendi();
     window.scrollTo(0, 0);
+    let webgl = false;
+    try {
+      const c = document.createElement("canvas");
+      webgl = !!(c.getContext("webgl2") || c.getContext("webgl"));
+    } catch {
+      webgl = false;
+    }
+    const ambiente = {
+      webgl,
+      ridotto: window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+      stretto: window.innerWidth < 760,
+    };
+    // dopo il primo disegno, come nella stanza
+    const primo = requestAnimationFrame(() => setAmbiente(ambiente));
+    return () => cancelAnimationFrame(primo);
   }, []);
 
-  // il suono segue il tema: di notte grilli e assiolo
+  // il tema: di giorno il tramonto, di notte i faretti; il suono lo segue
   useEffect(() => {
     const c = new Campagna();
     campagna.current = c;
-    const leggi = () => c.setNotte(document.documentElement.dataset.tema !== "chiaro");
+    const leggi = () => {
+      const n = document.documentElement.dataset.tema !== "chiaro";
+      setNotte(n);
+      c.setNotte(n);
+    };
     leggi();
     const oss = new MutationObserver(leggi);
     oss.observe(document.documentElement, { attributes: true, attributeFilter: ["data-tema"] });
@@ -42,29 +97,51 @@ export default function Olio({ d, lingua }: { d: Dizionario; lingua: Lingua }) {
     };
   }, []);
 
-  // le sezioni compaiono salendo, una volta sola
+  // scorrere è camminare
   useEffect(() => {
-    const els = document.querySelectorAll<HTMLElement>(".olio [data-rivela]");
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      els.forEach((e) => e.classList.add("visto"));
-      return;
-    }
+    const leggi = () => {
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      progresso.current = max > 0 ? window.scrollY / max : 0;
+    };
+    leggi();
+    window.addEventListener("scroll", leggi, { passive: true });
+    window.addEventListener("resize", leggi);
+    return () => {
+      window.removeEventListener("scroll", leggi);
+      window.removeEventListener("resize", leggi);
+    };
+  }, []);
+
+  // il testo di una tappa compare quando la tappa è a metà schermo
+  useEffect(() => {
+    const els = document.querySelectorAll<HTMLElement>(".tappa");
     const oss = new IntersectionObserver(
-      (voci) =>
-        voci.forEach((v) => {
-          if (v.isIntersecting) {
-            v.target.classList.add("visto");
-            oss.unobserve(v.target);
-          }
-        }),
-      { threshold: 0.15 },
+      (voci) => voci.forEach((v) => v.target.classList.toggle("tappa--qui", v.isIntersecting)),
+      { rootMargin: "-35% 0px -35% 0px" }
     );
     els.forEach((e) => oss.observe(e));
     return () => oss.disconnect();
   }, []);
 
+  const mediaAperto: Media = aperto === null ? null : quadri[aperto].media;
+  const con3d = !!ambiente?.webgl;
+
   return (
-    <div className="olio">
+    <div className={`olio${con3d ? " olio--3d" : ""}`}>
+      {ambiente && con3d && (
+        <div className="uliveto" aria-hidden="true">
+          <Uliveto
+            quadri={quadri}
+            progresso={progresso}
+            notte={notte}
+            ridotto={ambiente.ridotto}
+            stretto={ambiente.stretto}
+            vuoto={o.videoInArrivo}
+            onApri={setAperto}
+          />
+        </div>
+      )}
+
       <header className="olio-testata">
         <Link className="olio-torna" href={`/${lingua}`}>
           <span aria-hidden="true">←</span> {o.torna}
@@ -87,86 +164,83 @@ export default function Olio({ d, lingua }: { d: Dizionario; lingua: Lingua }) {
         </nav>
       </header>
 
-      <section className="olio-apertura">
-        {videoOlio.sfondo ? (
-          <video className="olio-sfondo" src={videoOlio.sfondo.src} poster={videoOlio.sfondo.poster} autoPlay muted loop playsInline aria-hidden="true" />
-        ) : (
-          <Fronde />
-        )}
-        <div className="olio-apertura-testo">
-          <p className="olio-occhiello">{o.occhiello}</p>
-          <h1 className="olio-titolo">{o.titolo}</h1>
-          <p className="olio-attacco">{o.attacco}</p>
-        </div>
-        <span className="olio-scendi" aria-hidden="true" />
-      </section>
-
-      <main className="olio-corpo">
-        <section className="olio-storia" data-rivela>
-          <h2>{o.storiaTitolo}</h2>
-          {o.storia.map((p) => (
-            <p key={p}>{p}</p>
-          ))}
-        </section>
-
-        <section className="olio-metodo" data-rivela>
-          <h2>{o.metodoTitolo}</h2>
-          <ol>
-            {o.metodo.map((m, i) => (
-              <li key={m.titolo} data-rivela>
-                <Cornice video={videoOlio.metodo[i]} vuoto={o.videoInArrivo} muto />
-                <p className="olio-numero">{String(i + 1).padStart(2, "0")}</p>
-                <h3>{m.titolo}</h3>
-                <p>{m.testo}</p>
-              </li>
-            ))}
-          </ol>
-        </section>
-
-        <section className="olio-video" data-rivela>
-          <h2>{o.videoTitolo}</h2>
-          <div className="olio-galleria">
-            {videoOlio.galleria.map((v, i) => (
-              <Cornice key={i} video={v} vuoto={o.videoInArrivo} />
-            ))}
-          </div>
-        </section>
-
-        <section className="olio-perche" data-rivela>
-          <h2>{o.percheTitolo}</h2>
-          <p>{o.perche}</p>
-          <div className="olio-azioni">
-            <button className="olio-scrivimi" onClick={() => setModulo(true)}>
-              {o.scrivimi}
-            </button>
-            <Link className="olio-torna" href={`/${lingua}`}>
-              <span aria-hidden="true">←</span> {o.torna}
-            </Link>
-          </div>
-        </section>
+      <main className="olio-cammino">
+        {tappe.map((t) => (
+          <section key={t.id} className={`tappa tappa--${t.lato} tappa--${t.id.split("-")[0]}`}>
+            {t.id === "apertura" ? (
+              <div className="tappa-pannello tappa-apertura">
+                <p className="olio-occhiello">{o.occhiello}</p>
+                <h1 className="olio-titolo">{o.titolo}</h1>
+                <p className="olio-attacco">{o.attacco}</p>
+                {con3d && <p className="olio-scorri">{o.scorri}</p>}
+              </div>
+            ) : (
+              <div className="tappa-pannello">
+                {t.numero && <p className="olio-numero">{t.numero}</p>}
+                {t.titolo && (t.numero ? <h3>{t.titolo}</h3> : <h2>{t.titolo}</h2>)}
+                {t.testo && <p className="tappa-testo">{t.testo}</p>}
+                {/* senza la scena, i video della tappa stanno qui sotto */}
+                {!con3d && <QuadriPiani quadri={quadri.filter((q) => Math.abs(q.p - tappe.indexOf(t) / (N - 1)) < 0.05)} vuoto={o.videoInArrivo} />}
+                {t.id === "frantoio" && (
+                  <div className="olio-azioni">
+                    <button className="olio-scrivimi" onClick={() => setModulo(true)}>
+                      {o.scrivimi}
+                    </button>
+                    <Link className="olio-torna" href={`/${lingua}`}>
+                      <span aria-hidden="true">←</span> {o.torna}
+                    </Link>
+                  </div>
+                )}
+              </div>
+            )}
+          </section>
+        ))}
       </main>
+
+      {mediaAperto && (
+        <div className="olio-schermo" role="dialog" aria-modal="true" onClick={() => setAperto(null)}>
+          <div className="olio-schermo-dentro" onClick={(e) => e.stopPropagation()}>
+            {mediaAperto.tipo === "video" ? (
+              <video src={mediaAperto.src} poster={mediaAperto.poster} controls autoPlay playsInline />
+            ) : (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={mediaAperto.src} alt={aperto !== null ? quadri[aperto].didascalia : ""} />
+            )}
+            <button className="olio-schermo-chiudi" onClick={() => setAperto(null)} autoFocus>
+              {o.chiudi}
+            </button>
+          </div>
+        </div>
+      )}
 
       {modulo && <Modulo d={d} lingua={lingua} onChiudi={() => setModulo(false)} />}
     </div>
   );
 }
 
-/** Un posto per un video: il video, se c'è; altrimenti la cornice vuota. */
-function Cornice({ video, vuoto, muto = false }: { video: Video; vuoto: string; muto?: boolean }) {
-  if (!video)
-    return (
-      <div className="olio-cornice olio-cornice--vuota">
-        <span>{vuoto}</span>
-      </div>
-    );
-  return muto ? (
-    <video className="olio-cornice" src={video.src} poster={video.poster} autoPlay muted loop playsInline />
-  ) : (
-    <video className="olio-cornice" src={video.src} poster={video.poster} controls preload="metadata" playsInline />
+/** Senza WebGL: i video della tappa in fila, coi controlli. */
+function QuadriPiani({ quadri, vuoto }: { quadri: Quadro[]; vuoto: string }) {
+  if (!quadri.length) return null;
+  return (
+    <div className="olio-piani">
+      {quadri.map((q, i) =>
+        q.media ? (
+          q.media.tipo === "video" ? (
+            <video key={i} className="olio-cornice" src={q.media.src} poster={q.media.poster} controls preload="metadata" playsInline />
+          ) : (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img key={i} className="olio-cornice" src={q.media.src} alt={q.didascalia} />
+          )
+        ) : (
+          <div key={i} className="olio-cornice olio-cornice--vuota">
+            <span>{vuoto}</span>
+          </div>
+        )
+      )}
+    </div>
   );
 }
 
-/** Tre barre che ondeggiano quando i suoni sono accesi. */
 function Onde({ attive }: { attive: boolean }) {
   return (
     <span className={`olio-onde${attive ? " olio-onde--attive" : ""}`} aria-hidden="true">
@@ -175,83 +249,4 @@ function Onde({ attive }: { attive: boolean }) {
       <i />
     </span>
   );
-}
-
-/**
- * Finché non c'è il video di sfondo: la luce del sole che passa fra le foglie di un ulivo, su terra calda.
- * Ombre di foglie strette e lunghe, mosse dal vento; tutto su una tela piccola, ingrandita e sfocata dal CSS.
- */
-function Fronde() {
-  const tela = useRef<HTMLCanvasElement>(null);
-  useEffect(() => {
-    const c = tela.current;
-    const x = c?.getContext("2d");
-    if (!c || !x) return;
-    const W = 320, H = 200;
-    c.width = W;
-    c.height = H;
-    const ridotto = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    let caso = 7;
-    const rnd = () => ((caso = (caso * 16807) % 2147483647) / 2147483647);
-    // rametti che entrano dai bordi, con le foglie alterne lungo il rametto, strette e lunghe come quelle dell'ulivo
-    const rametti = Array.from({ length: 16 }, () => {
-      const x = rnd() * W, y = rnd() * H;
-      const a = rnd() * Math.PI * 2;
-      const n = 7 + Math.floor(rnd() * 6);
-      const passo = 5 + rnd() * 3;
-      return {
-        x, y, a, f: rnd() * Math.PI * 2,
-        foglie: Array.from({ length: n }, (_, k) => ({
-          d: k * passo,
-          lato: k % 2 ? 1 : -1,
-          ang: 0.5 + rnd() * 0.35,
-          l: 7 + rnd() * 5,
-        })),
-      };
-    });
-    let id = 0;
-    const disegna = (ms: number) => {
-      const t = ms / 1000;
-      const notte = document.documentElement.dataset.tema !== "chiaro";
-      const g = x.createLinearGradient(0, 0, W, H);
-      if (notte) {
-        g.addColorStop(0, "#1A1C14");
-        g.addColorStop(1, "#0B0C08");
-      } else {
-        g.addColorStop(0, "#E9D9A6");
-        g.addColorStop(1, "#C9A86A");
-      }
-      x.fillStyle = g;
-      x.fillRect(0, 0, W, H);
-      // le ombre delle foglie: di giorno scure su terra chiara, di notte chiare (la luna) su buio
-      x.fillStyle = notte ? "rgba(190,200,170,0.10)" : "rgba(58,62,34,0.30)";
-      x.strokeStyle = x.fillStyle;
-      x.lineWidth = 0.8;
-      rametti.forEach((r) => {
-        const vento = Math.sin(t * 0.6 + r.f) * 0.06 + Math.sin(t * 1.9 + r.f * 2) * 0.015;
-        x.save();
-        x.translate(r.x, r.y);
-        x.rotate(r.a + vento);
-        const lungo = r.foglie[r.foglie.length - 1].d + 4;
-        x.beginPath();
-        x.moveTo(0, 0);
-        x.lineTo(lungo, 0);
-        x.stroke();
-        r.foglie.forEach((f, k) => {
-          x.save();
-          x.translate(f.d, 0);
-          x.rotate(f.lato * (f.ang + Math.sin(t * 2.3 + r.f + k) * 0.08));
-          x.beginPath();
-          x.ellipse(f.l * 0.55, 0, f.l * 0.55, f.l * 0.11, 0, 0, Math.PI * 2);
-          x.fill();
-          x.restore();
-        });
-        x.restore();
-      });
-      if (!ridotto) id = requestAnimationFrame(disegna);
-    };
-    id = requestAnimationFrame(disegna);
-    return () => cancelAnimationFrame(id);
-  }, []);
-  return <canvas ref={tela} className="olio-fronde" aria-hidden="true" />;
 }

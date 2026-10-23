@@ -1,13 +1,14 @@
 /**
- * I video della pagina dell'olio. Ogni posto ha il suo video; finché è null si vede la cornice vuota
- * con "Video in arrivo". Il percorso è quello del file servito (in public/ o da un servizio esterno).
- * sfondo: il video muto in loop dietro il titolo. metodo: uno per passo, nello stesso ordine dei testi.
- * galleria: i video più lunghi, con l'audio, che si avviano a mano.
+ * Video e foto dell'uliveto. Ogni posto è un quadro fra gli alberi lungo la trazzera; finché è null
+ * il quadro mostra "Video in arrivo". src è il percorso del file servito (in public/ o da un servizio esterno);
+ * poster è l'immagine che si vede prima che il video parta.
+ * storia: i tre quadri della prima parte del cammino. metodo: uno per passo, nello stesso ordine dei testi.
+ * galleria: i quadri prima del frantoio.
  */
-export type Video = { src: string; poster?: string } | null;
+export type Media = { tipo: "video" | "foto"; src: string; poster?: string } | null;
 
-export const videoOlio: { sfondo: Video; metodo: Video[]; galleria: Video[] } = {
-  sfondo: null,
+export const mediaOlio: { storia: Media[]; metodo: Media[]; galleria: Media[] } = {
+  storia: [null, null, null],
   metodo: [null, null, null, null],
   galleria: [null, null, null],
 };
