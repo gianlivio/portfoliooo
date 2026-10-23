@@ -292,6 +292,11 @@
     "perche": "Oggi faccio siti web. Se la tua azienda produce olio, conosco il lavoro che c'è dietro ogni bottiglia: la campagna, il frantoio, i tempi stretti, i clienti in Italia e all'estero. Questo aiuta a raccontarlo sul web senza frasi fatte.",
     "scorri": "Scorri per attraversare l'uliveto",
     "guarda": "Guarda",
-    "chiudi": "Chiudi"
+    "chiudi": "Chiudi",
+    "luoghi": {
+      "alberi": "L'uliveto",
+      "raccolta": "La raccolta",
+      "frantoio": "Il frantoio"
+    }
   }
 }

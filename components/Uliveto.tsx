@@ -5,16 +5,20 @@ import * as THREE from "three";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { accesaDaSotto, costruisciUlivo } from "./ospiti/ulivo";
 import { alone, generatore } from "./ospiti/comuni";
-import type { Media } from "@/content/olio";
+import type { Luogo, Media } from "@/content/olio";
 
 /*
  * L'uliveto della pagina dell'olio: una trazzera fra muretti a secco e ulivi, al tramonto (tema chiaro)
  * o di notte coi faretti sotto gli alberi (tema scuro). Chi scorre la pagina cammina lungo la trazzera.
- * Fra gli alberi, accanto al cammino, i quadri: video e foto che si accendono quando ci si passa davanti
- * e che si aprono a tutto schermo con un clic. In fondo il frantoio, con la macina che gira.
+ * Il cammino passa per tre luoghi: l'uliveto, la raccolta (reti stese, cassette, una scala), il frantoio
+ * con la macina che gira. I quadri, video e foto, stanno nel luogo del loro contenuto: appesi fra gli alberi,
+ * su cavalletti accanto alle cassette, in cerchio attorno alla macina. Si accendono quando ci si passa
+ * davanti e si aprono a tutto schermo con un clic.
  */
 
-export type Quadro = { media: Media; p: number; lato: 1 | -1; didascalia: string };
+export type Quadro = { media: Media; luogo: Luogo; didascalia: string };
+/** Dove sta un quadro: la base, il punto verso cui guarda, l'altezza del centro, l'altezza massima, il sostegno. */
+type Posto = { pos: THREE.Vector3; verso: THREE.Vector3; y: number; alto: number; sostegno: "pali" | "cavalletto" };
 
 type Props = {
   quadri: Quadro[];
@@ -25,6 +29,8 @@ type Props = {
   stretto: boolean;
   vuoto: string;
   onApri: (i: number) => void;
+  /** dopo i primi fotogrammi: la scena è pronta, il velo può sfumare */
+  onPronta: () => void;
 };
 
 /** Il cammino, da dove si entra al frantoio: sale e scende appena, piega a destra e a sinistra. */
@@ -40,6 +46,9 @@ const CAMMINO = new THREE.CatmullRomCurve3(
 const FINE_CAMERA = 0.9;
 const OCCHI = 1.55;
 
+/** La quota della terra: piccole onde, le stesse della geometria del suolo. */
+const quota = (x: number, z: number) => 0.12 * Math.sin(x * 0.4 + z * 0.3) + 0.08 * Math.sin(x * 1.3 - z * 0.7) - 0.05;
+
 /** Un punto del cammino e la direzione "a destra" lì. */
 function sulCammino(p: number, out = new THREE.Vector3()) {
   return CAMMINO.getPointAt(THREE.MathUtils.clamp(p, 0, 1), out);
@@ -49,11 +58,39 @@ function destra(p: number, out = new THREE.Vector3()) {
   return out.set(-t.z, 0, t.x).normalize();
 }
 
-/** Dove sta il quadro di una tappa: poco più avanti della camera, di lato. */
-export function postoQuadro(q: Quadro, stretto: boolean) {
-  const pc = q.p * FINE_CAMERA + 0.055;
-  const pos = sulCammino(pc).add(destra(pc).multiplyScalar(q.lato * (stretto ? 0.95 : 1.35)));
-  return pos;
+/** I tratti del cammino (in parametro della curva) dei primi due luoghi. */
+const TRATTI: Record<"alberi" | "raccolta", [number, number]> = { alberi: [0.05, 0.33], raccolta: [0.37, 0.62] };
+
+/**
+ * Dispone i quadri: in ogni luogo si distribuiscono lungo il suo tratto alternando i lati;
+ * al frantoio in arco attorno alla macina, rivolti verso chi arriva.
+ */
+function disponi(quadri: Quadro[], stretto: boolean): Posto[] {
+  const conta: Record<Luogo, number> = { alberi: 0, raccolta: 0, frantoio: 0 };
+  const totale: Record<Luogo, number> = { alberi: 0, raccolta: 0, frantoio: 0 };
+  quadri.forEach((q) => totale[q.luogo]++);
+  const fine = sulCammino(1), avanti = CAMMINO.getTangentAt(1).setY(0).normalize(), lato = destra(1);
+  const arrivo = sulCammino(FINE_CAMERA);
+  return quadri.map((q) => {
+    const k = conta[q.luogo]++;
+    const n = totale[q.luogo];
+    if (q.luogo === "frantoio") {
+      // in arco dietro la macina, da sinistra a destra
+      const a = n === 1 ? 0 : -1.15 + (2.3 * k) / (n - 1);
+      const pos = fine.clone().add(avanti.clone().multiplyScalar(Math.cos(a) * 3.1)).add(lato.clone().multiplyScalar(Math.sin(a) * 3.4));
+      return { pos, verso: arrivo.clone(), y: 1.6, alto: 1.15, sostegno: "pali" };
+    }
+    const [p0, p1] = TRATTI[q.luogo];
+    const p = p0 + ((k + 0.5) / n) * (p1 - p0);
+    const parte = k % 2 ? -1 : 1;
+    const dist = q.luogo === "alberi" ? (stretto ? 1.6 : 2.4) : stretto ? 1.4 : 1.9;
+    const pos = sulCammino(p).add(destra(p).multiplyScalar(parte * dist));
+    // guarda il cammino un poco indietro: lo si vede venendo avanti
+    const verso = sulCammino(Math.max(0, p - 0.05));
+    return q.luogo === "alberi"
+      ? { pos, verso, y: 1.75, alto: 1.25, sostegno: "pali" }
+      : { pos, verso, y: 1.0, alto: 0.85, sostegno: "cavalletto" };
+  });
 }
 
 export default function Uliveto(props: Props) {
@@ -68,11 +105,12 @@ export default function Uliveto(props: Props) {
       <Terra notte={props.notte} />
       <Ulivi notte={props.notte} ridotto={props.ridotto} />
       <Frantoio notte={props.notte} ridotto={props.ridotto} />
-      {props.quadri.map((q, i) => (
-        <QuadroFraGliUlivi key={i} quadro={q} indice={i} stretto={props.stretto} notte={props.notte} vuoto={props.vuoto} onApri={props.onApri} />
+      <Raccolta notte={props.notte} />
+      {disponi(props.quadri, props.stretto).map((posto, i) => (
+        <QuadroFraGliUlivi key={i} quadro={props.quadri[i]} posto={posto} indice={i} notte={props.notte} vuoto={props.vuoto} onApri={props.onApri} />
       ))}
       {props.notte && !props.ridotto && <Lucciole />}
-      <Passo progresso={props.progresso} ridotto={props.ridotto} />
+      <Passo progresso={props.progresso} ridotto={props.ridotto} onPronta={props.onPronta} />
     </Canvas>
   );
 }
@@ -80,8 +118,9 @@ export default function Uliveto(props: Props) {
 /* ------------------------------------------------------------------ il passo */
 
 /** La camera segue lo scorrimento, morbida; dondola appena, come chi cammina. */
-function Passo({ progresso, ridotto }: { progresso: React.MutableRefObject<number>; ridotto: boolean }) {
+function Passo({ progresso, ridotto, onPronta }: { progresso: React.MutableRefObject<number>; ridotto: boolean; onPronta: () => void }) {
   const p = useRef(progresso.current);
+  const fotogrammi = useRef(0);
   const guarda = useRef(new THREE.Vector3());
   const a = useRef(new THREE.Vector3());
   useFrame(({ camera, clock }, dt) => {
@@ -94,6 +133,7 @@ function Passo({ progresso, ridotto }: { progresso: React.MutableRefObject<numbe
     sulCammino(pc + 0.04, guarda.current);
     guarda.current.y = OCCHI - 0.12 + (ridotto ? 0 : Math.sin(clock.elapsedTime * 0.3) * 0.03);
     camera.lookAt(guarda.current);
+    if (++fotogrammi.current === 4) onPronta();
   });
   return null;
 }
@@ -182,14 +222,14 @@ function Terra({ notte }: { notte: boolean }) {
     const a = new THREE.Color("#8A6048"), b = new THREE.Color("#A4876A"), c = new THREE.Color();
     for (let i = 0; i < pos.count; i++) {
       const x = pos.getX(i), z = pos.getZ(i);
-      pos.setY(i, 0.12 * Math.sin(x * 0.4 + z * 0.3) + 0.08 * Math.sin(x * 1.3 - z * 0.7) - 0.05);
+      pos.setY(i, quota(x, z));
       c.copy(a).lerp(b, 0.5 + 0.5 * Math.sin(x * 0.7 + z * 1.1) * Math.sin(z * 0.3));
       col.set([c.r, c.g, c.b], i * 3);
     }
     g.setAttribute("color", new THREE.BufferAttribute(col, 3));
     g.computeVertexNormals();
     // la trazzera: una striscia chiara che segue il cammino
-    const n = 200;
+    const n = 400;
     const sp: number[] = [];
     const idx: number[] = [];
     const v = new THREE.Vector3(), d = new THREE.Vector3();
@@ -197,7 +237,9 @@ function Terra({ notte }: { notte: boolean }) {
       const p = i / n;
       sulCammino(p, v);
       destra(p, d);
-      sp.push(v.x - d.x * 0.75, 0.09, v.z - d.z * 0.75, v.x + d.x * 0.75, 0.09, v.z + d.z * 0.75);
+      // la trazzera segue la terra, appena sopra: altrimenti le onde del suolo la bucano
+      const ax = v.x - d.x * 0.75, az = v.z - d.z * 0.75, bx = v.x + d.x * 0.75, bz = v.z + d.z * 0.75;
+      sp.push(ax, quota(ax, az) + 0.035, az, bx, quota(bx, bz) + 0.035, bz);
       if (i < n) idx.push(i * 2, i * 2 + 1, i * 2 + 2, i * 2 + 1, i * 2 + 3, i * 2 + 2);
     }
     const s = new THREE.BufferGeometry();
@@ -217,7 +259,8 @@ function Terra({ notte }: { notte: boolean }) {
         e.set(caso() * 3, caso() * 3, caso() * 3);
         q.setFromEuler(e);
         sc.set(1.2 + caso() * 0.6, 0.7 + caso() * 0.3, 1 + caso() * 0.4).multiplyScalar(0.085);
-        m.push(new THREE.Matrix4().compose(new THREE.Vector3(v.x + d.x * k * lato, 0.1 + corso * 0.11, v.z + d.z * k * lato), q, sc));
+        const px = v.x + d.x * k * lato, pz = v.z + d.z * k * lato;
+        m.push(new THREE.Matrix4().compose(new THREE.Vector3(px, quota(px, pz) + 0.07 + corso * 0.11, pz), q, sc));
       }
     }
     return [g, s, m];
@@ -479,6 +522,78 @@ function Frantoio({ notte, ridotto }: { notte: boolean; ridotto: boolean }) {
   );
 }
 
+/* ------------------------------------------------------------------ la raccolta */
+
+/** A metà cammino: reti verdi stese sotto gli ulivi della prima fila, cassette piene impilate, una scala. */
+function Raccolta({ notte }: { notte: boolean }) {
+  const dati = useMemo(() => {
+    const caso = generatore(31);
+    const reti: { pos: THREE.Vector3; r: number }[] = [];
+    const casse: THREE.Matrix4[] = [];
+    const v = new THREE.Vector3(), d = new THREE.Vector3();
+    [0.39, 0.45, 0.51, 0.57, 0.62].forEach((p, i) => {
+      const lato = i % 2 ? 1 : -1;
+      sulCammino(p, v);
+      destra(p, d);
+      reti.push({ pos: v.clone().add(d.clone().multiplyScalar(lato * 4.6)), r: caso() * 0.6 });
+      // le cassette: una pila di quattro o cinque accanto al cammino
+      const base = v.clone().add(d.clone().multiplyScalar(lato * (2.9 + caso() * 0.4)));
+      const n = 4 + Math.floor(caso() * 2);
+      for (let k = 0; k < n; k++) {
+        const pos = base.clone().add(new THREE.Vector3((k % 2) * 0.48, quota(base.x, base.z) + 0.15 + Math.floor(k / 2) * 0.27, (caso() - 0.5) * 0.06));
+        casse.push(new THREE.Matrix4().compose(pos, new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), (caso() - 0.5) * 0.3), new THREE.Vector3(1, 1, 1)));
+      }
+    });
+    const scala = sulCammino(0.48).add(destra(0.48).multiplyScalar(4.4));
+    return { reti, casse, scala };
+  }, []);
+  const casse = useRef<THREE.InstancedMesh>(null);
+  const olive = useRef<THREE.InstancedMesh>(null);
+  useEffect(() => {
+    dati.casse.forEach((m, i) => {
+      casse.current?.setMatrixAt(i, m);
+      // il carico di olive, appena sotto il bordo
+      const o = m.clone().multiply(new THREE.Matrix4().makeTranslation(0, 0.06, 0));
+      olive.current?.setMatrixAt(i, o);
+    });
+    if (casse.current) casse.current.instanceMatrix.needsUpdate = true;
+    if (olive.current) olive.current.instanceMatrix.needsUpdate = true;
+  }, [dati]);
+  return (
+    <>
+      {dati.reti.map((r, i) => (
+        <mesh key={i} position={[r.pos.x, quota(r.pos.x, r.pos.z) + 0.12, r.pos.z]} rotation={[-Math.PI / 2, 0, r.r]}>
+          <planeGeometry args={[3.6, 2.6]} />
+          <meshLambertMaterial color={notte ? "#24402C" : "#3E7A4C"} transparent opacity={0.92} side={THREE.DoubleSide} />
+        </mesh>
+      ))}
+      <instancedMesh ref={casse} args={[undefined, undefined, dati.casse.length]}>
+        <boxGeometry args={[0.46, 0.26, 0.34]} />
+        <meshLambertMaterial color={notte ? "#5A4630" : "#B88A55"} />
+      </instancedMesh>
+      <instancedMesh ref={olive} args={[undefined, undefined, dati.casse.length]}>
+        <boxGeometry args={[0.42, 0.16, 0.3]} />
+        <meshLambertMaterial color="#2B2230" />
+      </instancedMesh>
+      {/* la scala appoggiata a un ulivo */}
+      <group position={[dati.scala.x, 0, dati.scala.z]} rotation={[0.3, 0.4, 0]}>
+        {[-1, 1].map((s) => (
+          <mesh key={s} position={[s * 0.2, 1.3, 0]}>
+            <boxGeometry args={[0.05, 2.6, 0.05]} />
+            <meshLambertMaterial color={notte ? "#4A3A2A" : "#9C7C55"} />
+          </mesh>
+        ))}
+        {Array.from({ length: 8 }, (_, k) => (
+          <mesh key={k} position={[0, 0.25 + k * 0.3, 0]}>
+            <boxGeometry args={[0.4, 0.035, 0.035]} />
+            <meshLambertMaterial color={notte ? "#4A3A2A" : "#9C7C55"} />
+          </mesh>
+        ))}
+      </group>
+    </>
+  );
+}
+
 /* ------------------------------------------------------------------ i quadri */
 
 /** La tela vuota, finché il video non c'è: oro chiaro sfumato, la scritta in basso. */
@@ -504,15 +619,14 @@ function telaVuota(testo: string, didascalia: string) {
 }
 
 function QuadroFraGliUlivi({
-  quadro, indice, stretto, notte, vuoto, onApri,
-}: { quadro: Quadro; indice: number; stretto: boolean; notte: boolean; vuoto: string; onApri: (i: number) => void }) {
+  quadro, posto: dove, indice, notte, vuoto, onApri,
+}: { quadro: Quadro; posto: Posto; indice: number; notte: boolean; vuoto: string; onApri: (i: number) => void }) {
   const gruppo = useRef<THREE.Group>(null);
   const mat = useRef<THREE.MeshBasicMaterial>(null);
   const [aspetto, setAspetto] = useState(0.8);
   const [sopra, setSopra] = useState(false);
-  const posto = useMemo(() => postoQuadro(quadro, stretto), [quadro, stretto]);
-  // il quadro guarda il punto del cammino da cui lo si vede meglio
-  const verso = useMemo(() => sulCammino(quadro.p * FINE_CAMERA), [quadro.p]);
+  const posto = dove.pos;
+  const verso = dove.verso;
   const { textura, video } = useMemo(() => {
     const m = quadro.media;
     if (!m) return { textura: telaVuota(vuoto, quadro.didascalia), video: null };
@@ -544,9 +658,10 @@ function QuadroFraGliUlivi({
     document.body.style.cursor = sopra ? "pointer" : "";
   }, [sopra]);
 
-  // alto 1,2 al massimo, largo 1,6 al massimo
-  const alto = Math.min(1.2, 1.6 / aspetto);
+  // alto quanto il luogo consente, largo al massimo una volta e mezza tanto
+  const alto = Math.min(dove.alto, (dove.alto * 1.5) / aspetto);
   const largo = alto * aspetto;
+  const Y = dove.y;
   const acceso = useRef(0);
   useFrame(({ camera }, dt) => {
     const g = gruppo.current;
@@ -568,24 +683,41 @@ function QuadroFraGliUlivi({
       ref={(g) => {
         gruppo.current = g;
         if (g) {
-          g.position.set(posto.x, 0, posto.z);
-          g.lookAt(verso.x, 0, verso.z);
+          const y = quota(posto.x, posto.z);
+          g.position.set(posto.x, y, posto.z);
+          g.lookAt(verso.x, y, verso.z);
         }
       }}
     >
-      {/* due pali di legno piantati in terra, e il quadro fra loro */}
-      {[-1, 1].map((s) => (
-        <mesh key={s} position={[s * (largo / 2 + 0.06), 1.05, -0.02]}>
-          <boxGeometry args={[0.06, 2.1, 0.06]} />
-          <meshLambertMaterial color={notte ? "#3E3226" : "#5E4630"} />
-        </mesh>
-      ))}
-      <mesh position={[0, 1.35, -0.03]}>
+      {dove.sostegno === "pali" ? (
+        // due pali di legno piantati in terra, e il quadro fra loro
+        [-1, 1].map((s) => (
+          <mesh key={s} position={[s * (largo / 2 + 0.06), (Y + alto / 2 + 0.15) / 2, -0.02]}>
+            <boxGeometry args={[0.06, Y + alto / 2 + 0.15, 0.06]} />
+            <meshLambertMaterial color={notte ? "#3E3226" : "#5E4630"} />
+          </mesh>
+        ))
+      ) : (
+        // il cavalletto: due gambe davanti, una dietro
+        <group>
+          {[-1, 1].map((s) => (
+            <mesh key={s} position={[s * (largo / 2 - 0.05), Y / 2 + 0.1, 0.05]} rotation={[-0.12, 0, s * -0.08]}>
+              <boxGeometry args={[0.04, Y + alto / 2 + 0.2, 0.04]} />
+              <meshLambertMaterial color={notte ? "#3E3226" : "#7A5C3C"} />
+            </mesh>
+          ))}
+          <mesh position={[0, Y / 2 + 0.1, -0.28]} rotation={[0.35, 0, 0]}>
+            <boxGeometry args={[0.04, Y + alto / 2 + 0.1, 0.04]} />
+            <meshLambertMaterial color={notte ? "#3E3226" : "#7A5C3C"} />
+          </mesh>
+        </group>
+      )}
+      <mesh position={[0, Y, -0.03]}>
         <boxGeometry args={[largo + 0.08, alto + 0.08, 0.04]} />
         <meshLambertMaterial color={notte ? "#1E1A16" : "#2E2620"} />
       </mesh>
       <mesh
-        position={[0, 1.35, 0]}
+        position={[0, Y, 0]}
         onPointerOver={(e: ThreeEvent<PointerEvent>) => {
           e.stopPropagation();
           setSopra(true);

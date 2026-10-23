@@ -5,7 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import type { Dizionario, Lingua } from "@/dictionaries";
 import { lingue } from "@/dictionaries";
-import { mediaOlio, type Media } from "@/content/olio";
+import { mediaOlio, type Luogo, type Media } from "@/content/olio";
 import type { Quadro } from "./Uliveto";
 import Modulo from "./Modulo";
 import { Campagna } from "./campagna";
@@ -29,6 +29,7 @@ export default function Olio({ d, lingua }: { d: Dizionario; lingua: Lingua }) {
   const [aperto, setAperto] = useState<number | null>(null);
   const [ambiente, setAmbiente] = useState<{ webgl: boolean; ridotto: boolean; stretto: boolean } | null>(null);
   const [notte, setNotte] = useState(true);
+  const [pronta, setPronta] = useState(false);
   const campagna = useRef<Campagna | null>(null);
   const progresso = useRef(0);
 
@@ -38,24 +39,18 @@ export default function Olio({ d, lingua }: { d: Dizionario; lingua: Lingua }) {
       { id: "apertura", lato: "sx" },
       ...o.storia.map((t, i): Tappa => ({ id: `storia-${i}`, titolo: i === 0 ? o.storiaTitolo : undefined, testo: t, lato: i % 2 ? "dx" : "sx" })),
       ...o.metodo.map((m, i): Tappa => ({ id: `metodo-${i}`, titolo: m.titolo, testo: m.testo, numero: String(i + 1).padStart(2, "0"), lato: i % 2 ? "sx" : "dx" })),
-      { id: "video", titolo: o.videoTitolo, lato: "centro" },
       { id: "frantoio", titolo: o.percheTitolo, testo: o.perche, lato: "sx" },
     ],
     [o]
   );
-  const N = tappe.length;
 
-  // i quadri: uno per tappa della storia e del metodo, tre per la galleria; dalla parte opposta al testo
-  const quadri = useMemo<Quadro[]>(() => {
-    const pDi = (id: string) => tappe.findIndex((t) => t.id === id) / (tappe.length - 1);
-    const q: Quadro[] = [];
-    const lato = (t: Tappa) => (t.lato === "sx" ? 1 : -1) as 1 | -1;
-    mediaOlio.storia.forEach((m, i) => q.push({ media: m, p: pDi(`storia-${i}`), lato: lato(tappe[1 + i]), didascalia: o.storiaTitolo }));
-    mediaOlio.metodo.forEach((m, i) => q.push({ media: m, p: pDi(`metodo-${i}`), lato: lato(tappe[4 + i]), didascalia: o.metodo[i].titolo }));
-    const pv = pDi("video");
-    mediaOlio.galleria.forEach((m, i) => q.push({ media: m, p: pv - 0.035 + i * 0.035, lato: i % 2 ? -1 : 1, didascalia: o.videoTitolo }));
-    return q;
-  }, [tappe, o]);
+  // i quadri: nel luogo del loro contenuto, non nelle tappe
+  const quadri = useMemo<Quadro[]>(
+    () => mediaOlio.map((v) => ({ media: v.media, luogo: v.luogo, didascalia: v.didascalia?.[lingua] ?? o.luoghi[v.luogo] })),
+    [o, lingua]
+  );
+  /** Senza la scena: i quadri di un luogo stanno sotto l'ultima tappa di quel luogo. */
+  const luogoDellaTappa: Record<string, Luogo> = { "storia-2": "alberi", "metodo-1": "raccolta", frantoio: "frantoio" };
 
   // arrivando dalla stanza: la pagina scorre e la musica della stanza tace
   useEffect(() => {
@@ -138,9 +133,16 @@ export default function Olio({ d, lingua }: { d: Dizionario; lingua: Lingua }) {
             stretto={ambiente.stretto}
             vuoto={o.videoInArrivo}
             onApri={setAperto}
+            onPronta={() => setPronta(true)}
           />
         </div>
       )}
+      {/* la vista d'ingresso, la stessa del passaggio dalla stanza: copre la scena finché non è pronta */}
+      <div
+        className={`olio-velo${pronta || (ambiente && !con3d) ? " olio-velo--via" : ""}`}
+        aria-hidden="true"
+        style={{ backgroundImage: `url(/olio/ingresso-${notte ? "notte" : "giorno"}.jpg)` }}
+      />
 
       <header className="olio-testata">
         <Link className="olio-torna" href={`/${lingua}`}>
@@ -180,7 +182,7 @@ export default function Olio({ d, lingua }: { d: Dizionario; lingua: Lingua }) {
                 {t.titolo && (t.numero ? <h3>{t.titolo}</h3> : <h2>{t.titolo}</h2>)}
                 {t.testo && <p className="tappa-testo">{t.testo}</p>}
                 {/* senza la scena, i video della tappa stanno qui sotto */}
-                {!con3d && <QuadriPiani quadri={quadri.filter((q) => Math.abs(q.p - tappe.indexOf(t) / (N - 1)) < 0.05)} vuoto={o.videoInArrivo} />}
+                {!con3d && luogoDellaTappa[t.id] && <QuadriPiani quadri={quadri.filter((q) => q.luogo === luogoDellaTappa[t.id])} vuoto={o.videoInArrivo} />}
                 {t.id === "frantoio" && (
                   <div className="olio-azioni">
                     <button className="olio-scrivimi" onClick={() => setModulo(true)}>

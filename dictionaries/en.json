@@ -292,6 +292,11 @@
     "perche": "Today I build websites. If your company makes olive oil, I know the work behind every bottle: the grove, the mill, the tight timing, the customers in Italy and abroad. That helps tell it online without clichés.",
     "scorri": "Scroll to walk through the grove",
     "guarda": "Watch",
-    "chiudi": "Close"
+    "chiudi": "Close",
+    "luoghi": {
+      "alberi": "The grove",
+      "raccolta": "The harvest",
+      "frantoio": "The mill"
+    }
   }
 }

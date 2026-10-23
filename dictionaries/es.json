@@ -292,6 +292,11 @@
     "perche": "Hoy hago páginas web. Si tu empresa produce aceite, conozco el trabajo que hay detrás de cada botella: el campo, la almazara, los plazos cortos, los clientes en Italia y en el extranjero. Eso ayuda a contarlo en la web sin frases hechas.",
     "scorri": "Desplázate para recorrer el olivar",
     "guarda": "Ver",
-    "chiudi": "Cerrar"
+    "chiudi": "Cerrar",
+    "luoghi": {
+      "alberi": "El olivar",
+      "raccolta": "La cosecha",
+      "frantoio": "La almazara"
+    }
   }
 }

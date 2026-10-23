@@ -418,6 +418,21 @@ html.con-scena .elenco:focus-within{
   .avvio--chiude .avvio-anello{transform:none}
 }
 
+/* ---------- il passaggio dalla stanza all'uliveto: la vista d'ingresso si allarga dal punto del clic ---------- */
+.passaggio{
+  position:fixed;inset:0;z-index:60;pointer-events:none;
+  background-size:cover;background-position:center;
+  clip-path:circle(0 at var(--x) var(--y));
+  animation:passaggio .95s cubic-bezier(.7,0,.25,1) forwards;
+}
+@keyframes passaggio{
+  from{clip-path:circle(0 at var(--x) var(--y));transform:scale(1.12)}
+  to{clip-path:circle(150vmax at var(--x) var(--y));transform:scale(1)}
+}
+/* all'arrivo nell'uliveto la stessa vista copre la scena finché non è pronta, poi sfuma */
+.olio-velo{position:fixed;inset:0;z-index:15;background-size:cover;background-position:center;pointer-events:none;transition:opacity 1.1s ease}
+.olio-velo--via{opacity:0}
+
 /* ---------- la pagina dell'olio: un uliveto da attraversare scorrendo ---------- */
 .olio{
   --oro:#D9C26A;

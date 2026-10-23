@@ -46,6 +46,22 @@ export default function Esperienza({
   const [mosso, setMosso] = useState(false);
   const [pronta, setPronta] = useState(false);
   const [ambiente, setAmbiente] = useState<Ambiente | null>(null);
+  /** il passaggio verso l'uliveto: la vista d'ingresso che si allarga dal punto del clic */
+  const [passaggio, setPassaggio] = useState<{ x: number; y: number } | null>(null);
+  useEffect(() => {
+    router.prefetch(`/${lingua}/olio`);
+  }, [router, lingua]);
+  const versoUliveto = useCallback(
+    (x: number, y: number) => {
+      if (ambiente?.ridotto) {
+        router.push(`/${lingua}/olio`);
+        return;
+      }
+      setPassaggio({ x, y });
+      setTimeout(() => router.push(`/${lingua}/olio`), 950);
+    },
+    [router, lingua, ambiente?.ridotto]
+  );
   const [tema, setTema] = useState<Tema>("scuro");
   const [audio, setAudio] = useState<Modo>("spento");
   const testiMusica = useMemo<[string, string]>(
@@ -325,7 +341,7 @@ export default function Esperienza({
             sezioneEditoria={d.elenco.editoria}
             testiMusica={testiMusica}
             testoUlivo={d.ulivo.scritta}
-            onOlio={() => router.push(`/${lingua}/olio`)}
+            onOlio={versoUliveto}
           />
         </div>
 
@@ -486,6 +502,20 @@ export default function Esperienza({
         )}
 
         {modulo && <Modulo d={d} lingua={lingua} onChiudi={chiudiModulo} />}
+
+        {passaggio && (
+          <div
+            className="passaggio"
+            aria-hidden="true"
+            style={
+              {
+                "--x": `${passaggio.x}px`,
+                "--y": `${passaggio.y}px`,
+                backgroundImage: `url(/olio/ingresso-${tema === "scuro" ? "notte" : "giorno"}.jpg)`,
+              } as React.CSSProperties
+            }
+          />
+        )}
       </div>
     </>
   );

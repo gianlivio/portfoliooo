@@ -56,7 +56,8 @@ type Props = {
   testiMusica: [string, string];
   /** la scritta sopra l'ulivo, e dove porta */
   testoUlivo: string;
-  onOlio: () => void;
+  /** il clic sull'ingresso dell'uliveto, col punto dello schermo da cui parte il passaggio */
+  onOlio: (x: number, y: number) => void;
 };
 
 /* Ogni tema cambia più dei colori: luce, densità, peso dei segni. */
@@ -742,8 +743,8 @@ function ZonaSviluppatore({ notte, ridotto, testi }: { notte: boolean; ridotto: 
   );
 }
 
-/** L'ulivo fra le carte: di giorno la raccolta e la potatura; la scritta sopra porta alla pagina dell'olio. */
-function UlivoFraLeCarte({ notte, ridotto, testo, onApri }: { notte: boolean; ridotto: boolean; testo: string; onApri: () => void }) {
+/** L'ulivo dietro le carte e la storia del suo podere; la piccola carta in alto è l'ingresso dell'uliveto. */
+function UlivoFraLeCarte({ notte, ridotto, testo, onApri }: { notte: boolean; ridotto: boolean; testo: string; onApri: (x: number, y: number) => void }) {
   const [ulivo] = useState(() => new Ulivo(notte));
   useEffect(() => () => ulivo.libera(), [ulivo]);
   useEffect(() => ulivo.setNotte(notte), [ulivo, notte]);
@@ -769,7 +770,7 @@ function UlivoFraLeCarte({ notte, ridotto, testo, onApri }: { notte: boolean; ri
       onClick={(e: ThreeEvent<MouseEvent>) => {
         if (!e.object.userData.olio || e.delta > 6) return;
         e.stopPropagation();
-        onApri();
+        onApri(e.nativeEvent.clientX, e.nativeEvent.clientY);
       }}
     />
   );
