@@ -384,7 +384,11 @@ class Liotru {
 
 /* ------------------------------------------------------------------ Iguazú */
 
-/** La Garganta del Diablo: la gola a ferro di cavallo, l'acqua che cade, la nebbia, l'arcobaleno, la foresta sul bordo. */
+/**
+ * La Garganta del Diablo, bassa fra la giungla: la gola a ferro di cavallo in due salti, il ciglio di basalto
+ * scuro, l'acqua che cade in cortine separate (continua solo al centro, nella Garganta), la terrazza di mezzo
+ * col suo bosco, la schiuma e la nebbia sul fondo, l'arcobaleno. Più bassa del Perito Moreno, che le sta accanto.
+ */
 class Iguazu {
   gruppo: THREE.Group;
   private acqua: THREE.Texture;
@@ -392,61 +396,81 @@ class Iguazu {
   private texture: THREE.Texture[] = [];
   constructor() {
     // a terra, ai piedi del Cerro de los Siete Colores
-    this.gruppo = sulRing(Z + 1.97, 36, 0);
-    this.gruppo.scale.setScalar(1.6);
+    this.gruppo = sulRing(Z + 1.97, 35, 0);
+    this.gruppo.scale.setScalar(1.4);
     const p: Pezzi = [];
-    const R = 3.4, H = 3.8, N = 48;
-    const arco = (rr: number, y0: number, y1: number) => {
+    const R = 3.3, H = 2.9, M = 1.45, N = 56;
+    // un tratto della gola: da angolo a0 ad a1, raggio rr, da quota y0 a y1 (u lungo l'arco, v in altezza)
+    const arco = (rr: number, y0: number, y1: number, a0 = -1.6, a1 = 1.6, n = N) => {
       const g = new THREE.BufferGeometry();
       const pos: number[] = [], uv: number[] = [];
-      for (let i = 0; i < N; i++) {
-        const t0 = -1.55 + (3.1 * i) / N, t1 = -1.55 + (3.1 * (i + 1)) / N;
+      for (let i = 0; i < n; i++) {
+        const t0 = a0 + ((a1 - a0) * i) / n, t1 = a0 + ((a1 - a0) * (i + 1)) / n;
         const a = [Math.sin(t0) * rr, Math.cos(t0) * rr], b = [Math.sin(t1) * rr, Math.cos(t1) * rr];
         pos.push(a[0], y0, a[1], b[0], y1, b[1], b[0], y0, b[1], a[0], y0, a[1], a[0], y1, a[1], b[0], y1, b[1]);
-        const u0 = i / N, u1 = (i + 1) / N;
+        const u0 = (t0 + 1.6) / 3.2, u1 = (t1 + 1.6) / 3.2;
         uv.push(u0, 0, u1, 1, u1, 0, u0, 0, u0, 1, u1, 1);
       }
       g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
       g.setAttribute("uv", new THREE.Float32BufferAttribute(uv, 2));
       return g;
     };
-    // la roccia: basalto scuro, muschio in alto
-    p.push(colora(arco(R + 0.15, -0.3, H), "#3E3A35", 0.18, (q) => new THREE.Color(q.y > H - 0.6 ? "#4E6A3A" : "#3E3A35")));
-    // il bordo della foresta: chiome fitte sul ciglio e dietro
+    // la roccia: il salto alto sul raggio pieno, quello basso più in qua; basalto scuro, muschio sui cigli
+    const roccia = (q: THREE.Vector3) => new THREE.Color(q.y > H - 0.25 || (q.y > M - 0.2 && q.y < M + 0.05) ? "#4E6A3A" : "#3A3631");
+    p.push(colora(arco(R + 0.12, M - 0.1, H), "#3A3631", 0.18, roccia));
+    p.push(colora(arco(R - 0.75, -0.3, M), "#3A3631", 0.18, roccia));
+    // la giungla: fitta sul ciglio e dietro, giù per i fianchi verso chi guarda, qualche albero più alto che emerge
     const r = generatore(5);
-    for (let i = 0; i < 260; i++) {
-      const t = -1.9 + r() * 3.8, rr = R + 0.3 + r() * 2.6;
-      p.push(colora(new THREE.IcosahedronGeometry(0.14 + r() * 0.18, 0).translate(Math.sin(t) * rr, H + 0.1 + r() * 0.4, Math.cos(t) * rr), r() < 0.5 ? "#3F6B34" : "#517C3E", 0.2));
+    const verdi = ["#2E5A2C", "#3F6B34", "#4E7C3C", "#36633A"];
+    for (let i = 0; i < 340; i++) {
+      const t = -2.3 + r() * 4.6, rr = R + 0.25 + r() * 2.8;
+      const fianco = Math.abs(t) > 1.6;
+      const y = fianco ? H * (0.35 + 0.65 * Math.min(1, (rr - R) / 1.5)) : H;
+      const s = 0.16 + r() * 0.2 + (r() < 0.07 ? 0.22 : 0);
+      p.push(colora(new THREE.IcosahedronGeometry(s, 0).scale(1, 0.85, 1).translate(Math.sin(t) * rr, y + s * 0.6, Math.cos(t) * rr), verdi[i % verdi.length], 0.2));
     }
-    // il fondo della gola: acqua bianca di schiuma
+    // il bosco sulla terrazza fra i due salti, dove l'acqua non cade
+    for (let i = 0; i < 40; i++) {
+      const t = -1.5 + r() * 3.0, rr = R - 0.6 + r() * 0.5;
+      if (Math.abs(t) < 0.5) continue;
+      p.push(colora(new THREE.IcosahedronGeometry(0.12 + r() * 0.1, 0).translate(Math.sin(t) * rr, M + 0.1, Math.cos(t) * rr), verdi[i % verdi.length], 0.2));
+    }
+    // il fondo della gola: schiuma bianca, il fiume che esce verso chi guarda color terra
     p.push(colora(new THREE.CircleGeometry(R, 32).rotateX(-Math.PI / 2).translate(0, -0.25, 0), "#E8F1F2", 0.15));
+    p.push(colora(new THREE.PlaneGeometry(4.2, 3).rotateX(-Math.PI / 2).translate(0, -0.27, -2.2), "#9C8664", 0.15));
     this.gruppo.add(unisci(p));
-    // l'acqua che cade: righe chiare che scorrono verso il basso
+    // l'acqua che cade: righe chiare che scorrono, appena color terra come il Paraná
     this.acqua = tela(64, 128, (x) => {
       x.clearRect(0, 0, 64, 128);
-      for (let i = 0; i < 40; i++) {
+      for (let i = 0; i < 44; i++) {
         const cx = Math.random() * 64, w = 1 + Math.random() * 3;
         const v = x.createLinearGradient(0, 0, 0, 128);
-        v.addColorStop(0, "rgba(255,255,255,0.95)");
-        v.addColorStop(0.5, "rgba(214,232,240,0.75)");
-        v.addColorStop(1, "rgba(255,255,255,0.95)");
+        v.addColorStop(0, "rgba(255,255,255,0.97)");
+        v.addColorStop(0.5, "rgba(226,218,200,0.8)");
+        v.addColorStop(1, "rgba(255,255,255,0.97)");
         x.fillStyle = v;
         x.fillRect(cx, 0, w, 128);
       }
     });
     this.acqua.wrapS = this.acqua.wrapT = THREE.RepeatWrapping;
-    this.acqua.repeat.set(10, 1.5);
+    this.acqua.repeat.set(3, 1.2);
     this.texture.push(this.acqua);
-    const velo = new THREE.Mesh(arco(R, -0.2, H - 0.05), new THREE.MeshBasicMaterial({ map: this.acqua, transparent: true, side: THREE.DoubleSide, depthWrite: false, fog: false }));
-    this.gruppo.add(velo);
+    const mat = new THREE.MeshBasicMaterial({ map: this.acqua, transparent: true, side: THREE.DoubleSide, depthWrite: false, fog: false });
+    // le cortine: la Garganta al centro continua, ai lati salti separati, ognuno in tutti e due i livelli
+    const cortine: [number, number][] = [[-1.5, -1.25], [-1.12, -0.86], [-0.72, 0.72], [0.86, 1.05], [1.2, 1.5]];
+    for (const [a0, a1] of cortine) {
+      const n = Math.max(4, Math.round(((a1 - a0) / 3.2) * N));
+      this.gruppo.add(new THREE.Mesh(arco(R, M, H - 0.03, a0, a1, n), mat));
+      this.gruppo.add(new THREE.Mesh(arco(R - 0.82, -0.2, M - 0.02, a0, a1, n), mat));
+    }
     // la nebbia in basso e l'arcobaleno davanti
     const tb = bruma(11);
     this.texture.push(tb);
     for (let k = 0; k < 7; k++) {
       const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: tb, color: "#FFFFFF", transparent: true, opacity: 0.55, depthWrite: false, fog: false }));
       const t = -1.3 + k * 0.43;
-      s.position.set(Math.sin(t) * (R - 0.6), 0.6, Math.cos(t) * (R - 0.6));
-      s.scale.setScalar(2.2);
+      s.position.set(Math.sin(t) * (R - 1.1), 0.5, Math.cos(t) * (R - 1.1));
+      s.scale.setScalar(2.0);
       this.nebbia.push(s);
       this.gruppo.add(s);
     }
@@ -462,9 +486,9 @@ class Iguazu {
       });
     });
     this.texture.push(iride);
-    const arcobaleno = new THREE.Sprite(new THREE.SpriteMaterial({ map: iride, transparent: true, opacity: 0.5, depthWrite: false, fog: false }));
-    arcobaleno.position.set(0, 1.4, -1.6);
-    arcobaleno.scale.set(5, 2.5, 1);
+    const arcobaleno = new THREE.Sprite(new THREE.SpriteMaterial({ map: iride, transparent: true, opacity: 0.45, depthWrite: false, fog: false }));
+    arcobaleno.position.set(0, 1.2, -1.6);
+    arcobaleno.scale.set(4.2, 2.1, 1);
     this.gruppo.add(arcobaleno);
   }
   aggiorna(t: number) {
@@ -512,54 +536,80 @@ function obelisco() {
 
 /* ------------------------------------------------------------------ il Perito Moreno */
 
-/** Rifatto: un fronte alto a guglie con le fenditure blu profonde, la lingua che scende fra le montagne, i blocchi che cadono. */
+/**
+ * Il fronte alto del ghiacciaio sul Lago Argentino, a guglie, con le fenditure blu profonde; la lingua che sale
+ * irta di seracchi fra i fianchi boscosi della valle verso le Ande innevate; i blocchi che si staccano e cadono.
+ * Nel varco fra le carte (2,47), più vicino degli altri luoghi: le Ande devono stare entro i 47 m, oltre si perdono.
+ * Il fronte è alto quasi il doppio delle cascate dell'Iguazú, che gli stanno accanto.
+ */
 class PeritoMoreno {
   gruppo: THREE.Group;
   private blocchi: { m: THREE.Mesh; inizio: number; x: number }[] = [];
   private prossimo = 6;
   private r = generatore(57);
-  private F = 3.2;
+  private F = 4.4;
   constructor() {
-    // con le altre cose argentine, il fronte che cade nel Lago Argentino, a pelo d'acqua
-    this.gruppo = sulRing(Z + 2.3, 40, 0);
-    this.gruppo.scale.setScalar(1.4);
+    this.gruppo = sulRing(Z + 2.47, 32, 0);
+    this.gruppo.scale.setScalar(1.25);
     const p: Pezzi = [];
     const F = this.F;
-    // le Ande dietro: granito scuro, neve in alto
-    p.push(colora(rilievo(-8, 8, 8, 11, 64, 6, (x, z) => (8.5 + 2.6 * Math.abs(Math.sin(x * 0.7 + 0.4)) + 1.4 * Math.abs(Math.sin(x * 2.1))) * Math.sin(((z - 8) / 3) * Math.PI) * (1 - Math.pow(x / 8, 4)) - 0.8), "#4B4A52", 0.36, (q) => new THREE.Color(q.y > 7 + Math.sin(q.x * 2) * 0.6 ? "#F4F7FA" : "#4B4A52")));
-    // i fianchi della valle: bosco scuro in basso, roccia, neve
+    // le Ande dietro: granito scuro a punte, neve dalla metà in su, a lingue lungo i canaloni
+    p.push(
+      colora(
+        rilievo(-8.5, 8.5, 4.5, 8.5, 80, 10, (x, z) => {
+          const k = Math.sin(((z - 4.5) / 4) * Math.PI) * (1 - Math.pow(x / 8.5, 4));
+          return k * (10.5 + 2.6 * Math.abs(Math.sin(x * 0.8 + 0.4)) + 1.8 * Math.pow(Math.abs(Math.sin(x * 2.3)), 3) + 0.5 * Math.sin(x * 5.1)) - 0.5;
+        }),
+        "#3F3E46",
+        0.2,
+        (q) => new THREE.Color(q.y > 9.8 + Math.sin(q.x * 2.6) * 0.9 ? "#F4F7FA" : q.y > 5.2 ? "#3F3E46" : "#34502F"),
+      ),
+    );
+    // i fianchi della valle: bosco scuro di lenga in basso, roccia, neve in cima
     for (const s of [-1, 1]) {
-      p.push(colora(rilievo(s < 0 ? -8 : 5.2, s < 0 ? -5.2 : 8, -3, 8, 16, 22, (x, z) => {
-        const d = Math.min(1, Math.max(0, (Math.abs(x) - 5.2) / 2.5));
-        return (4.6 + 1.2 * Math.sin(z * 0.7 + x)) * Math.pow(d, 0.7) * Math.min(1, (z + 3) / 2) - 0.4;
-      }), "#3E5E3A", 0.26, (q) => new THREE.Color(q.y > 4.9 ? "#EEF2F5" : q.y > 3.2 ? "#6A6971" : "#3E5E3A")));
+      p.push(
+        colora(
+          rilievo(s < 0 ? -8 : 4.8, s < 0 ? -4.8 : 8, -3, 6, 16, 22, (x, z) => {
+            const d = Math.min(1, Math.max(0, (Math.abs(x) - 4.8) / 2.5));
+            return (6.2 + 1.2 * Math.sin(z * 0.7 + x)) * Math.pow(d, 0.7) * Math.min(1, (z + 3) / 2) - 0.4;
+          }),
+          "#3E5E3A",
+          0.24,
+          (q) => new THREE.Color(q.y > 6.0 ? "#EEF2F5" : q.y > 3.6 ? "#6A6971" : "#3E5E3A"),
+        ),
+      );
     }
-    // la lingua: sale verso le montagne, irta di seracchi aguzzi
-    const sup = (x: number, z: number) => F + Math.max(0, z + 1.5) * 0.36 + 0.4 * Math.pow(Math.abs(Math.sin(x * 4.3 + z * 2.9)), 6) + 0.18 * Math.abs(Math.sin(z * 5.1 - x * 1.3));
-    p.push(colora(rilievo(-5.4, 5.4, -1.5, 8, 80, 50, sup), "#EEF5FA", 0.2, (q) => {
-      const c = new THREE.Color("#F2F7FB");
-      const crepa = Math.pow(Math.abs(Math.sin(q.x * 4.3 + q.z * 2.9)), 6);
-      if (crepa < 0.08) c.lerp(new THREE.Color("#5E9ED0"), 0.6);
-      for (const mx of [-2.6, 0.3, 2.9]) if (Math.abs(q.x - mx - Math.sin(q.z * 0.5) * 0.3) < 0.14) c.lerp(new THREE.Color("#6B6762"), 0.7);
-      return c;
-    }));
+    // la lingua: sale verso le montagne, irta di seracchi aguzzi, con le morene scure
+    const sup = (x: number, z: number) => F + Math.max(0, z + 1.5) * 0.22 + 0.3 * Math.pow(Math.abs(Math.sin(x * 4.3 + z * 2.9)), 6) + 0.12 * Math.abs(Math.sin(z * 5.1 - x * 1.3));
+    p.push(
+      colora(rilievo(-5, 5, -1.5, 5, 74, 40, sup), "#EEF5FA", 0.18, (q) => {
+        const c = new THREE.Color("#F2F7FB");
+        const crepa = Math.pow(Math.abs(Math.sin(q.x * 4.3 + q.z * 2.9)), 6);
+        if (crepa < 0.08) c.lerp(new THREE.Color("#5E9ED0"), 0.6);
+        for (const mx of [-2.4, 0.3, 2.7]) if (Math.abs(q.x - mx - Math.sin(q.z * 0.5) * 0.3) < 0.14) c.lerp(new THREE.Color("#6B6762"), 0.7);
+        return c;
+      }),
+    );
     // il fronte: colonne di ghiaccio, fenditure blu profondo, guglie in cima
     {
-      const N = 140, pos: number[] = [];
-      const cima = (x: number) => sup(x, -1.5) + 0.7 * Math.pow(Math.abs(Math.sin(x * 3.7)), 4) + 0.25 * Math.sin(x * 11.3);
+      const N = 130, pos: number[] = [];
+      const cima = (x: number) => sup(x, -1.5) + 0.9 * Math.pow(Math.abs(Math.sin(x * 3.7)), 4) + 0.3 * Math.sin(x * 11.3);
       for (let i = 0; i < N; i++) {
-        const x0 = -5.4 + (10.8 * i) / N, x1 = -5.4 + (10.8 * (i + 1)) / N;
-        const z0 = -1.5 - 0.18 * Math.abs(Math.sin(i * 0.9)), z1 = -1.5 - 0.18 * Math.abs(Math.sin((i + 1) * 0.9));
+        const x0 = -5 + (10 * i) / N, x1 = -5 + (10 * (i + 1)) / N;
+        const z0 = -1.5 - 0.2 * Math.abs(Math.sin(i * 0.9)), z1 = -1.5 - 0.2 * Math.abs(Math.sin((i + 1) * 0.9));
         pos.push(x0, 0, z0, x1, cima(x1), z1, x1, 0, z1, x0, 0, z0, x0, cima(x0), z0, x1, cima(x1), z1);
       }
       const geo = new THREE.BufferGeometry();
       geo.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
-      p.push(colora(geo, "#A9D3EC", 0.12, (q) => {
-        const fessura = Math.abs(Math.sin(q.x * 6.3 + Math.sin(q.x * 1.7) * 2.4)) < 0.22;
-        const base = new THREE.Color("#2A6FAE").lerp(new THREE.Color("#DDEFF9"), Math.min(1, q.y / F) * 0.6);
-        return fessura ? base.lerp(new THREE.Color("#1F5E99"), 0.6) : base;
-      }));
+      p.push(
+        colora(geo, "#A9D3EC", 0.1, (q) => {
+          const fessura = Math.abs(Math.sin(q.x * 6.3 + Math.sin(q.x * 1.7) * 2.4)) < 0.22;
+          const base = new THREE.Color("#2A6FAE").lerp(new THREE.Color("#E4F2FA"), Math.min(1, q.y / F) * 0.7);
+          return fessura ? base.lerp(new THREE.Color("#1F5E99"), 0.6) : base;
+        }),
+      );
     }
+    // il lago, color latte e turchese
     p.push(colora(new THREE.PlaneGeometry(16, 6).rotateX(-Math.PI / 2).translate(0, 0.03, -4.4), "#86B8C6", 0.15));
     this.gruppo.add(unisci(p));
     for (let k = 0; k < 2; k++) {
