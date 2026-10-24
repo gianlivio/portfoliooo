@@ -6,6 +6,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { accesaDaSotto, costruisciUlivo } from "./ospiti/ulivo";
 import { alone, generatore } from "./ospiti/comuni";
 import { cielo, modello, rete, textura, triplanare } from "./ospiti/polyhaven";
+import { Folla, type Persona } from "./ospiti/folla";
+import { Piazzale } from "./ospiti/piazzale";
+import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import type { Forma, Luogo, Media } from "@/content/olio";
 
 /*
@@ -109,6 +112,10 @@ export default function Uliveto(props: Props) {
       <Raccolta notte={props.notte} />
       <Sassi notte={props.notte} />
       <Erba notte={props.notte} stretto={props.stretto} />
+      <InDisparte>
+        <RaccoltaLontana notte={props.notte} stretto={props.stretto} ridotto={props.ridotto} />
+        <PiazzaleDelFrantoio notte={props.notte} ridotto={props.ridotto} />
+      </InDisparte>
       <Bacheche {...props} />
       <FotoNelPodere {...props} />
       {props.notte && !props.ridotto && <Lucciole />}
@@ -421,7 +428,8 @@ function postiUlivi() {
       }
     }
   }
-  return posti;
+  // oltre il frantoio niente alberi: c'è il piazzale, con la fila dei mezzi
+  return posti.filter((a) => a.z > -65);
 }
 
 function Ulivi({ notte, ridotto }: { notte: boolean; ridotto: boolean }) {
@@ -1291,6 +1299,195 @@ function Pranzo({ foto, p, lato, notte, onApri }: { foto: { q: Quadro; i: number
           </group>
         ))}
       </group>
+    </>
+  );
+}
+
+/* ------------------------------------------------------------------ la raccolta sullo sfondo */
+
+/**
+ * Quello che sta dentro si mostra solo quando i suoi shader sono compilati, in disparte: la pagina si apre
+ * senza aspettarli. Senza la compilazione parallela del browser, compare comunque dopo la prima schermata.
+ */
+function InDisparte({ children }: { children: React.ReactNode }) {
+  const rif = useRef<THREE.Group>(null);
+  const { gl, camera, scene } = useThree();
+  useEffect(() => {
+    const g = rif.current;
+    if (!g) return;
+    let vivo = true;
+    // un fotogramma dopo, perché la prima schermata non aspetti
+    const id = requestAnimationFrame(() => {
+      gl.compileAsync(g, camera, scene)
+        .catch(() => undefined)
+        .then(() => {
+          if (vivo) g.visible = true;
+        });
+    });
+    return () => {
+      vivo = false;
+      cancelAnimationFrame(id);
+    };
+  }, [gl, camera, scene]);
+  return (
+    <group ref={rif} visible={false}>
+      {children}
+    </group>
+  );
+}
+
+const CAMICIE = ["#C9B48A", "#7E93A6", "#E7E1D3", "#9A6B4A", "#D9CDB0", "#B0563A", "#8A8F72", "#E3B23C", "#3E5E86", "#2E2E32", "#B0403A", "#E8E4DA"];
+const PANTALONI = ["#3D4049", "#4A4238", "#34363C", "#45413A", "#2F3138", "#3E5370", "#5A5040"];
+const CAPPELLI = ["#3B3A38", "#2E2C2A", "#D9C08A", undefined, undefined];
+const COLORI_CASSE = ["#C8443A", "#4E8A4A", "#2A2A2E", "#EDEDE6", "#2F5E8C", "#D88A2A"];
+/** L'angolo di chi sta in a e guarda b. */
+const guarda = (a: { x: number; z: number }, b: { x: number; z: number }) => Math.atan2(b.x - a.x, b.z - a.z);
+
+/**
+ * La raccolta in tutto l'uliveto, non solo accanto al cammino: sotto gli alberi delle file lontane, a
+ * tutte le distanze, la rete stesa, le cassette, e attorno al tronco chi batte con la pertica, chi usa
+ * l'abbacchiatore, chi raccoglie chino. Di notte le reti restano stese, le persone sono andate a casa.
+ */
+function RaccoltaLontana({ notte, stretto, ridotto }: { notte: boolean; stretto: boolean; ridotto: boolean }) {
+  const dati = useMemo(() => {
+    const caso = generatore(61);
+    const pesca = <T,>(l: T[]) => l[Math.floor(caso() * l.length)];
+    const alberi = postiUlivi()
+      .map((a) => {
+        const p = THREE.MathUtils.clamp((4 - a.z) / 68, 0, 1);
+        return { ...a, p, lat: a.x - sulCammino(p).x };
+      })
+      // le file lontane lungo tutto il cammino; la prima fila solo lontano dalle reti vicine e dai quadri della raccolta
+      .filter((a) => a.p < 0.86 && (Math.abs(a.lat) > 9.5 || (Math.abs(a.lat) > 5 && (a.p < 0.32 || a.p > 0.7))))
+      .sort((a, b) => a.p - b.p);
+    const quanti = stretto ? 6 : 12;
+    const scelti = Array.from({ length: quanti }, (_, k) => alberi[Math.floor(((k + 0.5) / quanti) * alberi.length)]);
+    const persone: Persona[] = [];
+    const teli: THREE.BufferGeometry[] = [];
+    const cassette: THREE.Matrix4[] = [];
+    const colori: string[] = [];
+    const su = new THREE.Vector3(0, 1, 0);
+    scelti.forEach((a, k) => {
+      const tronco = { x: a.x, z: a.z };
+      // le persone stanno sul margine della chioma, dalla parte della trazzera: chi cammina le vede al lavoro
+      const c = sulCammino(a.p);
+      const giro0 = guarda(tronco, c) + (caso() - 0.5) * 0.5;
+      const ruoli: [Persona["attivita"], number, number][] = [
+        ["batte", -0.65, 2.5],
+        ["abbacchia", 0.6, 2.25],
+        ["raccoglie", 0.05, 3.0],
+        ...(k % 2 === 0 ? ([["raccoglie", 1.25, 3.2]] as [Persona["attivita"], number, number][]) : []),
+      ];
+      ruoli.forEach(([attivita, angolo, r]) => {
+        const g = giro0 + angolo;
+        const x = a.x + Math.sin(g) * r * (a.s / 1.3), z = a.z + Math.cos(g) * r * (a.s / 1.3);
+        persone.push({
+          pos: new THREE.Vector3(x, quota(x, z), z),
+          giro: guarda({ x, z }, tronco),
+          attivita,
+          fase: caso() * 10,
+          camicia: pesca(CAMICIE),
+          pantaloni: pesca(PANTALONI),
+          cappello: pesca(CAPPELLI),
+          alta: 0.92 + caso() * 0.14,
+        });
+      });
+      // la rete sotto la chioma, adagiata sulla terra con le sue pieghe
+      const g = new THREE.PlaneGeometry(7, 6, 14, 12).rotateX(-Math.PI / 2).rotateY(giro0);
+      const p = g.attributes.position as THREE.BufferAttribute;
+      for (let i = 0; i < p.count; i++) {
+        const x = p.getX(i) + a.x, z = p.getZ(i) + a.z;
+        const piega = 0.04 * Math.max(0, Math.sin(p.getX(i) * 2.3 + k)) + 0.025 * Math.sin(p.getZ(i) * 3.1 + k);
+        p.setXYZ(i, x, quota(x, z) + 0.04 + piega, z);
+      }
+      const uv = g.attributes.uv as THREE.BufferAttribute;
+      for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * 43, uv.getY(i) * 37);
+      teli.push(g);
+      // due o tre cassette sul bordo della rete
+      const n = 2 + (k % 2);
+      for (let j = 0; j < n; j++) {
+        const ang = giro0 + (j % 2 ? 1 : -1) * (1.5 + j * 0.2);
+        const x = a.x + Math.sin(ang) * 3.4, z = a.z + Math.cos(ang) * 3.4;
+        cassette.push(new THREE.Matrix4().compose(new THREE.Vector3(x, quota(x, z), z), new THREE.Quaternion().setFromAxisAngle(su, ang + caso() * 0.4), new THREE.Vector3(1, 1, 1)));
+        colori.push(pesca(COLORI_CASSE));
+      }
+    });
+    const reti = mergeGeometries(teli);
+    teli.forEach((g) => g.dispose());
+    reti.computeVertexNormals();
+    return { persone, reti, cassette, colori };
+  }, [stretto]);
+  useEffect(() => () => dati.reti.dispose(), [dati]);
+  const folla = useMemo(() => new Folla(dati.persone, quota), [dati]);
+  useEffect(() => () => folla.dispose(), [folla]);
+  const maglia = useMemo(() => rete(), []);
+  useFrame(({ clock }) => {
+    if (!notte) folla.aggiorna(ridotto ? 1 : clock.elapsedTime);
+  });
+  return (
+    <>
+      {!notte && <primitive object={folla.gruppo} />}
+      <mesh geometry={dati.reti} renderOrder={2}>
+        <meshLambertMaterial map={maglia} color={notte ? "#7A8A90" : "#FFFFFF"} transparent depthWrite={false} side={THREE.DoubleSide} polygonOffset polygonOffsetFactor={-3} />
+      </mesh>
+      <Istanze nome="cassetta.glb" matrici={dati.cassette} colori={dati.colori} notte={notte} />
+    </>
+  );
+}
+
+/* ------------------------------------------------------------------ il piazzale del frantoio */
+
+/**
+ * Dietro il frantoio, alla fine del cammino: il capannone, la fila dei mezzi carichi di olive che avanza
+ * a turni (il modulo Piazzale), e la gente che aspetta il suo olio col bidone in mano, chi parla, chi fa
+ * avanti e indietro dal portone coi bidoni pieni.
+ */
+function PiazzaleDelFrantoio({ notte, ridotto }: { notte: boolean; ridotto: boolean }) {
+  const origine = useMemo(() => {
+    const f = sulCammino(1);
+    // a destra della macina e del quadro dell'olio, perché il portone si veda
+    return new THREE.Vector3(f.x + 5, 0, f.z - 17);
+  }, []);
+  const piazzale = useMemo(() => new Piazzale(origine, notte, quota), [origine, notte]);
+  useEffect(() => () => piazzale.dispose(), [piazzale]);
+  const persone = useMemo<Persona[]>(() => {
+    const qui = (x: number, z: number) => new THREE.Vector3(origine.x + x, quota(origine.x + x, origine.z + z), origine.z + z);
+    const portone = { x: origine.x, z: origine.z };
+    const fermi: [number, number, Persona["attivita"], string, string, string | undefined, boolean][] = [
+      // al portone, col bidone, aspettando il proprio olio
+      [-3.0, 6.0, "aspetta", "#7E93A6", "#3D4049", "#3B3A38", true],
+      [-2.1, 6.6, "aspetta", "#B0563A", "#34363C", undefined, true],
+      [-3.9, 6.9, "chiacchiera", "#D9CDB0", "#45413A", "#2E2C2A", false],
+      [-1.2, 7.2, "aspetta", "#2E2E32", "#3E5370", undefined, true],
+      // un capannello che parla, più in là
+      [5.0, 6.6, "chiacchiera", "#E3B23C", "#2F3138", undefined, false],
+      [5.9, 7.4, "aspetta", "#8A8F72", "#4A4238", "#3B3A38", false],
+      [4.5, 7.6, "chiacchiera", "#E8E4DA", "#3D4049", "#D9C08A", true],
+      // l'operaio sulla soglia
+      [1.9, 0.4, "aspetta", "#3E5E86", "#2F3138", undefined, false],
+    ];
+    const gente: Persona[] = fermi.map(([x, z, attivita, camicia, pantaloni, cappello, bidone], i) => {
+      const pos = qui(x, z);
+      // chi aspetta guarda il portone; chi parla guarda il centro del capannello
+      const centro = x > 3 ? { x: origine.x + 5.1, z: origine.z + 7.2 } : portone;
+      return { pos, giro: i === 7 ? 0 : guarda(pos, centro), attivita, fase: i * 1.7, camicia, pantaloni, cappello, bidone };
+    });
+    // in due fanno avanti e indietro dal portone, coi bidoni
+    gente.push({ pos: qui(-0.8, 0.6), meta: qui(8.5, 6.2), giro: 0, attivita: "cammina", fase: 0.2, camicia: "#9A6B4A", pantaloni: "#3D4049", cappello: "#3B3A38", bidone: true });
+    gente.push({ pos: qui(-1.4, 0.8), meta: qui(-7.5, 6.8), giro: 0, attivita: "cammina", fase: 1.1, camicia: "#C9B48A", pantaloni: "#45413A", bidone: true });
+    return gente;
+  }, [origine]);
+  const folla = useMemo(() => new Folla(persone, quota), [persone]);
+  useEffect(() => () => folla.dispose(), [folla]);
+  useFrame(({ clock }) => {
+    const t = ridotto ? 3 : clock.elapsedTime;
+    piazzale.aggiorna(t);
+    folla.aggiorna(t);
+  });
+  return (
+    <>
+      <primitive object={piazzale.gruppo} />
+      <primitive object={folla.gruppo} />
     </>
   );
 }
