@@ -12,6 +12,8 @@ import { alone, bruma, generatore, liberaTutto } from "./comuni";
  */
 
 const SU = PELO_ACQUA - 0.3;
+/** Il lungomare del luna park, alto sul mare: così le giostre salgono sopra le carte invece di starci dietro. */
+const PIANO = SU + 3.2;
 // le isole, piccole e lontane, raccolte nell'ultimo tratto prima della città (l'Etna occupa il resto)
 const A0 = ANGOLO_ZONA + 1.95;
 const A1 = ANGOLO_ZONA + 2.6;
@@ -166,6 +168,31 @@ export class Riva {
 
   private lunaPark(r: () => number) {
     const ferro = new THREE.MeshBasicMaterial({ color: "#20232B", fog: false });
+    // il lungomare: il muraglione di pietra scura sul mare, il piano in cima, i lampioni gialli lungo il bordo
+    {
+      const a0 = ANGOLO_ZONA + 1.42, a1 = ANGOLO_ZONA + 2.06, R0 = 32.4;
+      const muro = new THREE.Mesh(
+        new THREE.CylinderGeometry(R0, R0, PIANO - SU + 0.4, 64, 1, true, Math.PI - a1, a1 - a0).translate(0, (PIANO + SU - 0.4) / 2, 0),
+        new THREE.MeshBasicMaterial({ color: "#191C23", side: THREE.DoubleSide, fog: false }),
+      );
+      this.notte.add(muro);
+      const piano = new THREE.Mesh(
+        new THREE.RingGeometry(R0, 44, 64, 1, Math.PI / 2 - a1, a1 - a0).rotateX(-Math.PI / 2).translate(0, PIANO, 0),
+        new THREE.MeshBasicMaterial({ color: "#14161C", fog: false }),
+      );
+      this.notte.add(piano);
+      const txLamp = alone("#FFD58A");
+      this.texture.push(txLamp);
+      const N = 26;
+      const lg = new THREE.BufferGeometry();
+      const lpos = new Float32Array(N * 3);
+      for (let k = 0; k < N; k++) {
+        const v = suAnello(a0 + ((a1 - a0) * (k + 0.5)) / N, R0 + 0.3, PIANO + 0.9);
+        lpos.set([v.x, v.y, v.z], k * 3);
+      }
+      lg.setAttribute("position", new THREE.BufferAttribute(lpos, 3));
+      this.notte.add(new THREE.Points(lg, new THREE.PointsMaterial({ map: txLamp, color: "#FFD58A", size: 0.7, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, fog: false })));
+    }
     const txL = alone("#FFFFFF");
     this.texture.push(txL);
     const puntini = (n: number, size: number) => {
@@ -181,10 +208,10 @@ export class Riva {
       // il luna park è un solo gruppo, raccolto: la ruota in mezzo, il resto attorno a profondità diverse
       const a = ANGOLO_ZONA + 1.72;
       const base = new THREE.Group();
-      base.position.copy(suAnello(a, 38, SU));
+      base.position.copy(suAnello(a, 38, PIANO));
       rivolgi(base, a);
       base.rotation.y += 0.22;
-      const R = 4.3, C = 5.4;
+      const R = 5.0, C = 6.2;
       const telaio: THREE.BufferGeometry[] = [];
       // le gambe a A, davanti e dietro
       for (const z of [-0.5, 0.5]) for (const s of [-1, 1]) {
@@ -248,7 +275,7 @@ export class Riva {
       // davanti a sinistra della ruota, più vicine, girate di sbieco
       const a = ANGOLO_ZONA + 1.53, d = 34.5;
       const g = new THREE.Group();
-      g.position.copy(suAnello(a, d, SU));
+      g.position.copy(suAnello(a, d, PIANO));
       rivolgi(g, a);
       g.rotation.y += 0.55;
       g.scale.setScalar(0.62);
@@ -292,16 +319,16 @@ export class Riva {
     {
       // dietro a destra della ruota, più lontana
       const a = ANGOLO_ZONA + 1.9;
-      const p = suAnello(a, 41, SU);
+      const p = suAnello(a, 41, PIANO);
       const H = 10.5;
       this.torre.base.copy(p);
       this.torre.h = H;
-      const palo = new THREE.Mesh(new THREE.BoxGeometry(0.32, H, 0.32).translate(p.x, SU + H / 2, p.z), ferro);
+      const palo = new THREE.Mesh(new THREE.BoxGeometry(0.32, H, 0.32).translate(p.x, PIANO + H / 2, p.z), ferro);
       this.notte.add(palo);
       const N = 40;
       const lp = puntini(N, 0.28);
       const pa = lp.geometry.attributes.position as THREE.BufferAttribute;
-      for (let k = 0; k < N; k++) pa.setXYZ(k, p.x + (k % 2 ? 0.2 : -0.2), SU + (k / N) * H, p.z);
+      for (let k = 0; k < N; k++) pa.setXYZ(k, p.x + (k % 2 ? 0.2 : -0.2), PIANO + (k / N) * H, p.z);
       this.luciTorre = lp.geometry.attributes.color as THREE.BufferAttribute;
       this.nTorre = N;
       this.notte.add(lp);
@@ -322,7 +349,7 @@ export class Riva {
       const txR = alone("#FF3A2A");
       this.texture.push(txR);
       const cima = new THREE.Sprite(new THREE.SpriteMaterial({ map: txR, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, fog: false }));
-      cima.position.set(p.x, SU + H + 0.3, p.z);
+      cima.position.set(p.x, PIANO + H + 0.3, p.z);
       cima.scale.setScalar(0.9);
       this.notte.add(cima);
     }
@@ -332,7 +359,7 @@ export class Riva {
       // davanti a destra, il più vicino
       const a = ANGOLO_ZONA + 1.96;
       const g = this.calcinculo;
-      g.position.copy(suAnello(a, 34, SU));
+      g.position.copy(suAnello(a, 34, PIANO));
       const H = 5.2;
       const fisso = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.24, H, 10).translate(0, H / 2, 0), ferro);
       this.notte.add(fisso.translateX(g.position.x).translateY(g.position.y).translateZ(g.position.z));
@@ -372,7 +399,7 @@ export class Riva {
       const tx = alone(col);
       this.texture.push(tx);
       const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: tx, transparent: true, opacity: 0.16, blending: THREE.AdditiveBlending, depthWrite: false, fog: false }));
-      s.position.copy(suAnello(a, 40, 2.5));
+      s.position.copy(suAnello(a, 40, PIANO + 4));
       s.scale.set(9, 7, 1);
       this.notte.add(s);
     });
@@ -417,7 +444,7 @@ export class Riva {
     // la torre: l'anello sale in dodici secondi, resta su, cade in uno
     const T = 18, e = t % T;
     const k = e < 12 ? e / 12 : e < 15 ? 1 : e < 15.8 ? 1 - Math.pow((e - 15) / 0.8, 2) : 0;
-    this.torre.anello.position.y = SU + 0.6 + k * (this.torre.h - 1.4);
+    this.torre.anello.position.y = PIANO + 0.6 + k * (this.torre.h - 1.4);
     for (let i = 0; i < this.nTorre; i++) {
       const su = e < 12 ? (i / this.nTorre < k ? 1 : 0.25) : e < 15.8 ? ((i + Math.floor(t * 8)) % 4 === 0 ? 1 : 0.3) : 0.25;
       this.c.setHSL(0.58 + i * 0.01, 0.8, 0.3 + su * 0.4);
