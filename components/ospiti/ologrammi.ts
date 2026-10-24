@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { PELO_ACQUA } from "../condivisi";
 import { ANGOLO_ZONA } from "../zona";
-import { type Ospite, alone, assi, cancella, casuale, finito, fra, liberaTutto, primo, riposo, tocca, lato as latoRegia } from "./comuni";
+import { type Ospite, alone, casuale, fra, liberaTutto } from "./comuni";
 
 /* Ologrammi di giorno: linee di luce che tremolano appena, come le proiezioni del cinema. */
 
@@ -172,103 +172,5 @@ export class Tempio implements Ospite {
 
   libera() {
     liberaTutto(this.gruppo, this.texture);
-  }
-}
-
-/* ------------------------------------------------------- la macchina di Anticitera */
-
-/** Una ruota dentata come linea chiusa, nel piano xy. */
-function ruota(r: number, denti: number) {
-  const pts: THREE.Vector3[] = [];
-  for (let i = 0; i <= denti * 4; i++) {
-    const a = (i / (denti * 4)) * Math.PI * 2;
-    const su = i % 4 === 1 || i % 4 === 2;
-    pts.push(new THREE.Vector3(Math.cos(a) * (r + (su ? r * 0.08 : 0)), Math.sin(a) * (r + (su ? r * 0.08 : 0)), 0));
-  }
-  // i raggi
-  const g = new THREE.BufferGeometry().setFromPoints(pts);
-  return g;
-}
-
-/**
- * La macchina di Anticitera, il primo calcolatore, ripescata dal mare: un ologramma di ruote dentate di bronzo
- * nella sua cassetta, che attraversa la scena girando. A metà strada si apre in esploso, le ruote si separano
- * una dietro l'altra mostrando gli ingranaggi, poi si richiude.
- */
-export class Anticitera implements Ospite {
-  gruppo = new THREE.Group();
-  private ruote: { l: THREE.Line; v: number; z: number }[] = [];
-  private mats: THREE.LineBasicMaterial[] = [];
-  private stato = { prossima: primo(0, 2), inizio: -1, durata: 15, da: new THREE.Vector3(), a: new THREE.Vector3() };
-
-  constructor() {
-    const mat = (c: string) => {
-      const m = new THREE.LineBasicMaterial({ color: c, transparent: true, opacity: 0, depthWrite: false, fog: false });
-      this.mats.push(m);
-      return m;
-    };
-    const bronzo = mat("#A8641E"), luce = mat("#1A86A8");
-    const misure: [number, number, number, number, number][] = [
-      // raggio, denti, x, y, velocità
-      [0.32, 56, 0, 0, 0.2], [0.14, 24, 0.36, 0.18, -0.47], [0.1, 18, -0.3, 0.22, 0.62], [0.18, 32, -0.2, -0.28, -0.35],
-      [0.08, 15, 0.3, -0.24, 0.8], [0.12, 22, 0.05, 0.36, -0.5],
-    ];
-    misure.forEach(([r, d, x, y, v], i) => {
-      const l = new THREE.Line(ruota(r, d), i % 2 ? luce : bronzo);
-      l.position.set(x, y, 0);
-      this.gruppo.add(l);
-      this.ruote.push({ l, v, z: (i - 2.5) * 0.09 });
-    });
-    const cassa = spigoli(new THREE.BoxGeometry(0.95, 1.05, 0.12), new THREE.Color("#1A86A8"));
-    this.mats.push(cassa.material as THREE.LineBasicMaterial);
-    this.gruppo.add(cassa);
-    this.gruppo.scale.setScalar(1.4);
-    this.gruppo.visible = false;
-    this.gruppo.traverse((o) => {
-      o.raycast = () => undefined;
-      o.frustumCulled = false;
-    });
-  }
-
-  aggiorna(t: number, _dt: number, camera: THREE.Camera) {
-    const s = this.stato;
-    if (s.inizio < 0) {
-      if (t < s.prossima || !tocca("giornoAria", "anticitera", t)) return;
-      const { avanti, lato } = assi(camera);
-      const v = latoRegia("giornoAria");
-      const d = casuale(3.6, 4.4);
-      s.da.copy(avanti).multiplyScalar(d).addScaledVector(lato, -5 * v).setY(0.05);
-      s.a.copy(avanti).multiplyScalar(d + 0.6).addScaledVector(lato, 5 * v).setY(0.3);
-      s.durata = casuale(14, 16);
-      s.inizio = t;
-      this.gruppo.visible = true;
-    }
-    const e = t - s.inizio;
-    const k = e / s.durata;
-    if (k >= 1) {
-      s.inizio = -1;
-      s.prossima = t + riposo();
-      this.gruppo.visible = false;
-      finito("giornoAria", "anticitera", t);
-      return;
-    }
-    this.gruppo.position.lerpVectors(s.da, s.a, k);
-    this.gruppo.position.y += Math.sin(e * 1.1) * 0.05;
-    this.gruppo.lookAt(camera.position.x, this.gruppo.position.y, camera.position.z);
-    this.gruppo.rotateY(Math.sin(e * 0.4) * 0.5);
-    // a metà strada l'esploso: le ruote si separano lungo l'asse e la cassetta ruota per mostrarle
-    const esploso = fra(k, 0.3, 0.45) * (1 - fra(k, 0.62, 0.78));
-    this.gruppo.rotateY(esploso * 0.9);
-    this.ruote.forEach((r) => {
-      r.l.rotation.z = t * r.v;
-      r.l.position.z = r.z * esploso * 6;
-    });
-    const vis = Math.min(fra(e, 0, 1.5), 1 - fra(e, s.durata - 1.5, s.durata)) * tremolio(t);
-    this.mats.forEach((m) => (m.opacity = vis * 0.9));
-  }
-
-  libera() {
-    cancella("giornoAria", "anticitera");
-    liberaTutto(this.gruppo);
   }
 }

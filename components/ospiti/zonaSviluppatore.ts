@@ -3,6 +3,7 @@ import { mondo } from "../condivisi";
 import { POSIZIONI, collocaZona } from "../zona";
 import { alone, liberaTutto, tela } from "./comuni";
 import { Scrivania } from "./scrivania";
+import { granaLegno } from "./polyhaven";
 
 /**
  * La zona dello sviluppatore, il centro del mondo: la scrivania e, intorno, tutto piccolo e in scala con lui:
@@ -88,7 +89,7 @@ class Studio {
     const p = POSIZIONI.studio;
     this.gruppo.position.copy(p);
     const nero = new THREE.MeshStandardMaterial({ color: "#1A1B1F", roughness: 0.6 });
-    const legno = new THREE.MeshStandardMaterial({ color: "#6B5844", roughness: 0.75 });
+    const legno = new THREE.MeshStandardMaterial({ color: "#6B5844", map: granaLegno([1, 0.6]), roughness: 0.75 });
     // il tavolino
     const T = { l: 0.78, p: 0.46, h: 0.62 };
     const piano = new THREE.Mesh(new THREE.BoxGeometry(T.l, 0.03, T.p), legno);
@@ -450,7 +451,7 @@ class Pannello {
 
   constructor(texture: THREE.Texture[]) {
     const p = POSIZIONI.pannello;
-    this.legno = new THREE.MeshStandardMaterial({ color: PARETE_GIORNO, roughness: 0.9 });
+    this.legno = new THREE.MeshStandardMaterial({ color: PARETE_GIORNO, map: granaLegno([0.8, 2]), roughness: 0.9 });
     const tavola = new THREE.Mesh(new THREE.BoxGeometry(0.66, 1.62, 0.035), this.legno);
     tavola.position.set(p.x, 0.81, p.z);
     this.gruppo.add(tavola);

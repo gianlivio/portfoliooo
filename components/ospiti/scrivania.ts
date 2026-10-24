@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { type Ospite, casuale, generatore, liberaTutto, loft, ombra } from "./comuni";
 import { type Figura, figura } from "./figure";
+import { granaLegno, pezziDi } from "./polyhaven";
 
 /**
  * Sempre, di giorno e di notte: sotto una delle carte, uno sviluppatore alla scrivania, visto di spalle.
@@ -78,6 +79,7 @@ export class Scrivania implements Ospite {
   private scritto = 0; // pezzi già scritti dell'ultima riga
   private log: { l: number; c: string; rientro: number }[] = [];
   private pagina = 0;
+  private vivo = true;
   private scorri = 0;
   private stato = {
     tasto: 0, riga: 0, log: 0, pagina: 6, // prossimi istanti
@@ -86,7 +88,8 @@ export class Scrivania implements Ospite {
   };
 
   constructor(private notte: boolean) {
-    const legno = new THREE.MeshStandardMaterial({ color: notte ? "#3A3430" : "#B8A58C", roughness: 0.7 });
+    // il piano ha la grana del legno vero (Poly Haven); il colore resta quello di sempre
+    const legno = new THREE.MeshStandardMaterial({ color: notte ? "#3A3430" : "#B8A58C", map: granaLegno([2, 1]), roughness: 0.7 });
     this.legno = legno;
     const nero = new THREE.MeshStandardMaterial({ color: "#1B1C1F", roughness: 0.5, metalness: 0.3 });
     const grigio = new THREE.MeshStandardMaterial({ color: "#3C3F45", roughness: 0.8 });
@@ -120,16 +123,35 @@ export class Scrivania implements Ospite {
     this.tazza.add(new THREE.Mesh(new THREE.TorusGeometry(0.025, 0.007, 6, 10).translate(0.045, 0, 0), ceramica));
     this.tazza.position.set(0.55, P.h + 0.065, 0.42);
     this.posto.add(this.tazza);
-    // una pianta in un vaso
-    this.posto.add(new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.05, 0.12, 12).translate(-0.72, P.h + 0.075, 0.82), new THREE.MeshStandardMaterial({ color: "#B4643C", roughness: 0.8 })));
+    // una pianta in un vaso: la nostra finché non arriva la succulenta di Poly Haven (potted_plant_04)
+    const pianta = new THREE.Group();
+    this.posto.add(pianta);
+    pianta.add(new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.05, 0.12, 12).translate(-0.72, P.h + 0.075, 0.82), new THREE.MeshStandardMaterial({ color: "#B4643C", roughness: 0.8 })));
     const foglia = new THREE.MeshStandardMaterial({ color: "#3E6B3A", roughness: 0.8, side: THREE.DoubleSide });
     for (let i = 0; i < 7; i++) {
       const f = new THREE.Mesh(new THREE.SphereGeometry(0.05, 6, 4).scale(0.35, 1.4, 0.1), foglia);
       f.position.set(-0.72, P.h + 0.2, 0.82);
       f.rotation.set(Math.sin(i * 2.3) * 0.5, i * 0.9, Math.cos(i * 1.7) * 0.5);
       f.translateY(0.05);
-      this.posto.add(f);
+      pianta.add(f);
     }
+    pezziDi("/stanza/pianta.glb")
+      .then((pezzi) => {
+        if (!this.vivo) return;
+        pianta.traverse((o) => (o as THREE.Mesh).geometry?.dispose());
+        pianta.clear();
+        pezzi.forEach((p) => {
+          const m = (p.materiale as THREE.MeshStandardMaterial).clone();
+          m.metalnessMap = null;
+          m.metalness = 0;
+          const mesh = new THREE.Mesh(p.geometria.clone(), m);
+          mesh.position.set(-0.72, P.h + 0.002, 0.82);
+          mesh.scale.setScalar(0.95);
+          mesh.raycast = () => undefined;
+          pianta.add(mesh);
+        });
+      })
+      .catch(() => undefined);
     // la lampada da tavolo: braccio snodato, accesa solo di notte
     const braccio = new THREE.Group();
     braccio.position.set(-0.68, P.h + 0.015, 0.5);
@@ -491,6 +513,7 @@ export class Scrivania implements Ospite {
   }
 
   libera() {
+    this.vivo = false;
     liberaTutto(this.gruppo, this.texture);
     this.matSchermi.forEach((m) => m.dispose());
   }

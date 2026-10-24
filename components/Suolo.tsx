@@ -9,7 +9,7 @@ import { ANGOLO_ZONA } from "./zona";
 /**
  * Il pavimento della stanza: un solo specchio e un solo shader, che cambia col tema senza essere ricreato.
  * Di notte: una superficie d'acqua che riflette carte e cielo, con increspature leggere; sotto, fioco,
- * il labirinto, e i cavi sottomarini con impulsi di luce che li percorrono.
+ * il labirinto.
  * Di giorno: un pavimento di marmo chiaro e lucido, con venature morbide, che riflette le carte e ne prende le ombre;
  * nel marmo un intarsio a labirinto, come quello della biblioteca del Nome della rosa, che si legge per intero
  * solo dall'alto, durante la discesa iniziale della camera, e da terra diventa venatura; accanto, un piccolo
@@ -182,22 +182,6 @@ void main(){
     vec3 fondo = color;
     // sotto l'acqua, fioco: il labirinto
     fondo = mix(fondo, fondo + vec3(0.012, 0.018, 0.022), labirinto(p + d * 4.0) * (0.35 + 0.65 * uLabirinto));
-    // i cavi sottomarini: tre linee che serpeggiano sul fondo, percorse da impulsi di luce
-    float cavi = 0.0;
-    for (int k = 0; k < 3; k++) {
-      float fk = float(k);
-      float an = 0.5 + fk * 1.9;
-      vec2 T = vec2(cos(an), sin(an));
-      vec2 N = vec2(-T.y, T.x);
-      vec2 q = p - N * (fk - 1.0) * 3.2;
-      float sl = dot(q, T);
-      float dl = abs(dot(q, N) + sin(sl * 0.35 + fk * 2.0) * 0.7);
-      float filo = exp(-pow(dl / 0.018, 2.0));
-      float u = sl - t * (1.6 + fk * 0.3) + fk * 4.0;
-      float impulso = exp(-pow(mod(u, 11.0) - 5.5, 2.0) / 0.05);
-      cavi += filo * (0.18 + impulso * 2.2);
-    }
-    fondo += vec3(0.16, 0.42, 0.55) * cavi * 0.11 * smoothstep(26.0, 6.0, r);
     vec2 uv = vUv.xy / vUv.w + d;
     vec3 riflesso = uRiflesso > 0.5 ? texture2D(tDiffuse, uv).rgb : fondo;
     float vicino = smoothstep(30.0, 4.0, r);

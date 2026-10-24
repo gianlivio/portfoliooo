@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { mondo } from "./condivisi";
 import { POSIZIONI, collocaZona } from "./zona";
+import { granaLegno } from "./ospiti/polyhaven";
 
 /**
  * Il cassetto aperto, il sogno nel cassetto: prende il posto della carta "Scrivimi", nella zona dello sviluppatore.
@@ -213,7 +214,8 @@ export default function Portale({
     () => new THREE.SpriteMaterial({ map: lama, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending, toneMapped: false }),
     [lama]
   );
-  const legno = useMemo(() => new THREE.MeshStandardMaterial({ roughness: 0.7 }), []);
+  // la grana del legno vero (Poly Haven) sotto il colore del tema
+  const legno = useMemo(() => new THREE.MeshStandardMaterial({ roughness: 0.7, map: granaLegno([1, 1]) }), []);
   const interno = useMemo(() => new THREE.MeshStandardMaterial({ color: "#1A1512", roughness: 0.9 }), []);
   const scrittaMat = useRef<THREE.MeshBasicMaterial>(null);
 

@@ -13,7 +13,8 @@ import { Ologramma } from "./ologramma";
  * più fitte e non la raggiungono mai. La tartaruga si ferma, si volta a guardare, e riparte.
  */
 
-const SCALA = 1.1;
+// più piccoli di prima: la tartaruga e Achille non devono rubare la scena alle carte
+const SCALA = 0.7;
 
 /* ------------------------------------------------------------------ guscio */
 
@@ -185,7 +186,7 @@ export class Achille implements Ospite {
     sPassi: [] as number[], verso: 0, oltre: new THREE.Vector3(), k0: -1, ceduto: false,
   };
   private tmp = { p: new THREE.Vector3(), q: new THREE.Vector3(), t: new THREE.Vector3() };
-  private achille = new Ologramma(1.45);
+  private achille = new Ologramma(0.95);
   private orme = { prima: { s: 0, t: -1 }, ora: { s: 0, t: -1 }, n: 0 };
 
   constructor() {

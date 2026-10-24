@@ -23,7 +23,7 @@ import { Droni } from "./ospiti/drone";
 import { Robot } from "./ospiti/robot";
 import { Pterodattilo } from "./ospiti/pterodattilo";
 import { Fieno } from "./ospiti/fieno";
-import { Anticitera, Tempio } from "./ospiti/ologrammi";
+import { Tempio } from "./ospiti/ologrammi";
 
 /**
  * Ciò che passa per la stanza, davanti a dove si sta guardando. Una regia fa passare un ospite
@@ -294,7 +294,6 @@ const creaDroni = () => new Droni();
 const creaRobot = () => new Robot();
 const creaPterodattilo = () => new Pterodattilo();
 const creaFieno = () => new Fieno();
-const creaAnticitera = () => new Anticitera();
 const creaTempio = () => new Tempio();
 
 /* --------------------------------------------------------------------- insieme */
@@ -336,7 +335,6 @@ export default function Fauna({
       {c("pterodattilo") && <Presenza crea={creaPterodattilo} />}
       {c("robot") && <Presenza crea={creaRobot} />}
       {c("fieno") && <Presenza crea={creaFieno} />}
-      {c("anticitera") && <Presenza crea={creaAnticitera} />}
       {c("tempio") && <Presenza crea={creaTempio} />}
     </>
   );

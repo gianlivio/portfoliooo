@@ -184,3 +184,21 @@ export function pezziDi(url: string) {
   }
   return p;
 }
+
+/**
+ * La grana del legno (oak_wood_planks di Poly Haven, ridotta alla sola luminosità, media 0,85): moltiplicata
+ * per il colore del materiale, gli aggiunge le venature senza cambiarne il tono, di giorno e di notte.
+ * Una sola immagine per tutti i mobili della stanza; ogni mobile ne prende una copia con la sua ripetizione.
+ */
+let granaBase: THREE.Texture | null = null;
+export function granaLegno(ripeti: [number, number] = [1, 1]) {
+  if (!granaBase) {
+    granaBase = new THREE.TextureLoader().load("/stanza/legno-grana.webp");
+    granaBase.wrapS = granaBase.wrapT = THREE.RepeatWrapping;
+    granaBase.colorSpace = THREE.SRGBColorSpace;
+    granaBase.anisotropy = 4;
+  }
+  const t = granaBase.clone();
+  t.repeat.set(ripeti[0], ripeti[1]);
+  return t;
+}
