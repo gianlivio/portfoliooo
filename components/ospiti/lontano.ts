@@ -3,7 +3,7 @@ import { PELO_ACQUA } from "../condivisi";
 import { ANGOLO_ZONA } from "../zona";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import { alone, bruma, generatore, liberaTutto, tela } from "./comuni";
-import { alhambra, bologna, labirinto } from "./meraviglie";
+import { alhambra, bologna, colora, labirinto, rilievo, sulRing, unisci } from "./meraviglie";
 
 /**
  * L'orizzonte a sinistra dello sviluppatore, fino alla città: tutto in lontananza.
@@ -281,18 +281,29 @@ export class Lontano {
       return (u: number) => SU - 1 + quota(u) + 1;
     };
     const dietro = crinale(43, 6.4, 0.4, [], 1.3);
-    // davanti: in cima il pianoro del labirinto, più in qua quello dei radiotelescopi
+    // davanti: due pianori, uno (dove stava il labirinto) vuoto, più in qua quello dei radiotelescopi
     const davanti = crinale(37.5, 4.6, 0.14, [[0.2, 0.36, 1], [0.55, 0.75, 0.78]], 4.1);
-    // il labirinto sul pendio, appena sotto la cima e inclinato col terreno: da lontano se ne vedono gli anelli
-    const aL = ang(0.28);
-    const lab = new THREE.Group();
-    lab.position.copy(suAnello(aL, 36.6, davanti(0.28) - 0.55));
-    lab.rotation.y = Math.PI - aL;
-    const disco = labirinto();
-    disco.rotation.x = -0.5;
-    disco.scale.setScalar(0.75);
-    lab.add(disco);
-    this.giorno.add(lab);
+    // il labirinto: sul pianoro stava dietro una carta. Ora sta da solo nel varco fra le carte (3,81, dove prima
+    // c'era Comiso), più vicino, in cima a un poggio suo all'inizio delle colline delle pale, inclinato verso chi guarda
+    {
+      const aL = ANGOLO_ZONA + 3.81, H = 6.4;
+      const lab = sulRing(aL, 33, 0);
+      lab.add(
+        unisci([
+          colora(
+            rilievo(-6.5, 6.5, -4, 4, 52, 32, (x, z) => H * Math.exp(-(x * x) / 10 - (z * z) / 5) - 0.25 + 0.08 * Math.sin(x * 2 + z)),
+            "#B99A58",
+            0.14,
+            (q) => new THREE.Color(q.y > H - 1.0 ? "#C8A85E" : q.y > 2.2 ? "#A88E55" : "#9C9456"),
+          ),
+        ]),
+      );
+      const disco = labirinto();
+      disco.position.set(0, H - 0.3, 0.2);
+      disco.rotation.x = -0.6;
+      lab.add(disco);
+      this.giorno.add(lab);
+    }
     // l'Alhambra e il Perito Moreno
     // l'Alhambra a destra dell'Albaicín (che sta in citta.ts, più vicino): fra i due la valle del Darro
     // nel tratto di cielo libero sopra lo sviluppatore: lì le carte non la coprono
