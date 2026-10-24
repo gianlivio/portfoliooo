@@ -11,7 +11,8 @@ import { colora, rilievo, sulRing, unisci } from "./meraviglie";
  * il Liotru ai piedi dell'Etna. Argentina: le cascate dell'Iguazú, il Cerro de los Siete Colores, l'Obelisco,
  * il Perito Moreno rifatto. Dietro le carte: un tablao di flamenco ai piedi di Granada.
  * Gli angoli sono contati dalla zona dello sviluppatore; i posti scelti cadono negli spazi fra le carte
- * o dietro le carte più basse.
+ * o dietro le carte più basse. Oltre i 47-48 m dal centro le cose si perdono: le cupole stanno più in qua. Le carte stanno ogni PASSO (0,449 rad): Punta Secca (2,92) sta da sola sul mare
+ * nel varco dopo il Perito Moreno, poi il barocco distanziato: Modica (3,27), Ibla (3,57, a 42 m), Comiso (3,86).
  */
 export const ATTIVI = {
   puntaSecca: true,
@@ -53,52 +54,127 @@ const zoccolo = (p: Pezzi, a: number, b: number, H: number, colore: THREE.ColorR
     ),
   );
 
+/* ------------------------------------------------------------------ attrezzi per i paesi */
+
+/**
+ * Una casa vista da chi guarda: il corpo (che affonda di mezzo metro, per stare in piedi anche sui pendii),
+ * le finestre scure sulla facciata verso il centro (−z), il tetto di coppi a padiglione o la terrazza col parapetto.
+ */
+function casa(p: Pezzi, r: () => number, x: number, suolo: number, z: number, l: number, h: number, pr: number, colore: THREE.ColorRepresentation, coppi: boolean, velo = 0.22) {
+  blocco(p, x, suolo - 0.5, z, l, h + 0.5, pr, colore, velo);
+  const colonne = Math.max(1, Math.floor(l / 0.3));
+  for (let y = suolo + h - 0.26; y > suolo + 0.08; y -= 0.38) {
+    for (let c = 0; c < colonne; c++) {
+      if (r() < 0.2) continue;
+      blocco(p, x - l / 2 + ((c + 0.5) * l) / colonne, y - 0.08, z - pr / 2 - 0.012, 0.09, 0.15, 0.02, "#45392F", velo);
+    }
+  }
+  if (coppi) {
+    const tinta = r() < 0.5 ? "#B2603C" : "#A8583A";
+    p.push(colora(new THREE.ConeGeometry(l * 0.72, 0.2, 4).rotateY(Math.PI / 4).scale(1, 1, pr / l).translate(x, suolo + h + 0.1, z), tinta, velo));
+  } else blocco(p, x, suolo + h, z, l + 0.04, 0.05, pr + 0.04, "#F6F1E6", velo);
+}
+
+/** Un albero tondo: carrubo, ulivo. */
+const albero = (p: Pezzi, x: number, y: number, z: number, s: number, velo = 0.22) =>
+  p.push(colora(new THREE.IcosahedronGeometry(s, 0).scale(1.1, 0.8, 1).translate(x, y + s * 0.7, z), "#5D7443", velo));
+
+/** Una palma: il fusto sottile e sei foglie che ricadono. */
+function palma(p: Pezzi, x: number, y: number, z: number, h: number) {
+  p.push(colora(new THREE.CylinderGeometry(0.035, 0.05, h, 5).translate(x, y + h / 2, z), "#7D6549", 0.2));
+  for (let k = 0; k < 6; k++) {
+    const t = (k / 6) * Math.PI * 2 + 0.3;
+    p.push(colora(new THREE.BoxGeometry(0.6, 0.02, 0.13).translate(0.28, 0, 0).rotateZ(-0.45).rotateY(t).translate(x, y + h, z), "#4F7A3A", 0.2));
+  }
+}
+
+/** Un gozzo, lo scafo a mezzo cilindro col bordo bianco; a galla o tirato in secca. */
+function gozzo(p: Pezzi, x: number, y: number, z: number, giro: number, colore: string) {
+  const scafo = new THREE.CylinderGeometry(0.22, 0.12, 1.1, 8, 1, false, 0, Math.PI).rotateZ(Math.PI / 2).rotateX(-Math.PI / 2).rotateY(giro).translate(x, y, z);
+  p.push(colora(scafo, colore, 0.18));
+  p.push(colora(new THREE.BoxGeometry(1.1, 0.035, 0.42).rotateY(giro).translate(x, y + 0.01, z), "#F2EFE8", 0.18));
+}
+
 /* ------------------------------------------------------------------ Punta Secca */
 
-/** Il faro bianco sulla punta, la casa di Montalbano sulla spiaggia con la terrazza sul mare, due barche. */
+/**
+ * Punta Secca, da sola sul mare, fra il Perito Moreno e il barocco: il faro bianco sulla punta fra gli
+ * scogli, il molo del porticciolo con i gozzi colorati, la spiaggia, la casa di Montalbano con la terrazza
+ * sul mare, il borgo basso di case bianche a terrazza, qualche palma nella piazzetta.
+ */
 function puntaSecca() {
-  const g = sulRing(Z + 2.66, 37, 2.4);
+  // nel varco fra due carte, più vicina degli altri luoghi: il faro resta solo, staccato dal barocco
+  const g = sulRing(Z + 2.92, 33, 2.6);
   g.scale.setScalar(1.2);
   const p: Pezzi = [];
-  zoccolo(p, 7, 3, 2.6, "#B9A77E", 1.5);
-  p.push(colora(new THREE.PlaneGeometry(14, 4).rotateX(-Math.PI / 2).translate(0, 0.05, -2.4), "#6FA7C8", 0.18));
-  p.push(colora(rilievo(-7, 7, -0.5, 4, 32, 8, (x, z) => 0.25 + 0.08 * Math.sin(x * 1.3 + z) + Math.max(0, z - 1.5) * 0.25), "#E2CFA2", 0.2));
-  // il faro: torre bianca, ballatoio, lanterna scura, la casa del guardiano alla base
-  blocco(p, 4.5, 0.2, 0.6, 1.6, 0.9, 1.2, "#F1EEE6");
-  tamburo(p, 4.5, 0.2, 0.6, 0.42, 6.2, "#F7F5EF");
-  tamburo(p, 4.5, 6.4, 0.6, 0.62, 0.08, "#5A5F66");
-  tamburo(p, 4.5, 6.48, 0.6, 0.32, 0.55, "#B9D6E4");
-  cupola(p, 4.5, 7.03, 0.6, 0.36, "#3D4248", 1);
-  // la casa: due piani bianchi, la terrazza sul mare con la ringhiera, le persiane
-  blocco(p, -1.2, 0.2, 0.4, 2.6, 1.1, 1.6, "#EFE9DD");
-  blocco(p, -1.6, 1.3, 0.6, 1.6, 0.9, 1.2, "#EFE9DD");
+  const r = generatore(5);
+  zoccolo(p, 7, 3, 2.8, "#B9A77E", 1.5);
+  // il mare davanti, più chiaro sulla secca vicino alla riva
+  p.push(colora(new THREE.PlaneGeometry(18, 5, 18, 10).rotateX(-Math.PI / 2).translate(0, 0.05, -2.9), "#4A88B4", 0.18, (q) => new THREE.Color(q.z > -1.0 ? "#8BC6CF" : q.z > -2.2 ? "#62A5C6" : "#4A88B4")));
+  const sabbia = (x: number, z: number) => 0.25 + 0.08 * Math.sin(x * 1.3 + z) + Math.max(0, z - 1.5) * 0.25;
+  p.push(colora(rilievo(-7, 7, -0.5, 4, 32, 8, sabbia), "#E2CFA2", 0.2));
+  // il faro sulla punta: la casa del guardiano, la torre che si stringe, il ballatoio, la lanterna, la cupola scura
+  const fx = 4.6, fz = 0.5;
+  for (let k = 0; k < 9; k++) {
+    const t = (k / 9) * Math.PI - Math.PI;
+    p.push(colora(new THREE.DodecahedronGeometry(0.28 + r() * 0.22, 0).translate(fx + Math.cos(t) * 1.5, 0.05, fz - 0.6 + Math.sin(t) * 0.9), "#8E8574", 0.2));
+  }
+  blocco(p, fx, 0.2, fz + 0.4, 1.9, 0.95, 1.3, "#F3F0E8");
+  blocco(p, fx, 1.15, fz + 0.4, 2.0, 0.06, 1.4, "#FBFAF6");
+  p.push(colora(new THREE.CylinderGeometry(0.34, 0.46, 6.2, 16).translate(fx, 0.2 + 3.1, fz), "#F7F5EF", 0.2));
+  for (const y of [2.1, 4.0]) blocco(p, fx, y, fz - 0.4, 0.12, 0.22, 0.02, "#45392F");
+  tamburo(p, fx, 6.4, fz, 0.58, 0.08, "#4E535A");
+  for (let k = 0; k < 12; k++) blocco(p, fx + Math.cos((k / 12) * Math.PI * 2) * 0.55, 6.48, fz + Math.sin((k / 12) * Math.PI * 2) * 0.55, 0.02, 0.18, 0.02, "#4E535A");
+  tamburo(p, fx, 6.48, fz, 0.3, 0.55, "#B9D6E4");
+  cupola(p, fx, 7.03, fz, 0.34, "#3D4248", 1);
+  // il molo del porticciolo, con il fanale rosso in punta; i gozzi a galla dentro
+  blocco(p, 2.5, -0.15, -1.9, 0.5, 0.42, 2.9, "#CBC1A8");
+  blocco(p, 1.4, -0.15, -3.1, 2.7, 0.42, 0.5, "#CBC1A8");
+  tamburo(p, 0.2, 0.27, -3.1, 0.09, 0.45, "#C0392B");
+  gozzo(p, 1.6, 0.12, -1.5, 0.3, "#2F6EA8");
+  gozzo(p, 1.1, 0.12, -2.3, -0.2, "#C4462F");
+  gozzo(p, 0.4, 0.12, -1.3, 0.6, "#2E8C6A");
+  // e due in secca sulla spiaggia
+  gozzo(p, -3.6, 0.32, -0.2, 0.15, "#E0B53A");
+  gozzo(p, -4.4, 0.32, 0.05, -0.1, "#2F6EA8");
+  // la casa di Montalbano: due piani chiari sulla sabbia, la terrazza sul mare con la ringhiera, le persiane
+  blocco(p, -1.2, 0.2, 0.4, 2.6, 1.1, 1.6, "#F0E4CC");
+  blocco(p, -1.6, 1.3, 0.6, 1.6, 0.9, 1.2, "#F0E4CC");
   blocco(p, -0.1, 1.3, -0.1, 1.2, 0.06, 0.9, "#D9D0BF");
   for (let k = 0; k < 7; k++) blocco(p, -0.65 + k * 0.18, 1.36, -0.53, 0.03, 0.28, 0.03, "#7A7A78");
   blocco(p, -0.1, 1.62, -0.53, 1.2, 0.03, 0.03, "#7A7A78");
   for (const x of [-2.1, -1.4, -0.7]) blocco(p, x, 0.45, -0.41, 0.3, 0.5, 0.02, "#5E7F9E");
   for (const x of [-2.0, -1.3]) blocco(p, x, 1.55, -0.01, 0.28, 0.45, 0.02, "#5E7F9E");
-  // le barche dei pescatori in secca
-  for (const [x, c] of [[1.8, "#2F6EA8"], [2.6, "#C4462F"]] as [number, string][]) {
-    p.push(colora(new THREE.CylinderGeometry(0.22, 0.12, 1.1, 8, 1, false, 0, Math.PI).rotateZ(Math.PI / 2).rotateX(-Math.PI / 2).translate(x, 0.32, -0.6), c, 0.18));
+  // il borgo dietro la spiaggia: case basse bianche e color sabbia, quasi tutte a terrazza
+  const tinte = ["#F4F0E6", "#EFE5D2", "#E9DCC2", "#F2E8D6", "#E6D3B6"];
+  for (let i = 0; i < 40; i++) {
+    const x = -3.8 + r() * 6.8, z = 1.5 + r() * 2.3;
+    if (x > -2.8 && x < 0.4 && z < 2.1) continue;
+    casa(p, r, x, sabbia(x, z), z, 0.45 + r() * 0.45, 0.4 + r() * 0.45, 0.5, tinte[i % tinte.length], r() < 0.2, 0.2);
   }
+  // le palme della piazzetta
+  for (const [x, z, h] of [[0.9, 0.9, 1.6], [-3.3, 1.2, 1.9], [3.0, 1.5, 1.5], [-3.7, 1.4, 1.7]]) palma(p, x, sabbia(x, z), z, h);
   g.add(unisci(p));
   return g;
 }
 
 /* ------------------------------------------------------------------ Comiso */
 
-/** La basilica dell'Annunziata con la cupola azzurra, la pagoda della pace, le case basse. */
+/** La basilica dell'Annunziata con la cupola azzurra, la pagoda della pace, le case basse fra gli alberi. In fondo al barocco, verso le colline delle pale. */
 function comiso() {
-  const g = sulRing(Z + Math.PI, 36, 3.2);
-  g.scale.setScalar(1.3);
+  const g = sulRing(Z + 3.86, 36, 3.2);
+  g.scale.setScalar(1.15);
   const p: Pezzi = [];
   const r = generatore(7);
   zoccolo(p, 7, 3, 3.6, "#A79D72", 1);
-  // il paese: case basse color pietra
-  for (let i = 0; i < 70; i++) {
+  // il paese: case basse color pietra coi tetti di coppi, qualche albero fra le case
+  const tinte = ["#DCCAA4", "#D2BE96", "#E4D6B6", "#CDB892"];
+  for (let i = 0; i < 64; i++) {
     const x = -6.5 + r() * 13, z = -1 + r() * 4;
     if (Math.abs(x - 0.5) < 2.2 && z < 1.5) continue;
-    blocco(p, x, -0.3, z, 0.5 + r() * 0.5, 0.5 + r() * 0.6, 0.45 + r() * 0.3, r() < 0.5 ? "#D9C6A0" : "#CDB892");
+    if (x < -3.4 && z < 2.4) continue;
+    if (r() < 0.18) albero(p, x, 0, z, 0.3 + r() * 0.15);
+    else casa(p, r, x, 0, z, 0.5 + r() * 0.5, 0.45 + r() * 0.5, 0.45 + r() * 0.3, tinte[i % tinte.length], r() < 0.65);
   }
   // l'Annunziata: navata, transetto, il tamburo alto e la cupola azzurra con la lanterna; il campanile
   const ax = 0.5;
@@ -150,78 +226,159 @@ function comiso() {
 
 /* ------------------------------------------------------------------ Ragusa Ibla */
 
-/** Ibla sul suo sperone: le case color miele a gradoni, e in cima il Duomo di San Giorgio con la cupola. */
+/**
+ * Ibla come si vede dalla scala di Santa Maria: lo sperone lungo, le case color miele a gradoni coi tetti
+ * di coppi, gli orti e i carrubi in basso; in cima il Duomo di San Giorgio, la facciata a torre e dietro la
+ * grande cupola verde-azzurra sul tamburo a colonne; a sinistra la cupola di maiolica blu dell'Itria,
+ * a destra il campanile del Purgatorio.
+ */
 function ibla() {
-  const g = sulRing(Z + 2.98, 47, 3.6);
-  g.scale.setScalar(1.5);
+  const g = sulRing(Z + 3.57, 42, 3.4);
+  g.scale.setScalar(1.38);
   const p: Pezzi = [];
   const r = generatore(19);
-  const colle = (x: number, z: number) => Math.max(0, 5.2 * Math.exp(-((x * x) / 34 + ((z - 1.2) * (z - 1.2)) / 9)) + 0.1 * Math.sin(x * 2 + z)) - 0.3;
-  p.push(colora(rilievo(-12, 12, -3, 6, 72, 24, colle), "#8C8A5A", 0.24, (q) => new THREE.Color(q.y > 1.2 ? "#A89C78" : "#7D8452")));
-  for (let i = 0; i < 260; i++) {
-    const x = (r() * 2 - 1) * 7, z = -1.8 + r() * 4.5;
+  const colle = (x: number, z: number) => Math.max(0, 5.2 * Math.exp(-((x * x) / 30 + ((z - 1.2) * (z - 1.2)) / 9)) + 0.1 * Math.sin(x * 2 + z)) - 0.3;
+  p.push(colora(rilievo(-12, 12, -3, 6, 72, 24, colle), "#8C8A5A", 0.24, (q) => new THREE.Color(q.y > 1.2 ? "#A89C78" : "#6F7E48")));
+  // le case a gradoni: la base presa a terrazze di 0,4, così le file si leggono
+  const tinte = ["#DFC496", "#D3B585", "#E6D2A8", "#CDAE80"];
+  const dx = 0.6, dz = 0.6;
+  for (let i = 0; i < 240; i++) {
+    const x = (r() * 2 - 1) * 6.6, z = -1.8 + r() * 4.2;
     const y = colle(x, z);
-    if (y < 0.6) continue;
-    const l = 0.35 + r() * 0.35, h = 0.35 + r() * 0.4;
-    blocco(p, x, y - 0.5, z, l, h + 0.5, l * 0.9, r() < 0.6 ? "#DCC193" : "#CFB283", 0.22);
-    if (r() < 0.6) p.push(colora(new THREE.ConeGeometry(l * 0.75, 0.16, 4).rotateY(Math.PI / 4).translate(x, y + h + 0.08, z), "#B2643E", 0.22));
+    if (y < 0.5) {
+      if (r() < 0.35) albero(p, x, y, z, 0.25 + r() * 0.15, 0.24);
+      continue;
+    }
+    if (x > dx - 2.6 && x < dx + 1.3 && Math.abs(z - dz - 0.5) < 1.5) continue;
+    const l = 0.35 + r() * 0.3, h = 0.35 + r() * 0.35;
+    casa(p, r, x, Math.floor(y / 0.4) * 0.4, z, l, h, l * 0.9, tinte[i % tinte.length], r() < 0.75, 0.24);
   }
-  // il Duomo: la facciata a tre ordini con la cella campanaria in cima, e dietro la cupola azzurro-grigia
-  const dx = 0.6, dy = colle(0.6, 0.6) - 0.1, dz = 0.6;
+  // il Duomo: la facciata a tre ordini, convessa al centro, con la cella campanaria in cima
+  const n0 = p.length;
+  const dy = colle(dx, dz) - 0.1;
   blocco(p, dx, dy, dz + 0.9, 1.6, 1.4, 2.6, "#E8D5AE");
   blocco(p, dx, dy, dz - 0.4, 2.0, 1.5, 0.3, "#EEDDB8");
+  blocco(p, dx, dy, dz - 0.62, 0.8, 1.5, 0.2, "#F3E5C4");
   blocco(p, dx, dy + 1.5, dz - 0.4, 1.4, 0.9, 0.28, "#EEDDB8");
+  blocco(p, dx, dy + 1.5, dz - 0.6, 0.6, 0.9, 0.16, "#F3E5C4");
   blocco(p, dx, dy + 2.4, dz - 0.4, 0.8, 0.8, 0.26, "#EEDDB8");
+  blocco(p, dx, dy + 2.62, dz - 0.54, 0.26, 0.42, 0.02, "#3A332C");
   cupola(p, dx, dy + 3.2, dz - 0.4, 0.3, "#9DB2BC", 1.4);
-  for (const ox of [-0.8, -0.45, 0.45, 0.8]) tamburo(p, dx + ox, dy, dz - 0.58, 0.06, 1.45, "#F2E6CA");
-  tamburo(p, dx, dy + 1.4, dz + 1.4, 0.75, 0.9, "#EEDDB8");
-  cupola(p, dx, dy + 2.3, dz + 1.4, 0.78, "#8FA9B6", 1.3);
-  tamburo(p, dx, dy + 3.3, dz + 1.4, 0.14, 0.4, "#EEDDB8");
+  blocco(p, dx, dy, dz - 0.73, 0.32, 0.6, 0.02, "#5B4A3A");
+  for (const ox of [-0.8, -0.5, 0.5, 0.8]) tamburo(p, dx + ox, dy, dz - 0.58, 0.06, 1.45, "#F6ECD4");
+  for (const ox of [-0.55, 0.55]) tamburo(p, dx + ox, dy + 1.5, dz - 0.56, 0.05, 0.85, "#F6ECD4");
+  // la cupola, a destra della facciata e più alta di lei (da quaggiù la si vedrebbe appena, dietro):
+  // tamburo alto a colonne, calotta a spicchi verde-azzurra, la lanterna
+  const cx = dx - 1.5, cz = dz + 1.0;
+  blocco(p, (dx + cx) / 2, dy - 1.0, cz, 1.6, 2.8, 1.4, "#E8D5AE");
+  tamburo(p, cx, dy + 1.8, cz, 0.82, 1.3, "#EEDDB8");
+  for (let k = 0; k < 16; k++) {
+    const t = (k / 16) * Math.PI * 2;
+    tamburo(p, cx + Math.cos(t) * 0.86, dy + 1.8, cz + Math.sin(t) * 0.86, 0.04, 1.25, "#F8F0DC");
+  }
+  blocco(p, cx, dy + 3.1, cz, 1.85, 0.08, 1.85, "#F5EAD0");
+  p.push(
+    colora(new THREE.SphereGeometry(0.84, 32, 12, 0, Math.PI * 2, 0, Math.PI / 2).scale(1, 1.35, 1).translate(cx, dy + 3.18, cz), "#7FA5AE", 0.2, (q) => {
+      const t = Math.atan2(q.z - cz, q.x - cx);
+      return new THREE.Color(Math.abs(Math.sin(t * 8)) < 0.1 ? "#E6EDEF" : "#7FA5AE");
+    }),
+  );
+  tamburo(p, cx, dy + 4.3, cz, 0.16, 0.4, "#F5EAD0");
+  cupola(p, cx, dy + 4.7, cz, 0.17, "#7FA5AE", 1.3);
+  for (let i = n0; i < p.length; i++) p[i].translate(-dx, -dy, -dz).scale(1.15, 1.15, 1.15).translate(dx, dy, dz);
+  // l'Itria: la cupola di maiolica blu a strisce bianche sul suo tamburo, il campanile con la cuspide
+  const ix = -3.6, iz = 0.6, iy = colle(ix, iz) + 0.2;
+  blocco(p, ix, iy - 0.6, iz, 1.3, 1.2, 1.3, "#E3CFA4");
+  tamburo(p, ix, iy + 0.6, iz, 0.42, 0.5, "#EBDAB3");
+  p.push(
+    colora(new THREE.SphereGeometry(0.44, 24, 10, 0, Math.PI * 2, 0, Math.PI / 2).scale(1, 1.3, 1).translate(ix, iy + 1.1, iz), "#2F6FA8", 0.2, (q) => {
+      const t = Math.atan2(q.z - iz, q.x - ix);
+      return new THREE.Color(Math.abs(Math.sin(t * 6)) < 0.14 ? "#EDEFF2" : "#2F6FA8");
+    }),
+  );
+  blocco(p, ix + 1.0, iy - 0.6, iz - 0.2, 0.5, 2.2, 0.5, "#E3CFA4");
+  p.push(colora(new THREE.ConeGeometry(0.32, 0.6, 4).rotateY(Math.PI / 4).translate(ix + 1.0, iy + 1.9, iz - 0.2), "#3F7DB0", 0.2));
+  // il campanile del Purgatorio: torre a due ordini con la cupoletta
+  const px = 3.4, pz = 0.2, py = colle(px, pz) + 0.1;
+  blocco(p, px, py - 0.5, pz, 0.6, 2.4, 0.6, "#E6D2A8");
+  blocco(p, px, py + 1.9, pz, 0.48, 0.6, 0.48, "#EEDDB8");
+  blocco(p, px, py + 2.0, pz - 0.25, 0.2, 0.34, 0.02, "#3A332C");
+  cupola(p, px, py + 2.5, pz, 0.22, "#C9B48C", 1.4);
   g.add(unisci(p));
   return g;
 }
 
 /* ------------------------------------------------------------------ Modica */
 
-/** San Giorgio di Modica: la facciata-torre a cinque ordini in cima alla grande scalinata, le case attorno. */
+/**
+ * San Giorgio di Modica: la facciata-torre a cinque ordini, color miele, convessa al centro, con l'orologio e
+ * la croce; sotto, la grande scalinata con le balaustre bianche fra i giardini a terrazze; ai lati Modica Alta
+ * a gradoni, case coi tetti di coppi e le finestre.
+ */
 function modica() {
-  const g = sulRing(Z + 2.8, 42, 3);
-  g.scale.setScalar(1.35);
+  const g = sulRing(Z + 3.27, 42, 3);
+  g.scale.setScalar(1.22);
   const p: Pezzi = [];
   const r = generatore(23);
   zoccolo(p, 5.5, 3, 3.4, "#A39C6E", 1.5);
-  // il fianco della valle, le case di Modica Alta a gradoni
-  p.push(colora(rilievo(-5.5, 5.5, -2, 5, 34, 18, (x, z) => Math.max(0, (z + 2) * 0.7 + 0.4 * Math.sin(x * 0.8)) - 0.3), "#A39C6E", 0.24));
-  for (let i = 0; i < 110; i++) {
+  const fianco = (x: number, z: number) => Math.max(0, (z + 2) * 0.7 + 0.4 * Math.sin(x * 0.8)) - 0.3;
+  p.push(colora(rilievo(-5.5, 5.5, -2, 5, 34, 18, fianco), "#A39C6E", 0.24, (q) => new THREE.Color(q.y > 2.4 ? "#A09868" : "#87905A")));
+  // le case a gradoni ai lati della scalinata
+  const tinte = ["#E6D7B8", "#DCC9A2", "#EDE2CB", "#D6C29C"];
+  for (let i = 0; i < 120; i++) {
     const x = (r() * 2 - 1) * 5.2, z = -1.5 + r() * 6;
-    if (Math.abs(x) < 2 && z < 2.6) continue;
-    const y = Math.max(0, (z + 2) * 0.7 + 0.4 * Math.sin(x * 0.8)) - 0.3;
-    blocco(p, x, y - 0.4, z, 0.4 + r() * 0.4, 0.4 + r() * 0.5 + 0.4, 0.4, r() < 0.5 ? "#DCC59B" : "#CDB88E", 0.22);
+    if (Math.abs(x) < 2.3 && z < 3.2) continue;
+    const y = fianco(x, z);
+    if (r() < 0.12) albero(p, x, y, z, 0.25 + r() * 0.12, 0.24);
+    else casa(p, r, x, Math.floor(y / 0.35) * 0.35, z, 0.4 + r() * 0.35, 0.45 + r() * 0.45, 0.42, tinte[i % tinte.length], r() < 0.75, 0.24);
   }
-  // la scalinata: rampe larghe che salgono verso la chiesa
-  for (let k = 0; k < 14; k++) blocco(p, 0, -0.3 + k * 0.18, -1.8 + k * 0.22, 2.6 - k * 0.06, 0.18, 0.24, "#D8C7A2");
-  // la facciata: cinque ordini che si stringono salendo, colonne, la cella campanaria e la cupoletta
+  // la scalinata: rampe che salgono verso la chiesa, le balaustre bianche, i giardini a terrazze ai lati
+  for (let k = 0; k < 14; k++) {
+    const yTop = -0.12 + k * 0.18, z = -1.8 + k * 0.22, w = 2.6 - k * 0.06;
+    blocco(p, 0, yTop - 0.6, z, w, 0.6, 0.24, "#DCCBA6");
+    for (const s of [-1, 1]) blocco(p, s * (w / 2 + 0.03), yTop, z, 0.06, 0.13, 0.24, "#F6EEDC");
+    if (k % 2 === 0) for (const s of [-1, 1]) {
+      blocco(p, s * (w / 2 + 0.4), yTop - 0.5, z, 0.7, 0.5, 0.46, "#6F8A4A");
+      if (k % 4 === 0) albero(p, s * (w / 2 + 0.45), yTop, z, 0.17, 0.22);
+    }
+  }
+  // la facciata: cinque ordini che si stringono salendo, il corpo centrale convesso, colonne, statue, orologio
   const y0 = 2.2, zf = 1.4;
   const ordini: [number, number][] = [[3.0, 1.3], [2.5, 1.1], [1.8, 1.0], [1.2, 0.9], [0.8, 0.8]];
   let y = y0;
   ordini.forEach(([l, h], i) => {
-    blocco(p, 0, y, zf, l, h, 0.5, i % 2 ? "#EBDDBB" : "#E3D2AB");
-    for (const s of [-1, 1]) tamburo(p, s * (l / 2 - 0.08), y, zf - 0.27, 0.05, h, "#F3E8CE");
-    if (l > 2) for (const s of [-1, 1]) tamburo(p, s * (l / 2 - 0.36), y, zf - 0.27, 0.05, h, "#F3E8CE");
-    // il portale o la finestra ad arco, scuri; nei due ordini alti le celle delle campane
-    const lw = i === 0 ? 0.5 : 0.36, lh = h * (i === 0 ? 0.62 : 0.55);
-    blocco(p, 0, y + (i === 0 ? 0 : h * 0.2), zf - 0.26, lw, lh, 0.02, i >= 3 ? "#3A332C" : "#5B4A3A");
-    p.push(colora(new THREE.CylinderGeometry(lw / 2, lw / 2, 0.02, 12, 1, false, 0, Math.PI).rotateX(Math.PI / 2).rotateZ(-Math.PI / 2).rotateY(Math.PI / 2).translate(0, y + (i === 0 ? 0 : h * 0.2) + lh, zf - 0.26), i >= 3 ? "#3A332C" : "#5B4A3A", 0.2));
+    blocco(p, 0, y, zf, l, h, 0.5, i % 2 ? "#EBCF9E" : "#E4C38F");
+    // il centro che sporge, nei tre ordini bassi
+    const fronte = i < 3 ? zf - 0.45 : zf - 0.26;
+    if (i < 3) blocco(p, 0, y, zf - 0.32, l * 0.42, h, 0.26, "#EFD6A8");
+    for (const s of [-1, 1]) tamburo(p, s * (l / 2 - 0.08), y, zf - 0.27, 0.05, h, "#F6EBD0");
+    if (i < 3) for (const s of [-1, 1]) tamburo(p, s * (l * 0.21 + 0.04), y, fronte - 0.03, 0.05, h, "#F6EBD0");
+    else if (l > 2) for (const s of [-1, 1]) tamburo(p, s * (l / 2 - 0.36), y, zf - 0.27, 0.05, h, "#F6EBD0");
+    if (i === 2) {
+      // l'orologio
+      p.push(colora(new THREE.CylinderGeometry(0.17, 0.17, 0.03, 20).rotateX(Math.PI / 2).translate(0, y + h * 0.5, fronte - 0.02), "#F7F3EA", 0.2));
+      blocco(p, 0, y + h * 0.5 - 0.01, fronte - 0.04, 0.02, 0.12, 0.01, "#2E2A26");
+      blocco(p, 0.03, y + h * 0.5 - 0.01, fronte - 0.04, 0.09, 0.02, 0.01, "#2E2A26");
+    } else {
+      // il portale o la finestra ad arco, scuri; nei due ordini alti le celle delle campane
+      const lw = i === 0 ? 0.5 : 0.36, lh = h * (i === 0 ? 0.62 : 0.55);
+      const y1 = y + (i === 0 ? 0 : h * 0.2);
+      blocco(p, 0, y1, fronte - 0.01, lw, lh, 0.02, i >= 3 ? "#3A332C" : "#5B4A3A");
+      p.push(colora(new THREE.CylinderGeometry(lw / 2, lw / 2, 0.02, 12, 1, false, 0, Math.PI).rotateX(Math.PI / 2).rotateZ(-Math.PI / 2).rotateY(Math.PI / 2).translate(0, y1 + lh, fronte - 0.01), i >= 3 ? "#3A332C" : "#5B4A3A", 0.2));
+    }
+    // le finestre delle ali, nei due ordini bassi
+    if (i < 2) for (const s of [-1, 1]) blocco(p, s * (l / 2 - 0.22), y + h * 0.35, zf - 0.26, 0.16, 0.3, 0.02, "#5B4A3A");
     // la cornice che sporge e le statue agli angoli
-    blocco(p, 0, y + h - 0.04, zf - 0.05, l + 0.24, 0.09, 0.62, "#F6EEDA");
+    blocco(p, 0, y + h - 0.04, zf - 0.08, l + 0.24, 0.09, 0.7, "#F6EEDA");
     if (i < 3) for (const s of [-1, 1]) tamburo(p, s * (l / 2 - 0.05), y + h + 0.05, zf - 0.22, 0.05, 0.28, "#EDE3CB");
     y += h;
   });
   cupola(p, 0, y, zf, 0.28, "#C9B48C", 1.5);
   blocco(p, 0, y + 0.4, zf, 0.03, 0.3, 0.03, "#4A4440");
   blocco(p, 0, y + 0.58, zf, 0.16, 0.03, 0.03, "#4A4440");
-  // la chiesa dietro la facciata
+  // la chiesa dietro la facciata, col tetto di coppi
   blocco(p, 0, y0, zf + 1.6, 2.4, 1.8, 2.8, "#DCC9A2");
+  p.push(colora(new THREE.CylinderGeometry(0.01, 1.3, 0.5, 4, 1).rotateY(Math.PI / 4).scale(1.3, 1, 1.5).translate(0, y0 + 2.05, zf + 1.6), "#AE5E3C", 0.22));
   g.add(unisci(p));
   return g;
 }
