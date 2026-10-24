@@ -6,7 +6,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { accesaDaSotto, costruisciUlivo } from "./ospiti/ulivo";
 import { alone, generatore } from "./ospiti/comuni";
 import { cielo, modello, rete, textura, triplanare } from "./ospiti/polyhaven";
-import type { Luogo, Media } from "@/content/olio";
+import type { Forma, Luogo, Media } from "@/content/olio";
 
 /*
  * L'uliveto della pagina dell'olio: una trazzera fra muretti a secco e ulivi, al tramonto (tema chiaro)
@@ -17,7 +17,7 @@ import type { Luogo, Media } from "@/content/olio";
  * davanti e si aprono a tutto schermo con un clic.
  */
 
-export type Quadro = { media: Media; luogo: Luogo; didascalia: string; /** indice della tappa del testo a cui è legato */ tappa: number };
+export type Quadro = { media: Media; luogo: Luogo; forma: Forma; didascalia: string; /** indice della tappa del testo a cui è legato */ tappa: number };
 /** Dove sta un quadro: la base, il punto verso cui guarda, l'altezza del centro, l'altezza massima, il sostegno. */
 type Posto = { pos: THREE.Vector3; verso: THREE.Vector3; y: number; alto: number; sostegno: "pali" | "cavalletto" };
 
@@ -109,12 +109,28 @@ export default function Uliveto(props: Props) {
       <Raccolta notte={props.notte} />
       <Sassi notte={props.notte} />
       <Erba notte={props.notte} stretto={props.stretto} />
-      {disponi(props.quadri, props.stretto, props.lati).map((posto, i) => (
-        <QuadroFraGliUlivi key={i} quadro={props.quadri[i]} posto={posto} indice={i} notte={props.notte} vuoto={props.vuoto} onApri={props.onApri} />
-      ))}
+      <Bacheche {...props} />
+      <FotoNelPodere {...props} />
       {props.notte && !props.ridotto && <Lucciole />}
       <Passo progresso={props.progresso} ridotto={props.ridotto} onPronta={props.onPronta} />
     </Canvas>
+  );
+}
+
+/** I quadri su pali e cavalletti: solo quelli in forma di bacheca, con l'indice che hanno fra tutti. */
+function Bacheche(props: Props) {
+  const bacheche = props.quadri.map((q, i) => ({ q, i })).filter(({ q }) => q.forma === "bacheca");
+  const posti = disponi(
+    bacheche.map(({ q }) => q),
+    props.stretto,
+    props.lati
+  );
+  return (
+    <>
+      {bacheche.map(({ q, i }, k) => (
+        <QuadroFraGliUlivi key={i} quadro={q} posto={posti[k]} indice={i} notte={props.notte} vuoto={props.vuoto} onApri={props.onApri} />
+      ))}
+    </>
   );
 }
 
@@ -586,7 +602,7 @@ function tinta(colore: string) {
  * Le copie di un modello di Poly Haven: lo si scarica una volta, poi un InstancedMesh per tutte le copie.
  * Di notte il materiale è velato di blu, come il resto della campagna.
  */
-function Istanze({ nome, matrici, notte }: { nome: string; matrici: THREE.Matrix4[]; notte: boolean }) {
+function Istanze({ nome, matrici, notte, colori }: { nome: string; matrici: THREE.Matrix4[]; notte: boolean; colori?: string[] }) {
   const [dati, setDati] = useState<{ geometria: THREE.BufferGeometry; materiale: THREE.Material } | null>(null);
   useEffect(() => {
     let vivo = true;
@@ -608,12 +624,13 @@ function Istanze({ nome, matrici, notte }: { nome: string; matrici: THREE.Matrix
     const m = new THREE.MeshLambertMaterial({
       map: o.map ?? undefined,
       normalMap: o.normalMap ?? undefined,
-      color: o.color.clone().multiply(new THREE.Color(notte ? "#6E7284" : "#FFF6EA")),
+      // con colori propri per copia, il colore del modello si lascia da parte: lo danno le copie
+      color: (colori ? new THREE.Color("#FFFFFF") : o.color.clone()).multiply(new THREE.Color(notte ? "#6E7284" : "#FFF6EA")),
       alphaTest: o.alphaTest,
       side: o.side,
     });
     return m;
-  }, [dati, notte]);
+  }, [dati, notte, colori]);
   useEffect(() => () => materiale?.dispose(), [materiale]);
   const rif = useRef<THREE.InstancedMesh>(null);
   const { gl, camera, scene } = useThree();
@@ -622,6 +639,8 @@ function Istanze({ nome, matrici, notte }: { nome: string; matrici: THREE.Matrix
     if (!im) return;
     matrici.forEach((m, i) => im.setMatrixAt(i, m));
     im.instanceMatrix.needsUpdate = true;
+    colori?.forEach((c, i) => im.setColorAt(i, new THREE.Color(c)));
+    if (im.instanceColor) im.instanceColor.needsUpdate = true;
     im.computeBoundingSphere();
     // lo shader si compila in disparte, senza fermare la pagina; il modello compare quando è pronto
     let vivo = true;
@@ -634,7 +653,7 @@ function Istanze({ nome, matrici, notte }: { nome: string; matrici: THREE.Matrix
     return () => {
       vivo = false;
     };
-  }, [matrici, dati, materiale, gl, camera, scene]);
+  }, [matrici, colori, dati, materiale, gl, camera, scene]);
   if (!dati || !materiale) return null;
   return <instancedMesh ref={rif} args={[dati.geometria, materiale, matrici.length]} />;
 }
@@ -1042,5 +1061,236 @@ function QuadroFraGliUlivi({
         </mesh>
       )}
     </group>
+  );
+}
+
+/* ------------------------------------------------------------------ le foto nel podere */
+
+/*
+ * Le foto che non stanno in bacheca: appese a un filo sopra la trazzera, appoggiate sul muretto,
+ * posate sulle cassette del pranzo. Ognuna sta alla sua tappa: il filo qualche metro più avanti di
+ * dove si legge, sopra il cammino; il muretto e le cassette dalla parte libera dal testo.
+ */
+function FotoNelPodere({ quadri, lati, notte, ridotto, onApri }: Props) {
+  const N = lati.length;
+  const fermo = (tappa: number) => (tappa / (N - 1)) * FINE_CAMERA;
+  const libero = (tappa: number): 1 | -1 => (lati[tappa] === "sx" ? 1 : -1);
+  const tutte = quadri.map((q, i) => ({ q, i }));
+  const perTappa = (forma: Forma) => {
+    const gruppi = new Map<number, { q: Quadro; i: number }[]>();
+    tutte.filter(({ q }) => q.forma === forma).forEach((x) => gruppi.set(x.q.tappa, [...(gruppi.get(x.q.tappa) ?? []), x]));
+    return [...gruppi.entries()];
+  };
+  return (
+    <>
+      {perTappa("filo").map(([t, foto]) => (
+        <Filo key={`filo-${t}`} foto={foto} p={fermo(t) + 0.1} notte={notte} ridotto={ridotto} onApri={onApri} />
+      ))}
+      {perTappa("muretto").map(([t, foto]) =>
+        foto.map(({ q, i }, k) => <SulMuretto key={`muretto-${i}`} quadro={q} indice={i} p={fermo(t) + 0.05 + k * 0.012} lato={libero(t)} notte={notte} onApri={onApri} />)
+      )}
+      {perTappa("cassette").map(([t, foto]) => (
+        <Pranzo key={`pranzo-${t}`} foto={foto} p={fermo(t) + 0.065} lato={libero(t)} notte={notte} onApri={onApri} />
+      ))}
+    </>
+  );
+}
+
+/**
+ * Una foto stampata, col bordo bianco della carta. Si scarica quando ci si avvicina (a una trentina di
+ * metri), come i video; finché non c'è, resta la carta. L'origine è al centro della foto.
+ */
+function Foto({ quadro, indice, alto, notte, onApri }: { quadro: Quadro; indice: number; alto: number; notte: boolean; onApri: (i: number) => void }) {
+  const gruppo = useRef<THREE.Group>(null);
+  const qui = useRef(new THREE.Vector3());
+  const chiesta = useRef(false);
+  const [immagine, setImmagine] = useState<{ t: THREE.Texture; aspetto: number } | null>(null);
+  const [sopra, setSopra] = useState(false);
+  useFrame(({ camera }) => {
+    const g = gruppo.current;
+    const m = quadro.media;
+    if (chiesta.current || !g || !m) return;
+    g.getWorldPosition(qui.current);
+    if (camera.position.distanceTo(qui.current) > 30) return;
+    chiesta.current = true;
+    const src = m.tipo === "foto" ? m.src : m.poster;
+    if (!src) return;
+    new THREE.TextureLoader().load(src, (t) => {
+      t.colorSpace = THREE.SRGBColorSpace;
+      t.anisotropy = 4;
+      const im = t.image as HTMLImageElement;
+      setImmagine({ t, aspetto: im.width / im.height });
+    });
+  });
+  useEffect(() => () => immagine?.t.dispose(), [immagine]);
+  useEffect(() => {
+    document.body.style.cursor = sopra ? "pointer" : "";
+  }, [sopra]);
+  const largo = alto * (immagine?.aspetto ?? 1.33);
+  const luce = notte ? (sopra ? 0.85 : 0.68) : sopra ? 1 : 0.92;
+  return (
+    <group ref={gruppo}>
+      {/* la carta, col margine bianco */}
+      <mesh position={[0, 0, -0.004]}>
+        <planeGeometry args={[largo + 0.05, alto + 0.05]} />
+        <meshBasicMaterial color={notte ? "#8E8A84" : "#EFE9DC"} side={THREE.DoubleSide} />
+      </mesh>
+      <mesh
+        onPointerOver={(e: ThreeEvent<PointerEvent>) => {
+          e.stopPropagation();
+          setSopra(true);
+        }}
+        onPointerOut={() => setSopra(false)}
+        onClick={(e: ThreeEvent<MouseEvent>) => {
+          e.stopPropagation();
+          if (quadro.media) onApri(indice);
+        }}
+      >
+        <planeGeometry args={[largo, alto]} />
+        {/* un materiale nuovo quando la foto arriva: con la mappa lo shader è un altro */}
+        <meshBasicMaterial key={immagine ? "foto" : "carta"} map={immagine?.t ?? null} color={immagine ? new THREE.Color(luce, luce, luce) : "#D8D2C4"} toneMapped={false} fog={false} />
+      </mesh>
+    </group>
+  );
+}
+
+/**
+ * Il filo teso sopra la trazzera fra due pali, con le foto appese alle mollette come i panni stesi;
+ * dondolano appena al vento. Guarda chi arriva: lo si vede dalla tappa prima, ci si passa sotto.
+ */
+function Filo({ foto, p, notte, ridotto, onApri }: { foto: { q: Quadro; i: number }[]; p: number; notte: boolean; ridotto: boolean; onApri: (i: number) => void }) {
+  // mezza campata, altezza dei pali, quanto il filo si flette in mezzo, altezza delle foto
+  const L = 2.5, Y = 3.6, FRECCIA = 0.2, ALTO = 0.68;
+  const { posto, verso, curva, tubo } = useMemo(() => {
+    const posto = sulCammino(p);
+    const verso = sulCammino(Math.max(0, p - 0.05));
+    const curva = new THREE.QuadraticBezierCurve3(new THREE.Vector3(-L, Y, 0), new THREE.Vector3(0, Y - 2 * FRECCIA, 0), new THREE.Vector3(L, Y, 0));
+    return { posto, verso, curva, tubo: new THREE.TubeGeometry(curva, 24, 0.007, 4) };
+  }, [p]);
+  useEffect(() => () => tubo.dispose(), [tubo]);
+  const appese = useRef<(THREE.Group | null)[]>([]);
+  useFrame(({ clock }) => {
+    if (ridotto) return;
+    const t = clock.elapsedTime;
+    appese.current.forEach((g, k) => {
+      if (g) g.rotation.x = Math.sin(t * 1.1 + k * 1.7) * 0.07 + Math.sin(t * 2.3 + k) * 0.02;
+    });
+  });
+  const legno = tinta(notte ? "#4A4248" : "#6B4A2E");
+  const molletta = tinta(notte ? "#6A6470" : "#C9A97A");
+  const y0 = quota(posto.x, posto.z);
+  return (
+    <group
+      ref={(g) => {
+        if (g) {
+          g.position.set(posto.x, y0, posto.z);
+          g.lookAt(verso.x, y0, verso.z);
+        }
+      }}
+    >
+      {[-1, 1].map((s) => (
+        <mesh key={s} position={[s * L, Y / 2 + 0.02, 0]} material={legno}>
+          <boxGeometry args={[0.08, Y + 0.04, 0.08]} />
+        </mesh>
+      ))}
+      <mesh geometry={tubo}>
+        <meshBasicMaterial color={notte ? "#5A5660" : "#D9D2C2"} />
+      </mesh>
+      {foto.map(({ q, i }, k) => {
+        const punto = curva.getPoint((k + 1) / (foto.length + 1));
+        return (
+          <group
+            key={i}
+            position={[punto.x, punto.y - 0.01, 0]}
+            ref={(g) => {
+              appese.current[k] = g;
+            }}
+          >
+            {[-0.22, 0.22].map((dx) => (
+              <mesh key={dx} position={[dx, -0.02, 0.01]} material={molletta}>
+                <boxGeometry args={[0.025, 0.07, 0.02]} />
+              </mesh>
+            ))}
+            <group position={[0, -ALTO / 2 - 0.03, 0]}>
+              <Foto quadro={q} indice={i} alto={ALTO} notte={notte} onApri={onApri} />
+            </group>
+          </group>
+        );
+      })}
+    </group>
+  );
+}
+
+/** Una stampa piccola appoggiata sul colmo del muretto, un poco inclinata indietro, rivolta a chi arriva. */
+function SulMuretto({ quadro, indice, p, lato, notte, onApri }: { quadro: Quadro; indice: number; p: number; lato: 1 | -1; notte: boolean; onApri: (i: number) => void }) {
+  const ALTO = 0.52;
+  const { posto, verso } = useMemo(() => {
+    const posto = sulCammino(p).add(destra(p).multiplyScalar(MURETTO.distanza * lato));
+    // guarda indietro lungo la trazzera, verso il centro: la si vede arrivando
+    return { posto, verso: sulCammino(Math.max(0, p - 0.06)) };
+  }, [p, lato]);
+  const y0 = quota(posto.x, posto.z) + MURETTO.alto;
+  return (
+    <group
+      ref={(g) => {
+        if (g) {
+          g.position.set(posto.x, y0, posto.z);
+          g.lookAt(verso.x, y0, verso.z);
+        }
+      }}
+    >
+      <group rotation={[-0.22, 0, 0]}>
+        <group position={[0, ALTO / 2 + 0.03, 0]}>
+          <Foto quadro={quadro} indice={indice} alto={ALTO} notte={notte} onApri={onApri} />
+        </group>
+      </group>
+    </group>
+  );
+}
+
+/**
+ * Il pranzo in campagna, come nella foto: una cassetta nera fa da tavola, le altre da sedili, una bianca
+ * vuota davanti. La foto è posata sulla tavola, appoggiata all'indietro.
+ */
+function Pranzo({ foto, p, lato, notte, onApri }: { foto: { q: Quadro; i: number }[]; p: number; lato: 1 | -1; notte: boolean; onApri: (i: number) => void }) {
+  const { base, giro, matrici } = useMemo(() => {
+    const base = sulCammino(p).add(destra(p).multiplyScalar(2.4 * lato));
+    // la tavola guarda la trazzera, un poco indietro: chi arriva la vede di fronte
+    const verso = sulCammino(Math.max(0, p - 0.05)).sub(base).setY(0).normalize();
+    const giro = Math.atan2(verso.x, verso.z);
+    const su = new THREE.Vector3(0, 1, 0);
+    const matrici = (
+      [
+        [0, 0, 0, 0],
+        [0.72, 0.08, 0.35, 0],
+        [-0.74, 0.02, -0.25, 0],
+        [0.15, 0.9, 0.55, 0],
+        [-0.95, 0.75, -0.7, 0],
+        [0.72, 0.08, 0.35, 1],
+      ] as [number, number, number, number][]
+    ).map(([x, z, r, piano]) => {
+      const q = new THREE.Quaternion().setFromAxisAngle(su, giro + r);
+      const pos = new THREE.Vector3(x, 0, z).applyAxisAngle(su, giro).add(base);
+      pos.y = quota(pos.x, pos.z) - 0.01 + piano * 0.255;
+      return new THREE.Matrix4().compose(pos, q, new THREE.Vector3(1, 1, 1));
+    });
+    return { base, giro, matrici };
+  }, [p, lato]);
+  // nera la tavola, rossa e blu i sedili (la rossa doppia, più alta), bianca e verde a terra
+  const colori = useMemo(() => ["#2A2A2E", "#C8443A", "#2F5E8C", "#EDEDE6", "#4E8A4A", "#C8443A"], []);
+  const y0 = quota(base.x, base.z);
+  return (
+    <>
+      <Istanze nome="cassetta.glb" matrici={matrici} notte={notte} colori={colori} />
+      <group position={[base.x, y0, base.z]} rotation={[0, giro, 0]}>
+        {foto.map(({ q, i }, k) => (
+          <group key={i} position={[k * 0.1 - (foto.length - 1) * 0.05, 0.255, -0.08]} rotation={[-0.28, 0, 0]}>
+            <group position={[0, 0.23, 0]}>
+              <Foto quadro={q} indice={i} alto={0.42} notte={notte} onApri={onApri} />
+            </group>
+          </group>
+        ))}
+      </group>
+    </>
   );
 }

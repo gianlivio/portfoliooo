@@ -50,6 +50,7 @@ export default function Olio({ d, lingua }: { d: Dizionario; lingua: Lingua }) {
       mediaOlio.map((v) => ({
         media: v.media,
         luogo: v.luogo,
+        forma: v.forma ?? "bacheca",
         didascalia: v.didascalia?.[lingua] ?? o.luoghi[v.luogo],
         tappa: Math.max(0, tappe.findIndex((t) => t.id === v.tappa)),
       })),
