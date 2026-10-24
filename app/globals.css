@@ -430,8 +430,23 @@ html.con-scena .elenco:focus-within{
   to{clip-path:circle(150vmax at var(--x) var(--y));transform:scale(1)}
 }
 /* all'arrivo nell'uliveto la stessa vista copre la scena finché non è pronta, poi sfuma */
-.olio-velo{position:fixed;inset:0;z-index:15;background-size:cover;background-position:center;pointer-events:none;transition:opacity 1.1s ease}
+/* il velo sta sopra la scena ma sotto i testi (z 1) e la testata: non blocca, si legge e si scorre subito */
+.olio-velo{
+  position:fixed;inset:0;z-index:0;background-size:cover;background-position:center;pointer-events:none;
+  transition:opacity 1.1s ease;animation:olio-avvicina 9s cubic-bezier(.2,.6,.3,1) forwards;
+}
 .olio-velo--via{opacity:0}
+@keyframes olio-avvicina{from{transform:scale(1)}to{transform:scale(1.08)}}
+.olio-attesa{
+  position:absolute;left:50%;bottom:2.2rem;transform:translateX(-50%);
+  display:flex;align-items:center;gap:.7rem;padding:.5rem 1rem;border-radius:999px;
+  background:rgba(12,13,10,.55);color:#F3F1EB;
+  font-family:var(--mono);font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap;
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+}
+.olio-attesa::after{content:"";width:2.4rem;height:1px;background:linear-gradient(90deg,transparent,#D9C26A,transparent);background-size:200% 100%;animation:olio-scorre 1.4s linear infinite}
+@keyframes olio-scorre{from{background-position:100% 0}to{background-position:-100% 0}}
+.olio-velo--via .olio-attesa{opacity:0}
 
 /* ---------- la pagina dell'olio: un uliveto da attraversare scorrendo ---------- */
 .olio{
@@ -523,16 +538,26 @@ html[data-tema="chiaro"] .olio-scrivimi{color:#FBFAF7}
 .olio-schermo-chiudi{font-family:var(--mono);font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;color:#F3F1EB;border:1px solid rgba(243,241,235,.3);border-radius:999px;padding:.55rem 1.2rem}
 
 @media (max-width:760px){
-  .tappa{align-items:flex-end;padding:5rem 1rem 2.2rem}
+  /* su telefono i pannelli stanno in fondo, bassi e compatti: la scena sopra resta libera */
+  .tappa{align-items:flex-end;padding:5rem .75rem 1.1rem}
   .tappa--dx{justify-content:flex-start}
   .tappa--centro{align-items:flex-start;padding-top:14vh}
-  .tappa-pannello{padding:1.2rem 1.3rem}
-  .tappa-apertura{align-self:center}
+  .tappa-pannello{padding:.8rem 1rem .9rem;max-width:none;width:100%}
+  .tappa-occhiello{font-size:.6rem;margin-bottom:.4rem}
+  .tappa-titolo{font-size:1.45rem;margin-bottom:.45rem}
+  .tappa-titolo::after{width:1.8rem;margin-top:.45rem}
+  .tappa-testo{font-size:.94rem;line-height:1.42}
+  .tappa-apertura{align-self:center;padding:1.2rem 1.2rem 1.3rem}
+  .olio-titolo{font-size:3.6rem;margin-bottom:.8rem}
+  .olio-attacco{font-size:1rem;line-height:1.42}
+  .olio-scorri{margin-top:1.2rem}
+  .olio-azioni{margin-top:1rem;gap:1rem}
+  .olio-attesa{bottom:1.4rem}
   .olio-testata{font-size:.7rem}
   .olio-suoni-testo{display:none}
   .olio-suoni{padding:.55rem .7rem}
 }
 @media (prefers-reduced-motion:reduce){
-  .olio-scorri::after,.olio-onde--attive i{animation:none}
+  .olio-scorri::after,.olio-onde--attive i,.olio-velo,.olio-attesa::after{animation:none}
   .tappa-pannello{transition:none}
 }

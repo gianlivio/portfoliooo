@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import type { Dizionario, Lingua } from "@/dictionaries";
 import { lingue } from "@/dictionaries";
 import { lavori, ID_CONTATTO, ID_ULIVETO } from "@/content/lavori";
+import { precaricaUliveto } from "./precaricaUliveto";
 import { frammenti } from "@/content/frammenti";
 import { curriculum } from "@/content/collegamenti";
 import schermate from "@/content/schermate.json";
@@ -51,6 +52,16 @@ export default function Esperienza({
   useEffect(() => {
     router.prefetch(`/${lingua}/olio`);
   }, [router, lingua]);
+  // a stanza pronta, con calma, si scarica in sottofondo l'uliveto: varcato il cancello si aspetta meno
+  useEffect(() => {
+    if (!pronta) return;
+    const id = window.setTimeout(() => {
+      const ric = (window as Window & { requestIdleCallback?: (f: () => void) => number }).requestIdleCallback;
+      if (ric) ric(precaricaUliveto);
+      else precaricaUliveto();
+    }, 6000);
+    return () => window.clearTimeout(id);
+  }, [pronta]);
   const versoUliveto = useCallback(
     (x: number, y: number) => {
       if (ambiente?.ridotto) {

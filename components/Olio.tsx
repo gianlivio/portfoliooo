@@ -143,12 +143,15 @@ export default function Olio({ d, lingua }: { d: Dizionario; lingua: Lingua }) {
           />
         </div>
       )}
-      {/* la vista d'ingresso, la stessa del passaggio dalla stanza: copre la scena finché non è pronta */}
+      {/* la vista d'ingresso, la stessa del passaggio dalla stanza: copre la scena finché non è pronta, ma sta
+          sotto i testi, che si leggono e si scorrono subito; intanto si avvicina piano, e una riga dice che si sta aprendo */}
       <div
         className={`olio-velo${pronta || (ambiente && !con3d) ? " olio-velo--via" : ""}`}
         aria-hidden="true"
         style={{ backgroundImage: `url(/olio/ingresso-${notte ? "notte" : "giorno"}.jpg)` }}
-      />
+      >
+        <span className="olio-attesa">{o.attesa}</span>
+      </div>
 
       <header className="olio-testata">
         <Link className="olio-torna" href={`/${lingua}`}>
