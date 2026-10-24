@@ -4,6 +4,7 @@ import { ANGOLO_ULIVETO } from "../zona";
 import { PELO_ACQUA } from "../condivisi";
 import { alone, generatore, liberaTutto } from "./comuni";
 import { accesaDaSotto, costruisciUlivo } from "./ulivo";
+import { pezziDi } from "./polyhaven";
 
 /*
  * L'ingresso dell'uliveto, al posto di una carta sull'anello, subito dopo la zona dello sviluppatore.
@@ -12,6 +13,12 @@ import { accesaDaSotto, costruisciUlivo } from "./ulivo";
  * la scritta, due tratti di muretto a secco, le lanterne. Dalla soglia parte la trazzera, fra due ulivi,
  * verso il podere che cresce sullo sfondo. Al passaggio del puntatore le ante si aprono di più e le lanterne
  * si accendono; il clic porta nell'uliveto.
+ * Dal catalogo di Poly Haven (CC0), ridotti per il web in public/stanza e public/olio/scena:
+ *   cancello.glb          ← large_iron_gate, le due ante di ferro battuto (si caricano dopo: fino ad allora restano le nostre)
+ *   lanterna.glb          ← Lantern_01, la lanterna d'ottone sul fronte dei pilastri
+ *   pilastro-*.webp       ← sandstone_blocks_08, la pietra squadrata dei pilastri
+ *   capitello-colore.webp ← sandstone_cracks, capitelli e soglia
+ *   muretto-*, trazzera-* ← stone_wall e dirt_floor, gli stessi dell'uliveto
  * Misure in unità del mondo; −z verso il centro (chi guarda), +z verso il fondo.
  */
 
@@ -20,7 +27,30 @@ const LARGO = 2.4;
 const ALTO_PILASTRO = 2.05;
 const LUCE = 1.5; // la luce del cancello, fra i pilastri
 
-const pietra = (colore: THREE.ColorRepresentation) => new THREE.MeshStandardMaterial({ color: colore, roughness: 0.95 });
+/** Una texture che si ripete, caricata da public. */
+function foto(url: string, colore = true) {
+  const t = new THREE.TextureLoader().load(url);
+  t.wrapS = t.wrapT = THREE.RepeatWrapping;
+  t.anisotropy = 4;
+  if (colore) t.colorSpace = THREE.SRGBColorSpace;
+  return t;
+}
+
+/**
+ * Una scatola con le coordinate di texture in metri: la foto si ripete ogni `passo` metri su ogni faccia,
+ * invece di stirarsi da un angolo all'altro.
+ */
+function scatola(l: number, a: number, p: number, passo: number) {
+  const g = new THREE.BoxGeometry(l, a, p);
+  const uv = g.attributes.uv as THREE.BufferAttribute;
+  // le facce, quattro vertici ciascuna: +x, −x, +y, −y, +z, −z
+  const misure: [number, number][] = [[p, a], [p, a], [l, p], [l, p], [l, a], [l, a]];
+  for (let f = 0; f < 6; f++) for (let k = 0; k < 4; k++) {
+    const i = f * 4 + k;
+    uv.setXY(i, (uv.getX(i) * misure[f][0]) / passo, (uv.getY(i) * misure[f][1]) / passo);
+  }
+  return g;
+}
 
 export class Ingresso {
   gruppo = new THREE.Group();
@@ -37,6 +67,8 @@ export class Ingresso {
   private texture: THREE.Texture[] = [];
   private ulivi: { giorno: THREE.Group; notte: THREE.Group }[] = [];
   private pietre: THREE.MeshStandardMaterial[] = [];
+  private portalanterne: { g: THREE.Group; vetro: THREE.MeshStandardMaterial }[] = [];
+  private vivo = true;
 
   constructor(raggio: number, notte: boolean) {
     const caso = generatore(808);
@@ -44,25 +76,27 @@ export class Ingresso {
     this.gruppo.position.set(Math.sin(a) * raggio, PELO_ACQUA, -Math.cos(a) * raggio);
     this.gruppo.rotation.y = Math.PI - a;
 
-    const chiara = pietra("#E2D6BC");
-    const scura = pietra("#CDBF9F");
+    // la pietra dei pilastri, squadrata, e quella liscia di capitelli e soglia; il colore serve di notte
+    const chiara = new THREE.MeshStandardMaterial({ map: foto("/stanza/pilastro-colore.webp"), normalMap: foto("/stanza/pilastro-rilievo.webp", false), roughness: 0.95 });
+    chiara.userData.notte = new THREE.Color("#E2D6BC");
+    const scura = new THREE.MeshStandardMaterial({ map: foto("/stanza/capitello-colore.webp"), color: "#F2E8D8", roughness: 0.95 });
+    scura.userData.notte = new THREE.Color("#CDBF9F");
     this.pietre.push(chiara, scura);
     const ferro = new THREE.MeshStandardMaterial({ color: "#1E1D1B", roughness: 0.55, metalness: 0.6 });
+    // il muretto a secco, la stessa pietra dell'uliveto
+    const muro = new THREE.MeshStandardMaterial({ map: foto("/olio/scena/muretto-colore.webp"), normalMap: foto("/olio/scena/muretto-rilievo.webp", false), color: "#FFF6E6", roughness: 1 });
+    muro.userData.notte = new THREE.Color("#D6CAB0");
+    this.pietre.push(muro);
 
     // la soglia: una lastra di pietra
-    this.gruppo.add(new THREE.Mesh(new THREE.BoxGeometry(LUCE + 0.1, 0.06, 0.55).translate(0, 0.03, 0), scura));
+    this.gruppo.add(new THREE.Mesh(scatola(LUCE + 0.1, 0.06, 0.55, 0.8).translate(0, 0.03, 0), scura));
 
     // i pilastri: blocchi squadrati, il capitello sporgente, la pigna di ceramica
     const X = LUCE / 2 + 0.2;
     [-1, 1].forEach((s) => {
-      const blocchi: THREE.BufferGeometry[] = [];
-      for (let k = 0; k < 7; k++) {
-        const h = ALTO_PILASTRO / 7;
-        blocchi.push(new THREE.BoxGeometry(0.4 - (k % 2) * 0.012, h - 0.012, 0.4 - (k % 2) * 0.012).translate(s * X, h * k + h / 2, 0));
-      }
-      this.gruppo.add(new THREE.Mesh(mergeGeometries(blocchi), chiara));
-      blocchi.forEach((b) => b.dispose());
-      this.gruppo.add(new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.1, 0.5).translate(s * X, ALTO_PILASTRO + 0.05, 0), scura));
+      // un blocco solo: i conci li disegna la foto, un metro e venti per ripetizione
+      this.gruppo.add(new THREE.Mesh(scatola(0.4, ALTO_PILASTRO, 0.4, 1.2).translate(s * X, ALTO_PILASTRO / 2, 0), chiara));
+      this.gruppo.add(new THREE.Mesh(scatola(0.5, 0.1, 0.5, 0.6).translate(s * X, ALTO_PILASTRO + 0.05, 0), scura));
       // la pigna: verde e gialla, sul suo piedistallo
       const pigna = new THREE.Group();
       pigna.position.set(s * X, ALTO_PILASTRO + 0.1, 0);
@@ -79,19 +113,14 @@ export class Ingresso {
       l.add(new THREE.Mesh(new THREE.ConeGeometry(0.1, 0.07, 4).rotateY(Math.PI / 4).translate(0, 0.125, 0), ferro));
       l.add(new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.02, 0.08).translate(0, 0.05, 0.08), ferro));
       this.gruppo.add(l);
+      this.portalanterne.push({ g: l, vetro });
       const al = new THREE.Sprite(new THREE.SpriteMaterial({ map: this.alone(), color: "#FFC98A", transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending }));
       al.position.set(s * X, 1.55, -0.3);
       al.scale.setScalar(0.9);
       this.aloni.push(al);
       this.gruppo.add(al);
       // il muretto a secco che continua il pilastro, fino al bordo della carta
-      const pietre: THREE.BufferGeometry[] = [];
-      for (let i = 0; i < 18; i++) {
-        const x = s * (X + 0.24 + (i % 6) * 0.05 + caso() * 0.02);
-        pietre.push(new THREE.DodecahedronGeometry(0.08 + caso() * 0.03, 0).scale(1.4, 0.75, 1.1).translate(x, 0.06 + Math.floor(i / 6) * 0.12, (caso() - 0.5) * 0.2));
-      }
-      this.gruppo.add(new THREE.Mesh(mergeGeometries(pietre), new THREE.MeshStandardMaterial({ color: "#D6CAB0", roughness: 1, flatShading: true })));
-      pietre.forEach((p) => p.dispose());
+      this.gruppo.add(new THREE.Mesh(scatola(0.36, 0.34, 0.3, 0.8).translate(s * (X + 0.38), 0.17, 0), muro));
     });
 
     // le ante del cancello: ferro battuto, sbarre verticali con le punte, due traverse, un ricciolo
@@ -135,7 +164,9 @@ export class Ingresso {
     this.gruppo.add(targa);
 
     // la trazzera: parte dalla soglia e va verso il fondo, fra pietre di bordo
-    const strada = new THREE.Mesh(new THREE.PlaneGeometry(LUCE - 0.1, 3.4).rotateX(-Math.PI / 2).translate(0, 0.006, 1.75), new THREE.MeshStandardMaterial({ color: "#D2BE94", roughness: 1 }));
+    const terra = foto("/olio/scena/trazzera-colore.webp");
+    terra.repeat.set(0.7, 1.7);
+    const strada = new THREE.Mesh(new THREE.PlaneGeometry(LUCE - 0.1, 3.4).rotateX(-Math.PI / 2).translate(0, 0.006, 1.75), new THREE.MeshStandardMaterial({ map: terra, color: "#F4E6CC", roughness: 1 }));
     this.gruppo.add(strada);
     const bordo: THREE.BufferGeometry[] = [];
     for (let i = 0; i < 26; i++) {
@@ -177,6 +208,60 @@ export class Ingresso {
       if (o !== this.presa) o.raycast = () => undefined;
     });
     this.setNotte(notte);
+    this.caricaModelli();
+  }
+
+  /**
+   * Le ante di ferro battuto e le lanterne d'ottone di Poly Haven, al posto delle nostre appena arrivano.
+   * Ferro e ottone poco metallici: la stanza non ha un ambiente da riflettere, e il metallo pieno uscirebbe nero.
+   */
+  private caricaModelli() {
+    const opaco = (m: THREE.Material) => {
+      const c = (m as THREE.MeshStandardMaterial).clone();
+      c.metalnessMap = null;
+      c.metalness = 0.15;
+      c.transparent = false;
+      return c;
+    };
+    const senzaRaggi = (o: THREE.Object3D) => (o.raycast = () => undefined);
+    pezziDi("/stanza/cancello.glb")
+      .then((p) => {
+        if (!this.vivo) return;
+        // le ante del modello sono alte 2,92 e larghe 1,43, coi cardini sui bordi esterni: a metà sono le nostre
+        this.ante.forEach((anta, i) => {
+          const s = i ? 1 : -1;
+          const pezzo = p.find((x) => x.nome.endsWith(s < 0 ? "left_door" : "right_door"));
+          if (!pezzo) return;
+          const g = pezzo.geometria.clone().translate(-s * 1.43, 0, 0).scale(0.5, 0.5, 0.5);
+          anta.children.forEach((c) => {
+            (c as THREE.Mesh).geometry?.dispose();
+          });
+          anta.clear();
+          const m = new THREE.Mesh(g, opaco(pezzo.materiale));
+          senzaRaggi(m);
+          anta.add(m);
+        });
+      })
+      .catch(() => undefined);
+    pezziDi("/stanza/lanterna.glb")
+      .then((p) => {
+        if (!this.vivo) return;
+        const corpo = p.find((x) => !x.nome.includes("glass"));
+        const vetro = p.find((x) => x.nome.includes("glass"));
+        if (!corpo || !vetro) return;
+        this.portalanterne.forEach(({ g, vetro: luce }) => {
+          g.children.forEach((c) => (c as THREE.Mesh).geometry?.dispose());
+          g.clear();
+          // in piedi su una mensola di ferro, poco sotto dov'era la nostra
+          const scala = 1.15;
+          const ottone = new THREE.Mesh(corpo.geometria.clone().scale(scala, scala, scala).translate(0, -0.1, -0.02), opaco(corpo.materiale));
+          const lume = new THREE.Mesh(vetro.geometria.clone().scale(scala, scala, scala).translate(0, -0.1, -0.02), luce);
+          const mensola = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.02, 0.16).translate(0, -0.11, 0.0), new THREE.MeshStandardMaterial({ color: "#1E1D1B", roughness: 0.6, metalness: 0.3 }));
+          [ottone, lume, mensola].forEach(senzaRaggi);
+          g.add(ottone, lume, mensola);
+        });
+      })
+      .catch(() => undefined);
   }
 
   private alone() {
@@ -215,7 +300,7 @@ export class Ingresso {
   setNotte(notte: boolean) {
     this.notte = notte;
     // di notte la pietra prende un poco di luna, per non sparire nel buio
-    this.pietre.forEach((m) => m.emissive.copy(m.color).multiplyScalar(notte ? 0.16 : 0));
+    this.pietre.forEach((m) => m.emissive.copy((m.userData.notte as THREE.Color | undefined) ?? m.color).multiplyScalar(notte ? 0.16 : 0));
     this.ulivi.forEach((u) => {
       u.giorno.visible = !notte;
       u.notte.visible = notte;
@@ -234,6 +319,7 @@ export class Ingresso {
   }
 
   libera() {
+    this.vivo = false;
     liberaTutto(this.gruppo, this.texture);
   }
 }

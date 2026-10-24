@@ -151,3 +151,36 @@ export function modello(nome: string) {
   }
   return m;
 }
+
+/**
+ * Tutti i pezzi di un modello glb, col loro nome: geometria in virgola mobile già nella posa del nodo,
+ * materiale originale. Per i modelli fatti di parti che si muovono da sole (le ante di un cancello).
+ * Le geometrie vanno clonate prima di trasformarle: sono condivise da chi carica lo stesso file.
+ */
+const pezzi = new Map<string, Promise<{ nome: string; geometria: THREE.BufferGeometry; materiale: THREE.Material }[]>>();
+export function pezziDi(url: string) {
+  let p = pezzi.get(url);
+  if (!p) {
+    p = new GLTFLoader().loadAsync(url).then((gltf) => {
+      const tutti: { nome: string; geometria: THREE.BufferGeometry; materiale: THREE.Material }[] = [];
+      gltf.scene.updateMatrixWorld(true);
+      gltf.scene.traverse((o) => {
+        const mesh = o as THREE.Mesh;
+        if (!mesh.isMesh) return;
+        const geometria = mesh.geometry.clone();
+        for (const [nome, a] of Object.entries(geometria.attributes)) {
+          const attr = a as THREE.BufferAttribute;
+          if (attr.array instanceof Float32Array) continue;
+          const valori = new Float32Array(attr.count * attr.itemSize);
+          for (let i = 0; i < attr.count; i++) for (let k = 0; k < attr.itemSize; k++) valori[i * attr.itemSize + k] = attr.getComponent(i, k);
+          geometria.setAttribute(nome, new THREE.BufferAttribute(valori, attr.itemSize));
+        }
+        geometria.applyMatrix4(mesh.matrixWorld);
+        tutti.push({ nome: mesh.name || o.name, geometria, materiale: mesh.material as THREE.Material });
+      });
+      return tutti;
+    });
+    pezzi.set(url, p);
+  }
+  return p;
+}
