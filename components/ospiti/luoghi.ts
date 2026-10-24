@@ -502,15 +502,21 @@ class Iguazu {
 
 /* ------------------------------------------------------------ Cerro de los Siete Colores */
 
+/**
+ * Il Cerro de los Siete Colores di Purmamarca: le rocce piegate a strati rossi, ocra, verdi, viola.
+ * A destra dell'Etna, più vicino e più alto di prima: a 44 m la sua parte dietro passava i 47 e si perdeva,
+ * e da basso le carte lo coprivano tutto.
+ */
 function sieteColores() {
-  const g = sulRing(Z + 1.9, 44, 0);
-  const fasce = ["#B4513B", "#D98C6E", "#C9A15A", "#7F8A58", "#8C5E7C", "#9A8F86", "#E2CBA6", "#A85A3E"].map((c) => new THREE.Color(c));
+  const g = sulRing(Z + 1.6, 35, 0);
+  g.scale.set(1.05, 1.35, 0.9);
+  const fasce = ["#B4473A", "#D98466", "#C99A4E", "#6F8A50", "#8A527A", "#A8604A", "#D8AE70", "#9C4A36"].map((c) => new THREE.Color(c));
   const h = (x: number, z: number) => {
     const k = Math.max(0, 1 - (x / 9) ** 2) * Math.sin(((z + 1) / 7) * Math.PI);
-    return Math.max(0, k * (6.5 + 1.2 * Math.abs(Math.sin(x * 1.7)) + 0.6 * Math.sin(x * 4.1 + z))) - 0.3;
+    return Math.max(0, k * (6.5 + 0.8 * Math.abs(Math.sin(x * 0.9)) + 0.35 * Math.sin(x * 4.1 + z))) - 0.3;
   };
   const m = unisci([
-    colora(rilievo(-9.5, 9.5, -1, 6, 90, 30, h), "#B4513B", 0.2, (q) => {
+    colora(rilievo(-9.5, 9.5, -1, 6, 90, 30, h), "#B4473A", 0.1, (q) => {
       // gli strati inclinati: il colore dipende dalla quota e un poco dalla posizione, come rocce piegate
       const s = q.y * 0.95 + q.x * 0.12 + Math.sin(q.x * 0.6) * 0.35;
       return fasce[((Math.floor(s) % fasce.length) + fasce.length) % fasce.length].clone();
@@ -522,8 +528,9 @@ function sieteColores() {
 
 /* ------------------------------------------------------------------ l'Obelisco */
 
+/** L'Obelisco di Buenos Aires, bianco, davanti ai colori del Cerro. */
 function obelisco() {
-  const g = sulRing(Z + 1.72, 33, 0);
+  const g = sulRing(Z + 1.64, 29, 0);
   g.scale.setScalar(1.2);
   const p: Pezzi = [];
   blocco(p, 0, -0.3, 0, 3.2, 0.12, 3.2, "#BDB7AC");
