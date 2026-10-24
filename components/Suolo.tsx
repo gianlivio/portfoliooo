@@ -45,6 +45,8 @@ const FRAG = /* glsl */ `
 uniform vec3 color;
 uniform sampler2D tDiffuse;
 uniform sampler2D uFossile;
+uniform sampler2D uVene;
+uniform float uVenePronte;
 uniform float uTempo;
 uniform float uNotte;
 uniform float uRiflesso;
@@ -117,6 +119,17 @@ vec3 marmo(vec2 p, float r){
   float vena2 = 1.0 - smoothstep(0.0, 0.035, abs(sin((p.x * -0.3 + p.y * 0.8 + fbm(p * 0.7 + 3.0) * 4.0) * 2.4)));
   vec3 pietra = color * (0.96 + fbm(p * 1.4) * 0.06);
   pietra = mix(pietra, vec3(0.62, 0.63, 0.66), vena * 0.45 + vena2 * 0.22);
+  // quando arriva, la foto di un marmo vero (Poly Haven, marble_rock_02, in grigio): le sue venature al posto
+  // di quelle calcolate. Venature grandi, come nelle lastre vere: piccole, guardate di sbieco, la scheda
+  // grafica le media fino a farle sparire. Due scale, la seconda girata, perché la ripetizione non si veda dall'alto
+  if (uVenePronte > 0.0) {
+    float v1 = texture2D(uVene, p / 9.0).r;
+    vec2 q = vec2(p.x * 0.8 - p.y * 0.6, p.x * 0.6 + p.y * 0.8);
+    float v2 = texture2D(uVene, q / 21.0 + 0.37).r;
+    float v = clamp(v1 * mix(1.0, v2, 0.4) / 0.78, 0.0, 1.15);
+    vec3 vera = color * (0.97 + fbm(p * 1.4) * 0.04) * mix(1.0, v, 0.7);
+    pietra = mix(pietra, vera, uVenePronte);
+  }
   // lastre: fughe sottilissime ogni due metri e mezzo
   vec2 l = abs(fract(p / 2.5) - 0.5);
   float fuga = smoothstep(0.497, 0.5, max(l.x, l.y));
@@ -289,6 +302,8 @@ function Specchio({
           tDiffuse: { value: null },
           textureMatrix: { value: null },
           uFossile: { value: txFossile },
+          uVene: { value: null },
+          uVenePronte: { value: 0 },
           uTempo: { value: 0 },
           uNotte: { value: 1 },
           uRiflesso: { value: 1 },
@@ -319,6 +334,33 @@ function Specchio({
     acqua.dispose();
     txFossile.dispose();
   }, [acqua, txFossile]);
+
+  // le venature del marmo vero: si scaricano dopo, il marmo calcolato resta finché non arrivano, poi sfuma
+  useEffect(() => {
+    const u = (acqua.material as THREE.ShaderMaterial).uniforms;
+    let vivo = true;
+    let id = 0;
+    const t = new THREE.TextureLoader().load("/stanza/marmo-venature.webp", () => {
+      if (!vivo) return;
+      const t0 = performance.now();
+      const sfuma = () => {
+        u.uVenePronte.value = Math.min(1, (performance.now() - t0) / 1200);
+        if (u.uVenePronte.value < 1 && vivo) id = requestAnimationFrame(sfuma);
+      };
+      sfuma();
+    });
+    t.wrapS = t.wrapT = THREE.RepeatWrapping;
+    t.anisotropy = 8;
+    t.colorSpace = THREE.SRGBColorSpace;
+    u.uVene.value = t;
+    return () => {
+      vivo = false;
+      cancelAnimationFrame(id);
+      u.uVene.value = null;
+      u.uVenePronte.value = 0;
+      t.dispose();
+    };
+  }, [acqua]);
 
   // il tema cambia colore e modo dello stesso shader, senza ricrearlo.
   // Sugli schermi stretti, di giorno, il marmo non riflette: la differenza si vede appena e si risparmia una passata.
