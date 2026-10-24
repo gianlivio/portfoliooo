@@ -12,15 +12,15 @@ import { type Ospite, alone, assi, cancella, casuale, finito, liberaTutto, loft,
 const LUNGO = 26; // lunghezza del corpo, in unità di scena
 const N = 140; // anelli lungo la spina
 const R = 14; // vertici per anello
-const ORO = new THREE.Color("#D9A441");
-const VENTRE = new THREE.Color("#F0D9A0");
+const ORO = new THREE.Color("#F0B845");
+const VENTRE = new THREE.Color("#F4E2AE");
 const VERMIGLIO = "#D8452B";
 
 /** Raggio del corpo a una distanza s dalla testa: collo, ventre pieno, coda che si assottiglia. */
 function raggio(s: number) {
   const u = s / LUNGO;
-  const collo = 0.36 + 0.16 * THREE.MathUtils.smoothstep(s, 0, 2.2);
-  return Math.max(0.05, collo * Math.pow(1 - u, 0.75) + 0.04 * (1 - u));
+  const collo = 0.46 + 0.24 * THREE.MathUtils.smoothstep(s, 0, 2.6);
+  return Math.max(0.06, collo * Math.pow(1 - u, 0.7) + 0.05 * (1 - u));
 }
 
 /** Squame a embrice: tessera chiara al centro, bordo scuro in basso. Grigia: il colore lo danno i vertici. */
@@ -71,10 +71,10 @@ export class Drago implements Ospite {
     txSquame.wrapS = txSquame.wrapT = THREE.RepeatWrapping;
     this.texture.push(txSquame);
     const pelle = new THREE.MeshStandardMaterial({
-      map: txSquame, vertexColors: true, roughness: 0.45, metalness: 0.55,
-      emissive: "#C8862A", emissiveMap: txSquame, emissiveIntensity: 0.85, fog: false,
+      map: txSquame, vertexColors: true, roughness: 0.5, metalness: 0.2,
+      emissive: "#D08A28", emissiveMap: txSquame, emissiveIntensity: 0.62, fog: false,
     });
-    const rosso = new THREE.MeshStandardMaterial({ color: VERMIGLIO, roughness: 0.6, emissive: "#C4301A", emissiveIntensity: 0.8, side: THREE.DoubleSide, vertexColors: true, fog: false });
+    const rosso = new THREE.MeshStandardMaterial({ color: VERMIGLIO, roughness: 0.6, emissive: "#C4301A", emissiveIntensity: 0.55, side: THREE.DoubleSide, vertexColors: true, fog: false });
     const avorio = new THREE.MeshStandardMaterial({ color: "#F2E6C8", roughness: 0.4, emissive: "#5A4A30", emissiveIntensity: 0.5, fog: false });
 
     // il corpo: un tubo che si rifà a ogni fotogramma lungo la spina che ondeggia
@@ -86,11 +86,13 @@ export class Drago implements Ospite {
       for (let j = 0; j < R; j++) {
         const k = i * R + j;
         const ang = (j / R) * Math.PI * 2;
-        uv[k * 2] = (i / (N - 1)) * 70;
-        uv[k * 2 + 1] = (j / R) * 6;
-        // il ventre è sotto (sin < 0): chiaro; il dorso d'oro, più scuro verso la coda
+        // le squame girano attorno al corpo e si ripetono lungo: anelli di tessere, non righe
+        uv[k * 2] = (j / R) * 7;
+        uv[k * 2 + 1] = (i / (N - 1)) * 64;
+        // il ventre è sotto (sin < 0): chiaro, a placche; il dorso d'oro, più scuro verso la coda e sui fianchi
         const sotto = THREE.MathUtils.smoothstep(-Math.sin(ang), 0.35, 0.75);
-        const c = ORO.clone().multiplyScalar(1 - (i / N) * 0.25).lerp(VENTRE, sotto);
+        const rilievo = 0.62 + 0.38 * Math.max(0, Math.sin(ang)) + 0.12 * Math.cos(ang);
+        const c = ORO.clone().multiplyScalar(rilievo * (1 - (i / N) * 0.25)).lerp(VENTRE.clone().multiplyScalar(i % 3 === 0 ? 0.78 : 1), sotto);
         col.set([c.r, c.g, c.b], k * 3);
         if (i < N - 1) {
           const a = k, b = i * R + ((j + 1) % R), cc = (i + 1) * R + j, d = (i + 1) * R + ((j + 1) % R);
@@ -132,7 +134,7 @@ export class Drago implements Ospite {
       { z: 1.25, l: 0.16, su: 0.14, giu: 0.08, y: -0.06 },
       { z: 1.32, l: 0.04, su: 0.04, giu: 0.04, y: -0.07 },
     ], { radiali: 18, passi: 3 });
-    const pelleTesta = new THREE.MeshStandardMaterial({ color: ORO, roughness: 0.4, metalness: 0.55, emissive: "#B07624", emissiveIntensity: 0.8, fog: false });
+    const pelleTesta = new THREE.MeshStandardMaterial({ color: ORO, roughness: 0.45, metalness: 0.2, emissive: "#C07E24", emissiveIntensity: 0.62, fog: false });
     this.testa.add(new THREE.Mesh(cranio, pelleTesta));
     // arcate sopracciliari e occhi accesi
     const occhi = new THREE.MeshBasicMaterial({ color: "#FFE680", toneMapped: false, fog: false });
@@ -321,8 +323,8 @@ export class Drago implements Ospite {
       const sp = this.spina[i];
       const sv = (i / (N - 1)) * LUNGO;
       const r = raggio(sv);
-      const dente = 0.55 + 0.45 * Math.abs(Math.sin(sv * 2.6));
-      const h = (0.12 + r * 0.55) * dente * (1 + 0.12 * Math.sin(t * 6 + i * 0.7)) * (i < 3 ? 0.2 : 1);
+      const dente = 0.12 + 0.88 * Math.pow(Math.abs(Math.sin(sv * 2.2)), 3);
+      const h = (0.1 + r * 0.8) * dente * (1 + 0.12 * Math.sin(t * 6 + i * 0.7)) * (i < 3 ? 0.2 : 1);
       w.copy(sp.p).addScaledVector(sp.n, r * 0.92);
       cp.setXYZ(i * 2, w.x, w.y, w.z);
       w.addScaledVector(sp.n, h).addScaledVector(sp.t, -h * 0.5);
@@ -336,7 +338,7 @@ export class Drago implements Ospite {
     this.m.makeBasis(t0.b.clone().negate(), t0.n, t0.t);
     this.testa.quaternion.setFromRotationMatrix(this.m);
     this.testa.position.copy(t0.p).addScaledVector(t0.t, 0.15);
-    this.testa.scale.setScalar(1.25);
+    this.testa.scale.setScalar(1.7);
     // il soffio: la bocca si spalanca, il fuoco esce per un secondo e mezzo; poi di nuovo fra qualche secondo
     const so = this.soffio;
     if (t > so.prossimo && e < s.durata - 4) {
@@ -347,7 +349,7 @@ export class Drago implements Ospite {
     const es = t - so.inizio;
     const aperta = es < 1.9 ? Math.sin(Math.min(1, es / 1.9) * Math.PI) : 0;
     this.mandibola.rotation.x = 0.18 + 0.12 * Math.sin(t * 0.7) + aperta * 0.55;
-    const bocca = w.set(0, -0.12, 1.9).applyQuaternion(this.testa.quaternion).add(this.testa.position);
+    const bocca = w.set(0, -0.16, 2.5).applyQuaternion(this.testa.quaternion).add(this.testa.position);
     const avantiTesta = this.v.set(0, -0.12, 1).normalize().applyQuaternion(this.testa.quaternion);
     if (es >= 0 && es < 1.5) {
       const dovuti = Math.floor(es * 50);
@@ -397,6 +399,7 @@ export class Drago implements Ospite {
       const sp = this.spina[i];
       const r = raggio(z.s);
       z.g.position.copy(sp.p).addScaledVector(sp.b, z.lato * r * 0.75).addScaledVector(sp.n, -r * 0.35);
+      z.g.scale.setScalar(1.6);
       this.m.makeBasis(sp.b.clone().negate(), sp.n, sp.t);
       z.g.quaternion.setFromRotationMatrix(this.m);
       z.coscia.rotation.set(-0.5 + Math.sin(t * 1.2 + z.fase) * 0.45, 0, -z.lato * 0.5);
