@@ -292,9 +292,18 @@ function colleBarocco() {
   // lo sperone, col promontorio della pagoda sul fianco sinistro (+x è la sinistra di chi guarda)
   const sperone = (x: number, z: number) =>
     Math.max(0, 5.2 * Math.exp(-((x * x) / 30 + ((z - 1.2) * (z - 1.2)) / 9)) + 1.3 * Math.exp(-(((x - px) * (x - px)) / 1.6 + ((z - pz) * (z - pz)) / 2)) + 0.1 * Math.sin(x * 2 + z)) - 0.3;
-  // tutt'attorno la campagna scende fin sotto il pavimento: il colle non resta sospeso nel vuoto
-  const discesa = (x: number, z: number) => 3.6 * THREE.MathUtils.smoothstep(Math.hypot(x / 10, (z - 1) / 5), 0.7, 1.25);
-  const colle = (x: number, z: number) => sperone(x, z) - discesa(x, z) + 0.06 * Math.sin(x * 0.9) * Math.sin(z * 1.3);
+  // tutt'attorno la campagna scende fin sotto il pavimento, a terrazzamenti: il colle non resta sospeso nel
+  // vuoto. Da quaggiù si vedono le alzate, cioè i muretti a secco, più che i campi in piano: per questo i gradini.
+  const discesa = (x: number, z: number) => 3.6 * THREE.MathUtils.smoothstep(Math.hypot(x / 10, (z - 1) / 5), 0.7, 1.45);
+  const P = 0.55;
+  const colle = (x: number, z: number) => {
+    const y = sperone(x, z) - discesa(x, z) + 0.06 * Math.sin(x * 0.9) * Math.sin(z * 1.3);
+    const d = discesa(x, z);
+    if (d < 0.02) return y;
+    const f = y / P, k = Math.floor(f);
+    const gradino = (k + THREE.MathUtils.smoothstep(f - k, 0.78, 1)) * P;
+    return y + (gradino - y) * THREE.MathUtils.smoothstep(d, 0.02, 0.3);
+  };
   // i campi siciliani: appezzamenti un po' storti, arati a solchi in due versi, stoppie, grano verde, terra
   // rossa nuda; fra un campo e l'altro i muretti a secco e le trazzere chiare
   const campo = (x: number, z: number) => {
@@ -309,9 +318,13 @@ function colleBarocco() {
     return "#A97F55";
   };
   p.push(
-    colora(rilievo(-13, 13, -7, 6, 130, 65, colle), "#8C8A5A", 0.16, (q) =>
-      new THREE.Color(discesa(q.x, q.z) < 0.05 && q.y > 1.2 ? "#A89C78" : discesa(q.x, q.z) < 0.05 && q.y > 0.6 ? "#6F7E48" : campo(q.x, q.z)),
-    ),
+    colora(rilievo(-13, 13, -7, 6, 200, 100, colle), "#8C8A5A", 0.16, (q, n) => {
+      const d = discesa(q.x, q.z);
+      if (d < 0.05) return new THREE.Color(q.y > 1.2 ? "#A89C78" : q.y > 0.6 ? "#6F7E48" : campo(q.x, q.z));
+      // l'alzata del gradino è il muretto a secco: pietra chiara, a corsi
+      if (n.y < 0.8) return new THREE.Color(Math.sin(q.y * 38) > 0.5 ? "#9C8C6C" : "#BCAB86");
+      return new THREE.Color(campo(q.x, q.z));
+    }),
   );
   // nei campi: carrubi e ulivi sparsi lungo i muretti, qualche masseria
   {
@@ -321,6 +334,16 @@ function colleBarocco() {
       const d = discesa(x, z);
       if (d < 0.15 || d > 3.2) continue;
       albero(p, x, colle(x, z) - 0.05, z, 0.22 + rc() * 0.14, 0.24);
+    }
+    // e gli ulivi in fila sul ciglio dei terrazzi, appena dietro il muretto: da quaggiù sono loro a dire "campagna"
+    for (let x = -11.5; x <= 11.5; x += 0.55) {
+      for (let z = -6.6; z <= 5.5; z += 0.13) {
+        const d = discesa(x, z);
+        if (d < 0.25 || d > 3.3) continue;
+        const y0 = colle(x, z), y1 = colle(x, z - 0.13);
+        // il ciglio: qui il terreno cade di un gradino verso chi guarda
+        if (y0 - y1 > P * 0.6 && rc() < 0.75) albero(p, x + (rc() - 0.5) * 0.2, y0 - 0.04, z + 0.12, 0.17 + rc() * 0.07, 0.22);
+      }
     }
     for (const [x, z] of [[-6.5, -3.6], [5.8, -4.2], [-9.5, 0.5], [9.2, -1.0]]) {
       const y = colle(x, z);
