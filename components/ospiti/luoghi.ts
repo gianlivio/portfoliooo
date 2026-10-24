@@ -279,7 +279,7 @@ function chiesaMadre(p: Pezzi) {
  * Il colle barocco, uno solo: lo sperone di Ibla con le case color miele a gradoni, i tetti di coppi, i carrubi
  * in basso. In cima San Giorgio di Modica; a sinistra, su un piccolo promontorio, la pagoda della pace del
  * reverendo Morishita; in basso, davanti, la parte di Comiso: l'Annunziata con la cupola azzurra e la Chiesa
- * Madre; sul fianco destro la cupola di maiolica dell'Itria.
+ * Madre; sul fianco destro la cupola di maiolica dell'Itria. Attorno, fin sotto il pavimento, i campi arati.
  * Nel varco fra le carte (3,37): le chiese in basso si vedono fra le carte, San Giorgio sopra.
  */
 function colleBarocco() {
@@ -290,9 +290,44 @@ function colleBarocco() {
   const sx = 0.6, sz = 0.6;
   const px = 4.4, pz = 0.4;
   // lo sperone, col promontorio della pagoda sul fianco sinistro (+x è la sinistra di chi guarda)
-  const colle = (x: number, z: number) =>
+  const sperone = (x: number, z: number) =>
     Math.max(0, 5.2 * Math.exp(-((x * x) / 30 + ((z - 1.2) * (z - 1.2)) / 9)) + 1.3 * Math.exp(-(((x - px) * (x - px)) / 1.6 + ((z - pz) * (z - pz)) / 2)) + 0.1 * Math.sin(x * 2 + z)) - 0.3;
-  p.push(colora(rilievo(-12, 12, -3, 6, 72, 24, colle), "#8C8A5A", 0.24, (q) => new THREE.Color(q.y > 1.2 ? "#A89C78" : "#6F7E48")));
+  // tutt'attorno la campagna scende fin sotto il pavimento: il colle non resta sospeso nel vuoto
+  const discesa = (x: number, z: number) => 3.6 * THREE.MathUtils.smoothstep(Math.hypot(x / 10, (z - 1) / 5), 0.7, 1.25);
+  const colle = (x: number, z: number) => sperone(x, z) - discesa(x, z) + 0.06 * Math.sin(x * 0.9) * Math.sin(z * 1.3);
+  // i campi siciliani: appezzamenti un po' storti, arati a solchi in due versi, stoppie, grano verde, terra
+  // rossa nuda; fra un campo e l'altro i muretti a secco e le trazzere chiare
+  const campo = (x: number, z: number) => {
+    const u = x * 0.95 + z * 0.3, v = z * 0.95 - x * 0.3;
+    const i = Math.floor(u / 2.4), j = Math.floor(v / 1.7);
+    const fu = u / 2.4 - i, fv = v / 1.7 - j;
+    if (fu < 0.05 || fv < 0.07) return "#CFC6B0";
+    const h = Math.abs(Math.sin(i * 127.1 + j * 311.7) * 43758.5) % 1;
+    if (h < 0.45) return Math.sin((h < 0.22 ? u : v) * 8) > 0 ? "#7A4E33" : "#9A6644";
+    if (h < 0.65) return "#C9B26A";
+    if (h < 0.82) return "#7E8F4A";
+    return "#A97F55";
+  };
+  p.push(
+    colora(rilievo(-13, 13, -7, 6, 130, 65, colle), "#8C8A5A", 0.16, (q) =>
+      new THREE.Color(discesa(q.x, q.z) < 0.05 && q.y > 1.2 ? "#A89C78" : discesa(q.x, q.z) < 0.05 && q.y > 0.6 ? "#6F7E48" : campo(q.x, q.z)),
+    ),
+  );
+  // nei campi: carrubi e ulivi sparsi lungo i muretti, qualche masseria
+  {
+    const rc = generatore(71);
+    for (let i = 0; i < 70; i++) {
+      const x = (rc() * 2 - 1) * 12, z = -6.5 + rc() * 12;
+      const d = discesa(x, z);
+      if (d < 0.15 || d > 3.2) continue;
+      albero(p, x, colle(x, z) - 0.05, z, 0.22 + rc() * 0.14, 0.24);
+    }
+    for (const [x, z] of [[-6.5, -3.6], [5.8, -4.2], [-9.5, 0.5], [9.2, -1.0]]) {
+      const y = colle(x, z);
+      casa(p, rc, x, y, z, 0.9, 0.5, 0.6, "#E2D2B0", true, 0.24);
+      casa(p, rc, x + 0.75, y - 0.05, z + 0.2, 0.5, 0.35, 0.5, "#D8C6A0", true, 0.24);
+    }
+  }
   // dove stanno le chiese e la pagoda
   const ax = 1.5, cmx = -1.4, fz = -1.5;
   // le impronte dei monumenti, alle loro scale: lì niente case
@@ -528,9 +563,10 @@ function sieteColores() {
 
 /* ------------------------------------------------------------------ l'Obelisco */
 
-/** L'Obelisco di Buenos Aires, bianco, davanti ai colori del Cerro. */
+/** L'Obelisco di Buenos Aires, bianco, fra le cascate e il ghiacciaio. */
 function obelisco() {
-  const g = sulRing(Z + 1.64, 29, 0);
+  // ai piedi, fra le cascate dell'Iguazú e il Perito Moreno
+  const g = sulRing(Z + 2.22, 29, 0);
   g.scale.setScalar(1.2);
   const p: Pezzi = [];
   blocco(p, 0, -0.3, 0, 3.2, 0.12, 3.2, "#BDB7AC");
