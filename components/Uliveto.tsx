@@ -88,9 +88,12 @@ function disponi(quadri: Quadro[], stretto: boolean, lati: ("sx" | "dx" | "centr
     // successiva è già alle spalle; sul telefono i quadri stanno più al centro, sopra il pannello
     const p = fermo + (stretto ? 0.095 : 0.075) + k * 0.03;
     const parte: 1 | -1 = lati[q.tappa] === "sx" ? 1 : lati[q.tappa] === "dx" ? -1 : k % 2 ? -1 : 1;
-    const pos = sulCammino(p).add(destra(p).multiplyScalar(parte * (stretto ? 0.9 + k * 1.1 : 1.6 + k * 1.45)));
+    const pos = sulCammino(p).add(destra(p).multiplyScalar(parte * (stretto ? 1.05 + k * 1.2 : 1.6 + k * 1.45)));
     // guarda chi arriva da dove si legge
     const verso = sulCammino(fermo);
+    // sul telefono lo schermo è alto e stretto: i quadri salgono sopra la linea degli occhi, su pali alti,
+    // e il corridoio (la trazzera davanti, sotto l'orizzonte) resta libero
+    if (stretto) return { pos, verso, y: OCCHI + 0.95, alto: 1.4, sostegno: "pali" };
     return q.luogo === "raccolta"
       ? { pos, verso, y: 1.4, alto: 1.6, sostegno: "cavalletto" }
       : { pos, verso, y: 1.7, alto: 2.0, sostegno: "pali" };
@@ -118,6 +121,7 @@ export default function Uliveto(props: Props) {
       </InDisparte>
       <Bacheche {...props} />
       <FotoNelPodere {...props} />
+      {props.notte && <Lanterna />}
       {props.notte && !props.ridotto && <Lucciole />}
       <Passo progresso={props.progresso} ridotto={props.ridotto} onPronta={props.onPronta} />
     </Canvas>
@@ -186,12 +190,14 @@ void main(){
   float u = fract(atan(d.z, d.x) / 6.2831853 + 0.5 + uGiro);
   float v = asin(clamp(d.y, -1.0, 1.0)) / 3.1415926 + 0.5;
   vec3 m = texture2D(uMappa, vec2(u, v)).rgb;
+  // di notte la foto si scurisce e si contrasta: blu profondo in alto, non la foschia grigia di prima
+  m = mix(m, pow(m, vec3(1.35)) * 0.5, uNotte);
   m = mix(m, uNebbia, smoothstep(0.05, -0.03, d.y));
   gl_FragColor = vec4(mix(c, m, uPronto), 1.0);
 }`;
 
 /** Il colore della nebbia, lo stesso dell'orizzonte della foto: la terra lontana ci sfuma dentro. */
-const NEBBIA = { giorno: "#A99B85", notte: "#272D33" };
+const NEBBIA = { giorno: "#A99B85", notte: "#141922" };
 
 function Cielo({ notte }: { notte: boolean }) {
   // il tramonto: orizzonte d'oro, cielo che sale all'azzurro; la notte: blu profondo, la luna al posto del sole
@@ -252,12 +258,12 @@ function Cielo({ notte }: { notte: boolean }) {
       </mesh>
       {notte && (
         <points ref={stelleRif} geometry={stelle}>
-          <pointsMaterial color="#E8ECF5" size={0.3} sizeAttenuation transparent opacity={0.55} fog={false} depthWrite={false} />
+          <pointsMaterial color="#EEF2FA" size={0.34} sizeAttenuation transparent opacity={0.9} fog={false} depthWrite={false} />
         </points>
       )}
-      <fog attach="fog" args={[notte ? NEBBIA.notte : NEBBIA.giorno, notte ? 12 : 16, notte ? 56 : 72]} />
+      <fog attach="fog" args={[notte ? NEBBIA.notte : NEBBIA.giorno, notte ? 10 : 16, notte ? 50 : 72]} />
       {/* di notte la luna sta alle spalle di chi cammina: la terra, i muretti e la macina si leggono, freddi */}
-      <hemisphereLight args={[notte ? "#7F90C0" : "#FFE2B8", notte ? "#3A3028" : "#7A5236", notte ? 2.0 : 1.1]} />
+      <hemisphereLight args={[notte ? "#6F82B8" : "#FFE2B8", notte ? "#2A221C" : "#7A5236", notte ? 1.35 : 1.1]} />
       <directionalLight position={notte ? [-6, 12, 10] : [10, 6, -40]} intensity={notte ? 1.1 : 1.6} color={notte ? "#AFC0E8" : "#FFC98A"} />
     </>
   );
@@ -550,6 +556,25 @@ function Faretti({ posti, cono }: { posti: { x: number; z: number; s: number }[]
       </instancedMesh>
     </>
   );
+}
+
+/**
+ * Di notte una lanterna accompagna chi cammina: una luce calda, bassa, un paio di metri avanti.
+ * Accende la trazzera, i muretti e i quadri vicini contro il blu della luna: il corridoio si legge.
+ */
+function Lanterna() {
+  const luce = useRef<THREE.PointLight>(null);
+  const avanti = useMemo(() => new THREE.Vector3(), []);
+  useFrame(({ camera }, dt) => {
+    const l = luce.current;
+    if (!l) return;
+    camera.getWorldDirection(avanti).setY(0).normalize();
+    const x = camera.position.x + avanti.x * 2.4, z = camera.position.z + avanti.z * 2.4;
+    l.position.x += (x - l.position.x) * Math.min(1, dt * 4);
+    l.position.z += (z - l.position.z) * Math.min(1, dt * 4);
+    l.position.y = quota(l.position.x, l.position.z) + 1.1;
+  });
+  return <pointLight ref={luce} intensity={9} distance={11} decay={1.6} color="#FFBE7A" />;
 }
 
 /** Di notte qualche lucciola fra gli ulivi vicini al cammino. */
@@ -1004,7 +1029,7 @@ function QuadroFraGliUlivi({
     const d = camera.position.distanceTo(posto);
     const vicino = d < 9 ? 1 : 0;
     acceso.current += (vicino - acceso.current) * Math.min(1, dt * 2.5);
-    if (mat.current) mat.current.color.setScalar((notte ? 0.45 : 0.6) + (notte ? 0.35 : 0.4) * acceso.current);
+    if (mat.current) mat.current.color.setScalar((notte ? 0.58 : 0.6) + (notte ? 0.36 : 0.4) * acceso.current);
     const k = 1 + acceso.current * 0.04 + (sopra ? 0.04 : 0);
     g.scale.setScalar(k);
     const v = video;
