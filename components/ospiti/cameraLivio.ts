@@ -238,12 +238,31 @@ function maschera(k: number, texture: THREE.Texture[]) {
 export class CameraDiLivio {
   gruppo = new THREE.Group();
   private parete: THREE.MeshStandardMaterial;
+  private noce!: THREE.MeshStandardMaterial;
+  private velo!: THREE.MeshBasicMaterial;
   private piatto = new THREE.Group();
   private texture: THREE.Texture[] = [];
 
   constructor() {
     const legno = (colore: string, ripeti: [number, number] = [1, 1], ruvido = 0.7) => new THREE.MeshStandardMaterial({ color: colore, map: granaLegno(ripeti), roughness: ruvido });
-    this.parete = new THREE.MeshStandardMaterial({ color: "#ECE7DE", roughness: 0.95 });
+    // la parete a calce: la grana dell'intonaco d'argilla di Poly Haven (clay_plaster), ridotta a luminosità,
+    // col suo rilievo; il colore lo dà il materiale
+    const carica = (url: string, colore: boolean, ripeti: [number, number]) => {
+      const t = new THREE.TextureLoader().load(url);
+      t.wrapS = t.wrapT = THREE.RepeatWrapping;
+      t.repeat.set(ripeti[0], ripeti[1]);
+      t.anisotropy = 4;
+      if (colore) t.colorSpace = THREE.SRGBColorSpace;
+      this.texture.push(t);
+      return t;
+    };
+    this.parete = new THREE.MeshStandardMaterial({
+      color: "#F1EADF",
+      map: carica("/stanza/intonaco.webp", true, [3, 1.6]),
+      normalMap: carica("/stanza/intonaco-rilievo.webp", false, [3, 1.6]),
+      normalScale: new THREE.Vector2(0.6, 0.6),
+      roughness: 0.95,
+    });
     const m: Record<string, THREE.Material> = {
       parete: this.parete,
       battiscopa: new THREE.MeshStandardMaterial({ color: "#D9CDB8", roughness: 0.8 }),
@@ -282,6 +301,86 @@ export class CameraDiLivio {
     p.push({ g: box(PX1 - PX0, PH, 0.08, (PX0 + PX1) / 2, PH / 2, PZ + 0.04), m: "parete" });
     p.push({ g: box(PX1 - PX0, 0.07, 0.015, (PX0 + PX1) / 2, 0.035, PZ - 0.004), m: "battiscopa" });
     const muro = PZ - 0.01;
+
+    // la parete delle chitarre: doghe verticali di noce su feltro nero, come negli studi di registrazione;
+    // in cima una striscia di led calda che le lava di luce dall'alto. La grana è il noce americano di
+    // Poly Haven (american_walnut_veneer), ridotta a luminosità e girata in verticale.
+    {
+      const X0 = -0.05, X1 = 3.05, H = PH - 0.12, P = 0.075, L = 0.046;
+      const feltro = new THREE.Mesh(new THREE.PlaneGeometry(X1 - X0 + 0.06, H).rotateY(Math.PI).translate((X0 + X1) / 2, H / 2 + 0.04, muro - 0.002), new THREE.MeshStandardMaterial({ color: "#171615", roughness: 1 }));
+      this.gruppo.add(feltro);
+      const doghe: THREE.BufferGeometry[] = [];
+      const rr = generatore(17);
+      for (let x = X0 + L / 2; x < X1; x += P) {
+        const d = new THREE.BoxGeometry(L, H, 0.024).translate(x, H / 2 + 0.04, muro - 0.016);
+        // ogni doga un tratto diverso della venatura
+        const uv = d.attributes.uv as THREE.BufferAttribute, o = rr();
+        for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * 0.12 + o, uv.getY(i) * 1.6 + o * 3);
+        doghe.push(d);
+      }
+      const grana = carica("/stanza/noce-grana.webp", true, [1, 1]);
+      this.noce = new THREE.MeshStandardMaterial({ color: "#B07A4E", map: grana, roughness: 0.55 });
+      this.gruppo.add(new THREE.Mesh(mergeGeometries(doghe), this.noce));
+      doghe.forEach((g) => g.dispose());
+      // la cornice nera in cima e in fondo, e il profilo dei led
+      p.push({ g: box(X1 - X0 + 0.08, 0.04, 0.05, (X0 + X1) / 2, H + 0.06, muro - 0.025), m: "nero" });
+      p.push({ g: box(X1 - X0 + 0.08, 0.04, 0.05, (X0 + X1) / 2, 0.06, muro - 0.025), m: "nero" });
+      const striscia = new THREE.Mesh(new THREE.BoxGeometry(X1 - X0, 0.012, 0.012).translate((X0 + X1) / 2, H + 0.035, muro - 0.045), new THREE.MeshBasicMaterial({ color: "#FFD9A0", toneMapped: false }));
+      this.gruppo.add(striscia);
+      // la luce che scende sulle doghe: un velo caldo, più forte in alto
+      const lava = tela(4, 128, (x) => {
+        const v = x.createLinearGradient(0, 0, 0, 128);
+        v.addColorStop(0, "rgba(255,255,255,1)");
+        v.addColorStop(0.35, "rgba(255,255,255,0.35)");
+        v.addColorStop(1, "rgba(255,255,255,0)");
+        x.fillStyle = v;
+        x.fillRect(0, 0, 4, 128);
+      });
+      this.texture.push(lava);
+      this.velo = new THREE.MeshBasicMaterial({ map: lava, color: "#FFB766", transparent: true, opacity: 0.18, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false });
+      this.gruppo.add(new THREE.Mesh(new THREE.PlaneGeometry(X1 - X0, H * 0.9).rotateY(Math.PI).translate((X0 + X1) / 2, H - (H * 0.9) / 2 + 0.03, muro - 0.03), this.velo));
+    }
+
+    // il tappeto sotto la scrivania: un kilim rosso, nero e crema, come quello di casa
+    {
+      const kilim = tela(256, 160, (x) => {
+        x.fillStyle = "#6E1C1A";
+        x.fillRect(0, 0, 256, 160);
+        x.fillStyle = "#1C1414";
+        x.fillRect(10, 10, 236, 140);
+        x.fillStyle = "#8E2A22";
+        x.fillRect(22, 22, 212, 116);
+        // rombi a gradini, motivi a uncino nella fascia
+        const rombo = (cx: number, cy: number, r: number, c: string) => {
+          x.fillStyle = c;
+          for (let k = 0; k < r; k += 4) {
+            x.fillRect(cx - (r - k), cy - k, (r - k) * 2, 4);
+            x.fillRect(cx - (r - k), cy + k - 4, (r - k) * 2, 4);
+          }
+        };
+        rombo(128, 80, 44, "#1C1414");
+        rombo(128, 80, 30, "#E8DCC4");
+        rombo(128, 80, 16, "#B8322A");
+        for (const cx of [58, 198]) {
+          rombo(cx, 80, 22, "#E8DCC4");
+          rombo(cx, 80, 12, "#1C1414");
+        }
+        for (let i = 0; i < 24; i++) {
+          x.fillStyle = i % 2 ? "#E8DCC4" : "#B8322A";
+          x.fillRect(14 + i * 9.8, 13, 5, 5);
+          x.fillRect(14 + i * 9.8, 142, 5, 5);
+        }
+        // le frange
+        x.fillStyle = "#E8DCC4";
+        for (let i = 0; i < 64; i++) {
+          x.fillRect(i * 4, 0, 1, 6);
+          x.fillRect(i * 4, 154, 1, 6);
+        }
+      });
+      this.texture.push(kilim);
+      const tappeto = new THREE.Mesh(new THREE.PlaneGeometry(2.7, 1.7).rotateX(-Math.PI / 2).rotateY(Math.PI).translate(0.15, 0.004, 0.7), new THREE.MeshStandardMaterial({ map: kilim, roughness: 1 }));
+      this.gruppo.add(tappeto);
+    }
 
     // le chitarre appese, nell'ordine della foto da sinistra a destra (+x è la sinistra di chi guarda)
     const gancio = (x: number, y: number) => {
@@ -458,8 +557,10 @@ export class CameraDiLivio {
   }
 
   setNotte(notte: boolean) {
-    // di notte la parete resta un poco chiara: le chitarre scure vi si stagliano
-    this.parete.color.set(notte ? "#4A4640" : "#ECE7DE");
+    // di notte la calce resta un poco chiara, il noce si scurisce e i led lo lavano di più: le chitarre si stagliano
+    this.parete.color.set(notte ? "#57514A" : "#F1EADF");
+    this.noce.color.set(notte ? "#6E4A30" : "#B07A4E");
+    this.velo.opacity = notte ? 0.55 : 0.18;
   }
 
   aggiorna(dt: number, ridotto: boolean) {
