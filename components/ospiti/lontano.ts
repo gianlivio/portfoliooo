@@ -16,6 +16,53 @@ const SU = PELO_ACQUA - 0.3;
 
 const suAnello = (a: number, d: number, y = 0) => new THREE.Vector3(Math.sin(a) * d, y, -Math.cos(a) * d);
 
+/**
+ * La versione notturna di un luogo a colori cotti (l'Alhambra, Bologna): ne clona le geometrie e ricolora
+ * i vertici. La pietra calda e gli intonaci chiari del costruito diventano ambra, come sotto i riflettori;
+ * il verde dei boschi quasi nero; le montagne dietro (z locale oltre 3) blu notte, la neve appena chiara.
+ * Alla base del costruito, una fila di aloni caldi: i riflettori che lo illuminano dal basso.
+ */
+function notturno(g: THREE.Group, alone: THREE.Texture) {
+  const n = g.clone(true);
+  const c = new THREE.Color(), v = new THREE.Vector3(), box = new THREE.Box3();
+  n.traverse((o) => {
+    const m = o as THREE.Mesh;
+    if (!m.isMesh) return;
+    m.geometry = m.geometry.clone();
+    const col = m.geometry.attributes.color as THREE.BufferAttribute | undefined;
+    if (!col) {
+      const mat = (m.material as THREE.MeshBasicMaterial).clone();
+      mat.color.multiplyScalar(0.3);
+      m.material = mat;
+      return;
+    }
+    const pos = m.geometry.attributes.position as THREE.BufferAttribute;
+    for (let i = 0; i < col.count; i++) {
+      c.fromBufferAttribute(col, i);
+      v.fromBufferAttribute(pos, i);
+      const l = 0.2126 * c.r + 0.7152 * c.g + 0.0722 * c.b;
+      // i colori dei vertici sono lineari: i valori bassi qui sono già scuri a schermo
+      if (v.z > 3) c.setRGB(...(l > 0.75 ? [0.05, 0.06, 0.11] : [0.008, 0.01, 0.024]) as [number, number, number]);
+      else if (c.g > c.r && c.g >= c.b) c.setRGB(0.004, 0.008, 0.006);
+      else if (c.r > c.b + 0.08 || l > 0.6) {
+        c.setRGB(1, 0.42, 0.13).multiplyScalar(0.25 + 0.75 * l);
+        box.expandByPoint(v);
+      } else c.multiplyScalar(0.05);
+      col.setXYZ(i, c.r, c.g, c.b);
+    }
+    col.needsUpdate = true;
+  });
+  if (!box.isEmpty()) {
+    for (let k = 0; k < 7; k++) {
+      const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: alone, color: "#FFB45A", transparent: true, opacity: 0.32, blending: THREE.AdditiveBlending, depthWrite: false, fog: false }));
+      s.position.set(box.min.x + ((box.max.x - box.min.x) * (k + 0.5)) / 7, box.min.y + 0.4, box.min.z - 0.3);
+      s.scale.setScalar(2.4);
+      n.add(s);
+    }
+  }
+  return n;
+}
+
 /** Orienta un oggetto sull'anello: −z locale verso il centro, cioè verso chi guarda. */
 function rivolgi(o: THREE.Object3D, a: number) {
   o.rotation.y = Math.PI - a;
@@ -310,11 +357,16 @@ export class Lontano {
     const al = alhambra(ANGOLO_ZONA - 0.02);
     al.scale.setScalar(1.35);
     this.giorno.add(al);
+    // di notte l'Alhambra e Bologna restano, illuminate dai riflettori: l'orizzonte sopra lo sviluppatore non è più vuoto
+    const txRifl = alone("#FFD9A0");
+    this.texture.push(txRifl);
+    this.notte.add(notturno(al, txRifl));
     // San Luca (a sinistra nel gruppo) cade sopra la carta più bassa dell'anello; le torri stanno più a destra
     const bo = bologna(ANGOLO_ZONA - 1.16);
     bo.scale.setScalar(1.5);
     this.texture.push(bo.userData.texture as THREE.Texture);
     this.giorno.add(bo);
+    this.notte.add(notturno(bo, txRifl));
 
     // le pale eoliche sulla cresta di dietro
     const bianco = new THREE.MeshLambertMaterial({ color: "#F4F5F7", fog: false });
