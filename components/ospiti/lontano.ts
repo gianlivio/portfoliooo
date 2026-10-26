@@ -338,7 +338,11 @@ export class Lontano {
       lab.add(
         unisci([
           colora(
-            rilievo(-6.5, 6.5, -4, 4, 52, 32, (x, z) => H * Math.exp(-(x * x) / 10 - (z * z) / 5) - 0.25 + 0.08 * Math.sin(x * 2 + z)),
+            // un poggio largo, piatto in cima e inclinato verso chi guarda come il labirinto, che vi poggia tutto
+            rilievo(-8, 8, -5.5, 5.5, 64, 44, (x, z) => {
+              const k = 1 - THREE.MathUtils.smoothstep(Math.hypot(x / 3.4, z / 3.4), 0.85, 2.2);
+              return (H + 0.5 * z) * k + 0.08 * Math.sin(x * 2 + z) - 0.25;
+            }),
             "#B99A58",
             0.14,
             (q) => new THREE.Color(q.y > H - 1.0 ? "#C8A85E" : q.y > 2.2 ? "#A88E55" : "#9C9456"),
@@ -346,8 +350,8 @@ export class Lontano {
         ]),
       );
       const disco = labirinto();
-      disco.position.set(0, H - 0.3, 0.2);
-      disco.rotation.x = -0.6;
+      disco.position.set(0, H - 0.25, 0);
+      disco.rotation.x = -Math.atan(0.5);
       lab.add(disco);
       this.giorno.add(lab);
     }

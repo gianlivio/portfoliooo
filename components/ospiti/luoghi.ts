@@ -214,7 +214,8 @@ function sanGiorgio(p: Pezzi) {
 
 /** La pagoda della pace del reverendo Morishita: due terrazze bianche, lo stupa, la guglia dorata, la nicchia del Buddha. Base a y = 0. */
 function pagoda(p: Pezzi) {
-  blocco(p, 0, -0.4, 0, 3.4, 0.9, 3.4, "#F3F1EC");
+  // il podio di pietra bianca, che affonda nel promontorio: la pagoda poggia, non galleggia
+  blocco(p, 0, -2.2, 0, 3.4, 2.7, 3.4, "#F3F1EC");
   blocco(p, 0, 0.5, 0, 2.6, 0.45, 2.6, "#F3F1EC");
   cupola(p, 0, 0.95, 0, 1.15, "#FAF9F6", 0.85);
   blocco(p, 0, 1.92, 0, 0.5, 0.25, 0.5, "#F3F1EC");
@@ -291,7 +292,7 @@ function colleBarocco() {
   const px = 4.4, pz = 0.4;
   // lo sperone, col promontorio della pagoda sul fianco sinistro (+x è la sinistra di chi guarda)
   const sperone = (x: number, z: number) =>
-    Math.max(0, 5.2 * Math.exp(-((x * x) / 30 + ((z - 1.2) * (z - 1.2)) / 9)) + 1.3 * Math.exp(-(((x - px) * (x - px)) / 1.6 + ((z - pz) * (z - pz)) / 2)) + 0.1 * Math.sin(x * 2 + z)) - 0.3;
+    Math.max(0, 5.2 * Math.exp(-((x * x) / 30 + ((z - 1.2) * (z - 1.2)) / 9)) + 1.6 * (1 - THREE.MathUtils.smoothstep(Math.hypot((x - px) / 1.6, (z - pz) / 1.4), 0.7, 1.6)) + 0.1 * Math.sin(x * 2 + z)) - 0.3;
   // tutt'attorno la campagna scende fin sotto il pavimento, a terrazzamenti: il colle non resta sospeso nel
   // vuoto. Da quaggiù si vedono le alzate, cioè i muretti a secco, più che i campi in piano: per questo i gradini.
   const discesa = (x: number, z: number) => 3.6 * THREE.MathUtils.smoothstep(Math.hypot(x / 10, (z - 1) / 5), 0.7, 1.45);
@@ -826,14 +827,14 @@ class Flamenco {
     this.gruppo.position.set(Math.sin(a) * d, PAV + 2.4, -Math.cos(a) * d);
     // −z locale verso chi guarda: la grotta (+z) sta dietro
     this.gruppo.rotation.y = Math.PI - a;
-    this.gruppo.scale.setScalar(1.6);
+    this.gruppo.scale.setScalar(0.8);
     const pelle = stoffa(PELLE), nero = stoffa("#18171C"), bianco = stoffa("#EFEAE0"), legno = stoffa("#6A4628");
     const calce = stoffa("#EDE6D8"), rame = stoffa("#B8693A", { roughness: 0.4, metalness: 0.2 });
     // il terrazzo: il muro di sostegno imbiancato fino a terra, il piano di tavole
     // il pendio sotto il terrazzo, coi fichi d'India: scende fin sotto il pavimento
     {
-      const h = 2.4 / 1.6 + 0.2;
-      this.gruppo.add(new THREE.Mesh(new THREE.CylinderGeometry(2.6, 4.2, h, 24, 1).scale(1, 1, 0.75).translate(0, -h / 2, 0.4), stoffa("#7C7A4E")));
+      const h = 2.4 / 0.8 + 0.2;
+      this.gruppo.add(new THREE.Mesh(new THREE.CylinderGeometry(2.6, 5.2, h, 24, 1).scale(1, 1, 0.75).translate(0, -h / 2, 0.4), stoffa("#7C7A4E")));
       this.gruppo.add(new THREE.Mesh(new THREE.BoxGeometry(3.8, 0.35, 2.7).translate(0, -0.175, 0.2), calce));
       const fico = stoffa("#5E7A3E");
       for (const [x, y, z] of [[-2.4, -0.6, -0.6], [2.5, -0.9, -0.4], [-1.6, -1.4, -1.6], [1.9, -1.6, -1.5]]) {

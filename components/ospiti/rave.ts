@@ -75,14 +75,15 @@ export class Rave {
 
     // il pianoro: piatto in cima, scende ripido verso l'acqua; terra scura, appena illuminata dal rave
     {
-      const geo = new THREE.PlaneGeometry(30, 20, 60, 40).rotateX(-Math.PI / 2).translate(0, 0, 1);
+      const geo = new THREE.PlaneGeometry(40, 28, 80, 56).rotateX(-Math.PI / 2).translate(0, 0, 1);
       const pos = geo.attributes.position as THREE.BufferAttribute;
       const col = new Float32Array(pos.count * 3);
       const c = new THREE.Color();
       for (let i = 0; i < pos.count; i++) {
         const x = pos.getX(i), z = pos.getZ(i);
-        const t = Math.hypot(x / 12.5, (z - 1) / 7.5);
-        const k = t < 0.85 ? 1 : t > 1.25 ? 0 : 1 - THREE.MathUtils.smoothstep(t, 0.85, 1.25);
+        // piatto fin oltre i camper e le volanti, poi giù ripido
+        const t = Math.hypot(x / 14, (z - 1) / 9.5);
+        const k = t < 1 ? 1 : t > 1.35 ? 0 : 1 - THREE.MathUtils.smoothstep(t, 1, 1.35);
         pos.setY(i, -0.6 + (H + 0.6) * k + 0.08 * Math.sin(x * 1.7 + z));
         // al centro la terra battuta riflette un poco le luci del palco
         const luce = Math.exp(-(x * x) / 30 - ((z - 1) * (z - 1)) / 10);
