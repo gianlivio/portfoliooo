@@ -559,22 +559,28 @@ function Faretti({ posti, cono }: { posti: { x: number; z: number; s: number }[]
 }
 
 /**
- * Di notte una lanterna accompagna chi cammina: una luce calda, bassa, un paio di metri avanti.
- * Accende la trazzera, i muretti e i quadri vicini contro il blu della luna: il corridoio si legge.
+ * Di notte, davanti a chi cammina, una pozza di luce calda sulla trazzera, come d'una lanterna portata a mano.
+ * Non è una luce della scena: è un disco sfumato, additivo, che segue la camera. Una luce vera in più
+ * costringerebbe a ricompilare tutti i materiali e pesa su ogni pixel: sui telefoni bloccava l'uliveto.
  */
 function Lanterna() {
-  const luce = useRef<THREE.PointLight>(null);
+  const disco = useRef<THREE.Mesh>(null);
   const avanti = useMemo(() => new THREE.Vector3(), []);
-  useFrame(({ camera }, dt) => {
-    const l = luce.current;
-    if (!l) return;
+  const mappa = useMemo(() => alone("#FFB870"), []);
+  useEffect(() => () => mappa.dispose(), [mappa]);
+  useFrame(({ camera }) => {
+    const d = disco.current;
+    if (!d) return;
     camera.getWorldDirection(avanti).setY(0).normalize();
-    const x = camera.position.x + avanti.x * 2.4, z = camera.position.z + avanti.z * 2.4;
-    l.position.x += (x - l.position.x) * Math.min(1, dt * 4);
-    l.position.z += (z - l.position.z) * Math.min(1, dt * 4);
-    l.position.y = quota(l.position.x, l.position.z) + 1.1;
+    const x = camera.position.x + avanti.x * 2.6, z = camera.position.z + avanti.z * 2.6;
+    d.position.set(x, quota(x, z) + 0.1, z);
   });
-  return <pointLight ref={luce} intensity={9} distance={11} decay={1.6} color="#FFBE7A" />;
+  return (
+    <mesh ref={disco} rotation={[-Math.PI / 2, 0, 0]} renderOrder={2}>
+      <planeGeometry args={[6.5, 6.5]} />
+      <meshBasicMaterial map={mappa} color="#FFB870" transparent opacity={0.42} blending={THREE.AdditiveBlending} depthWrite={false} fog={false} />
+    </mesh>
+  );
 }
 
 /** Di notte qualche lucciola fra gli ulivi vicini al cammino. */
