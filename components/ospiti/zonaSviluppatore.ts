@@ -4,11 +4,14 @@ import { POSIZIONI, collocaZona } from "../zona";
 import { alone, liberaTutto, tela } from "./comuni";
 import { Scrivania } from "./scrivania";
 import { granaLegno } from "./polyhaven";
+import { CameraDiLivio } from "./cameraLivio";
 
 /**
  * La zona dello sviluppatore, il centro del mondo: la scrivania e, intorno, tutto piccolo e in scala con lui:
  * la drum machine sul piano (l'interruttore dell'audio), un pannello di legno con la mensola dei due libri
- * e lo schiacciasogni, e un tavolino con le macchine del suono e il rack modulare. Il cassetto aperto è in components/Portale.tsx.
+ * e lo schiacciasogni, e un tavolino con le macchine del suono e il rack modulare; alle spalle le cose della
+ * camera di Livio (ospiti/cameraLivio.ts): la parete con le chitarre e le maschere, il giradischi, il piano,
+ * il Mook Jong, la libreria. Il cassetto aperto è in components/Portale.tsx.
  * Le misure sono in metri, nelle coordinate della scrivania (vedi components/zona.ts).
  * Con "riduci movimento" la zona resta, ferma: niente si muove, ma libri e drum machine si possono cliccare.
  */
@@ -650,6 +653,7 @@ export class Zona {
   private studio: Studio;
   private pannello: Pannello;
   private schiacciasogni: Schiacciasogni;
+  private camera: CameraDiLivio;
   private texture: THREE.Texture[] = [];
   private notte: boolean;
 
@@ -664,6 +668,9 @@ export class Zona {
     this.gruppo.add(this.pannello.gruppo);
     this.schiacciasogni = new Schiacciasogni(this.texture);
     this.gruppo.add(this.schiacciasogni.gruppo);
+    this.camera = new CameraDiLivio();
+    this.gruppo.add(this.camera.gruppo);
+    this.camera.setNotte(notte);
     this.pannello.setNotte(notte);
     // solo libri e drum machine rispondono al puntatore
     this.gruppo.traverse((o) => {
@@ -680,6 +687,7 @@ export class Zona {
     this.notte = notte;
     this.scrivania.setNotte(notte);
     this.pannello.setNotte(notte);
+    this.camera.setNotte(notte);
   }
 
   /** Il titolo di un libro sopra il libro, al passaggio del puntatore. */
@@ -696,6 +704,7 @@ export class Zona {
   aggiorna(t: number, dt: number, camera: THREE.Camera, ridotto: boolean) {
     this.studio.aggiorna(t, ridotto);
     this.pannello.aggiorna(dt, ridotto);
+    this.camera.aggiorna(dt, ridotto);
     if (ridotto) return;
     this.scrivania.aggiorna(t, dt);
     this.schiacciasogni.aggiorna(t, this.notte);
@@ -704,6 +713,7 @@ export class Zona {
 
   libera() {
     this.scrivania.libera();
+    this.camera.libera();
     liberaTutto(this.gruppo, this.texture);
   }
 }
