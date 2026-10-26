@@ -7,9 +7,10 @@ import { granaLegno } from "./polyhaven";
  * Le cose della camera di Livio, rifatte dalle sue foto e messe attorno alla scrivania dello sviluppatore:
  * un tratto di parete chiara alle sue spalle con le cinque chitarre appese nell'ordine della foto (la classica
  * rosa, il sitar, la classica di legno, l'elettrica bianca col battipenna crema e il ponte mobile, la nera a
- * punte), le tre maschere africane in colonna; sotto, il mobile scuro col giradischi che gira; a sinistra
- * il pianoforte digitale sul supporto a X col pedale, e il Mook Jong, l'uomo di legno del kung fu; dietro il
- * tavolino delle macchine la libreria bianca a celle irregolari, piena di libri.
+ * punte), le tre maschere africane in colonna, lo schiacciasogni; sotto le chitarre il pianoforte digitale sul
+ * supporto a X; davanti, in vista, il mobile scuro col giradischi che gira; più in là il Mook Jong, l'uomo di
+ * legno del kung fu; dietro lo studietto la libreria bianca a celle irregolari (in cima i tre libri, in
+ * zonaSviluppatore.ts) e accanto la Les Paul dorata sul portachitarra, con l'amplificatore.
  * Coordinate della zona (components/zona.ts): x di lato (+x a sinistra per chi guarda), y in alto, z verso
  * fuori (+z lontano da chi guarda). Le facce "davanti" guardano −z, verso chi guarda.
  * I pezzi fermi si fondono per materiale: poche chiamate di disegno.
@@ -108,7 +109,10 @@ function aPunte(): Pezzo[] {
   const p: Pezzo[] = [];
   const meta: [number, number][] = [[0, 0.07], [0.1, -0.03], [0.12, 0.07], [0.21, 0.12], [0.14, 0.2], [0.15, 0.3], [0.21, 0.42], [0.1, 0.37], [0.04, 0.36]];
   const pts = [...meta, ...meta.slice(1).reverse().map(([x, y]) => [-x, y] as [number, number])];
-  p.push({ g: corpo(new THREE.Shape(pts.map(([x, y]) => new THREE.Vector2(x, y))), 0.042, 0.003), m: "neroOpaco" });
+  const sagoma = new THREE.Shape(pts.map(([x, y]) => new THREE.Vector2(x, y)));
+  p.push({ g: corpo(sagoma, 0.042, 0.003), m: "neroOpaco" });
+  // il filetto chiaro tutt'attorno: una sagoma appena più grande, dietro; di notte la stacca dalla parete
+  p.push({ g: corpo(sagoma, 0.03, 0).scale(1.06, 1.04, 1).translate(0, -0.006, 0.008), m: "filetto" });
   for (const y of [0.17, 0.27]) p.push({ g: box(0.08, 0.03, 0.01, 0, y, -0.026), m: "buio" });
   p.push({ g: box(0.085, 0.02, 0.01, 0, 0.12, -0.026), m: "metallo" });
   for (let k = 0; k < 4; k++) p.push({ g: cil(0.012, 0.012, 0.012, 10).rotateX(Math.PI / 2).translate(-0.08 - (k % 2) * 0.03, 0.12 + Math.floor(k / 2) * 0.05, -0.026), m: "metallo" });
@@ -256,6 +260,9 @@ export class CameraDiLivio {
       bianco: new THREE.MeshStandardMaterial({ color: "#F4F2EC", roughness: 0.25 }),
       crema: new THREE.MeshStandardMaterial({ color: "#E8DCBC", roughness: 0.4 }),
       neroOpaco: new THREE.MeshStandardMaterial({ color: "#161618", roughness: 0.85 }),
+      filetto: new THREE.MeshStandardMaterial({ color: "#B9BCC2", roughness: 0.4, emissive: "#2A2C30" }),
+      oro: new THREE.MeshStandardMaterial({ color: "#D8B24C", roughness: 0.3, metalness: 0.25 }),
+      mogano: legno("#6B3A22", [0.4, 1], 0.5),
       zucca: new THREE.MeshStandardMaterial({ color: "#4E2618", roughness: 0.45 }),
       zuccaChiara: new THREE.MeshStandardMaterial({ color: "#6B3A22", roughness: 0.45 }),
       intarsio: new THREE.MeshStandardMaterial({ color: "#EDE6D3", roughness: 0.5 }),
@@ -307,7 +314,7 @@ export class CameraDiLivio {
 
     // il mobile scuro sotto le chitarre, a sinistra della scrivania, e sopra il giradischi
     {
-      const X = 1.75, Z = PZ - 0.26;
+      const X = 2.9, Z = 0.8;
       p.push({ g: box(1.15, 0.5, 0.42, X, 0.27, Z), m: "mobile" });
       p.push({ g: box(1.1, 0.012, 0.005, X, 0.2, Z - 0.212), m: "buio" });
       p.push({ g: box(0.16, 0.02, 0.01, X, 0.11, Z - 0.215), m: "metallo" });
@@ -355,7 +362,7 @@ export class CameraDiLivio {
         g.push({ g: box(0.04, 0.035, 0.42, sx, 0.02, 0), m: "nero" });
       }
       g.push({ g: box(0.09, 0.03, 0.14, 0.25, 0.015, -0.32), m: "buio" });
-      metti(g, 2.9, 0, 0.72, 0, 0.12);
+      metti(g, 1.78, 0, 1.24, 0, 0);
     }
 
     // il Mook Jong: il tronco di legno coi tre bracci e la gamba, sul suo piede, più a sinistra
@@ -411,12 +418,48 @@ export class CameraDiLivio {
       p.push(...g);
     }
 
+    // la Les Paul dorata sul portachitarra a terra, appoggiata un poco all'indietro, e l'amplificatore davanti
+    {
+      const lp: Pezzo[] = [];
+      const s = morbido([[0, 0], [0.14, 0.02], [0.18, 0.12], [0.165, 0.22], [0.12, 0.27], [0.13, 0.33], [0.11, 0.41], [0.06, 0.44], [0.035, 0.42], [-0.035, 0.4], [-0.05, 0.43], [-0.08, 0.41], [-0.09, 0.33], [-0.12, 0.27], [-0.165, 0.2], [-0.18, 0.11], [-0.13, 0.02]]);
+      lp.push({ g: corpo(s, 0.05, 0.004), m: "crema" });
+      lp.push({ g: new THREE.ShapeGeometry(s, 16).scale(0.97, 0.98, 1).rotateY(Math.PI).translate(0, 0.004, -0.031), m: "oro" });
+      for (const y of [0.17, 0.27]) {
+        lp.push({ g: box(0.075, 0.035, 0.012, 0, y, -0.036), m: "metallo" });
+        lp.push({ g: box(0.06, 0.022, 0.004, 0, y, -0.043), m: "buio" });
+      }
+      lp.push({ g: box(0.09, 0.015, 0.012, 0, 0.11, -0.036), m: "metallo" });
+      lp.push({ g: box(0.07, 0.012, 0.01, 0, 0.07, -0.035), m: "metallo" });
+      for (let k = 0; k < 4; k++) lp.push({ g: cil(0.013, 0.013, 0.014, 10).rotateX(Math.PI / 2).translate(0.07 + (k % 2) * 0.035, 0.05 + Math.floor(k / 2) * 0.045, -0.034), m: "ottone" });
+      lp.push({ g: box(0.048, 0.42, 0.024, 0, 0.62, -0.02), m: "mogano" });
+      lp.push({ g: box(0.052, 0.42, 0.006, 0, 0.62, -0.034), m: "palissandro" });
+      for (let k = 0; k < 7; k++) lp.push({ g: box(0.03, 0.01, 0.002, 0, 0.46 + k * 0.055, -0.038), m: "crema" });
+      const testa = new THREE.Shape([new THREE.Vector2(-0.032, 0), new THREE.Vector2(0.032, 0), new THREE.Vector2(0.045, 0.17), new THREE.Vector2(0.02, 0.185), new THREE.Vector2(0, 0.175), new THREE.Vector2(-0.02, 0.185), new THREE.Vector2(-0.045, 0.17)]);
+      lp.push({ g: corpo(testa, 0.016, 0.002).translate(0, 0.83, -0.02), m: "buio" });
+      for (const sx of [-1, 1]) for (let k = 0; k < 3; k++) lp.push({ g: cil(0.007, 0.007, 0.025, 6).rotateZ(Math.PI / 2).translate(sx * 0.055, 0.87 + k * 0.045, -0.02), m: "metallo" });
+      for (let k = 0; k < 6; k++) lp.push({ g: box(0.0016, 0.74, 0.0016, -0.012 + k * 0.005, 0.47, -0.04), m: "metallo" });
+      // il portachitarra: le due gambe ad A, il collo che regge il manico, la culla in basso
+      const st: Pezzo[] = [];
+      for (const sx of [-1, 1]) st.push({ g: box(0.02, 0.62, 0.02, 0, 0, 0).rotateZ(sx * 0.18).translate(sx * 0.07, 0.3, 0.06), m: "nero" });
+      st.push({ g: box(0.02, 0.75, 0.02, 0, 0, 0).rotateX(-0.25).translate(0, 0.37, 0.15), m: "nero" });
+      st.push({ g: box(0.24, 0.025, 0.06, 0, 0.14, -0.02), m: "nero" });
+      st.push({ g: box(0.06, 0.03, 0.03, 0, 0.72, 0.1), m: "nero" });
+      const X = -2.72, Z = 1.02;
+      for (const q of lp) p.push({ g: q.g.rotateX(0.2).translate(X, 0.15, Z), m: q.m });
+      for (const q of st) p.push({ g: q.g.translate(X, 0, Z), m: q.m });
+      // l'amplificatore nero, davanti, con la griglia e le manopole cromate
+      p.push({ g: box(0.4, 0.32, 0.22, X - 0.2, 0.16, Z - 0.38), m: "neroOpaco" });
+      p.push({ g: box(0.34, 0.2, 0.006, X - 0.2, 0.13, Z - 0.493), m: "buio" });
+      for (let k = 0; k < 5; k++) p.push({ g: cil(0.01, 0.01, 0.015, 8).rotateX(Math.PI / 2).translate(X - 0.33 + k * 0.06, 0.28, Z - 0.495), m: "metallo" });
+    }
+
     fondi(p, m, this.gruppo);
     this.gruppo.traverse((o) => (o.raycast = () => undefined));
   }
 
   setNotte(notte: boolean) {
-    this.parete.color.set(notte ? "#2A2A2F" : "#ECE7DE");
+    // di notte la parete resta un poco chiara: le chitarre scure vi si stagliano
+    this.parete.color.set(notte ? "#4A4640" : "#ECE7DE");
   }
 
   aggiorna(dt: number, ridotto: boolean) {

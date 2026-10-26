@@ -45,10 +45,8 @@ const nomeLibro = (l: (typeof LIBRI)[number]) => (l.versione ? `${l.titolo} ${l.
 /** Cosa succede cliccando un oggetto della zona: lo legge Scena dagli userData. */
 export type Azione = { tipo: "drum" } | { tipo: "libro"; indice: number };
 
-const PARETE_GIORNO = "#E4DED3";
-const PARETE_NOTTE = "#2A2A2F";
 
-/* -------------------------------------------- il tavolino delle macchine */
+/* -------------------------------------------- lo studietto con le macchine */
 
 /** Una tela che diventa la faccia di sopra di una macchina; si ridisegna quando cambiano le luci. */
 function faccia(l: number, a: number, texture: THREE.Texture[]) {
@@ -67,19 +65,17 @@ type Faccia = ReturnType<typeof faccia>;
 const ACCESI = ["#FF4D3A", "#FFB23A", "#F5E04A", "#5BE36B", "#3AC8FF", "#9C6BFF"];
 
 /**
- * Un tavolino a parte, accanto alla scrivania, con le macchine del suono: un sintetizzatore d'argento
- * a una voce con le sue manopole, una drum machine coi sedici tasti a passi colorati, un campionatore nero
- * col display "MALA CARNE · 130 BPM", e dietro un rack modulare coi cavi che pendono in verticale.
- * Macchine generiche, senza marchi. Le luci girano piano anche a suono spento, per invitare al clic;
- * a loop acceso vanno a tempo. Un clic sul tavolino accende o spegne il loop.
+ * Lo studietto: un tavolo a due piani con le macchine che Livio usava davvero quando suonava. Sul piano basso
+ * le due macchine a cerchi (il sequencer coi passi in tondo) e l'Electribe rosa; sul piano alto il Kaoss Pad col
+ * riquadro rosso, il Volca, il pedale grigio e l'Electribe con la pelle psichedelica, in piedi contro il fondo;
+ * ai lati del piano alto le due casse, sotto il tavolo il subwoofer. Disegnate senza marchi.
+ * Le spie a passi girano piano a suono spento, per invitare al clic; a loop acceso vanno a tempo.
+ * Un clic sul tavolo (o sulla scritta sopra) accende o spegne il loop.
  */
 class Studio {
   gruppo = new THREE.Group();
   private facce: Faccia[] = [];
-  private led: THREE.InstancedMesh;
-  private ledN = 0;
   private passo = -1;
-  private c = new THREE.Color();
   private scritta: { x: CanvasRenderingContext2D; t: THREE.CanvasTexture };
   private testi = ["", ""];
   private acceso = -1;
@@ -87,81 +83,92 @@ class Studio {
   private cartello!: THREE.Mesh;
   private sopra = false;
   private gonfio = 1;
+  /** la pelle psichedelica: disegnata una volta, poi ricopiata sotto i tasti a ogni passo */
+  private psiche: HTMLCanvasElement;
 
   constructor(texture: THREE.Texture[]) {
     const p = POSIZIONI.studio;
     this.gruppo.position.copy(p);
     const nero = new THREE.MeshStandardMaterial({ color: "#1A1B1F", roughness: 0.6 });
-    const legno = new THREE.MeshStandardMaterial({ color: "#6B5844", map: granaLegno([1, 0.6]), roughness: 0.75 });
-    // il tavolino
-    const T = { l: 0.78, p: 0.46, h: 0.62 };
-    const piano = new THREE.Mesh(new THREE.BoxGeometry(T.l, 0.03, T.p), legno);
-    piano.position.y = T.h;
-    this.gruppo.add(piano);
-    for (const x of [-T.l / 2 + 0.04, T.l / 2 - 0.04]) for (const z of [-T.p / 2 + 0.04, T.p / 2 - 0.04]) {
-      const g = new THREE.Mesh(new THREE.BoxGeometry(0.035, T.h, 0.035).translate(0, T.h / 2, 0), nero);
-      g.position.set(x, 0, z);
-      this.gruppo.add(g);
-    }
-    // le macchine: corpo e faccia di sopra disegnata
-    const macchina = (l: number, a: number, pr: number, x: number, z: number, colore: string, f: Faccia) => {
-      const corpo = new THREE.MeshStandardMaterial({ color: colore, roughness: 0.4, metalness: colore === "#C9CCD1" ? 0.6 : 0.2 });
-      const sopra = new THREE.MeshBasicMaterial({ map: f.t, toneMapped: false });
-      const m = new THREE.Mesh(new THREE.BoxGeometry(l, a, pr), [corpo, corpo, sopra, corpo, corpo, corpo]);
-      m.position.set(x, T.h + 0.015 + a / 2, z);
-      m.rotation.x = -0.05;
-      this.gruppo.add(m);
-      this.facce.push(f);
+    const legno = new THREE.MeshStandardMaterial({ color: "#3A2E26", map: granaLegno([1.2, 0.6]), roughness: 0.7 });
+    const cono = new THREE.MeshStandardMaterial({ color: "#3A3C42", roughness: 0.5 });
+    const add = (g: THREE.BufferGeometry, m: THREE.Material | THREE.Material[], x: number, y: number, z: number) => {
+      const o = new THREE.Mesh(g, m);
+      o.position.set(x, y, z);
+      this.gruppo.add(o);
+      return o;
     };
-    macchina(0.24, 0.04, 0.13, -0.24, -0.1, "#C9CCD1", faccia(240, 130, texture)); // la scatola d'argento a una voce
-    macchina(0.26, 0.04, 0.14, 0.04, -0.1, "#2E3036", faccia(260, 140, texture)); // la drum machine a passi
-    macchina(0.2, 0.05, 0.16, 0.27, -0.09, "#141518", faccia(200, 160, texture)); // il campionatore nero
-    // il rack modulare, in piedi sul fondo del tavolino
-    const rack = faccia(256, 192, texture);
-    const R = { l: 0.5, a: 0.36 };
-    const cassa = new THREE.Mesh(new THREE.BoxGeometry(R.l + 0.03, R.a + 0.03, 0.09), nero);
-    cassa.position.set(0, T.h + 0.015 + R.a / 2 + 0.015, T.p / 2 - 0.08);
-    this.gruppo.add(cassa);
-    const fronte = new THREE.Mesh(new THREE.PlaneGeometry(R.l, R.a), new THREE.MeshBasicMaterial({ map: rack.t, toneMapped: false }));
-    fronte.position.set(0, cassa.position.y, cassa.position.z - 0.046);
-    fronte.rotation.y = Math.PI;
-    this.gruppo.add(fronte);
-    this.facce.push(rack);
-    // i cavi: dalle prese in alto pendono in verticale e si piegano verso le prese in basso
-    const cavi: { col: string; pts: THREE.Vector3[] }[] = [];
-    const zc = cassa.position.z - 0.052;
-    for (let i = 0; i < 9; i++) {
-      const x = -R.l / 2 + 0.04 + i * 0.052;
-      const y0 = cassa.position.y + R.a / 2 - 0.05 - (i % 3) * 0.04;
-      const x1 = x + (i % 2 ? 0.06 : -0.05);
-      const y1 = cassa.position.y - R.a / 2 + 0.05 + (i % 4) * 0.03;
-      const giu = Math.min(y0, y1) - 0.06 - (i % 3) * 0.03;
-      cavi.push({
-        col: ACCESI[i % ACCESI.length],
-        pts: [new THREE.Vector3(x, y0, zc), new THREE.Vector3(x, giu, zc - 0.03), new THREE.Vector3(x1, giu - 0.01, zc - 0.03), new THREE.Vector3(x1, y1, zc)],
-      });
+    // il tavolo: il piano basso sulle due fiancate, il piano alto sul fondo
+    const T = { l: 1.3, p: 0.62, h: 0.72 };
+    const A = { h: 1.0, p: 0.24, z: T.p / 2 - 0.12 };
+    add(new THREE.BoxGeometry(T.l, 0.035, T.p), legno, 0, T.h, 0);
+    for (const s of [-1, 1]) {
+      add(new THREE.BoxGeometry(0.035, T.h, T.p), legno, s * (T.l / 2 - 0.0175), T.h / 2, 0);
+      add(new THREE.BoxGeometry(0.03, A.h - T.h, A.p), legno, s * (T.l / 2 - 0.015), (T.h + A.h) / 2, A.z);
     }
-    cavi.forEach(({ col, pts }) => {
-      const tubo = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 16, 0.0045, 5), new THREE.MeshStandardMaterial({ color: col, roughness: 0.5 }));
-      this.gruppo.add(tubo);
-    });
-    // le spie del rack e delle macchine: istanze di un solo puntino luminoso
-    const posti: THREE.Vector3[] = [];
-    for (let i = 0; i < 14; i++) posti.push(new THREE.Vector3(-R.l / 2 + 0.03 + (i % 7) * 0.072, cassa.position.y + (i < 7 ? 0.14 : -0.02), zc - 0.002));
-    this.led = new THREE.InstancedMesh(new THREE.SphereGeometry(0.006, 6, 4), new THREE.MeshBasicMaterial({ toneMapped: false }), posti.length);
-    const m = new THREE.Matrix4();
-    posti.forEach((q, i) => this.led.setMatrixAt(i, m.makeTranslation(q.x, q.y, q.z)));
-    this.ledN = posti.length;
-    this.gruppo.add(this.led);
-    // dove si clicca: tutto il tavolino, rack compreso
+    add(new THREE.BoxGeometry(T.l, 0.03, A.p), legno, 0, A.h, A.z);
+    // il subwoofer sotto il tavolo, la cassa grande a terra
+    add(new THREE.BoxGeometry(0.34, 0.34, 0.34), nero, -0.3, 0.17, 0.08);
+    add(new THREE.CylinderGeometry(0.11, 0.11, 0.01, 24).rotateX(Math.PI / 2), cono, -0.3, 0.17, 0.08 - 0.175);
+    // le due casse sul piano alto, ai lati: il woofer e il tweeter verso chi guarda
+    for (const s of [-1, 1]) {
+      const x = s * (T.l / 2 - 0.11);
+      add(new THREE.BoxGeometry(0.17, 0.27, 0.2), nero, x, A.h + 0.015 + 0.135, A.z);
+      add(new THREE.CylinderGeometry(0.055, 0.055, 0.01, 20).rotateX(Math.PI / 2), cono, x, A.h + 0.11, A.z - 0.103);
+      add(new THREE.CylinderGeometry(0.02, 0.02, 0.01, 12).rotateX(Math.PI / 2), cono, x, A.h + 0.23, A.z - 0.103);
+    }
+    // le macchine: corpo e faccia di sopra disegnata (o davanti, per quella in piedi)
+    const macchina = (l: number, a: number, pr: number, x: number, y: number, z: number, colore: string, f: Faccia, inPiedi = false) => {
+      const corpo = new THREE.MeshStandardMaterial({ color: colore, roughness: 0.45 });
+      const viso = new THREE.MeshBasicMaterial({ map: f.t, toneMapped: false });
+      // facce del box: +x, −x, +y, −y, +z, −z; il disegno sopra, o davanti (−z) se sta in piedi
+      const mats = inPiedi ? [corpo, corpo, corpo, corpo, corpo, viso] : [corpo, corpo, viso, corpo, corpo, corpo];
+      const m = add(new THREE.BoxGeometry(l, a, pr), mats, x, y, z);
+      if (inPiedi) m.rotation.x = 0.22;
+      // inclinate verso chi guarda: da quaggiù se ne vedono i cerchi e i tasti
+      else m.rotation.x = -0.3;
+      this.facce.push(f);
+      return m;
+    };
+    const su = T.h + 0.0175, alto = A.h + 0.015;
+    macchina(0.36, 0.06, 0.3, -0.42, su + 0.03, -0.07, "#2A2B30", faccia(360, 300, texture)); // la prima macchina a cerchi
+    macchina(0.36, 0.06, 0.3, 0.42, su + 0.03, -0.07, "#2A2B30", faccia(360, 300, texture)); // la seconda
+    macchina(0.3, 0.05, 0.24, 0, su + 0.025, -0.08, "#D9437F", faccia(300, 240, texture)); // l'Electribe rosa
+    macchina(0.3, 0.24, 0.035, 0.28, alto + 0.12, A.z + 0.03, "#1E1F23", faccia(300, 240, texture), true); // l'Electribe psichedelica, in piedi
+    macchina(0.2, 0.06, 0.23, -0.33, alto + 0.03, A.z, "#141518", faccia(200, 230, texture)); // il Kaoss Pad
+    macchina(0.19, 0.035, 0.11, -0.08, alto + 0.0175, A.z - 0.03, "#18191C", faccia(190, 110, texture)); // il Volca
+    // il pedale grigio, col suo pedale nero
+    add(new THREE.BoxGeometry(0.075, 0.055, 0.13), new THREE.MeshStandardMaterial({ color: "#8E9298", roughness: 0.5 }), 0.07, alto + 0.0275, A.z - 0.03);
+    add(new THREE.BoxGeometry(0.068, 0.012, 0.07), nero, 0.07, alto + 0.06, A.z - 0.055);
+    // la pelle psichedelica, una volta sola
+    this.psiche = document.createElement("canvas");
+    this.psiche.width = 300;
+    this.psiche.height = 240;
+    {
+      const x = this.psiche.getContext("2d") as CanvasRenderingContext2D;
+      x.fillStyle = "#C23A7E";
+      x.fillRect(0, 0, 300, 240);
+      const tinte = ["#F25CA2", "#5FD16B", "#E8E04A", "#3AC8FF", "#8A3AD9", "#FF8A3A", "#1E9A6A"];
+      let s = 7;
+      const r = () => ((s = (s * 16807) % 2147483647) / 2147483647);
+      for (let i = 0; i < 90; i++) {
+        x.fillStyle = tinte[i % tinte.length];
+        x.globalAlpha = 0.55;
+        x.beginPath();
+        x.ellipse(r() * 300, r() * 240, 8 + r() * 30, 4 + r() * 16, r() * 3, 0, Math.PI * 2);
+        x.fill();
+      }
+      x.globalAlpha = 1;
+    }
+    // dove si clicca: tutto lo studietto, casse comprese
     const presa = new THREE.Mesh(
-      new THREE.BoxGeometry(T.l + 0.1, 1.1, T.p + 0.1),
+      new THREE.BoxGeometry(T.l + 0.1, 1.35, T.p + 0.1),
       new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false, colorWrite: false })
     );
-    presa.position.y = 0.55;
+    presa.position.y = 0.68;
     presa.userData.azione = { tipo: "drum" } satisfies Azione;
     this.gruppo.add(presa);
-    // un raggio di luce sopra il tavolino, e la scritta "Accendi musica" (o "Spegni musica")
+    // un raggio di luce sopra lo studietto, e la scritta "Accendi musica" (o "Spegni musica")
     const c = document.createElement("canvas");
     c.width = 768;
     c.height = 160;
@@ -173,11 +180,10 @@ class Studio {
       new THREE.PlaneGeometry(2.4, 2.4 * (160 / 768)),
       new THREE.MeshBasicMaterial({ map: tx, transparent: true, depthWrite: false, toneMapped: false })
     );
-    // più lontana e più a destra di prima (per chi guarda), sopra il fondo del tavolino
-    cartello.position.set(0.32, 2.0, 0.45);
+    cartello.position.set(0, 2.15, 0.35);
     cartello.renderOrder = 10; // dopo le carte: è più vicina di loro, non deve finirci sotto
     cartello.rotation.y = Math.PI;
-    // la scritta è un bottone vero: cliccarla accende e spegne la musica come il tavolino
+    // la scritta è un bottone vero: cliccarla accende e spegne la musica come lo studietto
     cartello.userData.azione = { tipo: "drum" } satisfies Azione;
     this.cartello = cartello;
     this.gruppo.add(cartello);
@@ -197,13 +203,13 @@ class Studio {
     });
     texture.push(lama);
     this.raggio = new THREE.Sprite(new THREE.SpriteMaterial({ map: lama, color: "#E05BFF", transparent: true, opacity: 0.4, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false }));
-    this.raggio.position.set(0, 1.25, 0);
-    this.raggio.scale.set(0.5, 1.2, 1);
+    this.raggio.position.set(0, 1.55, 0);
+    this.raggio.scale.set(0.6, 1.3, 1);
     this.gruppo.add(this.raggio);
     this.disegna(0, false);
   }
 
-  /** Il puntatore è sopra il tavolino o sopra la scritta. */
+  /** Il puntatore è sopra lo studietto o sopra la scritta. */
   evidenzia(si: boolean) {
     this.sopra = si;
   }
@@ -253,67 +259,110 @@ class Studio {
 
   /** Ridisegna le facce: passo = sedicesimo che suona (o che gira piano a suono spento). */
   private disegna(passo: number, acceso: boolean) {
-    const [sint, drum, camp, rack] = this.facce;
-    // la scatola d'argento: due file di manopole, la tastierina a bottoni
-    {
-      const { x, t } = sint;
-      x.fillStyle = "#D9DCE0"; x.fillRect(0, 0, 240, 130);
-      for (let i = 0; i < 12; i++) {
-        x.fillStyle = "#2A2C31"; x.beginPath(); x.arc(20 + (i % 6) * 40, 24 + Math.floor(i / 6) * 34, 10, 0, 7); x.fill();
+    const [revA, revB, rosa, psiche, kaoss, volca] = this.facce;
+    const manopola = (x: CanvasRenderingContext2D, cx: number, cy: number, r: number, chiara = false) => {
+      x.fillStyle = chiara ? "#C9CCD2" : "#0E0F11";
+      x.beginPath();
+      x.arc(cx, cy, r, 0, 7);
+      x.fill();
+      x.fillStyle = chiara ? "#2A2C31" : "#E9E6DE";
+      x.fillRect(cx - 1, cy - r, 2, r * 0.7);
+    };
+    // le macchine a cerchi: anelli bianchi, sedici tasti in tondo che si accendono a turno, manopole agli angoli
+    const cerchi = (f: Faccia, centro: string, sfasa: number) => {
+      const { x, t, l, a } = f;
+      const cx = l / 2, cy = a / 2 + 6;
+      x.fillStyle = "#2A2B30";
+      x.fillRect(0, 0, l, a);
+      x.strokeStyle = "#D9D6CE";
+      x.lineWidth = 2;
+      for (const r of [52, 82, 112, 132]) {
+        x.beginPath();
+        x.arc(cx, cy, r, 0, Math.PI * 2);
+        x.stroke();
       }
-      for (let i = 0; i < 13; i++) {
-        x.fillStyle = i === passo % 13 ? ACCESI[(passo >> 2) % ACCESI.length] : "#9A9EA6";
-        x.fillRect(10 + i * 17.5, 98, 13, 20);
-      }
-      t.needsUpdate = true;
-    }
-    // la drum machine: sedici tasti a passi, si accende quello che suona
-    {
-      const { x, t } = drum;
-      x.fillStyle = "#2E3036"; x.fillRect(0, 0, 260, 140);
-      for (let i = 0; i < 4; i++) { x.fillStyle = "#C9CCD2"; x.beginPath(); x.arc(28 + i * 34, 30, 9, 0, 7); x.fill(); }
       for (let i = 0; i < 16; i++) {
-        const su = i === passo % 16;
-        x.fillStyle = su ? ACCESI[Math.floor(i / 4) % ACCESI.length] : i % 4 === 0 ? "#6A5048" : "#4A4C54";
-        x.fillRect(8 + i * 15.6, 96, 12, 28);
-        if (su) { x.fillStyle = "rgba(255,255,255,0.5)"; x.fillRect(8 + i * 15.6, 96, 12, 5); }
+        const an = (i / 16) * Math.PI * 2 - Math.PI / 2;
+        const lit = (i + sfasa) % 16 === passo % 16;
+        x.save();
+        x.translate(cx + Math.cos(an) * 97, cy + Math.sin(an) * 97);
+        x.rotate(an);
+        x.fillStyle = lit ? ACCESI[(passo >> 2) % ACCESI.length] : "#141518";
+        x.fillRect(-9, -7, 18, 14);
+        x.restore();
       }
-      t.needsUpdate = true;
-    }
-    // il campionatore: il display, otto tasti
-    {
-      const { x, t } = camp;
-      x.fillStyle = "#141518"; x.fillRect(0, 0, 200, 160);
-      x.fillStyle = acceso ? "#0E1A12" : "#101413"; x.fillRect(12, 10, 176, 50);
-      x.fillStyle = acceso ? "#8CF5A8" : "#5E9A6E";
-      x.font = "600 15px ui-monospace, monospace"; x.textBaseline = "middle";
-      x.fillText("MALA CARNE", 22, 26); x.fillText("130 BPM", 22, 46);
       for (let i = 0; i < 8; i++) {
-        x.fillStyle = (passo >> 1) % 8 === i ? ACCESI[i % ACCESI.length] : "#33353C";
-        x.fillRect(14 + (i % 4) * 44, 76 + Math.floor(i / 4) * 40, 34, 30);
+        const an = (i / 8) * Math.PI * 2;
+        x.fillStyle = "#141518";
+        x.beginPath();
+        x.arc(cx + Math.cos(an) * 67, cy + Math.sin(an) * 67, 7, 0, 7);
+        x.fill();
+      }
+      x.fillStyle = centro;
+      x.beginPath();
+      x.arc(cx, cy, 44, 0, Math.PI * 2);
+      x.fill();
+      for (const [kx, ky] of [[26, 28], [60, 22], [l - 26, 28], [l - 60, 22], [26, a - 30], [l - 26, a - 30]]) manopola(x, kx, ky, 11);
+      t.needsUpdate = true;
+    };
+    cerchi(revA, "#1A1B1F", 0);
+    cerchi(revB, acceso ? "#3A6FB0" : "#2B4C78", 8);
+    // l'Electribe: il pannello, tre file di manopole, il display, sedici tasti a passi in basso e il cursore
+    const electribe = (f: Faccia, fondo: string | HTMLCanvasElement) => {
+      const { x, t, l, a } = f;
+      if (typeof fondo === "string") {
+        x.fillStyle = fondo;
+        x.fillRect(0, 0, l, a);
+      } else x.drawImage(fondo, 0, 0, l, a);
+      for (let r = 0; r < 3; r++) for (let k = 0; k < 7; k++) manopola(x, 30 + k * 36, 30 + r * 34, 10, true);
+      x.fillStyle = "#1B2420";
+      x.fillRect(l - 70, 130, 56, 22);
+      x.fillStyle = acceso ? "#9CF2B0" : "#5E8A6E";
+      x.font = "600 13px ui-monospace, monospace";
+      x.fillText("130", l - 60, 146);
+      for (let i = 0; i < 16; i++) {
+        const lit = i === passo % 16;
+        x.fillStyle = lit ? "#FFE15A" : "#8E8A80";
+        x.fillRect(10 + i * ((l - 20) / 16), a - 44, (l - 20) / 16 - 4, 22);
+        x.fillStyle = lit ? "#FF4D3A" : "#3A2A2A";
+        x.fillRect(10 + i * ((l - 20) / 16) + 5, a - 54, 6, 6);
+      }
+      x.fillStyle = "#1A1A1C";
+      x.fillRect(20, a - 82, 90, 8);
+      t.needsUpdate = true;
+    };
+    electribe(rosa, "#E24F8B");
+    electribe(psiche, this.psiche);
+    // il Kaoss Pad: nero, il riquadro rosso che si accende a tempo, qualche tasto
+    {
+      const { x, t, l, a } = kaoss;
+      x.fillStyle = "#141518";
+      x.fillRect(0, 0, l, a);
+      const forte = acceso ? (passo % 4 === 0 ? 1 : 0.55) : 0.45 + 0.1 * Math.sin(passo);
+      x.fillStyle = `rgb(${Math.round(120 + 110 * forte)},${Math.round(20 + 30 * forte)},${Math.round(30 + 30 * forte)})`;
+      x.fillRect(40, 50, l - 80, a - 100);
+      x.strokeStyle = "#6A6C72";
+      x.lineWidth = 3;
+      x.strokeRect(40, 50, l - 80, a - 100);
+      for (let k = 0; k < 4; k++) manopola(x, 30 + k * 46, 24, 9);
+      for (let k = 0; k < 6; k++) {
+        x.fillStyle = "#3A3C42";
+        x.fillRect(20 + k * 28, a - 34, 20, 12);
       }
       t.needsUpdate = true;
     }
-    // il rack: moduli, manopole, prese
+    // il Volca: tre file di manopole e la fila di tasti a sfioramento con le spie
     {
-      const { x, t } = rack;
-      x.fillStyle = "#1C1D21"; x.fillRect(0, 0, 256, 192);
-      const larg = [36, 28, 44, 24, 36, 40, 48];
-      let ox = 0;
-      larg.forEach((w, k) => {
-        x.fillStyle = k % 2 ? "#B9BCC2" : "#2B2D33"; x.fillRect(ox + 1, 4, w - 2, 184);
-        for (let j = 0; j < 3; j++) { x.fillStyle = k % 2 ? "#26282C" : "#D0D3D8"; x.beginPath(); x.arc(ox + w / 2, 30 + j * 30, 7, 0, 7); x.fill(); }
-        for (let j = 0; j < 3; j++) { x.fillStyle = "#0B0B0D"; x.beginPath(); x.arc(ox + w / 2, 128 + j * 20, 4, 0, 7); x.fill(); }
-        ox += w;
-      });
+      const { x, t, l, a } = volca;
+      x.fillStyle = "#18191C";
+      x.fillRect(0, 0, l, a);
+      for (let r = 0; r < 2; r++) for (let k = 0; k < 7; k++) manopola(x, 16 + k * 26, 18 + r * 26, 8, true);
+      for (let i = 0; i < 16; i++) {
+        x.fillStyle = i === (passo + 3) % 16 ? "#FF4D3A" : "#4A4C52";
+        x.fillRect(6 + i * 11.2, a - 30, 9, 18);
+      }
       t.needsUpdate = true;
     }
-    // le spie del rack
-    for (let i = 0; i < this.ledN; i++) {
-      const su = (i + passo) % 5 === 0 || (acceso && i % 4 === passo % 4);
-      this.led.setColorAt(i, this.c.set(su ? ACCESI[(i + (passo >> 2)) % ACCESI.length] : "#2A2B30"));
-    }
-    if (this.led.instanceColor) this.led.instanceColor.needsUpdate = true;
   }
 
   aggiorna(t: number, ridotto: boolean) {
@@ -444,7 +493,6 @@ function cartello(testo: string) {
 
 class Pannello {
   gruppo = new THREE.Group();
-  private legno: THREE.MeshStandardMaterial;
   cartelli: THREE.Sprite[] = [];
   /** La copertina che gira accanto alla mensola, al passaggio sopra un libro. */
   private vetrina = new THREE.Group();
@@ -453,28 +501,9 @@ class Pannello {
   private vis = 0;
 
   constructor(texture: THREE.Texture[]) {
+    // i tre libri stanno in cima alla libreria bianca (ospiti/cameraLivio.ts), uno sull'altro
     const p = POSIZIONI.pannello;
-    this.legno = new THREE.MeshStandardMaterial({ color: PARETE_GIORNO, map: granaLegno([0.8, 2]), roughness: 0.9 });
-    const tavola = new THREE.Mesh(new THREE.BoxGeometry(0.66, 1.62, 0.035), this.legno);
-    tavola.position.set(p.x, 0.81, p.z);
-    this.gruppo.add(tavola);
-    // due piedi, perché stia in piedi da solo
-    const nero = new THREE.MeshStandardMaterial({ color: "#1B1C1F", roughness: 0.6 });
-    for (const dx of [-0.26, 0.26]) {
-      const piede = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.025, 0.3), nero);
-      piede.position.set(p.x + dx, 0.015, p.z);
-      this.gruppo.add(piede);
-    }
-    // la mensola, coi due reggimensola
-    const Y = 0.98;
-    const ripiano = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.025, 0.2), nero);
-    ripiano.position.set(p.x, Y, p.z - 0.12);
-    this.gruppo.add(ripiano);
-    for (const dx of [-0.24, 0.24]) {
-      const r = new THREE.Mesh(new THREE.BoxGeometry(0.018, 0.09, 0.15).translate(0, -0.045, 0), nero);
-      r.position.set(p.x + dx, Y - 0.012, p.z - 0.095);
-      this.gruppo.add(r);
-    }
+    const Y = 2.04;
     // i libri, uno sopra l'altro, col dorso verso chi guarda: il primo sotto
     const pagine = new THREE.MeshStandardMaterial({ color: "#EDE6D6", roughness: 0.9 });
     const storti = [0.05, -0.09, 0.03], spostati = [0, 0.012, -0.008];
@@ -486,7 +515,7 @@ class Pannello {
       const retro = new THREE.MeshStandardMaterial({ color: "#F1ECE2", roughness: 0.8 });
       const schiena = new THREE.MeshStandardMaterial({ map: txD, roughness: 0.8 });
       const libro = new THREE.Mesh(new THREE.BoxGeometry(0.21, 0.03, 0.15), [pagine, pagine, fronte, retro, pagine, schiena]);
-      libro.position.set(p.x - 0.1 + spostati[i], Y + 0.0125 + 0.015 + i * 0.031, p.z - 0.15);
+      libro.position.set(p.x - 0.1 + spostati[i], Y + 0.0125 + 0.015 + i * 0.031, p.z - 0.05);
       libro.rotation.y = storti[i];
       libro.userData.azione = { tipo: "libro", indice: i } satisfies Azione;
       this.gruppo.add(libro);
@@ -509,7 +538,7 @@ class Pannello {
     const libro = new THREE.Mesh(new THREE.BoxGeometry(L, H, 0.08), this.facce[0]);
     libro.renderOrder = 31;
     this.vetrina.add(libro);
-    this.vetrina.position.set(p.x, 2.5, p.z - 0.3);
+    this.vetrina.position.set(p.x, 2.85, p.z - 0.3);
     this.vetrina.visible = false;
     this.gruppo.add(this.vetrina);
   }
@@ -546,7 +575,7 @@ class Pannello {
   }
 
   setNotte(notte: boolean) {
-    this.legno.color.set(notte ? PARETE_NOTTE : PARETE_GIORNO);
+    void notte;
   }
 }
 
@@ -559,9 +588,8 @@ class Schiacciasogni {
   private piume: THREE.Group[] = [];
 
   constructor(texture: THREE.Texture[]) {
-    const p = POSIZIONI.pannello;
-    // appeso a un chiodo sul pannello, dalla parte dello sviluppatore
-    this.gruppo.position.set(p.x + 0.17, 1.58, p.z - 0.03);
+    // appeso a un chiodo sulla parete della camera, a sinistra delle chitarre
+    this.gruppo.position.set(3.32, 1.95, 1.5);
     this.gruppo.add(this.appeso);
     const cuoio = new THREE.MeshStandardMaterial({ color: "#7A4E2C", roughness: 0.8 });
     const R = 0.1;

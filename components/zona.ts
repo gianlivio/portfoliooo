@@ -25,10 +25,10 @@ export const SCALA_ZONA = 0.55;
 export const POSIZIONI = {
   /** la cassettiera col cassetto aperto, accanto alla sedia, dalla parte di chi guarda */
   cassetto: new THREE.Vector3(1.22, 0, 0.18),
-  /** il tavolino delle macchine del suono: a destra (per chi guarda) oltre la mensola, contro la stessa parete */
-  studio: new THREE.Vector3(-2.35, 0, 0.66),
-  /** il pannello di legno a cui sono appese la mensola e lo schiacciasogni */
-  pannello: new THREE.Vector3(-1.32, 0, 0.92),
+  /** lo studietto delle macchine del suono, a due piani: a destra (per chi guarda) della scrivania */
+  studio: new THREE.Vector3(-1.75, 0, 0.7),
+  /** la libreria bianca dietro lo studietto: in cima stanno i tre libri */
+  pannello: new THREE.Vector3(-2.35, 0, 1.45),
 };
 
 /** Mette una zona-gruppo al suo posto sull'anello. */
