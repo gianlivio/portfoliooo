@@ -6,7 +6,7 @@ import {
 } from "./comuni";
 
 /**
- * Di notte, ogni tanto, un galeone pirata fantasma attraversa l'acqua fra chi guarda e le carte, piccolo e lontano.
+ * Di notte, ogni tanto, un galeone pirata fantasma attraversa l'acqua dietro le carte, piccolo e lontano.
  * Si compone dal buio a chiazze, dal basso in alto; il fasciame è marcio e bucato,
  * le vele sono stracci che il vento gonfia; lanterne verdi, finestre di poppa accese,
  * un timoniere incappucciato. Sul ponte c'è una festa (vedi Festa, sotto).
@@ -587,7 +587,7 @@ export class Galeone implements Ospite {
     this.festa = new Festa(this.texture);
     this.nave.add(this.festa.gruppo);
 
-    this.nave.scale.setScalar(0.6);
+    this.nave.scale.setScalar(1.0);
     this.gruppo.add(this.nave);
     this.gruppo.visible = false;
     this.gruppo.traverse((o) => {
@@ -605,10 +605,11 @@ export class Galeone implements Ospite {
       // nuova traversata: da un lato all'altro, a distanza e con rotta diversa ogni volta
       const { avanti, lato } = assi(camera);
       const v = segno();
-      const d1 = casuale(4.2, 5.1);
-      const d2 = casuale(4.2, 5.1);
-      s.da.copy(avanti).multiplyScalar(d1).addScaledVector(lato, -5.6 * v);
-      s.a.copy(avanti).multiplyScalar(d2).addScaledVector(lato, 5.6 * v);
+      // dietro le carte (a 6,45), non più fra chi guarda e le carte: non coprono i lavori
+      const d1 = casuale(8.6, 9.6);
+      const d2 = casuale(8.6, 9.6);
+      s.da.copy(avanti).multiplyScalar(d1).addScaledVector(lato, -11 * v);
+      s.a.copy(avanti).multiplyScalar(d2).addScaledVector(lato, 11 * v);
       s.curva.copy(avanti).multiplyScalar((d1 + d2) / 2 + casuale(-0.9, 0.9));
       s.durata = casuale(18, 22);
       s.inizio = t;

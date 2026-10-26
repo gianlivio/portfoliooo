@@ -19,7 +19,7 @@ import { type ComuniSpettro, comuniSpettro, spettro } from "./spettro";
  */
 
 const SLOT = [4, 5, 6, 7];
-const SCALA_BARCA = 1.2;
+const SCALA_BARCA = 1.9;
 const SCALA_UOMO = 0.14;
 const PUNTA = 1.95; // z della punta della passerella, nello spazio della barca
 const ORO = "#FFC46B";
@@ -258,11 +258,12 @@ export class Feluca implements Ospite {
       if (t < s.prossima || !tocca("notte", "feluca", t)) return;
       const { avanti, lato } = assi(camera);
       const v = segno();
-      const d1 = casuale(4.4, 5.0), d2 = casuale(4.4, 5.0);
+      // dietro le carte (a 6,45), non più fra chi guarda e le carte: non coprono i lavori
+      const d1 = casuale(8.6, 9.4), d2 = casuale(8.6, 9.4);
       // percorso spostato all'indietro: il colpo (barca a destra, pesce a sinistra) cade al centro della vista
-      s.da.copy(avanti).multiplyScalar(d1).addScaledVector(lato, -7.0 * v);
-      s.a.copy(avanti).multiplyScalar(d2).addScaledVector(lato, 3.6 * v);
-      s.curva.copy(avanti).multiplyScalar((d1 + d2) / 2 + casuale(-0.6, 0.4)).addScaledVector(lato, -1.7 * v);
+      s.da.copy(avanti).multiplyScalar(d1).addScaledVector(lato, -13.2 * v);
+      s.a.copy(avanti).multiplyScalar(d2).addScaledVector(lato, 6.8 * v);
+      s.curva.copy(avanti).multiplyScalar((d1 + d2) / 2 + casuale(-1.1, 0.8)).addScaledVector(lato, -3.2 * v);
       s.inizio = t;
       s.k = 0;
       s.salto = s.lancio = s.impatto = -1;
