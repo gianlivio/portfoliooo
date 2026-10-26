@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { ANGOLO_ZONA, PASSO } from "../zona";
 import { PELO_ACQUA } from "../condivisi";
-import { bruma, generatore, liberaTutto, tela } from "./comuni";
+import { alone, bruma, generatore, liberaTutto, tela } from "./comuni";
 import { colora, rilievo, sulRing, unisci } from "./meraviglie";
 
 /*
@@ -735,166 +735,265 @@ const stoffa = (colore: THREE.ColorRepresentation, extra: THREE.MeshStandardMate
   new THREE.MeshStandardMaterial({ color: colore, roughness: 0.85, ...extra });
 const PELLE = "#C9936C";
 
-/** Un pezzo appeso a un perno: il gruppo ruota attorno al perno, il pezzo pende verso il basso per "lungo". */
-function arto(materiale: THREE.Material, raggio: number, lungo: number) {
-  const g = new THREE.Group();
-  g.add(new THREE.Mesh(new THREE.CapsuleGeometry(raggio, lungo, 3, 8).translate(0, -lungo / 2, 0), materiale));
-  return g;
-}
-
-/** Testa con i capelli: la pelle davanti, la calotta scura dietro e sopra. */
-function testa(capelli: string, r = 0.075) {
-  const g = new THREE.Group();
-  g.add(new THREE.Mesh(new THREE.SphereGeometry(r, 14, 10), stoffa(PELLE)));
-  g.add(new THREE.Mesh(new THREE.SphereGeometry(r * 1.06, 14, 10, 0, Math.PI * 2, 0, Math.PI * 0.55).rotateX(-0.5), stoffa(capelli)));
-  return g;
-}
 
 /* ------------------------------------------------------------------ il flamenco */
 
-type Musico = { braccio?: THREE.Group; mani?: THREE.Group[]; corpo: THREE.Group; tipo: "chitarra" | "palmas" | "cajon"; fase: number };
+/** Un corpo tornito: il profilo è una lista di [raggio, quota]; schiacciato davanti-dietro di "piatto". */
+function tornio(profilo: [number, number][], m: THREE.Material, piatto = 0.8, lati = 20) {
+  const g = new THREE.LatheGeometry(profilo.map(([r, y]) => new THREE.Vector2(r, y)), lati).scale(1, 1, piatto);
+  return new THREE.Mesh(g, m);
+}
+
+/** Un braccio a due pezzi (omero, avambraccio) con la mano: si muove dalla spalla e dal gomito. */
+type Braccio = { spalla: THREE.Group; gomito: THREE.Group };
+function braccio(manica: THREE.Material, pelle: THREE.Material, l1 = 0.28, l2 = 0.26, r = 0.032): Braccio {
+  const spalla = new THREE.Group();
+  spalla.add(new THREE.Mesh(new THREE.CapsuleGeometry(r, l1, 3, 8).translate(0, -l1 / 2, 0), manica));
+  const gomito = new THREE.Group();
+  gomito.position.y = -l1;
+  gomito.add(new THREE.Mesh(new THREE.CapsuleGeometry(r * 0.85, l2, 3, 8).translate(0, -l2 / 2, 0), pelle === manica ? manica : manica));
+  const mano = new THREE.Mesh(new THREE.SphereGeometry(r * 1.05, 10, 8).scale(0.8, 1.25, 0.55).translate(0, -l2 - r, 0), pelle);
+  gomito.add(mano);
+  spalla.add(gomito);
+  return { spalla, gomito };
+}
+
+/** Una gamba a due pezzi con la scarpa: dall'anca e dal ginocchio. */
+type Gamba = { anca: THREE.Group; ginocchio: THREE.Group };
+function gamba(stoffa_: THREE.Material, scarpa: THREE.Material, l1 = 0.44, l2 = 0.42, r = 0.055): Gamba {
+  const anca = new THREE.Group();
+  anca.add(new THREE.Mesh(new THREE.CapsuleGeometry(r, l1, 3, 8).translate(0, -l1 / 2, 0), stoffa_));
+  const ginocchio = new THREE.Group();
+  ginocchio.position.y = -l1;
+  ginocchio.add(new THREE.Mesh(new THREE.CapsuleGeometry(r * 0.85, l2, 3, 8).translate(0, -l2 / 2, 0), stoffa_));
+  ginocchio.add(new THREE.Mesh(new THREE.BoxGeometry(r * 1.6, 0.06, r * 3.4).translate(0, -l2 - 0.03, r * 0.9), scarpa));
+  anca.add(ginocchio);
+  return { anca, ginocchio };
+}
+
+/** Testa con collo, capelli, naso e orecchie; davanti verso +z. */
+function capo(capelli: THREE.Material, pelle: THREE.Material, crocchia = false) {
+  const g = new THREE.Group();
+  g.add(new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.04, 0.08, 10).translate(0, -0.08, 0), pelle));
+  g.add(new THREE.Mesh(new THREE.SphereGeometry(0.075, 16, 12).scale(0.9, 1.1, 1), pelle));
+  g.add(new THREE.Mesh(new THREE.SphereGeometry(0.08, 16, 12, 0, Math.PI * 2, 0, Math.PI * 0.52).scale(0.93, 1.1, 1.02).rotateX(-0.45).translate(0, 0.008, -0.006), capelli));
+  g.add(new THREE.Mesh(new THREE.ConeGeometry(0.012, 0.03, 6).rotateX(Math.PI / 2).translate(0, -0.005, 0.078), pelle));
+  if (crocchia) g.add(new THREE.Mesh(new THREE.SphereGeometry(0.045, 12, 10).translate(0, 0.02, -0.085), capelli));
+  return g;
+}
+
+type Musico = { braccioDx?: Braccio; braccioSx?: Braccio; corpo: THREE.Group; tipo: "chitarra" | "palmas" | "cajon"; fase: number };
 
 /**
- * Ai piedi di Granada, dietro le carte, come il Liotru ai piedi dell'Etna: un tablao rotondo, i musicisti in cerchio
- * (tre chitarristi seduti, uno sul cajón, due che battono le palmas) e al centro una bailaora col vestito rosso
- * a balze che gira su sé stessa con le braccia alte, e un bailaor che batte i piedi.
- * Le figure sono costruite col davanti verso +z e voltate verso il centro.
+ * Una zambra del Sacromonte, ai piedi dell'Alhambra: il tablao di tavole su un terrazzo imbiancato, dietro la
+ * facciata della grotta con l'arco, i rami e i piatti appesi, una fila di lampadine. In cerchio i musicisti
+ * (tre chitarristi seduti, uno sul cajón, tre che battono le palmas), al centro la bailaora col vestito rosso
+ * a pois e le balze bianche, il mantón sulle spalle, il fiore nei capelli, che fa il braceo e gira con la coda
+ * del vestito che si apre; accanto il bailaor in pantaloni a vita alta e gilet, che batte i piedi.
+ * Figure costruite col davanti verso +z; il gruppo è voltato verso chi guarda.
  */
 class Flamenco {
   gruppo = new THREE.Group();
   private musici: Musico[] = [];
   private bailaora = new THREE.Group();
-  private gonna = new THREE.Group();
-  private braccia: THREE.Group[] = [];
+  private fianchi = new THREE.Group();
+  private balze: THREE.Mesh[] = [];
+  private bracciaLei: Braccio[] = [];
   private bailaor = new THREE.Group();
-  private gambe: THREE.Group[] = [];
-  private bracciaLui: THREE.Group[] = [];
+  private gambeLui: Gamba[] = [];
+  private bracciaLui: Braccio[] = [];
+  private texture: THREE.Texture[] = [];
 
   constructor() {
-    // nel varco fra due carte, sotto l'Albaicín
-    const a = Z - PASSO * 1.5, d = 9.9;
-    this.gruppo.position.set(Math.sin(a) * d, PAV, -Math.cos(a) * d);
+    // ai piedi dell'Alhambra, fra la zona dello sviluppatore e il cancello, sopra il muretto della camera:
+    // un terrazzo alto quanto basta perché il tablao si veda da quaggiù
+    const a = Z + 0.11, d = 24;
+    this.gruppo.position.set(Math.sin(a) * d, PAV + 2.4, -Math.cos(a) * d);
+    // −z locale verso chi guarda: la grotta (+z) sta dietro
     this.gruppo.rotation.y = Math.PI - a;
-    // il tablao
-    this.gruppo.add(new THREE.Mesh(new THREE.CylinderGeometry(1.55, 1.6, 0.05, 40).translate(0, 0.025, 0), stoffa("#8A6440")));
-    const legno = stoffa("#5E3F26");
-    const nero = stoffa("#1D1C21");
-    // il cerchio: angoli misurati dal fondo (+z, lontano da chi guarda); davanti resta aperto
-    const posti: [number, Musico["tipo"]][] = [[-2.2, "palmas"], [-1.35, "chitarra"], [-0.55, "chitarra"], [0.25, "cajon"], [1.0, "chitarra"], [1.8, "palmas"], [2.45, "palmas"]];
+    this.gruppo.scale.setScalar(1.6);
+    const pelle = stoffa(PELLE), nero = stoffa("#18171C"), bianco = stoffa("#EFEAE0"), legno = stoffa("#6A4628");
+    const calce = stoffa("#EDE6D8"), rame = stoffa("#B8693A", { roughness: 0.4, metalness: 0.2 });
+    // il terrazzo: il muro di sostegno imbiancato fino a terra, il piano di tavole
+    // il pendio sotto il terrazzo, coi fichi d'India: scende fin sotto il pavimento
+    {
+      const h = 2.4 / 1.6 + 0.2;
+      this.gruppo.add(new THREE.Mesh(new THREE.CylinderGeometry(2.6, 4.2, h, 24, 1).scale(1, 1, 0.75).translate(0, -h / 2, 0.4), stoffa("#7C7A4E")));
+      this.gruppo.add(new THREE.Mesh(new THREE.BoxGeometry(3.8, 0.35, 2.7).translate(0, -0.175, 0.2), calce));
+      const fico = stoffa("#5E7A3E");
+      for (const [x, y, z] of [[-2.4, -0.6, -0.6], [2.5, -0.9, -0.4], [-1.6, -1.4, -1.6], [1.9, -1.6, -1.5]]) {
+        for (let k = 0; k < 4; k++) this.gruppo.add(new THREE.Mesh(new THREE.SphereGeometry(0.16, 8, 6).scale(1, 1.3, 0.35).rotateZ((k - 1.5) * 0.5).translate(x + (k - 1.5) * 0.12, y + 0.18 + (k % 2) * 0.12, z), fico));
+      }
+    }
+    const tavole = tela(256, 64, (x) => {
+      for (let i = 0; i < 8; i++) {
+        x.fillStyle = i % 2 ? "#8A5E36" : "#7A5230";
+        x.fillRect(0, i * 8, 256, 8);
+        x.fillStyle = "#5A3A20";
+        x.fillRect(0, i * 8 + 7, 256, 1);
+      }
+    });
+    this.texture.push(tavole);
+    const piano = new THREE.Mesh(new THREE.BoxGeometry(3.4, 0.08, 2.4), [legno, legno, stoffa("#FFFFFF", { map: tavole }), legno, legno, legno]);
+    piano.position.set(0, 0.04, 0.1);
+    this.gruppo.add(piano);
+    // la facciata della grotta, dietro: il muro bianco con l'arco scuro, i rami e i piatti appesi
+    this.gruppo.add(new THREE.Mesh(new THREE.BoxGeometry(4.2, 1.0, 0.2).translate(0, 0.5, 1.65), calce));
+    const arco = new THREE.Shape();
+    arco.moveTo(-0.35, 0);
+    arco.lineTo(-0.35, 0.5);
+    arco.absarc(0, 0.5, 0.35, Math.PI, 0, true);
+    arco.lineTo(0.35, 0);
+    arco.closePath();
+    this.gruppo.add(new THREE.Mesh(new THREE.ShapeGeometry(arco).rotateY(Math.PI).translate(0, 0.08, 1.54), stoffa("#2A1C14")));
+    for (let k = 0; k < 6; k++) {
+      const x = -1.85 + k * 0.32 + (k > 2 ? 1.9 : 0);
+      const piatto = new THREE.Mesh(new THREE.CircleGeometry(0.1, 16).rotateY(Math.PI).translate(x, 0.55 + (k % 2) * 0.2, 1.54), k % 3 ? rame : stoffa("#2E5E9A"));
+      this.gruppo.add(piatto);
+    }
+    // la fila di lampadine accese, appesa sopra il tablao
+    const lampadine: number[] = [];
+    for (let k = 0; k <= 20; k++) {
+      const u = k / 20, x = -1.9 + u * 3.8;
+      lampadine.push(x, 2.05 - Math.sin(u * Math.PI) * 0.35, 0.9 - Math.sin(u * Math.PI) * 0.2);
+    }
+    const txL = alone("#FFD08A");
+    this.texture.push(txL);
+    const lg = new THREE.BufferGeometry();
+    lg.setAttribute("position", new THREE.Float32BufferAttribute(lampadine, 3));
+    this.gruppo.add(new THREE.Points(lg, new THREE.PointsMaterial({ map: txL, color: "#FFD08A", size: 0.22, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending })));
+
+    // i musicisti in semicerchio, verso il centro e verso chi guarda: angoli dal fondo (+z)
+    // tutti sul fondo, in arco: il davanti resta libero per il ballo
+    const posti: [number, Musico["tipo"]][] = [[-1.55, "palmas"], [-1.05, "chitarra"], [-0.52, "chitarra"], [0, "cajon"], [0.52, "chitarra"], [1.05, "palmas"], [1.55, "palmas"]];
     posti.forEach(([ang, tipo], i) => {
-      const x = Math.sin(ang) * 1.25, z = Math.cos(ang) * 1.25;
+      const x = Math.sin(ang) * 1.4, z = 0.3 + Math.cos(ang) * 0.85;
       const g = new THREE.Group();
-      g.position.set(x, 0.05, z);
-      g.rotation.y = Math.atan2(-x, -z);
-      const camicia = stoffa(i % 2 ? "#1D1C21" : "#E9E4DA");
+      g.position.set(x, 0.08, z);
+      g.rotation.y = Math.atan2(-x, 0.2 - z);
+      const camicia = i % 2 ? nero : bianco;
       const m: Musico = { corpo: g, tipo, fase: i * 0.7 };
-      if (tipo === "palmas") {
-        // in piedi, le mani davanti al petto che si battono
-        for (const sx of [-1, 1]) g.add(new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.46, 0.09).translate(sx * 0.055, 0.23, 0), nero));
-        g.add(new THREE.Mesh(new THREE.CapsuleGeometry(0.1, 0.26, 3, 8).translate(0, 0.62, 0), camicia));
-        const tt = testa("#1A1410");
-        tt.position.y = 0.9;
-        g.add(tt);
-        m.mani = [-1, 1].map((sx) => {
-          const b = arto(camicia, 0.025, 0.2);
-          b.position.set(sx * 0.12, 0.76, 0.02);
-          g.add(b);
-          return b;
-        });
-      } else {
-        // seduto: sedia o cajón, cosce in avanti, stinchi giù
-        if (tipo === "cajon") g.add(new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.4, 0.26).translate(0, 0.2, -0.02), legno));
-        else {
-          g.add(new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.04, 0.28).translate(0, 0.38, -0.02), legno));
-          g.add(new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.32, 0.03).translate(0, 0.56, -0.16), legno));
-          for (const [lx, lz] of [[-0.13, -0.14], [0.13, -0.14], [-0.13, 0.11], [0.13, 0.11]]) g.add(new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.38, 0.03).translate(lx, 0.19, lz), legno));
+      const seduto = tipo !== "palmas";
+      const yA = seduto ? 0.42 : 0.88;
+      // le gambe: in piedi dritte, sedute con le cosce in avanti
+      for (const sx of [-1, 1]) {
+        const gg = gamba(nero, nero, 0.4, 0.4, 0.065);
+        gg.anca.position.set(sx * 0.07, yA, 0);
+        if (seduto) {
+          gg.anca.rotation.x = -Math.PI / 2;
+          gg.ginocchio.rotation.x = Math.PI / 2;
         }
-        const yS = tipo === "cajon" ? 0.4 : 0.4;
-        for (const sx of [-1, 1]) {
-          g.add(new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.08, 0.3).translate(sx * 0.06, yS + 0.04, 0.1), nero));
-          g.add(new THREE.Mesh(new THREE.BoxGeometry(0.08, yS, 0.08).translate(sx * 0.06, yS / 2, 0.24), nero));
-        }
-        const busto = new THREE.Group();
-        busto.position.y = yS + 0.06;
-        busto.add(new THREE.Mesh(new THREE.CapsuleGeometry(0.1, 0.24, 3, 8).translate(0, 0.2, 0), camicia));
-        const tt = testa("#1A1410");
-        tt.position.y = 0.48;
-        busto.add(tt);
-        g.add(busto);
-        if (tipo === "chitarra") {
-          // la chitarra sulla coscia destra, il manico in su verso sinistra
-          const ch = new THREE.Group();
-          const cassa = stoffa("#C88A44");
-          ch.add(new THREE.Mesh(new THREE.SphereGeometry(0.1, 14, 10).scale(1, 1, 0.3).translate(-0.06, 0, 0), cassa));
-          ch.add(new THREE.Mesh(new THREE.SphereGeometry(0.08, 14, 10).scale(1, 1, 0.3).translate(0.07, 0, 0), cassa));
-          ch.add(new THREE.Mesh(new THREE.CircleGeometry(0.025, 12).translate(0.0, 0, 0.032), stoffa("#2A1E14")));
-          ch.add(new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.035, 0.02).translate(0.31, 0, 0), legno));
-          ch.position.set(-0.02, yS + 0.2, 0.17);
-          ch.rotation.z = 0.5;
-          g.add(ch);
-          // il braccio destro che fa il rasgueado sulla buca, il sinistro sul manico
-          const dx = arto(camicia, 0.025, 0.24);
-          dx.position.set(-0.12, yS + 0.36, 0.02);
-          dx.rotation.set(-0.9, 0, -0.2);
-          g.add(dx);
-          m.braccio = dx;
-          const sx = arto(camicia, 0.025, 0.26);
-          sx.position.set(0.12, yS + 0.36, 0.02);
-          sx.rotation.set(-1.0, 0, 0.9);
-          g.add(sx);
-        } else {
-          // il cajón: le mani battono sul legno fra le ginocchia
-          busto.rotation.x = 0.35;
-          m.mani = [-1, 1].map((sx) => {
-            const b = arto(camicia, 0.025, 0.26);
-            b.position.set(sx * 0.11, yS + 0.33, 0.06);
-            g.add(b);
-            return b;
-          });
-        }
+        g.add(gg.anca);
+      }
+      if (tipo === "cajon") g.add(new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.42, 0.28).translate(0, 0.21, -0.05), legno));
+      else if (seduto) {
+        g.add(new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.04, 0.3).translate(0, 0.4, -0.04), legno));
+        g.add(new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.4, 0.03).translate(0, 0.62, -0.18), legno));
+        for (const [lx, lz] of [[-0.14, -0.16], [0.14, -0.16], [-0.14, 0.09], [0.14, 0.09]]) g.add(new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.4, 0.03).translate(lx, 0.2, lz), legno));
+      }
+      // il busto, la testa
+      const busto = new THREE.Group();
+      busto.position.y = yA;
+      busto.add(tornio([[0.0, 0], [0.15, 0.02], [0.16, 0.15], [0.17, 0.32], [0.19, 0.42], [0.11, 0.5], [0, 0.5]], camicia));
+      const t = capo(stoffa("#1A1410"), pelle);
+      t.position.y = 0.62;
+      busto.add(t);
+      g.add(busto);
+      const bd = braccio(camicia, pelle, 0.25, 0.24, 0.03), bs = braccio(camicia, pelle, 0.25, 0.24, 0.03);
+      bd.spalla.position.set(-0.17, 0.44, 0);
+      bs.spalla.position.set(0.17, 0.44, 0);
+      busto.add(bd.spalla, bs.spalla);
+      m.braccioDx = bd;
+      m.braccioSx = bs;
+      if (tipo === "chitarra") {
+        // la chitarra di traverso sulla coscia destra, il manico in su a sinistra
+        const ch = new THREE.Group();
+        const cassa = stoffa("#C88A44"), fasce = stoffa("#7A4A26");
+        const s = new THREE.Shape();
+        s.absarc(-0.07, 0, 0.11, Math.PI * 0.35, Math.PI * 1.65, false);
+        s.absarc(0.08, 0, 0.085, Math.PI * 1.25, Math.PI * 0.75, false);
+        ch.add(new THREE.Mesh(new THREE.ExtrudeGeometry(s, { depth: 0.07, bevelEnabled: false }).translate(0, 0, -0.035), [cassa, fasce]));
+        ch.add(new THREE.Mesh(new THREE.CircleGeometry(0.03, 14).translate(0.0, 0, 0.037), stoffa("#2A1E14")));
+        ch.add(new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.04, 0.03).translate(0.32, 0, 0), stoffa("#3A2418")));
+        ch.add(new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.06, 0.025).translate(0.54, 0, 0), stoffa("#3A2418")));
+        ch.position.set(-0.03, yA + 0.2, 0.2);
+        ch.rotation.set(0.15, 0, 0.55);
+        g.add(ch);
+        bd.spalla.rotation.set(-0.7, 0, -0.35);
+        bd.gomito.rotation.set(-0.9, 0, 0);
+        bs.spalla.rotation.set(-1.0, 0, 0.55);
+        bs.gomito.rotation.set(-0.6, 0, 0.6);
+      } else if (tipo === "cajon") {
+        busto.rotation.x = 0.3;
       }
       this.gruppo.add(g);
       this.musici.push(m);
     });
 
-    // la bailaora: il vestito rosso a balze, il busto stretto, le braccia alte, il fiore nei capelli
-    const rosso = stoffa("#B5142C"), rossoScuro = stoffa("#8C0E22"), balza = stoffa("#F2E6D8");
-    this.bailaora.position.set(-0.32, 0.05, 0.05);
-    const balze: [number, number, number, number, THREE.Material][] = [[0.085, 0.13, 0.5, 0.2, rosso], [0.12, 0.19, 0.32, 0.2, rossoScuro], [0.18, 0.26, 0.12, 0.22, rosso], [0.255, 0.28, 0.06, 0.07, balza]];
-    balze.forEach(([r0, r1, y, h, m]) => this.gonna.add(new THREE.Mesh(new THREE.CylinderGeometry(r0, r1, h, 24, 1, true).translate(0, y + h / 2 - 0.03, 0), (m as THREE.MeshStandardMaterial).clone())));
-    this.gonna.children.forEach((c) => (((c as THREE.Mesh).material as THREE.MeshStandardMaterial).side = THREE.DoubleSide));
-    this.bailaora.add(this.gonna);
-    this.bailaora.add(new THREE.Mesh(new THREE.CapsuleGeometry(0.075, 0.18, 3, 8).translate(0, 0.78, 0), rosso));
-    const lei = testa("#120E0C", 0.07);
-    lei.position.y = 1.0;
-    lei.add(new THREE.Mesh(new THREE.SphereGeometry(0.045, 10, 8).translate(0, 0.02, -0.08), stoffa("#120E0C")));
-    lei.add(new THREE.Mesh(new THREE.SphereGeometry(0.03, 8, 6).translate(0.06, 0.05, -0.02), stoffa("#D8263A")));
+    // la bailaora
+    const rosso = stoffa("#B5142C"), balzaB = stoffa("#F3EADB", { side: THREE.DoubleSide });
+    const pois = tela(128, 128, (x) => {
+      x.fillStyle = "#B5142C";
+      x.fillRect(0, 0, 128, 128);
+      x.fillStyle = "#F3EADB";
+      for (let r = 0; r < 6; r++) for (let c = 0; c < 6; c++) {
+        x.beginPath();
+        x.arc(c * 22 + (r % 2) * 11 + 6, r * 22 + 8, 4, 0, Math.PI * 2);
+        x.fill();
+      }
+    });
+    pois.wrapS = pois.wrapT = THREE.RepeatWrapping;
+    pois.repeat.set(4, 3);
+    this.texture.push(pois);
+    const vestito = stoffa("#FFFFFF", { map: pois, side: THREE.DoubleSide });
+    this.bailaora.position.set(-0.35, 0.08, -0.45);
+    this.bailaora.add(this.fianchi);
+    // il vestito a sirena: stretto ai fianchi e alle ginocchia, poi si apre in tre balze
+    this.fianchi.add(tornio([[0.12, 1.0], [0.16, 0.85], [0.15, 0.6], [0.14, 0.45], [0.2, 0.32], [0.28, 0.18]].reverse() as [number, number][], vestito, 0.85, 28));
+    [[0.3, 0.2, 0.16, balzaB], [0.36, 0.1, 0.12, vestito], [0.44, 0.0, 0.11, balzaB]].forEach(([r, y, h, m]) => {
+      const g = new THREE.CylinderGeometry((r as number) - 0.07, r as number, h as number, 32, 1, true).translate(0, (y as number) + (h as number) / 2, 0);
+      // l'orlo a onde
+      const p = g.attributes.position as THREE.BufferAttribute;
+      for (let i = 0; i < p.count; i++) if (p.getY(i) < (y as number) + 0.01) p.setY(i, p.getY(i) + 0.02 * Math.sin(Math.atan2(p.getZ(i), p.getX(i)) * 12));
+      const mesh = new THREE.Mesh(g, m as THREE.Material);
+      this.fianchi.add(mesh);
+      this.balze.push(mesh);
+    });
+    // il corpetto, la testa con la crocchia, il fiore e gli orecchini
+    this.bailaora.add(tornio([[0.12, 1.0], [0.13, 1.1], [0.14, 1.22], [0.15, 1.32], [0.08, 1.38], [0, 1.38]], rosso, 0.75));
+    // la scollatura e le maniche corte a volant bianche
+    for (const sx of [-1, 1]) this.bailaora.add(new THREE.Mesh(new THREE.ConeGeometry(0.07, 0.1, 10, 1, true).translate(sx * 0.16, 1.28, 0), balzaB));
+    const lei = capo(stoffa("#120E0C"), pelle, true);
+    lei.position.y = 1.5;
+    lei.add(new THREE.Mesh(new THREE.SphereGeometry(0.03, 8, 6).translate(0.065, 0.05, -0.03), stoffa("#D8263A")));
+    for (const sx of [-1, 1]) lei.add(new THREE.Mesh(new THREE.SphereGeometry(0.012, 6, 5).translate(sx * 0.07, -0.03, 0), stoffa("#D8B24C", { metalness: 0.3, roughness: 0.3 })));
     this.bailaora.add(lei);
     for (const sx of [-1, 1]) {
-      const b = arto(stoffa(PELLE), 0.022, 0.3);
-      b.position.set(sx * 0.09, 0.88, 0);
-      this.bailaora.add(b);
-      this.braccia.push(b);
+      const b = braccio(rosso, pelle, 0.27, 0.25, 0.027);
+      b.spalla.position.set(sx * 0.15, 1.32, 0);
+      this.bailaora.add(b.spalla);
+      this.bracciaLei.push(b);
     }
     this.gruppo.add(this.bailaora);
 
-    // il bailaor: pantaloni neri a vita alta, camicia bianca, gilet corto; batte i piedi
-    this.bailaor.position.set(0.36, 0.05, 0.12);
+    // il bailaor: pantaloni neri a vita alta, camicia bianca, gilet corto nero aperto
+    this.bailaor.position.set(0.5, 0.08, -0.3);
     for (const sx of [-1, 1]) {
-      const gamba = arto(nero, 0.045, 0.42);
-      gamba.position.set(sx * 0.06, 0.5, 0);
-      this.bailaor.add(gamba);
-      this.gambe.push(gamba);
+      const gg = gamba(nero, nero, 0.46, 0.44, 0.055);
+      gg.anca.position.set(sx * 0.075, 0.96, 0);
+      this.bailaor.add(gg.anca);
+      this.gambeLui.push(gg);
     }
-    this.bailaor.add(new THREE.Mesh(new THREE.CapsuleGeometry(0.095, 0.26, 3, 8).translate(0, 0.72, 0), stoffa("#EEE9E0")));
-    this.bailaor.add(new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.16, 0.17).translate(0, 0.7, 0), nero));
-    const lui = testa("#1A1410", 0.072);
-    lui.position.y = 1.0;
+    this.bailaor.add(tornio([[0.0, 0.92], [0.15, 0.94], [0.15, 1.08]], nero, 0.8));
+    this.bailaor.add(tornio([[0.14, 1.08], [0.16, 1.25], [0.19, 1.42], [0.1, 1.5], [0, 1.5]], bianco, 0.75));
+    for (const sx of [-1, 1]) this.bailaor.add(new THREE.Mesh(new THREE.BoxGeometry(0.11, 0.3, 0.26).translate(sx * 0.11, 1.27, 0), nero));
+    const lui = capo(stoffa("#1A1410"), pelle);
+    lui.position.y = 1.62;
     this.bailaor.add(lui);
     for (const sx of [-1, 1]) {
-      const b = arto(stoffa("#EEE9E0"), 0.025, 0.3);
-      b.position.set(sx * 0.12, 0.86, 0);
-      this.bailaor.add(b);
+      const b = braccio(bianco, pelle, 0.29, 0.27, 0.032);
+      b.spalla.position.set(sx * 0.19, 1.44, 0);
+      this.bailaor.add(b.spalla);
       this.bracciaLui.push(b);
     }
     this.gruppo.add(this.bailaor);
@@ -903,34 +1002,49 @@ class Flamenco {
   aggiorna(t: number) {
     const compas = t * 2.6;
     this.musici.forEach((m) => {
-      if (m.braccio) m.braccio.rotation.x = -0.9 + Math.sin(t * 14 + m.fase) * 0.22;
-      if (m.mani) {
+      if (m.tipo === "chitarra" && m.braccioDx) m.braccioDx.gomito.rotation.x = -0.9 + Math.sin(t * 14 + m.fase) * 0.25;
+      else if (m.tipo === "palmas" && m.braccioDx && m.braccioSx) {
         const batti = Math.pow(Math.abs(Math.sin(compas * Math.PI * 0.5 + m.fase)), 3);
-        if (m.tipo === "palmas") m.mani.forEach((b, k) => b.rotation.set(-1.3, 0, (k ? 1 : -1) * (0.15 + 0.35 * (1 - batti))));
-        else m.mani.forEach((b, k) => b.rotation.set(-0.5 - 0.35 * Math.abs(Math.sin(t * 7 + k * 1.6)), 0, 0));
+        [m.braccioDx, m.braccioSx].forEach((b, k) => {
+          b.spalla.rotation.set(-0.5, 0, (k ? 1 : -1) * 0.25);
+          b.gomito.rotation.set(-1.4, 0, (k ? -1 : 1) * (0.5 + 0.4 * (1 - batti)));
+        });
+      } else if (m.tipo === "cajon" && m.braccioDx && m.braccioSx) {
+        [m.braccioDx, m.braccioSx].forEach((b, k) => {
+          b.spalla.rotation.set(-0.3, 0, (k ? 1 : -1) * 0.15);
+          b.gomito.rotation.set(-0.4 - 0.4 * Math.abs(Math.sin(t * 7 + k * 1.6)), 0, 0);
+        });
       }
-      m.corpo.position.y = 0.05 + (m.tipo === "palmas" ? Math.abs(Math.sin(compas * Math.PI * 0.5)) * 0.01 : 0);
+      m.corpo.position.y = 0.08 + (m.tipo === "palmas" ? Math.abs(Math.sin(compas * Math.PI * 0.5)) * 0.01 : 0);
     });
-    // la bailaora: ondeggia, e ogni cinque secondi fa un giro completo, con la gonna che si apre
+    // la bailaora: ondeggia coi fianchi, il braceo con le braccia alte; ogni cinque secondi un giro, e le balze si aprono
     const ciclo = t % 5;
     const giro = ciclo < 1.2 ? THREE.MathUtils.smootherstep(ciclo, 0, 1.2) : 1;
     const velocita = ciclo < 1.2 ? Math.sin((ciclo / 1.2) * Math.PI) : 0;
     this.bailaora.rotation.y = Math.floor(t / 5) * Math.PI * 2 + giro * Math.PI * 2 + Math.sin(t * 0.9) * 0.5;
-    this.gonna.scale.set(1 + velocita * 0.35, 1 - velocita * 0.08, 1 + velocita * 0.35);
-    this.braccia.forEach((b, k) => {
+    this.fianchi.rotation.z = Math.sin(t * 1.8) * 0.05;
+    this.balze.forEach((b, k) => b.scale.set(1 + velocita * (0.3 + k * 0.15), 1 - velocita * 0.1, 1 + velocita * (0.3 + k * 0.15)));
+    this.bracciaLei.forEach((b, k) => {
       const s = k ? 1 : -1;
-      b.rotation.set(Math.sin(t * 1.7 + k) * 0.3, 0, s * (2.5 + Math.sin(t * 2.2 + k * 2) * 0.35));
+      b.spalla.rotation.set(Math.sin(t * 1.7 + k) * 0.25, 0, s * (2.4 + Math.sin(t * 2.2 + k * 2) * 0.3));
+      b.gomito.rotation.set(0, 0, s * (0.6 + 0.4 * Math.sin(t * 2.2 + k * 2 + 1)));
     });
-    // il bailaor: zapateado, i piedi che battono a turno; il busto dritto, un braccio in alto, l'altro al fianco
-    this.gambe.forEach((g, k) => (g.rotation.x = -Math.max(0, Math.sin(t * 13 + k * Math.PI)) * 0.45));
-    this.bailaor.position.y = 0.05 + Math.abs(Math.sin(t * 13)) * 0.012;
-    this.bailaor.rotation.y = Math.PI * 0.15 + Math.sin(t * 0.6) * 0.6;
-    this.bracciaLui[0].rotation.set(0, 0, -2.6 + Math.sin(t * 1.4) * 0.2);
-    this.bracciaLui[1].rotation.set(0.2, 0, 0.6);
+    // il bailaor: zapateado, i piedi che battono a turno; un braccio in alto, l'altro sul fianco
+    this.gambeLui.forEach((g, k) => {
+      const su = Math.max(0, Math.sin(t * 13 + k * Math.PI));
+      g.anca.rotation.x = -su * 0.35;
+      g.ginocchio.rotation.x = su * 0.6;
+    });
+    this.bailaor.position.y = 0.08 + Math.abs(Math.sin(t * 13)) * 0.01;
+    this.bailaor.rotation.y = Math.PI + Math.sin(t * 0.6) * 0.6 - 0.3;
+    this.bracciaLui[0].spalla.rotation.set(0, 0, -2.6 + Math.sin(t * 1.4) * 0.2);
+    this.bracciaLui[0].gomito.rotation.set(0, 0, -0.5);
+    this.bracciaLui[1].spalla.rotation.set(0.2, 0, 0.5);
+    this.bracciaLui[1].gomito.rotation.set(-1.6, 0, 0);
   }
 
   libera() {
-    liberaTutto(this.gruppo);
+    liberaTutto(this.gruppo, this.texture);
   }
 }
 
