@@ -9,7 +9,7 @@ import { colora, rilievo, sulRing, unisci } from "./meraviglie";
  * Sicilia: Punta Secca col faro, il porticciolo e la casa di Montalbano; il colle barocco (Ibla a gradoni,
  * San Giorgio di Modica in cima, la pagoda della pace di Comiso sul promontorio, l'Annunziata e la Chiesa Madre
  * in basso); il Liotru ai piedi dell'Etna. Argentina: le cascate dell'Iguazú, il Cerro de los Siete Colores,
- * l'Obelisco, il Perito Moreno rifatto. Dietro le carte: un tablao di flamenco ai piedi di Granada.
+ * il Perito Moreno rifatto (l'Obelisco c'è, ma spento in ATTIVI). Dietro le carte: un tablao di flamenco ai piedi di Granada.
  * Gli angoli sono contati dalla zona dello sviluppatore; le carte stanno ogni PASSO (0,449 rad) e i luoghi
  * cadono nei varchi fra loro o dietro le carte più basse: Punta Secca nel varco a 2,92, il colle barocco in
  * quello a 3,37. Oltre i 47-48 m dal centro le cose si perdono: le cupole stanno più in qua.
@@ -20,7 +20,7 @@ export const ATTIVI = {
   liotru: true,
   iguazu: true,
   sieteColores: true,
-  obelisco: true,
+  obelisco: false,
   peritoMoreno: true,
   flamenco: true,
 };
@@ -454,10 +454,11 @@ class Iguazu {
   private texture: THREE.Texture[] = [];
   constructor() {
     // a terra, ai piedi del Cerro de los Siete Colores
-    this.gruppo = sulRing(Z + 1.97, 35, 0);
-    this.gruppo.scale.setScalar(1.4);
+    this.gruppo = sulRing(Z + 2.02, 35, 2.2);
+    // più larga e più bianca di prima, ma più bassa del Perito Moreno accanto
+    this.gruppo.scale.setScalar(1.85);
     const p: Pezzi = [];
-    const R = 3.3, H = 2.9, M = 1.45, N = 56;
+    const R = 3.6, H = 2.25, M = 1.1, N = 64;
     // un tratto della gola: da angolo a0 ad a1, raggio rr, da quota y0 a y1 (u lungo l'arco, v in altezza)
     const arco = (rr: number, y0: number, y1: number, a0 = -1.6, a1 = 1.6, n = N) => {
       const g = new THREE.BufferGeometry();
@@ -496,11 +497,20 @@ class Iguazu {
     // il fondo della gola: schiuma bianca, il fiume che esce verso chi guarda color terra
     p.push(colora(new THREE.CircleGeometry(R, 32).rotateX(-Math.PI / 2).translate(0, -0.25, 0), "#E8F1F2", 0.15));
     p.push(colora(new THREE.PlaneGeometry(4.2, 3).rotateX(-Math.PI / 2).translate(0, -0.27, -2.2), "#9C8664", 0.15));
+    // il terreno sotto, che scende fin sotto il pavimento: la gola sta su un rialzo nel varco fra le carte
+    p.push(colora(new THREE.CylinderGeometry(R + 2.6, R + 4.2, 2.6, 40, 1, true).translate(0, -1.55, 0.3), "#3E5E33", 0.2));
     this.gruppo.add(unisci(p));
     // l'acqua che cade: righe chiare che scorrono, appena color terra come il Paraná
     this.acqua = tela(64, 128, (x) => {
-      x.clearRect(0, 0, 64, 128);
-      for (let i = 0; i < 44; i++) {
+      // un fondo bianco latte, così l'acqua non è più un velo grigio; sopra le righe chiare che scorrono
+      x.fillStyle = "rgba(205,194,172,0.62)";
+      x.fillRect(0, 0, 64, 128);
+      // fili d'acqua più scuri, color Paraná, fra quelli bianchi: si legge che scende
+      for (let i = 0; i < 26; i++) {
+        x.fillStyle = "rgba(140,122,96,0.55)";
+        x.fillRect(Math.random() * 64, 0, 1 + Math.random() * 2, 128);
+      }
+      for (let i = 0; i < 70; i++) {
         const cx = Math.random() * 64, w = 1 + Math.random() * 3;
         const v = x.createLinearGradient(0, 0, 0, 128);
         v.addColorStop(0, "rgba(255,255,255,0.97)");
@@ -511,7 +521,7 @@ class Iguazu {
       }
     });
     this.acqua.wrapS = this.acqua.wrapT = THREE.RepeatWrapping;
-    this.acqua.repeat.set(3, 1.2);
+    this.acqua.repeat.set(5, 1.2);
     this.texture.push(this.acqua);
     const mat = new THREE.MeshBasicMaterial({ map: this.acqua, transparent: true, side: THREE.DoubleSide, depthWrite: false, fog: false });
     // le cortine: la Garganta al centro continua, ai lati salti separati, ognuno in tutti e due i livelli
@@ -524,11 +534,16 @@ class Iguazu {
     // la nebbia in basso e l'arcobaleno davanti
     const tb = bruma(11);
     this.texture.push(tb);
-    for (let k = 0; k < 7; k++) {
-      const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: tb, color: "#FFFFFF", transparent: true, opacity: 0.55, depthWrite: false, fog: false }));
-      const t = -1.3 + k * 0.43;
-      s.position.set(Math.sin(t) * (R - 1.1), 0.5, Math.cos(t) * (R - 1.1));
-      s.scale.setScalar(2.0);
+    // la schiuma: una fascia bianca alla base di ogni salto, e la nebbia fitta che sale dal fondo della gola
+    for (const [rr, y0] of [[R - 0.05, M], [R - 0.86, -0.25]] as [number, number][]) {
+      const g = new THREE.CylinderGeometry(rr - 0.1, rr - 0.1, 0.2, N, 1, true, Math.PI / 2 - 1.6, 3.2).translate(0, y0 + 0.08, 0);
+      this.gruppo.add(new THREE.Mesh(g, new THREE.MeshBasicMaterial({ color: "#F7F6F2", transparent: true, opacity: 0.55, side: THREE.DoubleSide, depthWrite: false, fog: false })));
+    }
+    for (let k = 0; k < 11; k++) {
+      const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: tb, color: "#FFFFFF", transparent: true, opacity: 0.35, depthWrite: false, fog: false }));
+      const t = -1.45 + k * 0.29;
+      s.position.set(Math.sin(t) * (R - 1.2), 0.45 + (k % 2) * 0.3, Math.cos(t) * (R - 1.2));
+      s.scale.setScalar(1.6);
       this.nebbia.push(s);
       this.gruppo.add(s);
     }
@@ -551,7 +566,7 @@ class Iguazu {
   }
   aggiorna(t: number) {
     this.acqua.offset.y = (t * 0.9) % 1;
-    this.nebbia.forEach((s, i) => (s.material.opacity = 0.4 + 0.2 * Math.sin(t * 0.7 + i)));
+    this.nebbia.forEach((s, i) => (s.material.opacity = 0.28 + 0.14 * Math.sin(t * 0.7 + i)));
   }
   libera() {
     liberaTutto(this.gruppo, this.texture);
