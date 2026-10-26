@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import { PELO_ACQUA } from "../condivisi";
 import { type Ospite, assi, cancella, casuale, finito, liberaTutto, ombra, primo, riposo, tocca } from "./comuni";
 
@@ -6,47 +7,81 @@ import { type Ospite, assi, cancella, casuale, finito, liberaTutto, ombra, primo
 
 const R = 0.36;
 
-/** Centinaia di rametti secchi intrecciati dentro una sfera irregolare. */
+/**
+ * La palla di fieno: rametti curvi e sottili, con un poco di spessore, che si avvolgono attorno a un centro
+ * più fitto e più scuro; fuori, qualche punta che sporge. I rami sono tubi (si vedono anche da lontano),
+ * i fili più fini linee; dentro, un nocciolo scuro rado che dà volume e ombra.
+ */
 function geometria() {
   let seme = 7;
   const rnd = () => {
     seme = (seme * 16807) % 2147483647;
     return seme / 2147483647;
   };
-  const pos: number[] = [];
-  const col: number[] = [];
-  const toni = ["#8A6A3C", "#A8865A", "#6C5232", "#C4A574", "#5A4329"].map((c) => new THREE.Color(c));
-  const p = new THREE.Vector3(), dir = new THREE.Vector3(), q = new THREE.Vector3();
-  for (let r = 0; r < 420; r++) {
-    const guscio = rnd() < 0.75;
-    p.set(rnd() - 0.5, rnd() - 0.5, rnd() - 0.5).normalize().multiplyScalar(R * (guscio ? 0.7 + rnd() * 0.3 : rnd() * 0.65));
-    dir.set(rnd() - 0.5, rnd() - 0.5, rnd() - 0.5).normalize();
-    const tono = toni[Math.floor(rnd() * toni.length)];
-    const passi = 4 + Math.floor(rnd() * 6);
-    const passo = 0.035 + rnd() * 0.05;
-    for (let k = 0; k < passi; k++) {
-      dir.add(q.set(rnd() - 0.5, rnd() - 0.5, rnd() - 0.5).multiplyScalar(0.9)).normalize();
-      const n = p.clone().addScaledVector(dir, passo);
-      if (n.length() > R * (0.92 + rnd() * 0.12)) {
-        dir.reflect(n.clone().normalize());
-        continue;
-      }
-      pos.push(p.x, p.y, p.z, n.x, n.y, n.z);
-      const l = 0.85 + rnd() * 0.3;
-      col.push(tono.r * l, tono.g * l, tono.b * l, tono.r * l, tono.g * l, tono.b * l);
-      p.copy(n);
+  const toni = ["#9A7A46", "#B8955E", "#7C6038", "#CFB07A", "#6A5030"].map((c) => new THREE.Color(c));
+  const rami: THREE.BufferGeometry[] = [];
+  const pos: number[] = [], col: number[] = [];
+  // un ramo: una curva che gira attorno al centro, un poco a spirale, come un rametto secco piegato dal vento
+  const curva = (raggio: number, giri: number) => {
+    const asse = new THREE.Vector3(rnd() - 0.5, rnd() - 0.5, rnd() - 0.5).normalize();
+    const u = new THREE.Vector3(1, 0, 0).cross(asse).normalize();
+    if (u.lengthSq() < 0.01) u.set(0, 1, 0).cross(asse).normalize();
+    const w = asse.clone().cross(u);
+    const a0 = rnd() * Math.PI * 2, deriva = (rnd() - 0.5) * 0.6;
+    const n = 14;
+    return Array.from({ length: n }, (_, i) => {
+      const t = i / (n - 1), a = a0 + t * giri;
+      const r = raggio * (0.92 + 0.12 * Math.sin(t * 9 + a0));
+      return u.clone().multiplyScalar(Math.cos(a) * r).addScaledVector(w, Math.sin(a) * r).addScaledVector(asse, deriva * r * Math.sin(t * Math.PI) + (rnd() - 0.5) * 0.02);
+    });
+  };
+  for (let k = 0; k < 70; k++) {
+    const pts = curva(R * (0.55 + rnd() * 0.45), 1.2 + rnd() * 2.2);
+    const tubo = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 18, 0.006 + rnd() * 0.006, 4, false);
+    const c = toni[Math.floor(rnd() * toni.length)];
+    const tc = new Float32Array(tubo.attributes.position.count * 3);
+    for (let i = 0; i < tubo.attributes.position.count; i++) tc.set([c.r, c.g, c.b], i * 3);
+    tubo.setAttribute("color", new THREE.BufferAttribute(tc, 3));
+    tubo.deleteAttribute("uv");
+    rami.push(tubo);
+  }
+  // i fili fini, più fitti, e le punte che sporgono
+  for (let k = 0; k < 220; k++) {
+    const pts = curva(R * (0.3 + rnd() * 0.75), 0.8 + rnd() * 2.5);
+    const c = toni[Math.floor(rnd() * toni.length)];
+    for (let i = 0; i < pts.length - 1; i++) {
+      pos.push(pts[i].x, pts[i].y, pts[i].z, pts[i + 1].x, pts[i + 1].y, pts[i + 1].z);
+      col.push(c.r, c.g, c.b, c.r, c.g, c.b);
     }
   }
-  const g = new THREE.BufferGeometry();
-  g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
-  g.setAttribute("color", new THREE.Float32BufferAttribute(col, 3));
-  return g;
+  for (let k = 0; k < 40; k++) {
+    const d = new THREE.Vector3(rnd() - 0.5, rnd() - 0.5, rnd() - 0.5).normalize();
+    const a = d.clone().multiplyScalar(R * 0.85), b = d.clone().multiplyScalar(R * (1.05 + rnd() * 0.18)).add(new THREE.Vector3(rnd() - 0.5, rnd() - 0.5, rnd() - 0.5).multiplyScalar(0.04));
+    const c = toni[4];
+    pos.push(a.x, a.y, a.z, b.x, b.y, b.z);
+    col.push(c.r, c.g, c.b, c.r, c.g, c.b);
+  }
+  const fili = new THREE.BufferGeometry();
+  fili.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+  fili.setAttribute("color", new THREE.Float32BufferAttribute(col, 3));
+  const tubi = mergeGeometries(rami);
+  rami.forEach((g) => g.dispose());
+  // il nocciolo: una sfera irregolare scura, dentro
+  const nocciolo = new THREE.IcosahedronGeometry(R * 0.62, 1);
+  const np = nocciolo.attributes.position as THREE.BufferAttribute;
+  for (let i = 0; i < np.count; i++) {
+    const f = 0.85 + rnd() * 0.3;
+    np.setXYZ(i, np.getX(i) * f, np.getY(i) * f, np.getZ(i) * f);
+  }
+  nocciolo.computeVertexNormals();
+  return { tubi, fili, nocciolo };
 }
 
 export class Fieno implements Ospite {
   gruppo = new THREE.Group();
   private palla = new THREE.Group();
-  private corpo: THREE.LineSegments;
+  private corpo: THREE.Group;
+  private materiali: THREE.Material[] = [];
   private macchia: THREE.Mesh;
   private tx = ombra();
   private s = {
@@ -59,7 +94,13 @@ export class Fieno implements Ospite {
   private avanzo = new THREE.Vector3();
 
   constructor() {
-    this.corpo = new THREE.LineSegments(geometria(), new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0 }));
+    const { tubi, fili, nocciolo } = geometria();
+    const mTubi = new THREE.MeshLambertMaterial({ vertexColors: true, transparent: true, opacity: 0 });
+    const mFili = new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0 });
+    const mNocciolo = new THREE.MeshLambertMaterial({ color: "#5A4329", transparent: true, opacity: 0, depthWrite: false });
+    this.materiali = [mTubi, mFili, mNocciolo];
+    this.corpo = new THREE.Group();
+    this.corpo.add(new THREE.Mesh(nocciolo, mNocciolo), new THREE.Mesh(tubi, mTubi), new THREE.LineSegments(fili, mFili));
     this.palla.add(this.corpo);
     this.macchia = new THREE.Mesh(
       new THREE.PlaneGeometry(R * 2.4, R * 2.4).rotateX(-Math.PI / 2),
@@ -126,7 +167,8 @@ export class Fieno implements Ospite {
     const sc = 0.95 - alto * 1.2;
     this.macchia.scale.set(sc, 1, sc);
     const luce = Math.min(1, s.k * 8, (1 - s.k) * 8);
-    (this.corpo.material as THREE.LineBasicMaterial).opacity = luce;
+    // il nocciolo resta rado: si intravede fra i rami
+    this.materiali.forEach((m, i) => (m.opacity = luce * (i === 2 ? 0.55 : 1)));
     (this.macchia.material as THREE.MeshBasicMaterial).opacity = luce * (0.75 - alto * 1.5);
     if (s.k >= 1) {
       s.inizio = -1;
