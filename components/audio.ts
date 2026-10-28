@@ -21,6 +21,15 @@ export type Modo = "spento" | "ambiente" | "loop";
  */
 export const SOTTOFONDO: { url: string | null; volume: number } = { url: null, volume: 0.5 };
 
+/**
+ * Il pezzo che parte dai synth dello studietto: Signification di Juan Lee (Livio), dall'album Semeiosis (2021).
+ * Non tutto il pezzo: un giro dei momenti migliori, montato a battuta. Comincia nel break (3:26 dell'originale),
+ * entra nel drop e arriva al picco (5:20); poi una battuta di dissolvenza nella parte piena (1:36) fino a 3:26,
+ * che è proprio dove il file ricomincia: il giro si chiude senza tagli. 448 quarti in tutto, circa 120 BPM.
+ * Se il file non si carica, al suo posto suona il loop sintetizzato.
+ */
+export const BRANO = { url: "/audio/juan-lee-signification.mp3", artista: "Juan Lee", titolo: "Signification", quarti: 448, volume: 0.85 };
+
 const CHIAVE = "audio";
 const VOLUME = 0.16; // volume generale, basso
 /** Le campanelle del giorno: note della scala hijaz su re. */
@@ -83,6 +92,10 @@ class Suono {
   private riverbero!: ConvolverNode;
   private rumore!: AudioBuffer;
   private scheduler: ReturnType<typeof setInterval> | null = null;
+  /** il pezzo di Juan Lee: un elemento audio dentro il grafo, col suo volume */
+  private brano: HTMLAudioElement | null = null;
+  private branoGain: GainNode | null = null;
+  private branoRotto = false;
   private passo = 0;
   private prossimo = 0;
   private inizioLoop = 0;
@@ -159,6 +172,7 @@ class Suono {
 
   /** Uscendo dalla stanza (verso la pagina dell'olio): tutto tace, la scelta resta; al ritorno prepara() riprende. */
   sospendi() {
+    this.brano?.pause();
     if (this.campanelle) {
       clearTimeout(this.campanelle);
       this.campanelle = null;
@@ -187,6 +201,13 @@ class Suono {
   battito(): { fase: number; n: number } | null {
     const c = this.ctx;
     if (!c || this.modo !== "loop") return null;
+    // col pezzo vero il battito lo dà il pezzo: i quarti sono distribuiti uguali sulla sua durata
+    const b = this.brano;
+    if (b && !this.branoRotto) {
+      if (b.paused || !b.duration) return null;
+      const q = (b.currentTime / b.duration) * BRANO.quarti;
+      return { fase: q - Math.floor(q), n: Math.floor(q) };
+    }
     const q = this.ancora.q + (c.currentTime - this.ancora.t) / (60 / this.bpm);
     if (c.currentTime < this.inizioLoop) return null;
     return { fase: q - Math.floor(q), n: Math.floor(q) };
@@ -281,18 +302,21 @@ class Suono {
     if (!c) return;
     const t = c.currentTime;
     const m = this.voluto;
+    // col pezzo vero il fondo si ritira quasi del tutto, e il loop sintetizzato tace
+    const pezzo = m === "loop" && this.suonaBrano();
+    if (m !== "loop") this.fermaBrano();
     this.master.gain.cancelScheduledValues(t);
-    this.master.gain.setTargetAtTime(m === "spento" ? 0 : VOLUME, t, 0.4);
+    this.master.gain.setTargetAtTime(m === "spento" ? 0 : pezzo ? VOLUME * 0.15 : VOLUME, t, 0.4);
     this.loopBus.gain.cancelScheduledValues(t);
-    this.loopBus.gain.setTargetAtTime(m === "loop" ? 1 : 0, t, 0.25);
-    if (m === "loop" && !this.scheduler) {
+    this.loopBus.gain.setTargetAtTime(m === "loop" && !pezzo ? 1 : 0, t, 0.25);
+    if (m === "loop" && !pezzo && !this.scheduler) {
       this.passo = 0;
       this.prossimo = t + 0.08;
       this.inizioLoop = this.prossimo;
       this.ancora = { t: this.prossimo, q: 0 };
       this.scheduler = setInterval(() => this.programma(), 25);
     }
-    if (m !== "loop" && this.scheduler) {
+    if ((m !== "loop" || pezzo) && this.scheduler) {
       clearInterval(this.scheduler);
       this.scheduler = null;
     }
@@ -309,6 +333,55 @@ class Suono {
         this.campanelle = null;
       }
     } else if (c.state === "suspended") c.resume().catch(() => undefined);
+  }
+
+  /* ----------------------------------------------------------- il pezzo vero */
+
+  /** Fa partire il pezzo di Juan Lee, dall'inizio del giro. Falso se non c'è modo (allora suona il loop sintetizzato). */
+  private suonaBrano() {
+    const c = this.ctx;
+    if (!c || this.branoRotto) return false;
+    if (!this.brano) {
+      const a = new Audio();
+      a.src = BRANO.url;
+      a.loop = true;
+      a.preload = "auto";
+      a.crossOrigin = "anonymous";
+      a.addEventListener("error", () => {
+        // il file non c'è o non si legge: si torna al loop sintetizzato
+        this.branoRotto = true;
+        if (this.modo === "loop") this.applica();
+      });
+      const g = c.createGain();
+      g.gain.value = 0;
+      c.createMediaElementSource(a).connect(g).connect(c.destination);
+      this.brano = a;
+      this.branoGain = g;
+    }
+    const a = this.brano, g = this.branoGain as GainNode, t = c.currentTime;
+    if (a.paused) {
+      a.currentTime = 0;
+      a.play().catch(() => undefined);
+    }
+    g.gain.cancelScheduledValues(t);
+    g.gain.setTargetAtTime(BRANO.volume, t, 0.15);
+    return true;
+  }
+
+  /** Spegne il pezzo sfumando, e lo ferma quando è muto. */
+  private fermaBrano() {
+    const c = this.ctx, a = this.brano, g = this.branoGain;
+    if (!c || !a || !g || a.paused) return;
+    g.gain.cancelScheduledValues(c.currentTime);
+    g.gain.setTargetAtTime(0, c.currentTime, 0.25);
+    setTimeout(() => {
+      if (this.modo !== "loop") a.pause();
+    }, 1500);
+  }
+
+  /** Che cosa suona: per la scritta sopra lo studietto. Null se non suona il pezzo vero. */
+  pezzo(): { artista: string; titolo: string } | null {
+    return this.modo === "loop" && this.brano && !this.branoRotto ? { artista: BRANO.artista, titolo: BRANO.titolo } : null;
   }
 
   /* ---------------------------------------------------------------- il fondo */

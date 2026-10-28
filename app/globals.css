@@ -85,6 +85,7 @@ html.con-scena .elenco{
   clip-path:inset(50%);
   padding:0;
 }
+html.con-scena.con-elenco .elenco,
 html.con-scena .elenco:focus-within{
   width:auto;height:auto;
   inset:1rem;
@@ -561,3 +562,31 @@ html[data-tema="chiaro"] .olio-scrivimi{color:#FBFAF7}
   .olio-scorri::after,.olio-onde--attive i,.olio-velo,.olio-attesa::after{animation:none}
   .tappa-pannello{transition:none}
 }
+
+/* ---------- le didascalie dei luoghi della stanza: una riga sopra il luogo, al passaggio o al tocco ---------- */
+.didascalia{
+  position:absolute;left:0;top:0;z-index:5;pointer-events:none;max-width:min(26rem,80vw);
+  padding:.45rem .8rem;border-radius:999px;
+  background:rgba(14,13,18,.72);color:#F3F1EB;border:1px solid rgba(243,241,235,.18);
+  font-family:var(--mono);font-size:.7rem;letter-spacing:.04em;line-height:1.35;text-align:center;
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  opacity:0;transition:opacity .25s ease;white-space:normal;
+}
+.didascalia[data-su]{opacity:1}
+html[data-tema="chiaro"] .didascalia{background:rgba(251,250,247,.82);color:#16171A;border-color:rgba(22,23,26,.14)}
+@media (prefers-reduced-motion:reduce){.didascalia{transition:none}}
+
+/* la vista elenco aperta dal bottone "Lavori": il bottone per chiuderla, in alto a destra del pannello */
+.elenco-chiudi{
+  position:fixed;top:1.6rem;right:1.6rem;z-index:61;width:2.4rem;height:2.4rem;border-radius:50%;
+  display:grid;place-items:center;font-size:1.3rem;line-height:1;
+  background:var(--fondo-alto);border:1px solid var(--bordo);color:var(--testo);
+}
+html.con-elenco .elenco{outline:none}
+
+/* nella vista elenco i compiti sono righe brevi col trattino, non voci separate da filetti */
+.elenco h4{font-family:var(--mono);font-weight:400;font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;color:var(--grigio);margin:1rem 0 .4rem}
+.elenco li li{padding:.2rem 0 .2rem 1.1rem;border:0;position:relative;color:var(--testo-tenue);font-size:.95rem;line-height:1.5}
+.elenco li li::before{content:"–";position:absolute;left:0;color:var(--grigio)}
+.elenco li > a{display:inline-block;margin-top:.6rem;font-family:var(--mono);font-size:.8rem}
+html.con-scena.con-elenco .elenco{padding-inline:max(2rem,calc((100vw - 54rem) / 2))}

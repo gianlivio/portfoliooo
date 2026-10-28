@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { mondo } from "../condivisi";
+import { suono } from "../audio";
 import { POSIZIONI, collocaZona } from "../zona";
 import { alone, liberaTutto, tela } from "./comuni";
 import { Scrivania } from "./scrivania";
@@ -252,7 +253,9 @@ class Studio {
     x.font = `300 58px ${serif}`;
     x.textAlign = "center";
     x.textBaseline = "middle";
-    const testo = acceso ? this.testi[1] : this.testi[0];
+    // mentre suona il pezzo di Livio, la scritta dice che cos'è (il quadrato resta: un clic lo ferma)
+    const pezzo = acceso ? suono.pezzo() : null;
+    const testo = pezzo ? `${pezzo.artista} — ${pezzo.titolo}` : acceso ? this.testi[1] : this.testi[0];
     x.fillText(testo.charAt(0).toUpperCase() + testo.slice(1).toLowerCase(), 440, 82, 580);
     t.needsUpdate = true;
   }
@@ -319,7 +322,7 @@ class Studio {
       x.fillRect(l - 70, 130, 56, 22);
       x.fillStyle = acceso ? "#9CF2B0" : "#5E8A6E";
       x.font = "600 13px ui-monospace, monospace";
-      x.fillText("130", l - 60, 146);
+      x.fillText("120", l - 60, 146);
       for (let i = 0; i < 16; i++) {
         const lit = i === passo % 16;
         x.fillStyle = lit ? "#FFE15A" : "#8E8A80";

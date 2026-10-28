@@ -45,6 +45,8 @@ export default function Esperienza({
   const [selezionato, setSelezionato] = useState<string | null>(null);
   const [focale, setFocale] = useState<number | null>(null);
   const [modulo, setModulo] = useState(false);
+  /** la vista elenco: la pagina in HTML dei lavori, sopra la scena, per chi ha poco tempo */
+  const [elencoAperto, setElencoAperto] = useState(false);
   const [mosso, setMosso] = useState(false);
   const [pronta, setPronta] = useState(false);
   const [ambiente, setAmbiente] = useState<Ambiente | null>(null);
@@ -221,6 +223,27 @@ export default function Esperienza({
     const resto = [...elenco];
     return Array.from({ length: POSTI }, (_, i) => (i === POSTO_ZONA ? contatto : i === POSTO_ULIVETO ? uliveto : (resto.shift() as Carta)));
   }, [d, lingua]);
+
+  // la vista elenco: la classe sull'html la mostra sopra la scena; Esc la chiude; si apre col fuoco sul titolo
+  useEffect(() => {
+    const html = document.documentElement;
+    html.classList.toggle("con-elenco", elencoAperto);
+    if (!elencoAperto) return;
+    const el = document.getElementById("elenco");
+    if (el) {
+      el.tabIndex = -1;
+      el.scrollTop = 0;
+      el.focus({ preventScroll: true });
+    }
+    const tasti = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setElencoAperto(false);
+    };
+    window.addEventListener("keydown", tasti);
+    return () => {
+      window.removeEventListener("keydown", tasti);
+      html.classList.remove("con-elenco");
+    };
+  }, [elencoAperto]);
 
   const seleziona = useCallback((id: string | null) => {
     // l'ingresso dell'uliveto (da tastiera): il passaggio parte dal centro dello schermo
@@ -434,6 +457,14 @@ export default function Esperienza({
                 aria-hidden="true"
               />
             </button>
+            <button
+              className="cv"
+              onClick={() => setElencoAperto((v) => !v)}
+              aria-expanded={elencoAperto}
+              aria-controls="elenco"
+            >
+              {d.elenco.titolo}
+            </button>
             <a className="cv" href={curriculum[lingua]} download>
               {d.testata.cv} ↓
             </a>
@@ -443,6 +474,12 @@ export default function Esperienza({
         <p className={`guida${mosso ? " guida--via" : ""}`} aria-hidden="true">
           {ambiente.tocco ? d.guida.tocco : d.guida.mouse}
         </p>
+
+        {elencoAperto && (
+          <button className="elenco-chiudi" onClick={() => setElencoAperto(false)} aria-label={d.vignetta.chiudi}>
+            <span aria-hidden="true">×</span>
+          </button>
+        )}
 
         <button className="scrivimi" onClick={() => setModulo(true)}>
           {d.testata.scrivimi}
