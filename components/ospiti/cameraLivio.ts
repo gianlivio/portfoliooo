@@ -18,6 +18,152 @@ import { granaLegno } from "./polyhaven";
 
 type Pezzo = { g: THREE.BufferGeometry; m: string };
 
+/*
+ * La finestra sul mare: dietro il vetro non c'è un'immagine ma un fondale calcolato secondo la direzione di chi
+ * guarda (la posizione della camera nelle coordinate della finestra): girando, il fondo, la superficie e i pesci
+ * si spostano come dietro una finestra vera. La sabbia con le caustiche e la posidonia, i raggi che scendono,
+ * un banco di pesci, la manta ogni tanto, le bolle; di notte il mare profondo e il plancton che si accende.
+ */
+const MARE_V = `varying vec3 vPos; void main(){ vPos = position; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`;
+const MARE_F = `
+uniform vec3 uCam; uniform float uT; uniform float uNotte; uniform vec2 uMezzo;
+varying vec3 vPos;
+float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+float caustica(vec2 p, float t){
+  float a = sin(p.x * 4.0 + sin(p.y * 3.1 + t * 0.9) * 1.3 + t * 0.6);
+  float b = sin(p.y * 4.6 + sin(p.x * 2.7 - t * 0.7) * 1.4 - t * 0.5);
+  return pow(clamp(0.5 + 0.8 * a * b, 0.0, 1.0), 4.0);
+}
+float pesce(vec2 q){
+  float corpo = 1.0 - smoothstep(-0.03, 0.03, length(q * vec2(1.0, 2.6)) - 0.5);
+  vec2 c = q - vec2(-0.48, 0.0);
+  float coda = (c.x < 0.0 && c.x > -0.3 && abs(c.y) < 0.03 + (-c.x) * 0.9) ? 1.0 : 0.0;
+  return max(corpo, coda);
+}
+void main(){
+  vec3 ro = vPos;
+  vec3 rd = normalize(vPos - uCam);
+  // dentro la finestra il mare: verso −z locale. Il fondo a y = −1,6, la superficie a +1,5
+  float nebbia = 0.2;
+  vec3 alto = mix(vec3(0.36, 0.76, 0.84), vec3(0.05, 0.14, 0.24), uNotte);
+  vec3 basso = mix(vec3(0.03, 0.22, 0.34), vec3(0.0, 0.03, 0.07), uNotte);
+  vec3 acqua = mix(basso, alto, smoothstep(-0.7, 0.6, rd.y));
+  vec3 col = acqua;
+  float tMax = 30.0;
+  if (rd.y < -0.001) {
+    float tf = (-0.9 - ro.y) / rd.y;
+    vec3 p = ro + rd * tf;
+    vec3 sabbia = vec3(0.80, 0.72, 0.54) * (0.78 + 0.08 * sin(p.x * 9.0 + sin(p.z * 3.0) * 2.0));
+    // posidonia e sassi scuri a chiazze
+    float m = hash(floor(p.xz * 1.6));
+    if (m > 0.78) sabbia = mix(sabbia, vec3(0.16, 0.28, 0.18), 0.75);
+    sabbia *= 1.0 + (0.7 - 0.6 * uNotte) * caustica(p.xz * 1.3, uT);
+    sabbia *= mix(1.0, 0.12, uNotte);
+    col = mix(sabbia, acqua, 1.0 - exp(-tf * nebbia));
+    tMax = tf;
+  } else if (rd.y > 0.001) {
+    float ts = (1.5 - ro.y) / rd.y;
+    vec3 p = ro + rd * ts;
+    vec3 sup = mix(vec3(0.78, 0.96, 1.0), vec3(0.12, 0.2, 0.32), uNotte) * (0.6 + 0.7 * caustica(p.xz * 0.8, uT * 1.3));
+    col = mix(sup, acqua, 1.0 - exp(-ts * nebbia * 0.8));
+    tMax = ts;
+  }
+  // i raggi di sole che scendono di sbieco, solo di giorno: presi su un piano a mezza profondità, così si spostano
+  {
+    float t = (-1.6 - ro.z) / rd.z;
+    vec2 q = (ro + rd * t).xy;
+    float r = pow(clamp(0.5 + 0.5 * sin((q.x + q.y * 0.45) * 9.0 + uT * 0.35) * sin((q.x + q.y * 0.3) * 3.1 - uT * 0.18), 0.0, 1.0), 2.0);
+    col += vec3(0.6, 0.92, 1.0) * r * 0.32 * smoothstep(-0.7, 0.6, q.y) * (1.0 - uNotte);
+    // la superficie in alto, che luccica
+    col += vec3(0.8, 0.97, 1.0) * smoothstep(0.25, 0.6, q.y) * (0.25 + 0.5 * caustica(q * 3.0, uT * 1.4)) * (1.0 - uNotte) * 0.5;
+  }
+  // gli scogli a strati, dal lontano al vicino, con la posidonia che ondeggia in cima: danno la profondità
+  for (int k = 2; k >= 0; k--) {
+    float fk = float(k);
+    float D = 0.9 + fk * 1.4;
+    float t = (-D - ro.z) / rd.z;
+    if (t < 0.0 || t > tMax) continue;
+    vec3 q = ro + rd * t;
+    float h = -0.42 + 0.2 * sin(q.x * 1.3 + fk * 2.1) + 0.1 * sin(q.x * 3.7 + fk) + fk * 0.12;
+    // la posidonia: nastri fitti e sottili che si piegano tutti insieme alla corrente
+    float onda = sin(uT * 0.9 + q.x * 1.5) * 0.35;
+    float lama = pow(clamp(sin((q.x + onda * (q.y - h) * 3.0) * 90.0) * 0.5 + 0.5, 0.0, 1.0), 2.0);
+    float erba = h + (0.08 + 0.1 * hash(vec2(floor(q.x * 14.0), fk))) * lama;
+    vec3 roccia = mix(vec3(0.20, 0.17, 0.14), vec3(0.03, 0.04, 0.06), uNotte);
+    vec3 verde = mix(vec3(0.26, 0.36, 0.18), vec3(0.02, 0.06, 0.06), uNotte);
+    // la cima degli scogli presa dalla luce che scende
+    roccia *= 1.0 + (1.0 - uNotte) * 0.9 * caustica(q.xy * 2.0 + fk, uT) * smoothstep(h - 0.12, h, q.y);
+    float f = 1.0 - exp(-t * nebbia);
+    if (q.y < h) col = mix(roccia, acqua, f);
+    else if (q.y < erba) col = mix(verde, acqua, f);
+  }
+  // un banco di pesci che passa, a profondità diverse
+  for (int i = 0; i < 16; i++) {
+    float fi = float(i);
+    float h1 = hash(vec2(fi, 1.3)), h2 = hash(vec2(fi, 7.1)), h3 = hash(vec2(fi, 3.7));
+    float D = 0.7 + h1 * 2.2;
+    float t = (-D - ro.z) / rd.z;
+    if (t < 0.0 || t > tMax) continue;
+    vec3 q = ro + rd * t;
+    float giro = 2.2;
+    float verso = i < 10 ? 1.0 : -1.0;
+    float x = verso * (mod(uT * (0.12 + h2 * 0.04) + (i < 10 ? h3 * 0.5 : h3 * 2.2), giro) - giro * 0.5);
+    float y = (i < 10 ? 0.0 : 0.3) + (h1 - 0.5) * 0.45 + sin(uT * 0.4 + h2 * 6.0) * 0.1;
+    vec2 rel = (q.xy - vec2(x, y)) / (0.16 + h3 * 0.06);
+    rel.x *= verso;
+    rel.y += sin(rel.x * 3.0 + uT * 7.0 + h3 * 6.0) * 0.04;
+    float c = pesce(rel);
+    vec3 pc = rel.y > 0.0 ? vec3(0.10, 0.20, 0.26) : vec3(0.62, 0.74, 0.78);
+    pc = mix(pc, vec3(0.10, 0.22, 0.28), uNotte * 0.7);
+    pc = mix(pc, acqua, 1.0 - exp(-t * nebbia));
+    col = mix(col, pc, c);
+  }
+  // la manta: ogni quarantacinque secondi attraversa lenta, in alto, battendo le ali
+  {
+    float f = mod(uT + 20.0, 45.0);
+    if (f < 24.0) {
+      float D = 3.2, t = (-D - ro.z) / rd.z;
+      if (t > 0.0 && t < tMax) {
+        vec3 q = ro + rd * t;
+        vec2 rel = (q.xy - vec2(-1.6 + f * 0.13, 0.25)) / 0.5;
+        rel.y -= sin(uT * 1.4) * abs(rel.x) * 0.35;
+        float corpo = abs(rel.x) * 0.55 + abs(rel.y) * 1.8;
+        float c = 1.0 - smoothstep(0.42, 0.46, corpo);
+        c = max(c, (rel.x < -0.3 && rel.x > -1.3 && abs(rel.y) < 0.012) ? 1.0 : 0.0);
+        vec3 pc = mix(vec3(0.06, 0.12, 0.16), acqua, 1.0 - exp(-t * nebbia));
+        col = mix(col, pc, c);
+      }
+    }
+  }
+  // le bolle che salgono
+  for (int k = 0; k < 7; k++) {
+    float fk = float(k);
+    float D = 0.5 + fk * 0.35, t = (-D - ro.z) / rd.z;
+    vec3 q = ro + rd * t;
+    float h = hash(vec2(fk, 9.0));
+    vec2 b = vec2((h - 0.5) * 1.4 + sin(uT * 1.7 + fk) * 0.03, mod(uT * (0.18 + h * 0.1) + h * 3.0, 3.0) - 1.5);
+    float d = length(q.xy - b);
+    col += vec3(0.85, 0.97, 1.0) * (smoothstep(0.022, 0.012, d) - smoothstep(0.012, 0.004, d) * 0.6) * 0.6;
+  }
+  // di notte il plancton che si accende
+  if (uNotte > 0.5) {
+    for (int k = 0; k < 2; k++) {
+      float D = 1.0 + float(k) * 1.5, t = (-D - ro.z) / rd.z;
+      vec2 g = (ro + rd * t).xy * 9.0 + float(k) * 13.0;
+      vec2 cella = floor(g);
+      float h = hash(cella);
+      float acceso = step(0.9, h) * pow(0.5 + 0.5 * sin(uT * 1.5 + h * 40.0), 6.0);
+      col += vec3(0.3, 1.0, 0.85) * smoothstep(0.18, 0.0, length(fract(g) - 0.5)) * acceso * 0.9;
+    }
+  }
+  // il vetro: un riflesso obliquo appena accennato, e i bordi più scuri
+  vec2 uv = vPos.xy / uMezzo;
+  col += vec3(1.0) * 0.05 * smoothstep(0.2, 0.0, abs(uv.x + uv.y * 0.6 - 0.5));
+  col *= 1.0 - 0.3 * pow(max(abs(uv.x), abs(uv.y)), 5.0);
+  gl_FragColor = vec4(col, 1.0);
+}
+`;
+
 /** Fonde le geometrie che hanno lo stesso materiale. */
 function fondi(pezzi: Pezzo[], materiali: Record<string, THREE.Material>, gruppo: THREE.Group) {
   const perMateriale = new Map<string, THREE.BufferGeometry[]>();
@@ -240,6 +386,10 @@ export class CameraDiLivio {
   private parete: THREE.MeshStandardMaterial;
   private noce!: THREE.MeshStandardMaterial;
   private velo!: THREE.MeshBasicMaterial;
+  private finestra!: THREE.Mesh;
+  private mare!: THREE.ShaderMaterial;
+  private alone!: THREE.MeshBasicMaterial;
+  private locale = new THREE.Vector3();
   private piatto = new THREE.Group();
   private texture: THREE.Texture[] = [];
 
@@ -301,6 +451,49 @@ export class CameraDiLivio {
     p.push({ g: box(PX1 - PX0, PH, 0.08, (PX0 + PX1) / 2, PH / 2, PZ + 0.04), m: "parete" });
     p.push({ g: box(PX1 - PX0, 0.07, 0.015, (PX0 + PX1) / 2, 0.035, PZ - 0.004), m: "battiscopa" });
     const muro = PZ - 0.01;
+
+    // la finestra sul mare, fra la libreria e la parete delle chitarre: il muro attorno, il telaio di ferro
+    // sottile con un montante e una traversa, il davanzale di pietra; davanti, un alone azzurro sul muro
+    {
+      const L0 = -1.88, L1 = -1.0, F0 = -1.74, F1 = -1.12, Y0 = 1.02, Y1 = 1.86;
+      const W = F1 - F0, H = Y1 - Y0, cx = (F0 + F1) / 2, cy = (Y0 + Y1) / 2;
+      p.push({ g: box(L1 - L0, Y0, 0.08, (L0 + L1) / 2, Y0 / 2, PZ + 0.04), m: "parete" });
+      p.push({ g: box(L1 - L0, PH - Y1, 0.08, (L0 + L1) / 2, (Y1 + PH) / 2, PZ + 0.04), m: "parete" });
+      p.push({ g: box(F0 - L0, H, 0.08, (L0 + F0) / 2, cy, PZ + 0.04), m: "parete" });
+      p.push({ g: box(L1 - F1, H, 0.08, (F1 + L1) / 2, cy, PZ + 0.04), m: "parete" });
+      p.push({ g: box(L1 - L0, 0.07, 0.015, (L0 + L1) / 2, 0.035, PZ - 0.004), m: "battiscopa" });
+      const t = 0.028, tz = PZ + 0.005;
+      p.push({ g: box(W + t * 2, t, 0.05, cx, Y1 + t / 2, tz), m: "nero" });
+      p.push({ g: box(W + t * 2, t, 0.05, cx, Y0 - t / 2, tz), m: "nero" });
+      for (const x of [F0 - t / 2, F1 + t / 2]) p.push({ g: box(t, H, 0.05, x, cy, tz), m: "nero" });
+      p.push({ g: box(0.012, H, 0.03, cx, cy, tz + 0.01), m: "nero" });
+      p.push({ g: box(W, 0.012, 0.03, cx, Y0 + H * 0.68, tz + 0.01), m: "nero" });
+      p.push({ g: box(W + 0.12, 0.035, 0.11, cx, Y0 - t - 0.0175, PZ - 0.03), m: "battiscopa" });
+      this.mare = new THREE.ShaderMaterial({
+        vertexShader: MARE_V,
+        fragmentShader: MARE_F,
+        uniforms: { uCam: { value: new THREE.Vector3(0, 0, 5) }, uT: { value: 0 }, uNotte: { value: 0 }, uMezzo: { value: new THREE.Vector2(W / 2, H / 2) } },
+        toneMapped: false,
+      });
+      // il piano guarda −z (verso chi guarda): girato di mezzo giro, il mare sta a −z locale
+      this.finestra = new THREE.Mesh(new THREE.PlaneGeometry(W, H), this.mare);
+      this.finestra.rotation.y = Math.PI;
+      this.finestra.position.set(cx, cy, PZ + 0.03);
+      this.gruppo.add(this.finestra);
+      const tx = tela(64, 64, (x) => {
+        const g = x.createRadialGradient(32, 32, 4, 32, 32, 32);
+        g.addColorStop(0, "rgba(255,255,255,1)");
+        g.addColorStop(1, "rgba(255,255,255,0)");
+        x.fillStyle = g;
+        x.fillRect(0, 0, 64, 64);
+      });
+      this.texture.push(tx);
+      this.alone = new THREE.MeshBasicMaterial({ map: tx, color: "#5FC8E0", transparent: true, opacity: 0.12, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false });
+      const a = new THREE.Mesh(new THREE.PlaneGeometry(W * 2.2, H * 1.9), this.alone);
+      a.rotation.y = Math.PI;
+      a.position.set(cx, cy, PZ - 0.012);
+      this.gruppo.add(a);
+    }
 
     // la parete delle chitarre: doghe verticali di noce su feltro nero, come negli studi di registrazione;
     // in cima una striscia di led calda che le lava di luce dall'alto. La grana è il noce americano di
@@ -561,11 +754,19 @@ export class CameraDiLivio {
     this.parete.color.set(notte ? "#57514A" : "#F1EADF");
     this.noce.color.set(notte ? "#6E4A30" : "#B07A4E");
     this.velo.opacity = notte ? 0.55 : 0.18;
+    this.mare.uniforms.uNotte.value = notte ? 1 : 0;
+    this.alone.opacity = notte ? 0.22 : 0.12;
   }
 
-  aggiorna(dt: number, ridotto: boolean) {
+  aggiorna(dt: number, ridotto: boolean, t = 0, camera?: THREE.Camera) {
     // il disco gira a 33 giri
     if (!ridotto) this.piatto.rotation.y -= dt * 3.46;
+    // il mare: dove sta chi guarda, nelle coordinate della finestra; fermo con "riduci movimento"
+    if (camera) {
+      this.finestra.updateWorldMatrix(true, false);
+      this.mare.uniforms.uCam.value.copy(this.finestra.worldToLocal(this.locale.copy(camera.position)));
+    }
+    if (!ridotto) this.mare.uniforms.uT.value = t;
   }
 
   libera() {

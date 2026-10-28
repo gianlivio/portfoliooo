@@ -732,7 +732,7 @@ export class Zona {
   aggiorna(t: number, dt: number, camera: THREE.Camera, ridotto: boolean) {
     this.studio.aggiorna(t, ridotto);
     this.pannello.aggiorna(dt, ridotto);
-    this.camera.aggiorna(dt, ridotto);
+    this.camera.aggiorna(dt, ridotto, t, camera);
     if (ridotto) return;
     this.scrivania.aggiorna(t, dt);
     this.schiacciasogni.aggiorna(t, this.notte);
