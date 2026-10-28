@@ -22,13 +22,20 @@ export type Modo = "spento" | "ambiente" | "loop";
 export const SOTTOFONDO: { url: string | null; volume: number } = { url: null, volume: 0.5 };
 
 /**
- * Il pezzo che parte dai synth dello studietto: Signification di Juan Lee (Livio), dall'album Semeiosis (2021).
- * Non tutto il pezzo: un giro dei momenti migliori, montato a battuta. Comincia nel break (3:26 dell'originale),
- * entra nel drop e arriva al picco (5:20); poi una battuta di dissolvenza nella parte piena (1:36) fino a 3:26,
- * che è proprio dove il file ricomincia: il giro si chiude senza tagli. 448 quarti in tutto, circa 120 BPM.
- * Se il file non si carica, al suo posto suona il loop sintetizzato.
+ * I pezzi che partono dai synth dello studietto: l'album Semeiosis di Juan Lee (Livio), 2021, nell'ordine del disco.
+ * Di ciascuno non tutto il pezzo: un giro dei momenti migliori, montato a battuta, che ricomincia senza tagli.
+ * Signification comincia nel break (3:26 dell'originale), entra nel drop e arriva al picco (5:20); poi una battuta
+ * di dissolvenza nella parte piena (1:36) fino a 3:26, che è proprio dove il file ricomincia.
+ * quarti: i quarti di un giro (per il battito delle luci); bpm: quello che dice il display della macchina.
+ * Le frecce accanto alla scritta passano al pezzo dopo o a quello prima. Se un file non si carica,
+ * al suo posto suona il loop sintetizzato.
  */
-export const BRANO = { url: "/audio/juan-lee-signification.mp3", artista: "Juan Lee", titolo: "Signification", quarti: 448, volume: 0.85 };
+export type Brano = { url: string; titolo: string; quarti: number; bpm: number };
+export const ARTISTA = "Juan Lee";
+export const BRANI: Brano[] = [
+  { url: "/audio/juan-lee-signification.mp3", titolo: "Signification", quarti: 448, bpm: 120 },
+];
+const VOLUME_BRANO = 0.85;
 
 const CHIAVE = "audio";
 const VOLUME = 0.16; // volume generale, basso
@@ -96,6 +103,8 @@ class Suono {
   private brano: HTMLAudioElement | null = null;
   private branoGain: GainNode | null = null;
   private branoRotto = false;
+  /** quale pezzo dell'album suona (o suonerà al prossimo clic) */
+  private indice = 0;
   private passo = 0;
   private prossimo = 0;
   private inizioLoop = 0;
@@ -205,7 +214,7 @@ class Suono {
     const b = this.brano;
     if (b && !this.branoRotto) {
       if (b.paused || !b.duration) return null;
-      const q = (b.currentTime / b.duration) * BRANO.quarti;
+      const q = (b.currentTime / b.duration) * BRANI[this.indice].quarti;
       return { fase: q - Math.floor(q), n: Math.floor(q) };
     }
     const q = this.ancora.q + (c.currentTime - this.ancora.t) / (60 / this.bpm);
@@ -343,7 +352,7 @@ class Suono {
     if (!c || this.branoRotto) return false;
     if (!this.brano) {
       const a = new Audio();
-      a.src = BRANO.url;
+      a.src = BRANI[this.indice].url;
       a.loop = true;
       a.preload = "auto";
       a.crossOrigin = "anonymous";
@@ -364,7 +373,7 @@ class Suono {
       a.play().catch(() => undefined);
     }
     g.gain.cancelScheduledValues(t);
-    g.gain.setTargetAtTime(BRANO.volume, t, 0.15);
+    g.gain.setTargetAtTime(VOLUME_BRANO, t, 0.15);
     return true;
   }
 
@@ -379,9 +388,36 @@ class Suono {
     }, 1500);
   }
 
+  /**
+   * Il pezzo dopo (verso 1) o quello prima (−1), in giro sull'album. Da chiamare dentro un gesto.
+   * Il pezzo che suona sfuma in un attimo, il nuovo parte dall'inizio del suo giro; a musica spenta la accende.
+   */
+  cambiaBrano(verso: 1 | -1) {
+    const n = BRANI.length;
+    if (n < 2) return;
+    this.indice = (this.indice + verso + n) % n;
+    this.branoRotto = false;
+    const a = this.brano, g = this.branoGain, c = this.ctx;
+    if (a && g && c) {
+      const t = c.currentTime;
+      g.gain.cancelScheduledValues(t);
+      g.gain.setValueAtTime(g.gain.value, t);
+      g.gain.linearRampToValueAtTime(0, t + 0.12);
+      a.pause();
+      a.src = BRANI[this.indice].url;
+    }
+    if (this.voluto !== "loop") this.imposta("loop");
+    else {
+      this.applica();
+      this.avvisa();
+    }
+  }
+
   /** Che cosa suona: per la scritta sopra lo studietto. Null se non suona il pezzo vero. */
-  pezzo(): { artista: string; titolo: string } | null {
-    return this.modo === "loop" && this.brano && !this.branoRotto ? { artista: BRANO.artista, titolo: BRANO.titolo } : null;
+  pezzo(): { artista: string; titolo: string; bpm: number; indice: number; quanti: number } | null {
+    if (this.modo !== "loop" || !this.brano || this.branoRotto) return null;
+    const b = BRANI[this.indice];
+    return { artista: ARTISTA, titolo: b.titolo, bpm: b.bpm, indice: this.indice, quanti: BRANI.length };
   }
 
   /* ---------------------------------------------------------------- il fondo */

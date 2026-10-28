@@ -722,6 +722,7 @@ function ZonaSviluppatore({ notte, ridotto, testi }: { notte: boolean; ridotto: 
     document.body.style.cursor = sopra ? "pointer" : "";
     zona.mostraTitolo(sopra?.tipo === "libro" ? sopra.indice : null);
     zona.evidenziaMusica(sopra?.tipo === "drum");
+    zona.evidenziaFreccia(sopra?.tipo === "brano" ? sopra.verso : null);
     return () => {
       document.body.style.cursor = "";
     };
@@ -743,6 +744,7 @@ function ZonaSviluppatore({ notte, ridotto, testi }: { notte: boolean; ridotto: 
         if (!a || e.delta > 6) return;
         e.stopPropagation();
         if (a.tipo === "drum") suono.drum();
+        else if (a.tipo === "brano") suono.cambiaBrano(a.verso);
         else window.open(LIBRI[a.indice].url, "_blank", "noopener");
       }}
     />

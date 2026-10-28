@@ -44,7 +44,7 @@ export const LIBRI = [
 const nomeLibro = (l: (typeof LIBRI)[number]) => (l.versione ? `${l.titolo} ${l.versione}` : l.titolo);
 
 /** Cosa succede cliccando un oggetto della zona: lo legge Scena dagli userData. */
-export type Azione = { tipo: "drum" } | { tipo: "libro"; indice: number };
+export type Azione = { tipo: "drum" } | { tipo: "brano"; verso: 1 | -1 } | { tipo: "libro"; indice: number };
 
 
 /* -------------------------------------------- lo studietto con le macchine */
@@ -71,7 +71,8 @@ const ACCESI = ["#FF4D3A", "#FFB23A", "#F5E04A", "#5BE36B", "#3AC8FF", "#9C6BFF"
  * riquadro rosso, il Volca, il pedale grigio e l'Electribe con la pelle psichedelica, in piedi contro il fondo;
  * ai lati del piano alto le due casse, sotto il tavolo il subwoofer. Disegnate senza marchi.
  * Le spie a passi girano piano a suono spento, per invitare al clic; a loop acceso vanno a tempo.
- * Un clic sul tavolo (o sulla scritta sopra) accende o spegne il loop.
+ * Un clic sul tavolo (o sulla scritta sopra) accende o spegne il loop. Mentre suona un pezzo di Juan Lee,
+ * ai lati della scritta due frecce passano al pezzo prima e a quello dopo dell'album.
  */
 class Studio {
   gruppo = new THREE.Group();
@@ -79,7 +80,11 @@ class Studio {
   private passo = -1;
   private scritta: { x: CanvasRenderingContext2D; t: THREE.CanvasTexture };
   private testi = ["", ""];
-  private acceso = -1;
+  /** il pezzo per cui è disegnata la scritta: cambia col pezzo, non solo all'accensione */
+  private chiave = "";
+  private frecce: THREE.Mesh[] = [];
+  private freccia: 1 | -1 | null = null;
+  private bpm = 120;
   private raggio: THREE.Sprite;
   private cartello!: THREE.Mesh;
   private sopra = false;
@@ -188,6 +193,39 @@ class Studio {
     cartello.userData.azione = { tipo: "drum" } satisfies Azione;
     this.cartello = cartello;
     this.gruppo.add(cartello);
+    // le frecce, figlie della scritta: ne seguono il gonfiarsi; si vedono e si cliccano solo mentre suona un pezzo vero
+    for (const verso of [-1, 1] as const) {
+      const ft = tela(160, 160, (x) => {
+        x.fillStyle = "rgba(14,12,22,0.88)";
+        x.beginPath();
+        x.arc(80, 80, 72, 0, Math.PI * 2);
+        x.fill();
+        x.strokeStyle = "#A99FC2";
+        x.lineWidth = 4;
+        x.stroke();
+        // due punte, come i tasti avanti e indietro di un lettore
+        x.fillStyle = "#D9D3E8";
+        for (const dx of [-14, 14]) {
+          x.beginPath();
+          x.moveTo(80 + dx + verso * 16, 80);
+          x.lineTo(80 + dx - verso * 14, 58);
+          x.lineTo(80 + dx - verso * 14, 102);
+          x.closePath();
+          x.fill();
+        }
+      });
+      texture.push(ft);
+      const f = new THREE.Mesh(
+        new THREE.PlaneGeometry(0.4, 0.4),
+        new THREE.MeshBasicMaterial({ map: ft, transparent: true, depthWrite: false, toneMapped: false })
+      );
+      f.position.set(verso * 1.47, 0, 0);
+      f.renderOrder = 10;
+      f.visible = false;
+      f.userData.azione = { tipo: "brano", verso } satisfies Azione;
+      cartello.add(f);
+      this.frecce.push(f);
+    }
     const lama = tela(64, 256, (x) => {
       const v = x.createLinearGradient(0, 256, 0, 0);
       v.addColorStop(0, "rgba(255,255,255,1)");
@@ -215,13 +253,18 @@ class Studio {
     this.sopra = si;
   }
 
+  /** Il puntatore è sopra una delle frecce (o su nessuna). */
+  evidenziaFreccia(verso: 1 | -1 | null) {
+    this.freccia = verso;
+  }
+
   /** I testi della scritta, nella lingua della pagina: [accendi, spegni]. */
   setTesti(accendi: string, spegni: string) {
     this.testi = [accendi, spegni];
-    this.acceso = -1;
+    this.chiave = "";
   }
 
-  private scrivi(acceso: boolean) {
+  private scrivi(acceso: boolean, pezzo: ReturnType<typeof suono.pezzo>) {
     const { x, t } = this.scritta;
     x.clearRect(0, 0, 768, 160);
     // lo stesso bottone della domanda sul cassetto: fascia scura, bordo sottile, testo in serif; colori sobri
@@ -254,7 +297,6 @@ class Studio {
     x.textAlign = "center";
     x.textBaseline = "middle";
     // mentre suona il pezzo di Livio, la scritta dice che cos'è (il quadrato resta: un clic lo ferma)
-    const pezzo = acceso ? suono.pezzo() : null;
     const testo = pezzo ? `${pezzo.artista} — ${pezzo.titolo}` : acceso ? this.testi[1] : this.testi[0];
     x.fillText(testo.charAt(0).toUpperCase() + testo.slice(1).toLowerCase(), 440, 82, 580);
     t.needsUpdate = true;
@@ -322,7 +364,7 @@ class Studio {
       x.fillRect(l - 70, 130, 56, 22);
       x.fillStyle = acceso ? "#9CF2B0" : "#5E8A6E";
       x.font = "600 13px ui-monospace, monospace";
-      x.fillText("120", l - 60, 146);
+      x.fillText(String(this.bpm), l - 60, 146);
       for (let i = 0; i < 16; i++) {
         const lit = i === passo % 16;
         x.fillStyle = lit ? "#FFE15A" : "#8E8A80";
@@ -370,9 +412,25 @@ class Studio {
 
   aggiorna(t: number, ridotto: boolean) {
     const b = mondo.battito;
-    if ((b.attivo ? 1 : 0) !== this.acceso) {
-      this.acceso = b.attivo ? 1 : 0;
-      this.scrivi(b.attivo);
+    // il pezzo vero conta da subito, anche nel mezzo secondo in cui il file nuovo si carica e il battito tace
+    const pezzo = suono.pezzo();
+    const acceso = b.attivo || !!pezzo;
+    const chiave = `${acceso ? 1 : 0}|${pezzo ? pezzo.titolo : ""}`;
+    if (chiave !== this.chiave) {
+      this.chiave = chiave;
+      this.bpm = pezzo ? pezzo.bpm : 120;
+      this.scrivi(acceso, pezzo);
+      this.passo = -1; // ridisegna anche il display, col tempo del pezzo nuovo
+      // le frecce solo col pezzo vero e con più di un pezzo; nascoste non si cliccano
+      const vedi = !!pezzo && pezzo.quanti > 1;
+      for (const f of this.frecce) {
+        f.visible = vedi;
+        f.raycast = vedi ? THREE.Mesh.prototype.raycast : () => undefined;
+      }
+    }
+    for (const f of this.frecce) {
+      const meta = this.freccia === (f.userData.azione as { verso: number }).verso ? 1.15 : 1;
+      f.scale.setScalar(f.scale.x + (meta - f.scale.x) * 0.25);
     }
     this.raggio.material.opacity = ridotto ? 0.4 : b.attivo ? 0.3 + 0.4 * Math.exp(-b.fase * 5) : 0.32 + 0.1 * Math.sin(t * 2);
     // il bottone: sotto il puntatore si gonfia; a musica spenta respira appena, per invitare al clic
@@ -725,6 +783,11 @@ export class Zona {
   /** Il puntatore sopra la musica: il bottone si gonfia. */
   evidenziaMusica(si: boolean) {
     this.studio.evidenzia(si);
+  }
+
+  /** Il puntatore sopra una freccia dei pezzi: la freccia si gonfia. */
+  evidenziaFreccia(verso: 1 | -1 | null) {
+    this.studio.evidenziaFreccia(verso);
   }
 
   mostraTitolo(indice: number | null) {
