@@ -749,7 +749,7 @@ function Erba({ notte, stretto }: { notte: boolean; stretto: boolean }) {
     const caso = generatore(53);
     const m: THREE.Matrix4[] = [];
     const v = new THREE.Vector3(), d = new THREE.Vector3(), su = new THREE.Vector3(0, 1, 0);
-    const n = stretto ? 40 : 120;
+    const n = stretto ? 30 : 70;
     for (let i = 0; i < n; i++) {
       const p = caso();
       const lato = caso() < 0.5 ? -1 : 1;
@@ -1341,6 +1341,18 @@ function Pranzo({ foto, p, lato, notte, onApri }: { foto: { q: Quadro; i: number
  * senza aspettarli. Senza la compilazione parallela del browser, compare comunque dopo la prima schermata.
  */
 function InDisparte({ children }: { children: React.ReactNode }) {
+  // le cose lontane non si costruiscono nemmeno finché la scena non gira da un paio di secondi:
+  // l'apertura dell'uliveto non le aspetta
+  const [dopo, setDopo] = useState(false);
+  const fotogrammi = useRef(0);
+  useFrame(() => {
+    if (!dopo && ++fotogrammi.current === 90) setDopo(true);
+  });
+  return dopo ? <Compilate>{children}</Compilate> : null;
+}
+
+/** Compila in disparte i materiali dei figli, e li mostra solo quando sono pronti. */
+function Compilate({ children }: { children: React.ReactNode }) {
   const rif = useRef<THREE.Group>(null);
   const { gl, camera, scene } = useThree();
   useEffect(() => {
@@ -1391,7 +1403,8 @@ function RaccoltaLontana({ notte, stretto, ridotto }: { notte: boolean; stretto:
       // le file lontane lungo tutto il cammino; la prima fila solo lontano dalle reti vicine e dai quadri della raccolta
       .filter((a) => a.p < 0.86 && (Math.abs(a.lat) > 9.5 || (Math.abs(a.lat) > 5 && (a.p < 0.32 || a.p > 0.7))))
       .sort((a, b) => a.p - b.p);
-    const quanti = stretto ? 6 : 12;
+    // poche squadre, sparse: bastano a dire che si raccoglie dappertutto
+    const quanti = stretto ? 3 : 5;
     const scelti = Array.from({ length: quanti }, (_, k) => alberi[Math.floor(((k + 0.5) / quanti) * alberi.length)]);
     const persone: Persona[] = [];
     const teli: THREE.BufferGeometry[] = [];

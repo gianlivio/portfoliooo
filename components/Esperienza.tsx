@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import type { Dizionario, Lingua } from "@/dictionaries";
 import { lingue } from "@/dictionaries";
 import { lavori, ID_CONTATTO, ID_ULIVETO } from "@/content/lavori";
+import { POSTI, POSTO_ULIVETO, POSTO_ZONA } from "./zona";
 import { precaricaUliveto } from "./precaricaUliveto";
 import { frammenti } from "@/content/frammenti";
 import { curriculum } from "@/content/collegamenti";
@@ -184,7 +185,7 @@ export default function Esperienza({
         },
       };
     });
-    elenco.push({
+    const contatto: Carta = {
       id: ID_CONTATTO,
       immagine: null,
       frammento: "",
@@ -198,9 +199,9 @@ export default function Esperienza({
         motivo: "testo",
         contatto: true,
       },
-    });
+    };
     // l'ingresso dell'uliveto: un posto sull'anello come le carte, ma sulla scena è un cancello
-    elenco.push({
+    const uliveto: Carta = {
       id: ID_ULIVETO,
       immagine: null,
       frammento: "",
@@ -215,8 +216,10 @@ export default function Esperienza({
         contatto: false,
         uliveto: true,
       },
-    });
-    return elenco;
+    };
+    // l'anello: la zona e l'uliveto ai loro posti, i lavori in ordine negli altri
+    const resto = [...elenco];
+    return Array.from({ length: POSTI }, (_, i) => (i === POSTO_ZONA ? contatto : i === POSTO_ULIVETO ? uliveto : (resto.shift() as Carta)));
   }, [d, lingua]);
 
   const seleziona = useCallback((id: string | null) => {

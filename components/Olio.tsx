@@ -191,7 +191,7 @@ export default function Olio({ d, lingua }: { d: Dizionario; lingua: Lingua }) {
                 {t.titolo && <h2 className="tappa-titolo">{t.titolo}</h2>}
                 {t.testo && <p className="tappa-testo">{t.testo}</p>}
                 {/* senza la scena, i video della tappa stanno qui sotto */}
-                {!con3d && <QuadriPiani quadri={quadri.filter((q) => q.tappa === tappe.indexOf(t))} vuoto={o.videoInArrivo} />}
+                {ambiente && !con3d && <QuadriPiani quadri={quadri.filter((q) => q.tappa === tappe.indexOf(t))} vuoto={o.videoInArrivo} />}
                 {t.id === "frantoio" && (
                   <div className="olio-azioni">
                     <button className="olio-scrivimi" onClick={() => setModulo(true)}>
@@ -237,7 +237,7 @@ function QuadriPiani({ quadri, vuoto }: { quadri: Quadro[]; vuoto: string }) {
       {quadri.map((q, i) =>
         q.media ? (
           q.media.tipo === "video" ? (
-            <video key={i} className="olio-cornice" src={q.media.src} poster={q.media.poster} controls preload="metadata" playsInline />
+            <video key={i} className="olio-cornice" src={q.media.src} poster={q.media.poster} controls preload="none" playsInline />
           ) : (
             // eslint-disable-next-line @next/next/no-img-element
             <img key={i} className="olio-cornice" src={q.media.src} alt={q.didascalia} />

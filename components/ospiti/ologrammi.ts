@@ -33,7 +33,7 @@ type Figura = { g: THREE.Group; corpo: THREE.MeshBasicMaterial; x: number; z: nu
 const CICLO = 54;
 
 /**
- * Sul pavimento, dalla parte opposta allo sviluppatore: la storia di un tempio greco in un minuto.
+ * Sul pavimento, quasi dalla parte opposta allo sviluppatore (di lato al cancello dell'uliveto): la storia di un tempio greco in un minuto.
  * Si monta pezzo per pezzo (gradini, colonne, trabeazione, frontone). Arrivano i pellegrini in processione,
  * pregano, l'incenso sale. Il tempio va in rovina: crolla il frontone, cadono colonne. Intanto i pellegrini
  * diventano turisti, sparsi davanti alle rovine, e scattano fotografie. Poi tutto si dissolve e ricomincia.
@@ -47,7 +47,8 @@ export class Tempio implements Ospite {
   private texture: THREE.Texture[] = [];
 
   constructor() {
-    const a = ANGOLO_ZONA + Math.PI;
+    // un poco di lato rispetto al punto opposto allo sviluppatore: lì ora c'è il cancello dell'uliveto
+    const a = ANGOLO_ZONA + Math.PI - 0.9;
     this.gruppo.position.set(Math.sin(a) * 3.9, PELO_ACQUA, -Math.cos(a) * 3.9);
     this.gruppo.scale.setScalar(0.6);
     this.gruppo.rotation.y = Math.PI - a; // la facciata (−z locale) verso chi guarda
