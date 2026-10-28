@@ -12,6 +12,9 @@ export type IdLuogo =
   | "labirinto"
   | "liotru"
   | "alhambra"
+  | "albaicin"
+  | "sacromonte"
+  | "alcaiceria"
   | "flamenco"
   | "bologna"
   | "rave"
@@ -29,6 +32,9 @@ export const didascalie: Record<string, Record<IdLuogo, string>> = {
     labirinto: "Il Labirinto di Arianna di Italo Lanfredini, Fiumara d'Arte",
     liotru: "Catania: u Liotru, l'elefante di pietra lavica",
     alhambra: "Granada: l'Alhambra vista dall'Albaicín",
+    albaicin: "L'Albaicín, di fronte all'Alhambra: case bianche, cármenes, il mirador di San Nicolás",
+    sacromonte: "Il Sacromonte: in cima l'abbazia, sul fianco le cuevas dei gitani",
+    alcaiceria: "L'Alcaicería, accanto alla Cattedrale di Granada: qui ho vissuto",
     flamenco: "Una zambra al Sacromonte, sotto l'Alhambra",
     bologna: "Bologna e San Luca: dove ho studiato filosofia e semiotica",
     rave: "Un rave in campagna, fino all'alba",
@@ -45,6 +51,9 @@ export const didascalie: Record<string, Record<IdLuogo, string>> = {
     labirinto: "Ariadne's Labyrinth by Italo Lanfredini, Fiumara d'Arte",
     liotru: "Catania: u Liotru, the lava-stone elephant",
     alhambra: "Granada: the Alhambra seen from the Albaicín",
+    albaicin: "The Albaicín, facing the Alhambra: white houses, cármenes, the San Nicolás viewpoint",
+    sacromonte: "The Sacromonte: the abbey on top, the gitano cave houses on its flank",
+    alcaiceria: "The Alcaicería, beside Granada Cathedral: I lived here",
     flamenco: "A zambra in the Sacromonte, below the Alhambra",
     bologna: "Bologna and San Luca: where I studied philosophy and semiotics",
     rave: "A rave in the countryside, until dawn",
@@ -61,6 +70,9 @@ export const didascalie: Record<string, Record<IdLuogo, string>> = {
     labirinto: "El Laberinto de Ariadna de Italo Lanfredini, Fiumara d'Arte",
     liotru: "Catania: u Liotru, el elefante de piedra volcánica",
     alhambra: "Granada: la Alhambra vista desde el Albaicín",
+    albaicin: "El Albaicín, frente a la Alhambra: casas blancas, cármenes, el mirador de San Nicolás",
+    sacromonte: "El Sacromonte: arriba la abadía, en la ladera las cuevas de los gitanos",
+    alcaiceria: "La Alcaicería, junto a la Catedral de Granada: aquí viví",
     flamenco: "Una zambra en el Sacromonte, bajo la Alhambra",
     bologna: "Bolonia y San Luca: donde estudié filosofía y semiótica",
     rave: "Una rave en el campo, hasta el amanecer",

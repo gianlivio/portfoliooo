@@ -12,7 +12,7 @@ import { ANGOLO_ZONA, PASSO } from "./zona";
  * compare una riga che dice cos'è. Ogni luogo ha un punto d'ancora nel mondo; a ogni fotogramma si proietta
  * sullo schermo e si sceglie il più vicino al puntatore, entro un raggio. Niente raycast: i luoghi sono lontani
  * e fatti di geometrie unite. Sopra una carta o un oggetto cliccabile (il cursore a manina) la riga non compare.
- * I punti stanno dove sono i luoghi (vedi ospiti/luoghi.ts, lontano.ts, riva.ts, rave.ts, etna.ts).
+ * I punti stanno dove sono i luoghi (vedi ospiti/luoghi.ts, lontano.ts, riva.ts, rave.ts, etna.ts, citta.ts).
  */
 
 const SU = PELO_ACQUA - 0.3;
@@ -27,6 +27,9 @@ const ANCORE: Ancora[] = [
   { id: "labirinto", a: 3.81, d: 33, y: SU + 6.6, quando: "giorno" },
   { id: "liotru", a: PASSO * 3.5, d: 10.5, y: PELO_ACQUA + 1.4, quando: "sempre" },
   { id: "alhambra", a: -0.02, d: 40.5, y: SU + 5, quando: "sempre" },
+  { id: "albaicin", a: -0.5, d: 37.7, y: SU + 5.6, quando: "giorno" },
+  { id: "sacromonte", a: -0.666, d: 41.2, y: SU + 6.2, quando: "giorno" },
+  { id: "alcaiceria", a: -0.315, d: 35.3, y: SU + 1.6, quando: "giorno" },
   { id: "flamenco", a: 0.11, d: 24, y: PELO_ACQUA + 3.4, quando: "giorno" },
   { id: "bologna", a: -1.16, d: 41.5, y: SU + 7, quando: "sempre" },
   { id: "rave", a: 2.47, d: 31, y: SU + 7.5, quando: "notte" },

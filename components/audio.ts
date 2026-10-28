@@ -24,18 +24,25 @@ export const SOTTOFONDO: { url: string | null; volume: number } = { url: null, v
 /**
  * I pezzi che partono dai synth dello studietto: l'album Semeiosis di Juan Lee (Livio), 2021, nell'ordine del disco.
  * Di ciascuno non tutto il pezzo: un giro dei momenti migliori, montato a battuta, che ricomincia senza tagli.
- * Signification comincia nel break (3:26 dell'originale), entra nel drop e arriva al picco (5:20); poi una battuta
- * di dissolvenza nella parte piena (1:36) fino a 3:26, che è proprio dove il file ricomincia.
+ * Ogni giro comincia nel break prima del drop più bello, va fino alla fine della parte piena, poi una battuta di
+ * dissolvenza torna all'inizio del giro e corre fino al break: il file finisce dove comincia. Signification, per
+ * esempio, parte da 3:26 dell'originale, arriva al picco (5:20), torna a 1:36 e corre fino a 3:26.
  * quarti: i quarti di un giro (per il battito delle luci); bpm: quello che dice il display della macchina.
  * Le frecce accanto alla scritta passano al pezzo dopo o a quello prima. Se un file non si carica,
  * al suo posto suona il loop sintetizzato.
  */
-export type Brano = { url: string; titolo: string; quarti: number; bpm: number };
+export type Brano = { url: string; titolo: string; quarti: number; bpm: number; volume: number };
 export const ARTISTA = "Juan Lee";
+/** volume: per pareggiare i pezzi a orecchio (i master hanno livelli medi diversi, fino a 4 dB) */
 export const BRANI: Brano[] = [
-  { url: "/audio/juan-lee-signification.mp3", titolo: "Signification", quarti: 448, bpm: 120 },
+  { url: "/audio/juan-lee-signification.mp3", titolo: "Signification", quarti: 448, bpm: 120, volume: 0.85 },
+  { url: "/audio/juan-lee-the-platipus-paradox.mp3", titolo: "The Platipus Paradox", quarti: 384, bpm: 120, volume: 0.68 },
+  { url: "/audio/juan-lee-ecology-of-mind.mp3", titolo: "Ecology of Mind", quarti: 512, bpm: 150, volume: 0.81 },
+  { url: "/audio/juan-lee-probabilistic-regime.mp3", titolo: "Probabilistic Regime", quarti: 544, bpm: 150, volume: 0.69 },
+  { url: "/audio/juan-lee-epigenetica.mp3", titolo: "Epigenetica", quarti: 448, bpm: 120, volume: 0.77 },
+  { url: "/audio/juan-lee-rizoma.mp3", titolo: "Rizoma", quarti: 448, bpm: 120, volume: 0.85 },
+  { url: "/audio/juan-lee-semiosi-illimitata.mp3", titolo: "Semiosi Illimitata", quarti: 480, bpm: 150, volume: 0.56 },
 ];
-const VOLUME_BRANO = 0.85;
 
 const CHIAVE = "audio";
 const VOLUME = 0.16; // volume generale, basso
@@ -373,7 +380,7 @@ class Suono {
       a.play().catch(() => undefined);
     }
     g.gain.cancelScheduledValues(t);
-    g.gain.setTargetAtTime(VOLUME_BRANO, t, 0.15);
+    g.gain.setTargetAtTime(BRANI[this.indice].volume, t, 0.15);
     return true;
   }
 

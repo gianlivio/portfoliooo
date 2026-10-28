@@ -297,8 +297,10 @@ class Studio {
     x.textAlign = "center";
     x.textBaseline = "middle";
     // mentre suona il pezzo di Livio, la scritta dice che cos'è (il quadrato resta: un clic lo ferma)
-    const testo = pezzo ? `${pezzo.artista} — ${pezzo.titolo}` : acceso ? this.testi[1] : this.testi[0];
-    x.fillText(testo.charAt(0).toUpperCase() + testo.slice(1).toLowerCase(), 440, 82, 580);
+    // i titoli dei pezzi restano come sono scritti; "accendi musica" prende la maiuscola solo all'inizio
+    const frase = acceso ? this.testi[1] : this.testi[0];
+    const testo = pezzo ? `${pezzo.artista} — ${pezzo.titolo}` : frase.charAt(0).toUpperCase() + frase.slice(1).toLowerCase();
+    x.fillText(testo, 440, 82, 580);
     t.needsUpdate = true;
   }
 
