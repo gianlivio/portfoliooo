@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { LivioRasta, DISTANZA } from "./livioRasta";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import { generatore, tela } from "./comuni";
 import { granaLegno } from "./polyhaven";
@@ -381,6 +382,9 @@ function maschera(k: number, texture: THREE.Texture[]) {
 
 /* ------------------------------------------------------------------ la camera */
 
+/** Il Mook Jong: dove sta e come è girato (i bracci guardano −z locale, cioè verso chi ci si allena). */
+const MOOK = { x: 4.45, z: 0.85, ry: 1.92 };
+
 export class CameraDiLivio {
   gruppo = new THREE.Group();
   private parete: THREE.MeshStandardMaterial;
@@ -392,6 +396,10 @@ export class CameraDiLivio {
   private locale = new THREE.Vector3();
   private piatto = new THREE.Group();
   private texture: THREE.Texture[] = [];
+  /** il faretto della notte sul pianoforte e sul Mook Jong: i coni di luce, le pozze a terra, i materiali che si accendono */
+  private faretto = new THREE.Group();
+  private accesi: THREE.MeshStandardMaterial[] = [];
+  private rasta!: LivioRasta;
 
   constructor() {
     const legno = (colore: string, ripeti: [number, number] = [1, 1], ruvido = 0.7) => new THREE.MeshStandardMaterial({ color: colore, map: granaLegno(ripeti), roughness: ruvido });
@@ -438,6 +446,9 @@ export class CameraDiLivio {
       mobile: legno("#2E231D", [1, 0.5], 0.55),
       wingChun: legno("#8A5530", [0.4, 2], 0.6),
       tasti: new THREE.MeshStandardMaterial({ color: "#F5F3ED", roughness: 0.4 }),
+      // il pianoforte ha i suoi neri: di notte li accende il faretto, senza accendere tutto il resto
+      pianoNero: new THREE.MeshStandardMaterial({ color: "#1B1C1F", roughness: 0.45 }),
+      pianoBuio: new THREE.MeshStandardMaterial({ color: "#0E0E10", roughness: 0.5 }),
       vinile: new THREE.MeshStandardMaterial({ color: "#121214", roughness: 0.3 }),
       libreria: new THREE.MeshStandardMaterial({ color: "#F2F0EB", roughness: 0.8 }),
     };
@@ -634,26 +645,26 @@ export class CameraDiLivio {
     {
       const g: Pezzo[] = [];
       const Y = 0.76, L = 1.3;
-      g.push({ g: box(L, 0.085, 0.27, 0, Y, 0), m: "nero" });
+      g.push({ g: box(L, 0.085, 0.27, 0, Y, 0), m: "pianoNero" });
       g.push({ g: box(L - 0.08, 0.025, 0.14, 0, Y + 0.05, -0.05), m: "tasti" });
       const neri = [1, 3, 6, 8, 10];
       const bianchi = 52, passo = (L - 0.08) / bianchi;
-      for (let k = 0; k < bianchi; k++) g.push({ g: box(0.0025, 0.026, 0.141, -(L - 0.08) / 2 + k * passo, Y + 0.051, -0.05), m: "buio" });
+      for (let k = 0; k < bianchi; k++) g.push({ g: box(0.0025, 0.026, 0.141, -(L - 0.08) / 2 + k * passo, Y + 0.051, -0.05), m: "pianoBuio" });
       for (let k = 0; k < 88; k++) {
         const ott = Math.floor((k + 9) / 12), n = (k + 9) % 12;
         if (!neri.includes(n)) continue;
         const pos = ott * 7 + [0, 0.6, 0, 1.6, 0, 0, 3.6, 0, 4.6, 0, 5.6, 0][n] - 5;
-        g.push({ g: box(passo * 0.6, 0.02, 0.085, -(L - 0.08) / 2 + pos * passo, Y + 0.072, -0.02), m: "buio" });
+        g.push({ g: box(passo * 0.6, 0.02, 0.085, -(L - 0.08) / 2 + pos * passo, Y + 0.072, -0.02), m: "pianoBuio" });
       }
       // il supporto a X: due X ai lati, i bracci e i piedi
       // le X stanno nel piano di fronte, gambe aperte lungo la tastiera; una davanti e una dietro
-      for (const sz of [-0.09, 0.09]) for (const s of [-1, 1]) g.push({ g: box(0.035, 1.02, 0.035, 0, 0, 0).rotateZ(s * 0.72).translate(0, Y / 2 - 0.02, sz), m: "nero" });
-      g.push({ g: cil(0.02, 0.02, 0.22, 8).rotateX(Math.PI / 2).translate(0, Y / 2 - 0.02, 0), m: "nero" });
+      for (const sz of [-0.09, 0.09]) for (const s of [-1, 1]) g.push({ g: box(0.035, 1.02, 0.035, 0, 0, 0).rotateZ(s * 0.72).translate(0, Y / 2 - 0.02, sz), m: "pianoNero" });
+      g.push({ g: cil(0.02, 0.02, 0.22, 8).rotateX(Math.PI / 2).translate(0, Y / 2 - 0.02, 0), m: "pianoNero" });
       for (const sx of [-0.34, 0.34]) {
-        g.push({ g: box(0.04, 0.035, 0.36, sx, Y - 0.06, 0), m: "nero" });
-        g.push({ g: box(0.04, 0.035, 0.42, sx, 0.02, 0), m: "nero" });
+        g.push({ g: box(0.04, 0.035, 0.36, sx, Y - 0.06, 0), m: "pianoNero" });
+        g.push({ g: box(0.04, 0.035, 0.42, sx, 0.02, 0), m: "pianoNero" });
       }
-      g.push({ g: box(0.09, 0.03, 0.14, 0.25, 0.015, -0.32), m: "buio" });
+      g.push({ g: box(0.09, 0.03, 0.14, 0.25, 0.015, -0.32), m: "pianoBuio" });
       metti(g, 1.78, 0, 1.24, 0, 0);
     }
 
@@ -669,7 +680,8 @@ export class CameraDiLivio {
       g.push({ g: box(0.38, 0.06, 0.06, 0, 0.03, 0.2), m: "wingChun" });
       g.push({ g: new THREE.TorusGeometry(0.05, 0.01, 6, 14, Math.PI).rotateZ(Math.PI).translate(0, 1.7, 0), m: "nero" });
       g.push({ g: cil(0.01, 0.01, 0.1, 6).translate(0, 1.62, 0), m: "nero" });
-      metti(g, 4.0, 0, 0.85, 0, -0.35);
+      // girato di fianco a chi guarda, coi bracci verso la stanza: chi ci si allena sta sul fondo scuro della parete, non sulla carta bianca accanto
+      metti(g, MOOK.x, 0, MOOK.z, 0, MOOK.ry);
     }
 
     // la libreria bianca a celle irregolari, dietro il tavolino delle macchine, piena di libri
@@ -746,6 +758,93 @@ export class CameraDiLivio {
     }
 
     fondi(p, m, this.gruppo);
+
+    // il faretto della notte: due teste su una staffa in cima alla parete, una sul pianoforte e una sul Mook Jong.
+    // Niente luci vere (ogni luce in più pesa su tutti i materiali della scena, e sul telefono si sente): il cono
+    // di luce e la pozza a terra sono veli additivi, e il legno del Mook Jong e i neri del piano si accendono da soli
+    {
+      const nero = m.nero;
+      const staffa = new THREE.Vector3(3.42, PH - 0.02, PZ - 0.06);
+      const sfuma = tela(8, 128, (x) => {
+        const v = x.createLinearGradient(0, 0, 0, 128);
+        v.addColorStop(0, "rgba(255,255,255,1)");
+        v.addColorStop(0.5, "rgba(255,255,255,0.35)");
+        v.addColorStop(1, "rgba(255,255,255,0)");
+        x.fillStyle = v;
+        x.fillRect(0, 0, 8, 128);
+      });
+      const pozza = tela(64, 64, (x) => {
+        const g = x.createRadialGradient(32, 32, 2, 32, 32, 32);
+        g.addColorStop(0, "rgba(255,255,255,1)");
+        g.addColorStop(0.6, "rgba(255,255,255,0.45)");
+        g.addColorStop(1, "rgba(255,255,255,0)");
+        x.fillStyle = g;
+        x.fillRect(0, 0, 64, 64);
+      });
+      this.texture.push(sfuma, pozza);
+      const caldo = "#FFE2B0";
+      const base = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.03, 0.05), nero);
+      base.position.copy(staffa).add(new THREE.Vector3(0.05, 0.03, 0));
+      this.faretto.add(base);
+      const testa = (bersaglio: THREE.Vector3, dx: number, raggio: number) => {
+        const da = staffa.clone().add(new THREE.Vector3(dx, -0.02, -0.04));
+        const dir = bersaglio.clone().sub(da);
+        const lungo = dir.length();
+        dir.normalize();
+        const q = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, -1, 0), dir);
+        // il barattolo nero col suo bordo, e la lente calda
+        const corpo = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.045, 0.16, 16).translate(0, 0.04, 0), nero);
+        corpo.position.copy(da);
+        corpo.quaternion.copy(q);
+        const lente = new THREE.Mesh(new THREE.CircleGeometry(0.045, 20).rotateX(Math.PI / 2).translate(0, -0.041, 0), new THREE.MeshBasicMaterial({ color: caldo, toneMapped: false }));
+        lente.position.copy(da);
+        lente.quaternion.copy(q);
+        const asta = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.008, 0.07, 6), nero);
+        asta.position.copy(da).add(new THREE.Vector3(0, 0.035, 0.02));
+        // il cono: largo in fondo, sfuma verso il pavimento
+        const cono = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.04, raggio, lungo, 28, 1, true).translate(0, -lungo / 2, 0),
+          new THREE.MeshBasicMaterial({ map: sfuma, color: caldo, transparent: true, opacity: 0.11, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide, toneMapped: false })
+        );
+        cono.position.copy(da);
+        cono.quaternion.copy(q);
+        cono.renderOrder = 7;
+        // la pozza di luce a terra
+        const terra = new THREE.Mesh(
+          new THREE.PlaneGeometry(raggio * 2.6, raggio * 2.6).rotateX(-Math.PI / 2),
+          new THREE.MeshBasicMaterial({ map: pozza, color: caldo, transparent: true, opacity: 0.32, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false })
+        );
+        const piede = da.clone().addScaledVector(dir, (da.y - 0.006) / -dir.y);
+        terra.position.set(piede.x, 0.006, piede.z);
+        terra.renderOrder = 7;
+        this.faretto.add(corpo, lente, asta, cono, terra);
+      };
+      testa(new THREE.Vector3(1.85, 0, 1.0), -0.12, 0.62);
+      testa(new THREE.Vector3(4.15, 0, 0.98), 0.2, 0.78);
+      this.gruppo.add(this.faretto);
+      this.faretto.visible = false;
+      // di notte si accendono da soli, come presi dal faretto: il legno del Mook Jong e i neri del pianoforte
+      const legnoMook = m.wingChun as THREE.MeshStandardMaterial;
+      legnoMook.emissiveMap = legnoMook.map;
+      this.accesi.push(legnoMook, m.pianoNero as THREE.MeshStandardMaterial, m.pianoBuio as THREE.MeshStandardMaterial, m.tasti as THREE.MeshStandardMaterial);
+    }
+
+    // Livio coi rasta, in ologramma, che ogni tanto si allena al Mook Jong, davanti ai bracci
+    {
+      const lampo = tela(64, 64, (x) => {
+        const g = x.createRadialGradient(32, 32, 1, 32, 32, 32);
+        g.addColorStop(0, "rgba(255,255,255,1)");
+        g.addColorStop(0.25, "rgba(255,255,255,0.6)");
+        g.addColorStop(1, "rgba(255,255,255,0)");
+        x.fillStyle = g;
+        x.fillRect(0, 0, 64, 64);
+      });
+      this.texture.push(lampo);
+      this.rasta = new LivioRasta(lampo);
+      this.rasta.gruppo.position.set(MOOK.x - Math.sin(MOOK.ry) * DISTANZA, 0, MOOK.z - Math.cos(MOOK.ry) * DISTANZA);
+      this.rasta.gruppo.rotation.y = MOOK.ry;
+      this.gruppo.add(this.rasta.gruppo);
+    }
     this.gruppo.traverse((o) => (o.raycast = () => undefined));
   }
 
@@ -756,6 +855,13 @@ export class CameraDiLivio {
     this.velo.opacity = notte ? 0.55 : 0.18;
     this.mare.uniforms.uNotte.value = notte ? 1 : 0;
     this.alone.opacity = notte ? 0.22 : 0.12;
+    this.faretto.visible = notte;
+    // il legno del Mook Jong, il corpo e i tasti del piano: la luce calda del faretto
+    const [legno, nero, buio, tasti] = this.accesi;
+    legno.emissive.set(notte ? "#6A4024" : "#000000");
+    nero.emissive.set(notte ? "#2A241C" : "#000000");
+    buio.emissive.set(notte ? "#1A1610" : "#000000");
+    tasti.emissive.set(notte ? "#6E655A" : "#000000");
   }
 
   aggiorna(dt: number, ridotto: boolean, t = 0, camera?: THREE.Camera) {
@@ -767,9 +873,11 @@ export class CameraDiLivio {
       this.mare.uniforms.uCam.value.copy(this.finestra.worldToLocal(this.locale.copy(camera.position)));
     }
     if (!ridotto) this.mare.uniforms.uT.value = t;
+    this.rasta.aggiorna(t, dt, ridotto);
   }
 
   libera() {
+    this.rasta.libera();
     this.texture.forEach((t) => t.dispose());
     this.gruppo.traverse((o) => {
       const mesh = o as THREE.Mesh;
