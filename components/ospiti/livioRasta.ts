@@ -14,6 +14,10 @@ import { loft } from "./comuni";
  * partono dal cranio pettinate all'indietro, pendono fino alle gambe, inseguono la testa e i colpi e
  * scivolano su cranio, spalle, schiena e gambe senza attraversarli.
  * Compare ogni tanto: si stampa dal basso in alto, fa la sua sequenza, si spegne dall'alto.
+ * Di notte è azzurro, di giorno ambra (l'azzurro sul marmo chiaro sparisce).
+ * La stessa figura fa anche il musicista (modo "studio"): leggerissima, di spalle allo studietto, compare quando
+ * si accende la musica e suona le macchine a tempo (i pad, le manopole, il Kaoss Pad, il Volca), annuendo sul
+ * battito; di notte lilla, di giorno corallo.
  * Coordinate della figura: +z verso il manichino, +x è la sua sinistra, y in alto, i piedi a y = 0.
  * Il manichino sta a (0, 0, DISTANZA), girato come la figura: le sue misure sono quelle di cameraLivio.ts.
  */
@@ -339,9 +343,15 @@ export class LivioRasta {
   private t = V();
   private m4 = new THREE.Matrix4();
   private mTesta = new THREE.Matrix4();
+  private modo: "mook" | "studio";
+  private colori: { giorno: string; notte: string };
+  /** nel modo studio: quanto si vede (sale e scende piano quando la musica si accende e si spegne) */
+  private vis = 0;
   private mInv = new THREE.Matrix4();
 
-  constructor(lampo: THREE.Texture) {
+  constructor(lampo: THREE.Texture, modo: "mook" | "studio" = "mook") {
+    this.modo = modo;
+    this.colori = modo === "mook" ? { giorno: "#D9761C", notte: "#3C96FF" } : { giorno: "#FF7A62", notte: "#C79BFF" };
     this.mat = new THREE.ShaderMaterial({
       vertexShader: VERT,
       fragmentShader: FRAG,
@@ -522,10 +532,19 @@ export class LivioRasta {
     return this.t.setFromMatrixPosition(this.gruppo.matrixWorld).y;
   }
 
-  aggiorna(t: number, dt: number, ridotto: boolean) {
+  /** Il colore dell'ologramma: uno di notte, un altro di giorno. */
+  setNotte(notte: boolean) {
+    (this.mat.uniforms.uColore.value as THREE.Color).set(notte ? this.colori.notte : this.colori.giorno);
+  }
+
+  aggiorna(t: number, dt: number, ridotto: boolean, battito?: { attivo: boolean; fase: number; n: number }) {
     this.mat.uniforms.uT.value = t;
     if (ridotto) {
       this.gruppo.visible = false;
+      return;
+    }
+    if (this.modo === "studio") {
+      this.suona(t, dt, battito ?? { attivo: false, fase: 0, n: 0 });
       return;
     }
     // il tempo della sequenza è quello vero; la fisica dei rasta va a passi piccoli (vedi rasta)
@@ -570,8 +589,74 @@ export class LivioRasta {
     this.metti(tc, dt, t);
   }
 
+  /** Il musicista: si accende e si spegne con la musica, piano; suona finché il loop gira. */
+  private suona(t: number, dt: number, b: { attivo: boolean; fase: number; n: number }) {
+    const prima = this.vis;
+    this.vis += ((b.attivo ? 1 : 0) - this.vis) * Math.min(1, dt * 1.8);
+    if (this.vis < 0.01) {
+      this.gruppo.visible = false;
+      return;
+    }
+    if (prima < 0.01) this.iniziato = false;
+    this.gruppo.visible = true;
+    this.mat.uniforms.uBase.value = this.base();
+    this.mat.uniforms.uTaglio.value = 2;
+    // leggerissimo: si vedono le macchine attraverso
+    this.mat.uniforms.uVis.value = this.vis * 0.42;
+    this.corpoDa(this.posaStudio(b), dt, t);
+  }
+
+  /**
+   * La posa del musicista, dal battito: ogni due battute un gesto diverso (pad a due mani, una manopola e i pad,
+   * il Kaoss Pad, il filtro e il Volca, le due macchine in alto); fra un gesto e l'altro le mani scivolano.
+   * Le coordinate: lui sta davanti al tavolo, di spalle a chi guarda; le macchine basse a z ≈ 0.43, quelle sul
+   * piano alto a z ≈ 0.65 (vedi lo studietto in zonaSviluppatore.ts).
+   */
+  private posaStudio(b: { fase: number; n: number }) {
+    const q = b.n + b.fase;
+    const colpo = Math.pow(1 - b.fase, 4);
+    const ottavo = Math.pow(1 - ((q * 2) % 1), 4);
+    const gesti = (k: number, x: number): [P3, P3] => {
+      const giro = (r: number, c: P3, f: number): P3 => [c[0] + Math.cos(f) * r, c[1] + Math.sin(f) * r * 0.5, c[2] + Math.sin(f) * r];
+      const tocca = (c: P3, quanto: number): P3 => [c[0], c[1] + 0.035 * (1 - quanto), c[2]];
+      const pari = Math.floor(x * 2) % 2 === 0;
+      switch (k % 5) {
+        case 0: // i pad dell'Electribe rosa, a due mani, alternate sugli ottavi
+          return [tocca([0.07, 0.8, 0.42], pari ? ottavo : 0), tocca([-0.07, 0.8, 0.42], pari ? 0 : ottavo)];
+        case 1: // la manopola della macchina a cerchi di sinistra, e i pad col destro sul battere
+          return [giro(0.025, [0.42, 0.82, 0.43], x * 0.8), tocca([-0.04, 0.8, 0.42], colpo)];
+        case 2: // il Kaoss Pad col destro, il dito che scorre; il sinistro sulla manopola
+          return [giro(0.02, [0.4, 0.82, 0.43], x * 0.5), [-0.33 + Math.sin(x * 1.3) * 0.05, 1.08, 0.6 + Math.cos(x * 0.9) * 0.04]];
+        case 3: // il filtro della macchina di destra, e il Volca col sinistro
+          return [tocca([-0.06, 1.05, 0.6], ottavo), giro(0.03, [-0.42, 0.82, 0.43], -x * 0.7)];
+        default: // le due macchine in alto: l'Electribe psichedelica e il Volca
+          return [tocca([0.26, 1.12, 0.6], colpo), tocca([-0.1, 1.05, 0.6], pari ? 0 : ottavo)];
+      }
+    };
+    const k = Math.floor(q / 8);
+    const [s1, d1] = gesti(k, q);
+    let s = s1, d = d1;
+    const dentro = q - k * 8;
+    if (dentro < 0.75 && k > 0) {
+      const [s0, d0] = gesti(k - 1, q);
+      const u = morbido(dentro / 0.75);
+      const mix = (a: P3, c: P3): P3 => [a[0] + (c[0] - a[0]) * u, a[1] + (c[1] - a[1]) * u, a[2] + (c[2] - a[2]) * u];
+      s = mix(s0, s1);
+      d = mix(d0, d1);
+    }
+    return {
+      s: V(...s), d: V(...d), ps: V(...PS), pd: V(...PD),
+      h: 0.93 - 0.018 * colpo, yaw: Math.sin((q * Math.PI) / 4) * 0.08, av: 0.11, giro: 0,
+      bs: false, bd: false, gs: false, gd: false, ms: "palmo" as Mano, md: "palmo" as Mano,
+      colpo: null, nod: 0.18 + 0.12 * colpo,
+    };
+  }
+
   private metti(tc: number, dt: number, t: number) {
-    const P = this.posa(tc);
+    this.corpoDa({ ...this.posa(tc), nod: 0 }, dt, t);
+  }
+
+  private corpoDa(P: ReturnType<LivioRasta["posa"]> & { nod: number }, dt: number, t: number) {
     // il corpo gira attorno al manichino: ruota attorno all'asse del tronco, e guarda sempre il tronco
     const c = DISTANZA;
     this.corpo.position.set(Math.sin(P.giro) * -c, 0, c - Math.cos(P.giro) * c);
@@ -590,7 +675,7 @@ export class LivioRasta {
     const testaPos = nelBusto(0, BUSTO + 0.1, 0.01);
     osso(this.collo, collo, testaPos, this.q, this.t);
     this.testa.position.copy(testaPos);
-    this.testa.quaternion.setFromEuler(new THREE.Euler(0.08 - P.av * 0.5, P.yaw * 0.35, 0, "YXZ"));
+    this.testa.quaternion.setFromEuler(new THREE.Euler(0.08 - P.av * 0.5 + P.nod, P.yaw * 0.35, 0, "YXZ"));
     // braccia
     this.spalle[0].copy(nelBusto(SPALLA_X, BUSTO - 0.06, 0));
     this.spalle[1].copy(nelBusto(-SPALLA_X, BUSTO - 0.06, 0));

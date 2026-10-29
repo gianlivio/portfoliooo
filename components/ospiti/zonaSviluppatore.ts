@@ -6,6 +6,7 @@ import { alone, liberaTutto, tela } from "./comuni";
 import { Scrivania } from "./scrivania";
 import { granaLegno } from "./polyhaven";
 import { CameraDiLivio } from "./cameraLivio";
+import { LivioRasta } from "./livioRasta";
 
 /**
  * La zona dello sviluppatore, il centro del mondo: la scrivania e, intorno, tutto piccolo e in scala con lui:
@@ -745,6 +746,8 @@ export class Zona {
   private pannello: Pannello;
   private schiacciasogni: Schiacciasogni;
   private camera: CameraDiLivio;
+  /** Livio coi rasta, leggerissimo, di spalle allo studietto: suona le macchine quando la musica è accesa */
+  private musicista: LivioRasta;
   private texture: THREE.Texture[] = [];
   private notte: boolean;
 
@@ -763,6 +766,13 @@ export class Zona {
     this.gruppo.add(this.camera.gruppo);
     this.camera.setNotte(notte);
     this.pannello.setNotte(notte);
+    // il musicista sta davanti al tavolo delle macchine, girato verso di loro: chi guarda lo vede di spalle
+    const niente = tela(8, 8, (x) => x.fillRect(0, 0, 8, 8));
+    this.texture.push(niente);
+    this.musicista = new LivioRasta(niente, "studio");
+    this.musicista.gruppo.position.set(0, 0, -0.5);
+    this.studio.gruppo.add(this.musicista.gruppo);
+    this.musicista.setNotte(notte);
     // solo libri e drum machine rispondono al puntatore
     this.gruppo.traverse((o) => {
       if (!o.userData.azione) o.raycast = () => undefined;
@@ -779,6 +789,7 @@ export class Zona {
     this.scrivania.setNotte(notte);
     this.pannello.setNotte(notte);
     this.camera.setNotte(notte);
+    this.musicista.setNotte(notte);
   }
 
   /** Il titolo di un libro sopra il libro, al passaggio del puntatore. */
@@ -801,6 +812,7 @@ export class Zona {
     this.studio.aggiorna(t, ridotto);
     this.pannello.aggiorna(dt, ridotto);
     this.camera.aggiorna(dt, ridotto, t, camera);
+    this.musicista.aggiorna(t, dt, ridotto, mondo.battito);
     if (ridotto) return;
     this.scrivania.aggiorna(t, dt);
     this.schiacciasogni.aggiorna(t, this.notte);
@@ -808,6 +820,7 @@ export class Zona {
   }
 
   libera() {
+    this.musicista.libera();
     this.scrivania.libera();
     this.camera.libera();
     liberaTutto(this.gruppo, this.texture);

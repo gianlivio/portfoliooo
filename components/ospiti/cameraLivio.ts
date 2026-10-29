@@ -856,6 +856,7 @@ export class CameraDiLivio {
     this.mare.uniforms.uNotte.value = notte ? 1 : 0;
     this.alone.opacity = notte ? 0.22 : 0.12;
     this.faretto.visible = notte;
+    this.rasta.setNotte(notte);
     // il legno del Mook Jong, il corpo e i tasti del piano: la luce calda del faretto
     const [legno, nero, buio, tasti] = this.accesi;
     legno.emissive.set(notte ? "#6A4024" : "#000000");
