@@ -186,7 +186,7 @@ class Studio {
       new THREE.PlaneGeometry(2.4, 2.4 * (160 / 768)),
       new THREE.MeshBasicMaterial({ map: tx, transparent: true, depthWrite: false, toneMapped: false })
     );
-    cartello.position.set(0, 2.15, 0.35);
+    cartello.position.set(0, 2.6, 0.35); // sopra le maschere della parete: non le copre
     cartello.renderOrder = 10; // dopo le carte: è più vicina di loro, non deve finirci sotto
     cartello.rotation.y = Math.PI;
     // la scritta è un bottone vero: cliccarla accende e spegne la musica come lo studietto

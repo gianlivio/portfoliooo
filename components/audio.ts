@@ -27,18 +27,20 @@ export const SOTTOFONDO: { url: string | null; volume: number } = { url: null, v
  * Ogni giro comincia nel break prima del drop più bello, va fino alla fine della parte piena, poi una battuta di
  * dissolvenza torna all'inizio del giro e corre fino al break: il file finisce dove comincia. Signification, per
  * esempio, contiene da 3:26 dell'originale al picco (5:20), poi da 1:36 a 3:26. Signification non parte dall'inizio
- * del file: di giorno dalla parte più luminosa, di notte dal drop (vedi giorno e notte nella lista).
+ * del giro: di giorno dalla parte più luminosa, di notte dal drop (due file, vedi la lista).
  * quarti: i quarti di un giro (per il battito delle luci); bpm: quello che dice il display della macchina.
  * Le frecce accanto alla scritta passano al pezzo dopo o a quello prima. Se un file non si carica,
  * al suo posto suona il loop sintetizzato.
  */
-/** giorno, notte: da dove parte il file, in secondi, col tema chiaro e con quello scuro (se mancano, dall'inizio) */
-export type Brano = { url: string; titolo: string; quarti: number; bpm: number; volume: number; giorno?: number; notte?: number };
+/** url: un file solo, o due (giorno e notte) che girano lo stesso giro ma partono da punti diversi */
+export type Brano = { url: string | { giorno: string; notte: string }; titolo: string; quarti: number; bpm: number; volume: number };
+const urlDi = (b: Brano, notte: boolean) => (typeof b.url === "string" ? b.url : notte ? b.url.notte : b.url.giorno);
 export const ARTISTA = "Juan Lee";
 /** volume: per pareggiare i pezzi a orecchio (i master hanno livelli medi diversi, fino a 4 dB) */
 export const BRANI: Brano[] = [
-  // di giorno dalla parte più luminosa (2:07 dell'originale), di notte dal drop dopo il break (3:43)
-  { url: "/audio/juan-lee-signification.mp3", titolo: "Signification", quarti: 448, bpm: 120, volume: 0.85, giorno: 145.78, notte: 17.51 },
+  // due file dello stesso giro: di giorno parte dalla parte più luminosa (2:07 dell'originale), di notte dal drop (3:43).
+  // Due file e non un salto dentro lo stesso: sul telefono il salto avanti nel file si faceva aspettare
+  { url: { giorno: "/audio/juan-lee-signification-giorno.mp3", notte: "/audio/juan-lee-signification-notte.mp3" }, titolo: "Signification", quarti: 448, bpm: 120, volume: 0.85 },
   { url: "/audio/juan-lee-the-platipus-paradox.mp3", titolo: "The Platipus Paradox", quarti: 384, bpm: 120, volume: 0.68 },
   { url: "/audio/juan-lee-ecology-of-mind.mp3", titolo: "Ecology of Mind", quarti: 512, bpm: 150, volume: 0.81 },
   { url: "/audio/juan-lee-probabilistic-regime.mp3", titolo: "Probabilistic Regime", quarti: 544, bpm: 150, volume: 0.69 },
@@ -362,7 +364,6 @@ class Suono {
     if (!c || this.branoRotto) return false;
     if (!this.brano) {
       const a = new Audio();
-      a.src = BRANI[this.indice].url;
       a.loop = true;
       a.preload = "auto";
       a.crossOrigin = "anonymous";
@@ -379,14 +380,10 @@ class Suono {
     }
     const a = this.brano, g = this.branoGain as GainNode, t = c.currentTime;
     if (a.paused) {
-      const b = BRANI[this.indice];
-      const da = (this.eNotte ? b.notte : b.giorno) ?? 0;
-      a.currentTime = da;
-      // a file non ancora letto qualche browser ignora il salto: lo si ripete quando arrivano i metadati
-      if (a.readyState === 0 && da > 0)
-        a.addEventListener("loadedmetadata", () => {
-          if (a.currentTime < da - 1) a.currentTime = da;
-        }, { once: true });
+      // il file del pezzo per il tema di adesso, sempre dall'inizio: nessun salto dentro il file
+      const u = urlDi(BRANI[this.indice], this.eNotte);
+      if (!a.src.endsWith(u)) a.src = u;
+      else a.currentTime = 0;
       a.play().catch(() => undefined);
     }
     g.gain.cancelScheduledValues(t);
@@ -421,7 +418,7 @@ class Suono {
       g.gain.setValueAtTime(g.gain.value, t);
       g.gain.linearRampToValueAtTime(0, t + 0.12);
       a.pause();
-      a.src = BRANI[this.indice].url;
+      a.src = urlDi(BRANI[this.indice], this.eNotte);
     }
     if (this.voluto !== "loop") this.imposta("loop");
     else {
