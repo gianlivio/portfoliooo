@@ -29,7 +29,8 @@ export const POSIZIONI = {
   /** la cassettiera col cassetto aperto, accanto alla sedia, dalla parte di chi guarda */
   cassetto: new THREE.Vector3(1.22, 0, 0.18),
   /** lo studietto delle macchine del suono, a due piani: a destra (per chi guarda) della scrivania */
-  studio: new THREE.Vector3(-1.75, 0, 0.7),
+  // davanti alla libreria bianca: dietro il musicista olografico c'è un fondo chiaro
+  studio: new THREE.Vector3(-2.25, 0, 0.7),
   /** la libreria bianca dietro lo studietto: in cima stanno i tre libri */
   pannello: new THREE.Vector3(-2.35, 0, 1.45),
 };

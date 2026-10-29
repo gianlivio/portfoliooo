@@ -16,7 +16,8 @@ import { loft } from "./comuni";
  * Compare ogni tanto: si stampa dal basso in alto, fa la sua sequenza, si spegne dall'alto.
  * Di notte è azzurro, di giorno ambra (l'azzurro sul marmo chiaro sparisce).
  * La stessa figura fa anche il musicista (modo "studio"): leggerissima, di spalle allo studietto, compare quando
- * si accende la musica e suona le macchine a tempo (i pad, le manopole, il Kaoss Pad, il Volca), annuendo sul
+ * si accende la musica e suona le macchine a tempo (i pad, le manopole, il Kaoss Pad, il Volca, i fader e le
+ * manopole del mixer, con un passo di lato), annuendo sul
  * battito; di notte lilla, di giorno corallo.
  * Coordinate della figura: +z verso il manichino, +x è la sua sinistra, y in alto, i piedi a y = 0.
  * Il manichino sta a (0, 0, DISTANZA), girato come la figura: le sue misure sono quelle di cameraLivio.ts.
@@ -616,36 +617,42 @@ export class LivioRasta {
     const q = b.n + b.fase;
     const colpo = Math.pow(1 - b.fase, 4);
     const ottavo = Math.pow(1 - ((q * 2) % 1), 4);
-    const gesti = (k: number, x: number): [P3, P3] => {
+    // il mixer sta alla sua sinistra: per i fader e le manopole fa un passo di lato (lato: lo spostamento del corpo)
+    const gesti = (k: number, x: number): [P3, P3, number] => {
       const giro = (r: number, c: P3, f: number): P3 => [c[0] + Math.cos(f) * r, c[1] + Math.sin(f) * r * 0.5, c[2] + Math.sin(f) * r];
       const tocca = (c: P3, quanto: number): P3 => [c[0], c[1] + 0.035 * (1 - quanto), c[2]];
       const pari = Math.floor(x * 2) % 2 === 0;
-      switch (k % 5) {
+      switch (k % 6) {
         case 0: // i pad dell'Electribe rosa, a due mani, alternate sugli ottavi
-          return [tocca([0.07, 0.8, 0.42], pari ? ottavo : 0), tocca([-0.07, 0.8, 0.42], pari ? 0 : ottavo)];
+          return [tocca([0.07, 0.8, 0.42], pari ? ottavo : 0), tocca([-0.07, 0.8, 0.42], pari ? 0 : ottavo), 0];
         case 1: // la manopola della macchina a cerchi di sinistra, e i pad col destro sul battere
-          return [giro(0.025, [0.42, 0.82, 0.43], x * 0.8), tocca([-0.04, 0.8, 0.42], colpo)];
+          return [giro(0.025, [0.42, 0.82, 0.43], x * 0.8), tocca([-0.04, 0.8, 0.42], colpo), 0];
         case 2: // il Kaoss Pad col destro, il dito che scorre; il sinistro sulla manopola
-          return [giro(0.02, [0.4, 0.82, 0.43], x * 0.5), [-0.33 + Math.sin(x * 1.3) * 0.05, 1.08, 0.6 + Math.cos(x * 0.9) * 0.04]];
-        case 3: // il filtro della macchina di destra, e il Volca col sinistro
-          return [tocca([-0.06, 1.05, 0.6], ottavo), giro(0.03, [-0.42, 0.82, 0.43], -x * 0.7)];
-        default: // le due macchine in alto: l'Electribe psichedelica e il Volca
-          return [tocca([0.26, 1.12, 0.6], colpo), tocca([-0.1, 1.05, 0.6], pari ? 0 : ottavo)];
+          return [giro(0.02, [0.4, 0.82, 0.43], x * 0.5), [-0.33 + Math.sin(x * 1.3) * 0.05, 1.08, 0.6 + Math.cos(x * 0.9) * 0.04], 0];
+        case 3: // al mixer: due fader che salgono e scendono piano, a mani alterne
+          return [[0.98, 0.8, 0.33 + Math.sin(x * 0.4) * 0.05], [0.8, 0.8, 0.33 + Math.sin(x * 0.4 + 2) * 0.05], 0.6];
+        case 4: // il filtro della macchina di destra, e il Volca col sinistro
+          return [tocca([-0.06, 1.05, 0.6], ottavo), giro(0.03, [-0.42, 0.82, 0.43], -x * 0.7), 0];
+        default: // al mixer le manopole dell'equalizzazione col sinistro, il destro che tiene il tempo sull'Electribe
+          return [giro(0.015, [0.95, 0.84, 0.56], x * 0.6), tocca([0.3, 0.8, 0.42], colpo), 0.4];
       }
     };
     const k = Math.floor(q / 8);
-    const [s1, d1] = gesti(k, q);
-    let s = s1, d = d1;
+    const [s1, d1, l1] = gesti(k, q);
+    let s = s1, d = d1, lato = l1;
     const dentro = q - k * 8;
     if (dentro < 0.75 && k > 0) {
-      const [s0, d0] = gesti(k - 1, q);
+      const [s0, d0, l0] = gesti(k - 1, q);
       const u = morbido(dentro / 0.75);
       const mix = (a: P3, c: P3): P3 => [a[0] + (c[0] - a[0]) * u, a[1] + (c[1] - a[1]) * u, a[2] + (c[2] - a[2]) * u];
       s = mix(s0, s1);
       d = mix(d0, d1);
+      lato = l0 + (l1 - l0) * u;
     }
+    // i bersagli sono sul tavolo: nel corpo spostato di lato si leggono spostati al contrario
     return {
-      s: V(...s), d: V(...d), ps: V(...PS), pd: V(...PD),
+      lato,
+      s: V(s[0] - lato, s[1], s[2]), d: V(d[0] - lato, d[1], d[2]), ps: V(...PS), pd: V(...PD),
       h: 0.93 - 0.018 * colpo, yaw: Math.sin((q * Math.PI) / 4) * 0.08, av: 0.11, giro: 0,
       bs: false, bd: false, gs: false, gd: false, ms: "palmo" as Mano, md: "palmo" as Mano,
       colpo: null, nod: 0.18 + 0.12 * colpo,
@@ -653,13 +660,13 @@ export class LivioRasta {
   }
 
   private metti(tc: number, dt: number, t: number) {
-    this.corpoDa({ ...this.posa(tc), nod: 0 }, dt, t);
+    this.corpoDa({ ...this.posa(tc), nod: 0, lato: 0 }, dt, t);
   }
 
-  private corpoDa(P: ReturnType<LivioRasta["posa"]> & { nod: number }, dt: number, t: number) {
+  private corpoDa(P: ReturnType<LivioRasta["posa"]> & { nod: number; lato: number }, dt: number, t: number) {
     // il corpo gira attorno al manichino: ruota attorno all'asse del tronco, e guarda sempre il tronco
     const c = DISTANZA;
-    this.corpo.position.set(Math.sin(P.giro) * -c, 0, c - Math.cos(P.giro) * c);
+    this.corpo.position.set(Math.sin(P.giro) * -c + P.lato, 0, c - Math.cos(P.giro) * c);
     this.corpo.rotation.set(0, P.giro, 0);
     // il bacino: basso nella posizione, un respiro leggero, la rotazione verso il colpo
     const respiro = Math.sin(t * 1.7) * 0.006;

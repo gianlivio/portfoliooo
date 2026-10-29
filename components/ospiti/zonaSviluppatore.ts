@@ -105,14 +105,14 @@ class Studio {
       this.gruppo.add(o);
       return o;
     };
-    // il tavolo: il piano basso sulle due fiancate, il piano alto sul fondo
+    // il tavolo: il piano basso sulle due fiancate, il piano alto sul fondo, sopra le macchine; il piano basso
+    // prosegue a sinistra (+x) per il mixer, che lì non ha niente sopra
     const T = { l: 1.3, p: 0.62, h: 0.72 };
     const A = { h: 1.0, p: 0.24, z: T.p / 2 - 0.12 };
-    add(new THREE.BoxGeometry(T.l, 0.035, T.p), legno, 0, T.h, 0);
-    for (const s of [-1, 1]) {
-      add(new THREE.BoxGeometry(0.035, T.h, T.p), legno, s * (T.l / 2 - 0.0175), T.h / 2, 0);
-      add(new THREE.BoxGeometry(0.03, A.h - T.h, A.p), legno, s * (T.l / 2 - 0.015), (T.h + A.h) / 2, A.z);
-    }
+    const B = { da: -T.l / 2, a: 1.2 }; // il piano basso, da destra a sinistra
+    add(new THREE.BoxGeometry(B.a - B.da, 0.035, T.p), legno, (B.da + B.a) / 2, T.h, 0);
+    for (const x of [B.da + 0.0175, B.a - 0.0175]) add(new THREE.BoxGeometry(0.035, T.h, T.p), legno, x, T.h / 2, 0);
+    for (const s of [-1, 1]) add(new THREE.BoxGeometry(0.03, A.h - T.h, A.p), legno, s * (T.l / 2 - 0.015), (T.h + A.h) / 2, A.z);
     add(new THREE.BoxGeometry(T.l, 0.03, A.p), legno, 0, A.h, A.z);
     // il subwoofer sotto il tavolo, la cassa grande a terra
     add(new THREE.BoxGeometry(0.34, 0.34, 0.34), nero, -0.3, 0.17, 0.08);
@@ -144,6 +144,57 @@ class Studio {
     macchina(0.3, 0.24, 0.035, 0.28, alto + 0.12, A.z + 0.03, "#1E1F23", faccia(300, 240, texture), true); // l'Electribe psichedelica, in piedi
     macchina(0.2, 0.06, 0.23, -0.33, alto + 0.03, A.z, "#141518", faccia(200, 230, texture)); // il Kaoss Pad
     macchina(0.19, 0.035, 0.11, -0.08, alto + 0.0175, A.z - 0.03, "#18191C", faccia(190, 110, texture)); // il Volca
+    // il mixer Yamaha a sedici canali, blu e nero, sul piano basso a sinistra: più grande delle macchine,
+    // appena inclinato verso chi guarda (disegnato senza marchio)
+    {
+      const tav = tela(480, 460, (x) => {
+        x.fillStyle = "#1F3F7A";
+        x.fillRect(0, 0, 480, 460);
+        x.fillStyle = "#111318";
+        x.fillRect(0, 0, 480, 26);
+        x.fillRect(0, 434, 480, 26);
+        x.fillRect(372, 26, 108, 408);
+        const manopola = (cx: number, cy: number, r: number, c: string) => {
+          x.fillStyle = "#0C0D10";
+          x.beginPath();
+          x.arc(cx, cy, r, 0, 7);
+          x.fill();
+          x.fillStyle = c;
+          x.fillRect(cx - 1, cy - r, 2, r * 0.8);
+        };
+        // sedici strisce: guadagno, tre di equalizzazione, due mandate, il pan, il tasto, la corsia del fader
+        for (let k = 0; k < 16; k++) {
+          const cx = 14 + k * 22.5;
+          x.fillStyle = "rgba(0,0,0,0.25)";
+          x.fillRect(cx - 10, 30, 1, 400);
+          const colori = ["#E8E3D8", "#E8E3D8", "#3FA0E8", "#3FA0E8", "#3FA0E8", "#E8C04A", "#E8C04A", "#E05050"];
+          colori.forEach((c, i) => manopola(cx, 44 + i * 24, 7, c));
+          x.fillStyle = k % 5 === 2 ? "#F5A23A" : "#C9CCD2";
+          x.fillRect(cx - 7, 240, 14, 9);
+          x.fillStyle = "#07080A";
+          x.fillRect(cx - 1.5, 268, 3, 150);
+          x.fillStyle = "#D9DCE2";
+          x.fillRect(cx - 7, 300 + ((k * 37) % 90), 14, 12);
+        }
+        // la sezione master: le spie del livello, i due fader, qualche manopola
+        for (let i = 0; i < 12; i++) for (const cx of [392, 408]) {
+          x.fillStyle = i < 2 ? "#E8443A" : i < 5 ? "#E8C04A" : "#46D26A";
+          x.fillRect(cx, 44 + i * 13, 10, 8);
+        }
+        for (const cy of [230, 262]) manopola(440, cy, 9, "#E8E3D8");
+        for (const cx of [396, 426]) {
+          x.fillStyle = "#07080A";
+          x.fillRect(cx - 1.5, 290, 3, 128);
+          x.fillStyle = "#E05050";
+          x.fillRect(cx - 8, 330, 16, 12);
+        }
+      });
+      texture.push(tav);
+      const corpo = new THREE.MeshStandardMaterial({ color: "#16171B", roughness: 0.5 });
+      const viso = new THREE.MeshBasicMaterial({ map: tav, toneMapped: false });
+      const mixer = add(new THREE.BoxGeometry(0.48, 0.07, 0.46), [corpo, corpo, viso, corpo, corpo, corpo], 0.92, su + 0.035, -0.02);
+      mixer.rotation.x = -0.14;
+    }
     // il pedale grigio, col suo pedale nero
     add(new THREE.BoxGeometry(0.075, 0.055, 0.13), new THREE.MeshStandardMaterial({ color: "#8E9298", roughness: 0.5 }), 0.07, alto + 0.0275, A.z - 0.03);
     add(new THREE.BoxGeometry(0.068, 0.012, 0.07), nero, 0.07, alto + 0.06, A.z - 0.055);
@@ -169,7 +220,7 @@ class Studio {
     }
     // dove si clicca: tutto lo studietto, casse comprese
     const presa = new THREE.Mesh(
-      new THREE.BoxGeometry(T.l + 0.1, 1.35, T.p + 0.1),
+      new THREE.BoxGeometry(B.a - B.da + 0.1, 1.35, T.p + 0.1).translate((B.da + B.a) / 2, 0, 0),
       new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false, colorWrite: false })
     );
     presa.position.y = 0.68;

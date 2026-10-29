@@ -748,7 +748,8 @@ export class CameraDiLivio {
       st.push({ g: box(0.02, 0.75, 0.02, 0, 0, 0).rotateX(-0.25).translate(0, 0.37, 0.15), m: "nero" });
       st.push({ g: box(0.24, 0.025, 0.06, 0, 0.14, -0.02), m: "nero" });
       st.push({ g: box(0.06, 0.03, 0.03, 0, 0.72, 0.1), m: "nero" });
-      const X = -2.72, Z = 1.02;
+      // più in là, oltre il tavolo delle macchine che si è allungato
+      const X = -3.4, Z = 1.02;
       for (const q of lp) p.push({ g: q.g.rotateX(0.2).translate(X, 0.15, Z), m: q.m });
       for (const q of st) p.push({ g: q.g.translate(X, 0, Z), m: q.m });
       // l'amplificatore nero, davanti, con la griglia e le manopole cromate
