@@ -9,7 +9,7 @@ import { lavori, ID_CONTATTO, ID_ULIVETO } from "@/content/lavori";
 import { POSTI, POSTO_ULIVETO, POSTO_ZONA } from "./zona";
 import { precaricaUliveto } from "./precaricaUliveto";
 import { frammenti } from "@/content/frammenti";
-import { curriculum } from "@/content/collegamenti";
+import { curriculum, musica } from "@/content/collegamenti";
 import schermate from "@/content/schermate.json";
 import type { Carta, Tema } from "./Scena";
 import Modulo from "./Modulo";
@@ -78,6 +78,9 @@ export default function Esperienza({
   );
   const [tema, setTema] = useState<Tema>("scuro");
   const [audio, setAudio] = useState<Modo>("spento");
+  // mentre suona un pezzo di Juan Lee, in basso a sinistra i link all'album
+  const [suonaJuan, setSuonaJuan] = useState(false);
+  useEffect(() => suono.ascolta(() => setSuonaJuan(!!suono.pezzo())), []);
   const testiMusica = useMemo<[string, string]>(
     () => [d.audio.musica, d.audio.silenzio],
     [d],
@@ -471,9 +474,20 @@ export default function Esperienza({
           </nav>
         </header>
 
-        <p className={`guida${mosso ? " guida--via" : ""}`} aria-hidden="true">
+        <p className={`guida${mosso || suonaJuan ? " guida--via" : ""}`} aria-hidden="true">
           {ambiente.tocco ? d.guida.tocco : d.guida.mouse}
         </p>
+
+        {suonaJuan && (
+          <nav className="ascolta" aria-label={d.audio.ascolta}>
+            <span className="ascolta-testo">{d.audio.ascolta}</span>
+            {musica.map((m) => (
+              <a key={m.nome} href={m.href} target="_blank" rel="noopener noreferrer">
+                {m.nome}
+              </a>
+            ))}
+          </nav>
+        )}
 
         {elencoAperto && (
           <button className="elenco-chiudi" onClick={() => setElencoAperto(false)} aria-label={d.vignetta.chiudi}>

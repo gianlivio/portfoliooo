@@ -590,3 +590,23 @@ html.con-elenco .elenco{outline:none}
 .elenco li li::before{content:"–";position:absolute;left:0;color:var(--grigio)}
 .elenco li > a{display:inline-block;margin-top:.6rem;font-family:var(--mono);font-size:.8rem}
 html.con-scena.con-elenco .elenco{padding-inline:max(2rem,calc((100vw - 54rem) / 2))}
+
+/* mentre suona un pezzo di Juan Lee: i link all'album, in basso a sinistra, lontano da "Scrivimi" */
+.ascolta{
+  position:fixed;left:1.75rem;bottom:1.6rem;z-index:20;max-width:min(34rem,calc(100% - 13rem));
+  display:flex;flex-wrap:wrap;align-items:baseline;gap:.25rem .8rem;
+  padding:.55rem .95rem;border-radius:1.1rem;
+  background:rgba(14,13,18,.72);color:#F3F1EB;border:1px solid rgba(243,241,235,.18);
+  font-family:var(--mono);font-size:.7rem;letter-spacing:.04em;line-height:1.5;
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  animation:ascolta-entra .4s ease both;
+}
+.ascolta-testo{color:rgba(243,241,235,.66)}
+.ascolta a{color:inherit;text-decoration:underline;text-decoration-color:rgba(243,241,235,.35);text-underline-offset:.2em}
+.ascolta a:hover,.ascolta a:focus-visible{text-decoration-color:currentColor}
+html[data-tema="chiaro"] .ascolta{background:rgba(251,250,247,.86);color:#16171A;border-color:rgba(22,23,26,.14)}
+html[data-tema="chiaro"] .ascolta-testo{color:rgba(22,23,26,.6)}
+html[data-tema="chiaro"] .ascolta a{text-decoration-color:rgba(22,23,26,.3)}
+@keyframes ascolta-entra{from{opacity:0;transform:translateY(.4rem)}to{opacity:1;transform:none}}
+@media (max-width:759px){.ascolta{left:1rem;bottom:1.25rem;max-width:calc(100% - 10.5rem);font-size:.66rem;padding:.5rem .75rem}}
+@media (prefers-reduced-motion:reduce){.ascolta{animation:none}}
