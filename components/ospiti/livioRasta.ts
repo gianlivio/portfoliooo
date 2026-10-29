@@ -3,13 +3,17 @@ import { loft } from "./comuni";
 
 /**
  * Livio coi rasta fino alle gambe, in ologramma, che si allena al Mook Jong: la stessa luce azzurra a righe
- * di Achille, ma un corpo intero con le articolazioni vere. Le braccia e le gambe si muovono per cinematica
- * inversa verso bersagli precisi sul tronco e sui bracci del manichino (le mani arrivano dove colpiscono),
- * su una sequenza di Wing Chun: guardia, tan sau e palmo, bong sau e lap sau, gaan sau col pugno,
- * i pugni a catena, il calcio basso alla gamba; poi la stessa sequenza a specchio. A ogni colpo un lampo
- * sul legno. I rasta sono ciocche vere: catene di punti che pendono, inseguono la testa e scivolano su
- * schiena e gambe senza attraversarle.
- * Compare ogni tanto: si stampa dal basso in alto, fa la sua sequenza un paio di volte, si spegne dall'alto.
+ * di Achille, ma un corpo intero con le articolazioni vere. Braccia e gambe si muovono per cinematica inversa
+ * verso bersagli precisi sul tronco e sui bracci del manichino: le mani arrivano dove colpiscono.
+ * Si allena come Ip Man, svelto: a ogni comparsa compone una sequenza diversa con le tecniche del Wing Chun
+ * (pak da, tan da, bong sau e lap sau col palmo, gaan sau a forbice, il doppio palmo, le raffiche di pugni
+ * a catena, il calcio frontale, il calcio basso alla gamba) e qualche colpo da picchiatore di Tekken (la
+ * ginocchiata e la gomitata, il calcio circolare alto); fra una e l'altra gira attorno al manichino a passi
+ * brevi, e torna davanti quando deve lavorare sui bracci. A ogni colpo un lampo sul legno.
+ * I rasta coprono tutta la testa, dall'attaccatura sulla fronte alla nuca: ciocche vere, catene di punti che
+ * partono dal cranio pettinate all'indietro, pendono fino alle gambe, inseguono la testa e i colpi e
+ * scivolano su cranio, spalle, schiena e gambe senza attraversarli.
+ * Compare ogni tanto: si stampa dal basso in alto, fa la sua sequenza, si spegne dall'alto.
  * Coordinate della figura: +z verso il manichino, +x è la sua sinistra, y in alto, i piedi a y = 0.
  * Il manichino sta a (0, 0, DISTANZA), girato come la figura: le sue misure sono quelle di cameraLivio.ts.
  */
@@ -66,101 +70,204 @@ const SPALLA_X = 0.19;
 const BUSTO = 0.5; // dal bacino alla base del collo
 const ANCA_X = 0.1;
 
-/* ------------------------------------------------------------- la sequenza */
+/* --------------------------------------------------------------- le tecniche */
 
+type P3 = [number, number, number];
 type Mano = "palmo" | "pugno";
+/** Una chiave della sequenza. I bersagli sono nelle coordinate della figura (il manichino a z = DISTANZA). */
 type Posa = {
   t: number;
-  /** mani: bersaglio e forma */
-  s: [number, number, number];
-  d: [number, number, number];
+  s: P3;
+  d: P3;
   ms?: Mano;
   md?: Mano;
-  /** gomito alto (bong sau): il polo del gomito va in alto e in fuori invece che in basso */
+  /** gomito alto (bong sau) o gomito avanti (la gomitata) */
   bs?: boolean;
   bd?: boolean;
-  /** piedi */
-  ps?: [number, number, number];
-  pd?: [number, number, number];
-  /** bacino: altezza, rotazione, spostamento in avanti */
+  gs?: boolean;
+  gd?: boolean;
+  ps?: P3;
+  pd?: P3;
+  /** bacino: altezza, rotazione, spinta in avanti (negativa: si inclina indietro, come nel calcio alto) */
   h?: number;
   yaw?: number;
   av?: number;
-  /** arrivo secco: un colpo (il lampo nasce qui, sulla mano o sul piede indicato) */
+  /** dove sta attorno al manichino: angolo (radianti) */
+  giro?: number;
+  /** arrivo secco: un colpo (il lampo nasce sul bersaglio della mano o del piede indicato) */
   colpo?: "s" | "d" | "ps" | "pd";
 };
+type Chiave = Omit<Posa, "t" | "s" | "d"> & { dt: number; s?: P3; d?: P3 };
+type Tecnica = { nome: string; chiavi: Chiave[]; bracci?: boolean; peso: number };
 
-// il manichino, nelle coordinate della figura: tronco a z = DISTANZA (raggio 0.11), bracci alti fino a z ≈ 0.29
-const TRONCO = DISTANZA - 0.12;
-const GUARDIA_S: [number, number, number] = [0.02, 1.2, 0.3];
-const GUARDIA_D: [number, number, number] = [-0.02, 1.16, 0.17];
-const PIEDE_S: [number, number, number] = [0.18, 0, 0.02];
-const PIEDE_D: [number, number, number] = [-0.18, 0, -0.04];
+const T = DISTANZA - 0.12; // la faccia del tronco
+const GS: P3 = [0.02, 1.2, 0.3];
+const GD: P3 = [-0.02, 1.16, 0.17];
+const PS: P3 = [0.18, 0, 0.02];
+const PD: P3 = [-0.18, 0, -0.04];
+const guardia = (dt: number, extra: Partial<Chiave> = {}): Chiave => ({ dt, s: GS, d: GD, ms: "palmo", md: "palmo", ps: PS, pd: PD, yaw: 0, av: 0, h: 0.93, ...extra });
 
-/** Mezza sequenza, dalla parte sinistra; l'altra metà è la stessa a specchio. */
-function sequenza(): Posa[] {
-  const P: Posa[] = [];
-  const g = (t: number, extra: Partial<Posa> = {}) => P.push({ t, s: GUARDIA_S, d: GUARDIA_D, ...extra });
-  g(0);
-  g(0.8);
-  // tan sau dentro il braccio sinistro del manichino, e il palmo destro al tronco
-  P.push({ t: 1.25, s: [0.05, 1.27, 0.33], d: [-0.03, 1.18, 0.24], yaw: -0.08 });
-  P.push({ t: 1.5, s: [0.05, 1.27, 0.33], d: [-0.02, 1.13, TRONCO], md: "palmo", yaw: -0.2, av: 0.03, colpo: "d" });
-  P.push({ t: 1.85, s: [0.05, 1.26, 0.32], d: [-0.02, 1.14, TRONCO - 0.05], yaw: -0.18, av: 0.03 });
-  g(2.3);
-  // bong sau col destro sul braccio destro del manichino, lap sau e palmo sinistro
-  P.push({ t: 2.75, s: [0.05, 1.15, 0.2], d: [-0.03, 1.33, 0.3], bd: true, yaw: 0.25 });
-  P.push({ t: 3.15, s: [0.05, 1.15, 0.2], d: [-0.08, 1.3, 0.3], bd: true, yaw: 0.28 });
-  P.push({ t: 3.45, s: [0.03, 1.15, TRONCO], ms: "palmo", d: [-0.12, 1.17, 0.26], yaw: 0.12, av: 0.04, colpo: "s" });
-  P.push({ t: 3.8, s: [0.03, 1.16, TRONCO - 0.05], d: [-0.1, 1.17, 0.25], yaw: 0.1, av: 0.03 });
-  g(4.2);
-  // gaan sau in basso contro il braccio di mezzo, e il pugno destro
-  P.push({ t: 4.65, s: [0.12, 0.98, 0.33], d: [-0.02, 1.17, 0.26], ms: "palmo", yaw: -0.1, h: 0.9 });
-  P.push({ t: 4.9, s: [0.12, 0.97, 0.33], d: [0.0, 1.17, TRONCO], md: "pugno", yaw: -0.22, av: 0.04, h: 0.9, colpo: "d" });
-  P.push({ t: 5.2, s: [0.1, 1.0, 0.3], d: [0.0, 1.17, TRONCO - 0.06], md: "pugno", yaw: -0.18, h: 0.9 });
-  g(5.6);
-  // i pugni a catena, sulla linea centrale: uno dietro l'altro, il pugno che rientra passa sopra quello che esce
-  for (let k = 0; k < 7; k++) {
-    const t = 5.95 + k * 0.17;
-    const destro = k % 2 === 0;
-    const fuori: [number, number, number] = [0, 1.19 - (k % 3) * 0.015, TRONCO];
-    const dentro = (x: number): [number, number, number] => [x, 1.24, 0.24];
-    P.push({ t, s: destro ? dentro(0.02) : fuori, d: destro ? fuori : dentro(-0.02), ms: "pugno", md: "pugno", av: 0.05, colpo: destro ? "d" : "s" });
-  }
-  P.push({ t: 7.4, s: GUARDIA_S, d: GUARDIA_D, ms: "pugno", md: "pugno" });
-  g(7.8);
-  // il calcio basso: il ginocchio sale, il tallone colpisce la gamba del manichino, il piede torna giù
-  P.push({ t: 8.3, s: [0.04, 1.22, 0.3], d: [-0.02, 1.18, 0.2], pd: [-0.08, 0.42, 0.18], h: 0.94 });
-  P.push({ t: 8.55, s: [0.04, 1.22, 0.3], d: [-0.02, 1.18, 0.2], pd: [-0.03, 0.3, DISTANZA - 0.3], h: 0.94, colpo: "pd" });
-  P.push({ t: 8.9, s: [0.04, 1.22, 0.3], d: [-0.02, 1.18, 0.2], pd: [-0.1, 0.25, 0.12], h: 0.93 });
-  g(9.3);
-  g(9.8);
-  return P;
+/**
+ * Le tecniche, dalla parte sinistra (la destra è lo specchio). dt: quanto dura il tratto che porta a questa
+ * chiave. Quelle coi bracci (bracci: true) si fanno solo stando davanti al manichino.
+ */
+const TECNICHE: Tecnica[] = [
+  {
+    nome: "pak da", bracci: true, peso: 3, chiavi: [
+      { dt: 0.11, s: [-0.06, 1.28, 0.32], d: [-0.02, 1.2, 0.24], yaw: -0.12 },
+      { dt: 0.09, s: [-0.08, 1.24, 0.29], d: [0, 1.2, T], md: "pugno", yaw: -0.28, av: 0.04, colpo: "d" },
+      guardia(0.13),
+    ],
+  },
+  {
+    nome: "tan da", bracci: true, peso: 3, chiavi: [
+      { dt: 0.11, s: [0.07, 1.27, 0.33], d: [-0.02, 1.08, 0.24], yaw: -0.08 },
+      { dt: 0.08, s: [0.07, 1.27, 0.33], d: [-0.02, 1.0, T], md: "palmo", yaw: -0.22, av: 0.04, colpo: "d" },
+      guardia(0.12),
+    ],
+  },
+  {
+    nome: "bong lap e palmo", bracci: true, peso: 3, chiavi: [
+      { dt: 0.12, s: [0.05, 1.14, 0.2], d: [-0.04, 1.33, 0.3], bd: true, yaw: 0.22 },
+      { dt: 0.1, s: [0.02, 1.27, T], ms: "palmo", d: [-0.11, 1.18, 0.27], yaw: 0.12, av: 0.05, colpo: "s" },
+      guardia(0.13),
+    ],
+  },
+  {
+    nome: "gaan sau a forbice", bracci: true, peso: 2, chiavi: [
+      { dt: 0.11, s: [0.11, 0.98, 0.33], d: [-0.09, 1.32, 0.31], bd: true, yaw: -0.1, h: 0.9, colpo: "s" },
+      { dt: 0.12, s: [0.09, 1.32, 0.31], bs: true, d: [-0.11, 0.98, 0.33], yaw: 0.1, h: 0.9, colpo: "d" },
+      { dt: 0.09, s: [0.02, 1.2, T], ms: "pugno", d: [-0.1, 1.0, 0.3], yaw: -0.2, av: 0.05, h: 0.9, colpo: "s" },
+      guardia(0.12),
+    ],
+  },
+  {
+    nome: "doppio palmo", peso: 2, chiavi: [
+      { dt: 0.1, s: [0.04, 1.25, 0.24], d: [-0.04, 1.02, 0.24], yaw: 0.05 },
+      { dt: 0.08, s: [0.02, 1.25, T], d: [-0.02, 1.02, T], av: 0.07, colpo: "s" },
+      guardia(0.14),
+    ],
+  },
+  {
+    nome: "raffica", peso: 3, chiavi: [
+      // i pugni a catena: uno dietro l'altro sulla linea centrale, il pugno che rientra passa sopra quello che esce
+      ...Array.from({ length: 9 }, (_, k): Chiave => {
+        const fuori: P3 = [0, 1.2 - (k % 3) * 0.03, T];
+        const dentro = (x: number): P3 => [x, 1.25, 0.22];
+        return k % 2 === 0
+          ? { dt: k === 0 ? 0.1 : 0.085, s: dentro(0.02), d: fuori, ms: "pugno", md: "pugno", av: 0.06, yaw: -0.06, colpo: "d" }
+          : { dt: 0.085, s: fuori, d: dentro(-0.02), ms: "pugno", md: "pugno", av: 0.06, yaw: 0.06, colpo: "s" };
+      }),
+      guardia(0.15, { ms: "pugno", md: "pugno" }),
+    ],
+  },
+  {
+    nome: "calcio frontale", peso: 2, chiavi: [
+      { dt: 0.12, pd: [-0.07, 0.5, 0.14], h: 0.95, d: [-0.02, 1.2, 0.24] },
+      { dt: 0.09, pd: [-0.02, 0.62, T - 0.06], h: 0.96, av: -0.05, d: [-0.02, 1.2, 0.24], colpo: "pd" },
+      { dt: 0.11, pd: [-0.08, 0.36, 0.1], h: 0.94 },
+      guardia(0.1),
+    ],
+  },
+  {
+    nome: "calcio basso alla gamba", bracci: true, peso: 2, chiavi: [
+      { dt: 0.11, pd: [-0.07, 0.38, 0.2], h: 0.94, s: [0.04, 1.24, 0.3] },
+      { dt: 0.08, pd: [-0.02, 0.22, 0.36], h: 0.93, s: [0.04, 1.24, 0.3], colpo: "pd" },
+      guardia(0.13),
+    ],
+  },
+  {
+    nome: "ginocchiata e gomitata", peso: 2, chiavi: [
+      { dt: 0.12, ps: [0.1, 0.42, 0.24], h: 0.96, av: 0.04, s: [0.06, 1.3, 0.2], d: [-0.04, 1.25, 0.26], ms: "pugno", md: "pugno" },
+      { dt: 0.1, ps: PS, h: 0.92, s: [0.04, 1.32, 0.14], gs: true, ms: "pugno", yaw: -0.35, av: 0.06, colpo: "s" },
+      { dt: 0.09, s: [0.0, 1.22, T], ms: "pugno", yaw: -0.25, av: 0.05, colpo: "s" },
+      guardia(0.14),
+    ],
+  },
+  {
+    nome: "calcio circolare alto", peso: 1, chiavi: [
+      { dt: 0.14, pd: [-0.25, 0.55, 0.08], yaw: 0.5, h: 0.95, av: -0.06, s: [0.05, 1.28, 0.22], d: [-0.12, 1.2, 0.1] },
+      { dt: 0.11, pd: [-0.05, 1.3, T - 0.04], yaw: 0.85, h: 0.97, av: -0.12, s: [0.08, 1.25, 0.15], d: [-0.2, 1.05, -0.05], colpo: "pd" },
+      { dt: 0.15, pd: [-0.22, 0.45, 0.08], yaw: 0.35, h: 0.95 },
+      guardia(0.14),
+    ],
+  },
+];
+
+const specchia = (v: P3): P3 => [-v[0], v[1], v[2]];
+function aSpecchio(c: Chiave): Chiave {
+  const lato: Record<string, Chiave["colpo"]> = { s: "d", d: "s", ps: "pd", pd: "ps" };
+  return {
+    ...c,
+    s: c.d && specchia(c.d),
+    d: c.s && specchia(c.s),
+    ms: c.md,
+    md: c.ms,
+    bs: c.bd,
+    bd: c.bs,
+    gs: c.gd,
+    gd: c.gs,
+    ps: c.pd && specchia(c.pd),
+    pd: c.ps && specchia(c.ps),
+    yaw: c.yaw === undefined ? undefined : -c.yaw,
+    colpo: c.colpo && lato[c.colpo],
+  };
 }
 
-const specchia = (v: [number, number, number]): [number, number, number] => [-v[0], v[1], v[2]];
-const MEZZA = sequenza();
-const DURATA_MEZZA = MEZZA[MEZZA.length - 1].t;
-/** La sequenza intera: la metà sinistra, poi la stessa a specchio (mani e piedi scambiati). */
-const TUTTA: Posa[] = [
-  ...MEZZA,
-  ...MEZZA.slice(1).map((p): Posa => ({
-    t: p.t + DURATA_MEZZA,
-    s: specchia(p.d),
-    d: specchia(p.s),
-    ms: p.md,
-    md: p.ms,
-    bs: p.bd,
-    bd: p.bs,
-    ps: p.pd && specchia(p.pd),
-    pd: p.ps && specchia(p.ps),
-    h: p.h,
-    yaw: p.yaw === undefined ? undefined : -p.yaw,
-    av: p.av,
-    colpo: p.colpo === "s" ? "d" : p.colpo === "d" ? "s" : p.colpo === "ps" ? "pd" : p.colpo === "pd" ? "ps" : undefined,
-  })),
-];
-const CICLO = DURATA_MEZZA * 2;
+/**
+ * Una sequenza nuova a ogni comparsa: tecniche scelte a caso (senza ripetere la stessa due volte di fila),
+ * a destra o a specchio, con qualche passo attorno al manichino; davanti quando servono i bracci.
+ * Ogni chiave eredita dalla precedente quello che non dice.
+ */
+function componi(durata: number): Posa[] {
+  const P: Posa[] = [];
+  let t = 0;
+  let giro = 0;
+  let prima: Posa = { t: 0, s: GS, d: GD, ms: "palmo", md: "palmo", ps: PS, pd: PD, h: 0.93, yaw: 0, av: 0, giro: 0 };
+  const metti = (c: Chiave) => {
+    t += c.dt;
+    const { dt: _dt, ...resto } = c;
+    void _dt;
+    // il colpo e le forme particolari valgono per la sola chiave che le dice
+    const p: Posa = { ...prima, bs: false, bd: false, gs: false, gd: false, colpo: undefined, ...resto, t, giro } as Posa;
+    P.push(p);
+    prima = p;
+  };
+  metti(guardia(0.01));
+  metti(guardia(0.5));
+  let ultima = "";
+  while (t < durata) {
+    // un passo, ogni tanto: di lato attorno al manichino, con un saltello del bacino
+    if (Math.random() < 0.3) {
+      const nuovo = giro === 0 ? (Math.random() < 0.5 ? -1 : 1) * (0.28 + Math.random() * 0.12) : Math.random() < 0.5 ? 0 : -giro;
+      giro = (giro + nuovo) / 2;
+      metti(guardia(0.09, { h: 0.97, ps: [0.17, 0.05, 0.02] }));
+      giro = nuovo;
+      metti(guardia(0.09));
+    }
+    const possibili = TECNICHE.filter((k) => k.nome !== ultima && (!k.bracci || giro === 0));
+    // le tecniche coi bracci a volte richiamano il passo che riporta davanti
+    if (giro !== 0 && Math.random() < 0.45) {
+      giro = giro / 2;
+      metti(guardia(0.08, { h: 0.97 }));
+      giro = 0;
+      metti(guardia(0.08));
+      continue;
+    }
+    let tot = possibili.reduce((a, k) => a + k.peso, 0) * Math.random();
+    const scelta = possibili.find((k) => (tot -= k.peso) < 0) ?? possibili[0];
+    ultima = scelta.nome;
+    const specchio = Math.random() < 0.5;
+    for (const c of scelta.chiavi) metti(specchio ? aSpecchio(c) : c);
+    // un respiro fra una tecnica e l'altra, corto
+    if (Math.random() < 0.5) metti(guardia(0.08 + Math.random() * 0.18));
+  }
+  // si chiude davanti, in guardia
+  giro = 0;
+  metti(guardia(0.2, { h: 0.95 }));
+  metti(guardia(0.6));
+  return P;
+}
 
 const morbido = (x: number) => x * x * (3 - 2 * x);
 /** Per i colpi: parte svelto e si ferma secco. */
@@ -194,13 +301,17 @@ function osso(m: THREE.Mesh, a: THREE.Vector3, b: THREE.Vector3, q: THREE.Quater
   m.scale.set(1, l, 1);
 }
 
-const N_CIOCCHE = 30;
+const N_CIOCCHE = 40;
 const N_PUNTI = 10;
+/** il cuoio capelluto, nelle coordinate della testa: dove nascono le ciocche */
+const CUOIO = { c: V(0, 0.125, -0.005), r: V(0.1, 0.112, 0.112) };
 
 export class LivioRasta {
   gruppo = new THREE.Group();
+  /** il corpo intero: ruota attorno al manichino quando fa un passo di lato */
+  private corpo = new THREE.Group();
   private mat: THREE.ShaderMaterial;
-  private maschera!: THREE.ShaderMaterial;
+  private maschera: THREE.ShaderMaterial;
   private busto: THREE.Mesh;
   private bacino: THREE.Mesh;
   private testa = new THREE.Group();
@@ -209,24 +320,26 @@ export class LivioRasta {
   private mani: { palmo: THREE.Mesh; pugno: THREE.Mesh }[] = [];
   private piedi: THREE.Mesh[] = [];
   private giunti: THREE.Mesh[] = [];
+  private spalle = [V(), V()];
   private ciocche: THREE.InstancedMesh;
-  /** per ogni ciocca: dove nasce sulla testa (coordinate della testa), lunghezza, i punti e quelli di prima */
-  private radici: THREE.Vector3[] = [];
+  /** per ogni ciocca: dove nasce e verso dove parte (coordinate della testa), lunghezza, i punti e quelli di prima */
+  private radici: { p: THREE.Vector3; a: THREE.Vector3; b: THREE.Vector3 }[] = [];
   private lunghezze: number[] = [];
   private punti: THREE.Vector3[][] = [];
   private prima: THREE.Vector3[][] = [];
   private lampi: { s: THREE.Sprite; vita: number }[] = [];
+  private sequenza: Posa[] = [];
   private ultimoColpo = -1;
   private tempo = 0;
   private stato: "spento" | "stampa" | "allena" | "cancella" = "spento";
   private finoA = 7;
-  private cicli = 0;
   private iniziato = false;
   // appoggi, per non creare oggetti a ogni fotogramma
   private q = new THREE.Quaternion();
   private t = V();
   private m4 = new THREE.Matrix4();
   private mTesta = new THREE.Matrix4();
+  private mInv = new THREE.Matrix4();
 
   constructor(lampo: THREE.Texture) {
     this.mat = new THREE.ShaderMaterial({
@@ -241,7 +354,7 @@ export class LivioRasta {
     const m = this.mat;
     const add = (g: THREE.BufferGeometry) => {
       const o = new THREE.Mesh(g, m);
-      this.gruppo.add(o);
+      this.corpo.add(o);
       return o;
     };
     // il busto: dal bacino alla base del collo, il petto più largo, le spalle tonde; una maglia larga
@@ -256,17 +369,19 @@ export class LivioRasta {
     // il bacino coi fianchi, sotto il busto: i pantaloni larghi da allenamento cominciano qui
     this.bacino = add(new THREE.SphereGeometry(1, 14, 10).scale(0.165, 0.12, 0.115));
     this.collo = add(new THREE.CylinderGeometry(0.045, 0.05, 1, 10).translate(0, 0.5, 0));
-    // la testa: il cranio un poco allungato, il mento, il naso appena accennato; i rasta raccolti sul cranio
+    // la testa: il cranio un poco allungato, il mento, il naso appena accennato; sul cranio la massa dei rasta
     const cranio = new THREE.Mesh(new THREE.SphereGeometry(1, 18, 14).scale(0.095, 0.118, 0.108), m);
     cranio.position.set(0, 0.11, 0);
     const mento = new THREE.Mesh(new THREE.SphereGeometry(1, 12, 8).scale(0.07, 0.06, 0.07), m);
     mento.position.set(0, 0.035, 0.035);
     const naso = new THREE.Mesh(new THREE.ConeGeometry(0.018, 0.04, 6).rotateX(Math.PI / 2), m);
     naso.position.set(0, 0.1, 0.112);
-    const raccolta = new THREE.Mesh(new THREE.SphereGeometry(1, 14, 10).scale(0.11, 0.1, 0.12), m);
-    raccolta.position.set(0, 0.15, -0.02);
-    this.testa.add(cranio, mento, naso, raccolta);
-    this.gruppo.add(this.testa);
+    // la massa dei capelli sul cranio: tutta la calotta, fino all'attaccatura sulla fronte
+    const massa = new THREE.Mesh(new THREE.SphereGeometry(1, 16, 12, 0, Math.PI * 2, 0, Math.PI * 0.62).scale(0.112, 0.125, 0.122), m);
+    massa.position.copy(CUOIO.c);
+    massa.rotation.x = -0.35;
+    this.testa.add(cranio, mento, naso, massa);
+    this.corpo.add(this.testa);
     // braccia e gambe: un osso per tratto, larghi in cima; i pantaloni larghi fin sopra la caviglia
     const tratto = (nome: string, r0: number, r1: number) => (this.ossa[nome] = add(new THREE.CylinderGeometry(r1, r0, 1, 10, 1).translate(0, 0.5, 0)));
     for (const s of ["s", "d"]) {
@@ -282,26 +397,46 @@ export class LivioRasta {
     }
     // sfere sui giunti: spalle, gomiti, ginocchia, perché i tratti non si stacchino
     for (let k = 0; k < 6; k++) this.giunti.push(add(new THREE.SphereGeometry(1, 10, 8)));
+    this.gruppo.add(this.corpo);
 
-    // i rasta: ciocche che nascono dalla nuca e dai lati del cranio, lunghe fino ai polpacci
+    // i rasta: ciocche su tutto il cuoio capelluto, dall'attaccatura sulla fronte alla nuca, pettinate all'indietro
     const r = (() => {
       let s = 77;
       return () => ((s = (s * 16807) % 2147483647) / 2147483647);
     })();
-    for (let k = 0; k < N_CIOCCHE; k++) {
-      // sulla calotta, di dietro e ai lati: nessuna davanti alla faccia
-      // da un lato all'altro, passando dietro; le ultime quattro dai lati, più avanti: cadono sulle spalle
-      const ang = k < N_CIOCCHE - 4 ? Math.PI * (0.35 + 1.3 * (k / (N_CIOCCHE - 5))) + (r() - 0.5) * 0.12 : Math.PI * [0.18, 0.26, 1.74, 1.82][k - (N_CIOCCHE - 4)];
-      const alt = 0.12 + r() * 0.1;
-      const radice = V(Math.cos(ang) * 0.1, alt, -Math.abs(Math.sin(ang)) * 0.105 - 0.01);
-      this.radici.push(radice);
-      // le ciocche di dietro più lunghe: fino ai polpacci; quelle di lato fino alla vita o alle cosce
-      const dietro = Math.abs(Math.sin(ang));
-      this.lunghezze.push(0.75 + dietro * 0.5 + r() * 0.12);
+    const oro = Math.PI * (3 - Math.sqrt(5));
+    for (let k = 0, i = 0; k < N_CIOCCHE && i < 400; i++) {
+      // punti sparsi uniformi sulla calotta (spirale di Fibonacci), tenuti solo sopra l'attaccatura
+      const y = 1 - (i + 0.5) / 125; // da 1 (in cima) in giù
+      const raggio = Math.sqrt(Math.max(0, 1 - y * y));
+      const az = i * oro; // 0 = davanti
+      const n = V(Math.sin(az) * raggio, y, Math.cos(az) * raggio);
+      const polare = Math.acos(y);
+      // l'attaccatura: alta sulla fronte, sopra le orecchie ai lati, bassa sulla nuca
+      const dietro = (1 - Math.cos(az)) / 2;
+      if (polare > 0.86 + 1.05 * dietro) continue;
+      const p = V(n.x * CUOIO.r.x, n.y * CUOIO.r.y, n.z * CUOIO.r.z).add(CUOIO.c);
+      // il primo tratto esce dal cranio, un poco in su (il volume in cima, come Marley), poi cade: quelle davanti
+      // si aprono a destra e a sinistra della faccia e scendono sulle tempie, davanti alle orecchie, sul petto
+      const lato = n.x !== 0 ? Math.sign(n.x) : k % 2 ? 1 : -1;
+      const a = n.clone().add(V(lato * Math.max(0, n.z) * 0.9, 0.25, 0)).normalize();
+      const b = a.clone().multiplyScalar(0.35).add(V(0, -1, 0)).normalize();
+      this.radici.push({ p, a, b });
+      // davanti fino al petto e alla vita, ai lati più giù, dietro fino alle gambe
+      this.lunghezze.push(0.8 + dietro * 0.6 + r() * 0.12);
       this.punti.push(Array.from({ length: N_PUNTI }, () => V()));
       this.prima.push(Array.from({ length: N_PUNTI }, () => V()));
+      k++;
     }
-    this.ciocche = new THREE.InstancedMesh(new THREE.CylinderGeometry(1, 1, 1, 5, 1).translate(0, 0.5, 0), m, N_CIOCCHE * (N_PUNTI - 1));
+    // ogni tratto un poco gonfio a metà: la corda irregolare dei dreadlock, non il capello liscio
+    const nodo = new THREE.CylinderGeometry(1, 1, 1, 6, 4).translate(0, 0.5, 0);
+    const pn = nodo.attributes.position as THREE.BufferAttribute;
+    for (let i = 0; i < pn.count; i++) {
+      const y = pn.getY(i), k = 1 + 0.28 * Math.sin(Math.PI * y) - 0.12 * Math.sin(Math.PI * 2 * y + 1);
+      pn.setXYZ(i, pn.getX(i) * k, y, pn.getZ(i) * k);
+    }
+    nodo.computeVertexNormals();
+    this.ciocche = new THREE.InstancedMesh(nodo, m, this.radici.length * (N_PUNTI - 1));
     this.ciocche.frustumCulled = false;
     this.gruppo.add(this.ciocche);
 
@@ -309,12 +444,12 @@ export class LivioRasta {
     for (let k = 0; k < 4; k++) {
       const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: lampo, color: "#9FD4FF", transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false }));
       s.visible = false;
-      this.gruppo.add(s);
+      this.corpo.add(s);
       this.lampi.push({ s, vita: 0 });
     }
     // la maschera di profondità: un passaggio che scrive solo la profondità, prima della luce, così dell'ologramma
     // si vede la superficie davanti e non il groviglio di braccia, rasta e schiena che sta dietro
-    const maschera = new THREE.ShaderMaterial({
+    this.maschera = new THREE.ShaderMaterial({
       vertexShader: VERT,
       // lo stesso taglio della stampa: sopra il taglio la maschera non c'è, se no coprirebbe quello che sta dietro
       fragmentShader: "uniform float uBase; uniform float uTaglio; varying vec3 vW; void main(){ if (vW.y - uBase > uTaglio) discard; gl_FragColor = vec4(0.0); }",
@@ -323,29 +458,23 @@ export class LivioRasta {
       depthWrite: true,
       transparent: true,
     });
-    this.maschera = maschera;
-    for (const o of [...this.gruppo.children]) {
+    const copia = (o: THREE.Object3D) => {
       if (o instanceof THREE.InstancedMesh) {
-        const c = new THREE.InstancedMesh(o.geometry, maschera, o.count);
+        const c = new THREE.InstancedMesh(o.geometry, this.maschera, o.count);
         c.instanceMatrix = o.instanceMatrix;
         c.frustumCulled = false;
         c.renderOrder = 7;
-        o.add(c);
         // le istanze hanno già la loro posizione nel gruppo: la copia, figlia, non deve spostarsi di nuovo
         c.matrixAutoUpdate = false;
         c.matrix.identity();
+        o.add(c);
       } else if (o instanceof THREE.Mesh) {
-        const c = new THREE.Mesh(o.geometry, maschera);
+        const c = new THREE.Mesh(o.geometry, this.maschera);
         c.renderOrder = 7;
         o.add(c);
-      } else if (o === this.testa) {
-        for (const t of [...o.children]) {
-          const c = new THREE.Mesh((t as THREE.Mesh).geometry, maschera);
-          c.renderOrder = 7;
-          t.add(c);
-        }
       }
-    }
+    };
+    [...this.corpo.children, ...this.testa.children, this.ciocche].forEach(copia);
     this.gruppo.traverse((o) => {
       o.raycast = () => undefined;
       if (o.renderOrder !== 7) o.renderOrder = 8;
@@ -355,30 +484,35 @@ export class LivioRasta {
 
   /** La posa a un istante della sequenza, interpolata fra le chiavi. */
   private posa(tc: number) {
+    const S = this.sequenza;
     let i = 0;
-    while (i < TUTTA.length - 2 && TUTTA[i + 1].t <= tc) i++;
-    const a = TUTTA[i], b = TUTTA[i + 1];
-    const u0 = Math.min(1, Math.max(0, (tc - a.t) / (b.t - a.t)));
+    while (i < S.length - 2 && S[i + 1].t <= tc) i++;
+    const a = S[i], b = S[i + 1];
+    const u0 = Math.min(1, Math.max(0, (tc - a.t) / (b.t - a.t || 1)));
     const u = b.colpo ? secco(u0) : morbido(u0);
-    const mix = (x: [number, number, number] | undefined, y: [number, number, number] | undefined, base: [number, number, number]) => {
+    const mix = (x: P3 | undefined, y: P3 | undefined, base: P3) => {
       const p = x ?? base, q = y ?? base;
       return V(p[0] + (q[0] - p[0]) * u, p[1] + (q[1] - p[1]) * u, p[2] + (q[2] - p[2]) * u);
     };
     const n = (x: number | undefined, y: number | undefined, base: number) => (x ?? base) + ((y ?? base) - (x ?? base)) * u;
+    // nel passo il piede che si sposta si alza a metà strada
     return {
-      s: mix(a.s, b.s, GUARDIA_S),
-      d: mix(a.d, b.d, GUARDIA_D),
-      ps: mix(a.ps, b.ps, PIEDE_S),
-      pd: mix(a.pd, b.pd, PIEDE_D),
+      s: mix(a.s, b.s, GS),
+      d: mix(a.d, b.d, GD),
+      ps: mix(a.ps, b.ps, PS),
+      pd: mix(a.pd, b.pd, PD),
       h: n(a.h, b.h, 0.93),
       yaw: n(a.yaw, b.yaw, 0),
       av: n(a.av, b.av, 0),
+      giro: n(a.giro, b.giro, 0),
       bs: (u < 0.5 ? a.bs : b.bs) ?? false,
       bd: (u < 0.5 ? a.bd : b.bd) ?? false,
+      gs: (u < 0.5 ? a.gs : b.gs) ?? false,
+      gd: (u < 0.5 ? a.gd : b.gd) ?? false,
       ms: (u < 0.5 ? a.ms : b.ms) ?? "palmo",
       md: (u < 0.5 ? a.md : b.md) ?? "palmo",
-      // il colpo che arriva in questo tratto, e se è appena arrivato
-      colpo: b.colpo && u0 >= 1 ? null : b.colpo && u0 > 0.92 ? { quale: b.colpo, chiave: i + 1 } : null,
+      // il colpo che arriva in questo tratto, quando è appena arrivato
+      colpo: b.colpo && u0 > 0.9 ? { quale: b.colpo, chiave: i + 1 } : null,
     };
   }
 
@@ -396,14 +530,15 @@ export class LivioRasta {
     }
     // il tempo della sequenza è quello vero; la fisica dei rasta va a passi piccoli (vedi rasta)
     this.tempo += dt;
-    // il ciclo di vita: spento, si stampa, si allena due volte la sequenza, si cancella, spento
+    // il ciclo di vita: spento, si stampa, si allena, si cancella, spento
     if (this.stato === "spento") {
       this.gruppo.visible = false;
       if (this.tempo < this.finoA) return;
       this.stato = "stampa";
       this.tempo = 0;
-      this.cicli = 0;
       this.iniziato = false;
+      this.sequenza = componi(30 + Math.random() * 12);
+      this.ultimoColpo = -1;
     }
     let taglio = 2;
     if (this.stato === "stampa") {
@@ -426,8 +561,9 @@ export class LivioRasta {
     this.mat.uniforms.uBase.value = this.base();
     this.mat.uniforms.uTaglio.value = taglio;
     // durante la stampa e la cancellazione resta in guardia; si allena solo quando è intero
-    const tc = this.stato === "allena" ? this.tempo % CICLO : 0;
-    if (this.stato === "allena" && this.tempo >= CICLO * 2) {
+    const fine = this.sequenza[this.sequenza.length - 1].t;
+    const tc = this.stato === "allena" ? Math.min(this.tempo, fine) : this.stato === "cancella" ? fine : 0;
+    if (this.stato === "allena" && this.tempo >= fine) {
       this.stato = "cancella";
       this.tempo = 0;
     }
@@ -436,6 +572,10 @@ export class LivioRasta {
 
   private metti(tc: number, dt: number, t: number) {
     const P = this.posa(tc);
+    // il corpo gira attorno al manichino: ruota attorno all'asse del tronco, e guarda sempre il tronco
+    const c = DISTANZA;
+    this.corpo.position.set(Math.sin(P.giro) * -c, 0, c - Math.cos(P.giro) * c);
+    this.corpo.rotation.set(0, P.giro, 0);
     // il bacino: basso nella posizione, un respiro leggero, la rotazione verso il colpo
     const respiro = Math.sin(t * 1.7) * 0.006;
     const bacino = V(0, P.h + respiro, 0.02 + P.av);
@@ -450,21 +590,23 @@ export class LivioRasta {
     const testaPos = nelBusto(0, BUSTO + 0.1, 0.01);
     osso(this.collo, collo, testaPos, this.q, this.t);
     this.testa.position.copy(testaPos);
-    this.testa.quaternion.setFromEuler(new THREE.Euler(0.08, P.yaw * 0.35, 0, "YXZ"));
+    this.testa.quaternion.setFromEuler(new THREE.Euler(0.08 - P.av * 0.5, P.yaw * 0.35, 0, "YXZ"));
     // braccia
-    const spalle = [nelBusto(SPALLA_X, BUSTO - 0.06, 0), nelBusto(-SPALLA_X, BUSTO - 0.06, 0)];
+    this.spalle[0].copy(nelBusto(SPALLA_X, BUSTO - 0.06, 0));
+    this.spalle[1].copy(nelBusto(-SPALLA_X, BUSTO - 0.06, 0));
     const bersagli = [P.s, P.d];
     const forme = [P.ms, P.md];
     const alti = [P.bs, P.bd];
+    const avanti = [P.gs, P.gd];
     const gomito = V(), punta = V();
     (["s", "d"] as const).forEach((lato, i) => {
       const sx = i === 0 ? 1 : -1;
-      // il gomito sta in basso e verso il centro; nel bong sau sale e va in fuori
-      const polo = alti[i] ? V(sx * 0.9, 0.9, -0.2) : V(sx * 0.35, -1, -0.15);
-      ik(spalle[i], bersagli[i], ALTO.braccio, ALTO.avambraccio, polo, gomito, punta);
-      osso(this.ossa[`braccio${lato}`], spalle[i], gomito, this.q, this.t);
+      // il gomito sta in basso e verso il centro; nel bong sau sale e va in fuori; nella gomitata va avanti
+      const polo = alti[i] ? V(sx * 0.9, 0.9, -0.2) : avanti[i] ? V(sx * 0.15, 0.2, 1) : V(sx * 0.35, -1, -0.15);
+      ik(this.spalle[i], bersagli[i], ALTO.braccio, ALTO.avambraccio, polo, gomito, punta);
+      osso(this.ossa[`braccio${lato}`], this.spalle[i], gomito, this.q, this.t);
       osso(this.ossa[`avambraccio${lato}`], gomito, punta, this.q, this.t);
-      this.giunti[i * 3].position.copy(spalle[i]);
+      this.giunti[i * 3].position.copy(this.spalle[i]);
       this.giunti[i * 3].scale.setScalar(0.05);
       this.giunti[i * 3 + 1].position.copy(gomito);
       this.giunti[i * 3 + 1].scale.setScalar(0.04);
@@ -515,66 +657,98 @@ export class LivioRasta {
     this.rasta(dt, rot);
   }
 
-  /** I rasta: punti che pendono, legati in catena, che inseguono la testa e non entrano nel corpo. */
+  /**
+   * I rasta, nelle coordinate del gruppo (non del corpo: quando lui gira attorno al manichino le ciocche restano
+   * indietro e lo seguono). Il primo tratto è fisso sul cranio e pettinato all'indietro; il resto pende, legato in
+   * catena, e non entra nel cranio, nelle spalle, nella schiena, nelle gambe.
+   */
   private rasta(dt: number, rotBusto: THREE.Quaternion) {
-    const testaM = this.mTesta.compose(this.testa.position, this.testa.quaternion, V(1, 1, 1));
+    this.corpo.updateMatrix();
+    const mc = this.corpo.matrix;
+    const nelGruppo = (v: THREE.Vector3) => v.applyMatrix4(mc);
+    const testaM = this.mTesta.compose(this.testa.position, this.testa.quaternion, V(1, 1, 1)).premultiply(mc);
     const g = V(0, -9.8, 0);
     // passi piccoli anche quando i fotogrammi sono pochi: la catena resta stabile
     const passi = Math.min(6, Math.max(2, Math.ceil(dt / (1 / 120)))), h = Math.min(dt, 1 / 20) / passi;
-    // il corpo come capsule: busto, cosce, tibie (i punti vengono spinti fuori)
+    const bac = this.bacino.position;
     const capsule: [THREE.Vector3, THREE.Vector3, number][] = [
-      [this.bacino.position.clone(), V(0, BUSTO * 0.9, -0.01).applyQuaternion(rotBusto).add(this.bacino.position), 0.155],
-      [this.ossa.cosciad.position.clone(), this.ossa.tibiad.position.clone(), 0.1],
-      [this.ossa.coscias.position.clone(), this.ossa.tibias.position.clone(), 0.1],
-      [this.ossa.tibiad.position.clone(), this.piedi[1].position.clone().add(V(0, 0.08, 0)), 0.085],
-      [this.ossa.tibias.position.clone(), this.piedi[0].position.clone().add(V(0, 0.08, 0)), 0.085],
+      [nelGruppo(bac.clone()), nelGruppo(V(0, BUSTO * 0.9, -0.01).applyQuaternion(rotBusto).add(bac)), 0.155],
+      [nelGruppo(this.spalle[0].clone()), nelGruppo(this.spalle[1].clone()), 0.07],
+      [nelGruppo(this.ossa.cosciad.position.clone()), nelGruppo(this.ossa.tibiad.position.clone()), 0.1],
+      [nelGruppo(this.ossa.coscias.position.clone()), nelGruppo(this.ossa.tibias.position.clone()), 0.1],
+      [nelGruppo(this.ossa.tibiad.position.clone()), nelGruppo(this.piedi[1].position.clone().add(V(0, 0.08, 0))), 0.085],
+      [nelGruppo(this.ossa.tibias.position.clone()), nelGruppo(this.piedi[0].position.clone().add(V(0, 0.08, 0))), 0.085],
     ];
-    const testaC = this.testa.position.clone().add(V(0, 0.11, 0));
-    const ab = V(), ap = V(), c = V();
+    // la testa nelle sue coordinate: il cranio come ellissoide, e la faccia (occhi, naso, bocca) da lasciare libera
+    const inv = this.mInv.copy(testaM).invert();
+    const lp = V();
+    const RT = V(0.118, 0.138, 0.13);
+    const ab = V(), ap = V(), c = V(), r0 = V(), r1 = V(), r2 = V();
     let idx = 0;
-    for (let k = 0; k < N_CIOCCHE; k++) {
+    for (let k = 0; k < this.radici.length; k++) {
       const P = this.punti[k], Q = this.prima[k];
-      const seg = this.lunghezze[k] / (N_PUNTI - 1);
-      const radice = this.radici[k].clone().applyMatrix4(testaM);
+      const L = this.lunghezze[k];
+      const seg = L / (N_PUNTI - 1);
+      const R = this.radici[k];
+      // i primi tre punti, fissi sulla testa: la radice, poi il primo tratto all'indietro, poi la curva in giù
+      r0.copy(R.p).applyMatrix4(testaM);
+      r1.copy(R.p).addScaledVector(R.a, seg * 0.6).applyMatrix4(testaM);
+      r2.copy(R.p).addScaledVector(R.a, seg * 0.6).addScaledVector(R.b, seg).applyMatrix4(testaM);
       if (!this.iniziato) {
-        // al primo fotogramma pendono già dritte, dietro la schiena
+        // al primo fotogramma pendono già, dietro la schiena
         for (let i = 0; i < N_PUNTI; i++) {
-          P[i].copy(radice).add(V(0, -seg * i, -0.03 * Math.min(i, 3)));
+          if (i < 3) P[i].copy([r0, r1, r2][i]);
+          else P[i].copy(r2).add(V(0, -seg * (i - 2), -0.02 * Math.min(i, 4)));
           Q[i].copy(P[i]);
         }
       }
       for (let s = 0; s < passi; s++) {
-        P[0].copy(radice);
-        for (let i = 1; i < N_PUNTI; i++) {
-          const v = c.copy(P[i]).sub(Q[i]).multiplyScalar(0.96);
+        P[0].copy(r0);
+        P[1].copy(r1);
+        P[2].copy(r2);
+        for (let i = 3; i < N_PUNTI; i++) {
+          const v = c.copy(P[i]).sub(Q[i]).multiplyScalar(0.95);
+          // niente frustate: i rasta sono pesanti, la velocità ha un tetto
+          const vl = v.length();
+          if (vl > 0.025) v.multiplyScalar(0.025 / vl);
           Q[i].copy(P[i]);
           P[i].add(v).addScaledVector(g, h * h);
         }
         for (let it = 0; it < 3; it++) {
-          for (let i = 1; i < N_PUNTI; i++) {
-            // la catena: ogni tratto torna alla sua lunghezza (il punto attaccato alla testa non si muove)
+          for (let i = 3; i < N_PUNTI; i++) {
+            // la catena: ogni tratto torna alla sua lunghezza (i punti attaccati alla testa non si muovono)
             const d = c.copy(P[i]).sub(P[i - 1]);
             const l = d.length() || 1e-6;
             const e = (l - seg) / l;
-            if (i === 1) P[i].addScaledVector(d, -e);
+            if (i === 3) P[i].addScaledVector(d, -e);
             else {
               P[i].addScaledVector(d, -e * 0.5);
               P[i - 1].addScaledVector(d, e * 0.5);
             }
           }
-          for (let i = 2; i < N_PUNTI; i++) {
-            // fuori dal cranio
-            const dt0 = c.copy(P[i]).sub(testaC);
-            const lt = dt0.length();
-            if (lt < 0.13) P[i].copy(testaC).addScaledVector(dt0, 0.13 / (lt || 1));
+          for (let i = 3; i < N_PUNTI; i++) {
+            // fuori dal cranio e dalla faccia: i rasta incorniciano il volto, non lo coprono
+            lp.copy(P[i]).applyMatrix4(inv);
+            const ex = (lp.x - CUOIO.c.x) / RT.x, ey = (lp.y - CUOIO.c.y) / RT.y, ez = (lp.z - CUOIO.c.z) / RT.z;
+            const le = Math.hypot(ex, ey, ez);
+            let tocca = false;
+            if (le < 1) {
+              lp.set(CUOIO.c.x + (ex / (le || 1)) * RT.x, CUOIO.c.y + (ey / (le || 1)) * RT.y, CUOIO.c.z + (ez / (le || 1)) * RT.z);
+              tocca = true;
+            }
+            if (lp.z > -0.01 && Math.abs(lp.x) < 0.058 && lp.y > -0.05 && lp.y < 0.17) {
+              lp.x = (lp.x !== 0 ? Math.sign(lp.x) : k % 2 ? 1 : -1) * 0.058;
+              tocca = true;
+            }
+            if (tocca) P[i].copy(lp).applyMatrix4(testaM);
             // fuori dal corpo
-            for (const [A, B, r] of capsule) {
+            for (const [A, B, rr] of capsule) {
               ab.copy(B).sub(A);
-              const u = Math.min(1, Math.max(0, ap.copy(P[i]).sub(A).dot(ab) / ab.lengthSq()));
+              const u = Math.min(1, Math.max(0, ap.copy(P[i]).sub(A).dot(ab) / (ab.lengthSq() || 1e-6)));
               const vicino = c.copy(A).addScaledVector(ab, u);
               const fuori = ap.copy(P[i]).sub(vicino);
               const lf = fuori.length();
-              if (lf < r) P[i].copy(vicino).addScaledVector(fuori, r / (lf || 1e-6));
+              if (lf < rr) P[i].copy(vicino).addScaledVector(fuori, rr / (lf || 1e-6));
             }
           }
         }
@@ -584,7 +758,7 @@ export class LivioRasta {
         const a = P[i], b = P[i + 1];
         const d = this.t.copy(b).sub(a);
         const l = d.length();
-        const spessore = 0.016 * (1 - (i / N_PUNTI) * 0.35);
+        const spessore = 0.018 * (1 - (i / N_PUNTI) * 0.3);
         this.q.setFromUnitVectors(SU, d.multiplyScalar(1 / (l || 1)));
         this.m4.compose(a, this.q, V(spessore, l, spessore));
         this.ciocche.setMatrixAt(idx++, this.m4);
