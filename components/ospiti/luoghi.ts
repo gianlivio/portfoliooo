@@ -3,6 +3,7 @@ import { ANGOLO_ZONA, PASSO } from "../zona";
 import { PELO_ACQUA } from "../condivisi";
 import { alone, bruma, generatore, liberaTutto, tela } from "./comuni";
 import { colora, rilievo, sulRing, unisci } from "./meraviglie";
+import { TempioEtna } from "./tempio";
 
 /*
  * I luoghi di Livio, da valutare uno per uno: ognuno si accende o si spegne in ATTIVI.
@@ -23,6 +24,7 @@ export const ATTIVI = {
   obelisco: false,
   peritoMoreno: true,
   flamenco: true,
+  tempio: true,
 };
 
 const Z = ANGOLO_ZONA;
@@ -1072,7 +1074,7 @@ export class Luoghi {
   private sempre = new THREE.Group();
   /** Le figure piccole vicine, solo di giorno: illuminate dalla scena, senza colori cotti. */
   private vicini = new THREE.Group();
-  private vivi: { aggiorna?: (t: number, camera: THREE.Camera) => void; libera?: () => void }[] = [];
+  private vivi: { aggiorna?: (t: number, camera: THREE.Camera) => void; libera?: () => void; setNotte?: (notte: boolean) => void }[] = [];
   private texture: THREE.Texture[] = [];
 
   constructor(notte: boolean) {
@@ -1101,6 +1103,11 @@ export class Luoghi {
       this.vicini.add(f.gruppo);
       this.vivi.push({ aggiorna: (t) => f.aggiorna(t), libera: () => f.libera() });
     }
+    if (A.tempio) {
+      const t = new TempioEtna();
+      this.sempre.add(t.gruppo);
+      this.vivi.push({ aggiorna: (x) => t.aggiorna(x), libera: () => t.libera(), setNotte: (n) => t.setNotte(n) });
+    }
     this.gruppo.add(this.giorno, this.sempre, this.vicini);
     this.gruppo.traverse((o) => {
       o.raycast = () => undefined;
@@ -1115,6 +1122,7 @@ export class Luoghi {
   setNotte(notte: boolean) {
     this.giorno.visible = !notte;
     this.vicini.visible = !notte;
+    this.vivi.forEach((v) => v.setNotte?.(notte));
   }
 
   aggiorna(t: number, camera: THREE.Camera) {

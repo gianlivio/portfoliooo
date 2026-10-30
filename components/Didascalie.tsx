@@ -25,6 +25,7 @@ const ANCORE: Ancora[] = [
   { id: "puntaSecca", a: 2.92, d: 33, y: SU + 5, quando: "giorno" },
   { id: "barocco", a: 3.4, d: 42, y: SU + 9, quando: "giorno" },
   { id: "labirinto", a: 3.81, d: 33, y: SU + 6.6, quando: "giorno" },
+  { id: "tempio", a: 1.29, d: 22, y: 2.55 + 1.2, quando: "sempre" },
   { id: "liotru", a: PASSO * 3.5, d: 10.5, y: PELO_ACQUA + 1.4, quando: "sempre" },
   { id: "alhambra", a: -0.02, d: 40.5, y: SU + 5, quando: "sempre" },
   { id: "albaicin", a: -0.5, d: 37.7, y: SU + 5.6, quando: "giorno" },
