@@ -383,7 +383,7 @@ function maschera(k: number, texture: THREE.Texture[]) {
 /* ------------------------------------------------------------------ la camera */
 
 /** Il Mook Jong: dove sta e come è girato (i bracci guardano −z locale, cioè verso chi ci si allena). */
-const MOOK = { x: 4.45, z: 0.85, ry: 1.92 };
+const MOOK = { x: 4.45, z: 0.85, ry: 0.9 };
 
 export class CameraDiLivio {
   gruppo = new THREE.Group();
@@ -706,7 +706,7 @@ export class CameraDiLivio {
         g.push({ g: box(0.07, Y1 + 0.08, 0.07, sx * AX, (Y1 + 0.08) / 2, PZ2), m: "wingChun" });
         g.push({ g: box(0.09, 0.06, 0.6, sx * AX, 0.03, PZ2 - 0.1), m: "wingChun" });
       }
-      // girato di fianco a chi guarda, coi bracci verso la stanza: chi ci si allena sta sul fondo scuro della parete, non sulla carta bianca accanto
+      // girato di tre quarti: i bracci guardano verso la stanza e verso chi guarda, così si leggono in prospettiva
       metti(g, MOOK.x, 0, MOOK.z, 0, MOOK.ry);
     }
 
