@@ -377,7 +377,7 @@ export default function Esperienza({
           ref={palco}
           className="palco"
           tabIndex={0}
-          role="group"
+          role="region"
           aria-roledescription={d.tastiera.ruolo}
           aria-label={d.tastiera.etichetta}
           onKeyDown={tastiPalco}

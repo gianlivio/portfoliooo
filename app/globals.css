@@ -498,7 +498,7 @@ html[data-tema="chiaro"] .olio{--oro:#7D6A16;--oro-tenue:rgba(125,106,22,.3);--p
   background:var(--pannello);color:var(--pannello-testo);
   backdrop-filter:blur(10px) saturate(1.1);-webkit-backdrop-filter:blur(10px) saturate(1.1);
   border:1px solid var(--oro-tenue);
-  opacity:.12;transform:translateY(18px);
+  opacity:0;transform:translateY(18px);
   transition:opacity .9s var(--curva),transform .9s var(--curva);
 }
 .tappa--qui .tappa-pannello,.olio:not(.olio--3d) .tappa-pannello{opacity:1;transform:none}

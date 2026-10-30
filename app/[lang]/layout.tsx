@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { getDizionario, lingue } from "@/dictionaries";
 import "../globals.css";
-import { urlSito } from "@/content/sito";
+import { altriLocale, localeDi, nomeSito, urlSito } from "@/content/sito";
 
 /* Font auto-ospitati in app/fonts: il build non dipende da Google Fonts. */
 const serif = localFont({
@@ -66,7 +66,10 @@ export async function generateMetadata({
       title: d.meta.titolo,
       description: d.meta.descrizione,
       type: "profile",
-      locale: lang,
+      url: `/${lang}`,
+      siteName: nomeSito,
+      locale: localeDi(lang),
+      alternateLocale: altriLocale(lang),
       images: [{ url: "/og.png", width: 1200, height: 630, alt: `${d.nome} — ${d.ruolo}` }],
     },
     twitter: {
