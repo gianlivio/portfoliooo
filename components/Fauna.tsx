@@ -4,6 +4,7 @@ import { useFrame } from "@react-three/fiber";
 import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { PELO_ACQUA, gocce } from "./condivisi";
+import { Surf } from "./ospiti/surf";
 import { type Ospite, assi, attesa, azzeraRegia, casuale, pausaRegia, solo } from "./ospiti/comuni";
 import { Nave } from "./ospiti/nave";
 import { Drago } from "./ospiti/drago";
@@ -293,6 +294,8 @@ const creaDroni = () => new Droni();
 const creaRobot = () => new Robot();
 const creaPterodattilo = () => new Pterodattilo();
 const creaFieno = () => new Fieno();
+const creaSurfGiorno = () => new Surf(false);
+const creaSurfNotte = () => new Surf(true);
 
 /* --------------------------------------------------------------------- insieme */
 
@@ -319,6 +322,7 @@ export default function Fauna({
       {c("galeone") && <Presenza crea={creaGaleone} />}
       {c("iss") && <Presenza crea={creaIss} />}
       <Presenza crea={creaTralicci} />
+      {c("surf") && <Presenza crea={creaSurfNotte} />}
     </>
   ) : (
     <>
@@ -333,6 +337,7 @@ export default function Fauna({
       {c("pterodattilo") && <Presenza crea={creaPterodattilo} />}
       {c("robot") && <Presenza crea={creaRobot} />}
       {c("fieno") && <Presenza crea={creaFieno} />}
+      {c("surf") && <Presenza crea={creaSurfGiorno} />}
     </>
   );
 }

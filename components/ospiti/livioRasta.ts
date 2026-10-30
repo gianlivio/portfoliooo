@@ -438,16 +438,17 @@ export class LivioRasta {
     for (let k = 0; k < 6; k++) this.giunti.push(add(new THREE.SphereGeometry(1, 10, 8)));
     if (modo === "surf") {
       // la tavola sotto i piedi, lungo l'asse x del corpo: affusolata davanti, la pinna sotto
+      // una shortboard di un metro e sessanta: la coda (−z del loft) dietro, la punta verso dove va (−x del corpo)
       const tavola = loft([
-        { z: -0.95, l: 0.03, su: 0.012 },
-        { z: -0.75, l: 0.17, su: 0.022 },
-        { z: -0.2, l: 0.26, su: 0.03 },
-        { z: 0.45, l: 0.24, su: 0.028 },
-        { z: 0.85, l: 0.13, su: 0.02 },
-        { z: 0.92, l: 0.05, su: 0.012 },
-      ], { radiali: 14, passi: 3 }).rotateY(Math.PI / 2).translate(0, -0.01, 0);
+        { z: -0.8, l: 0.03, su: 0.01 },
+        { z: -0.64, l: 0.15, su: 0.018 },
+        { z: -0.15, l: 0.22, su: 0.026 },
+        { z: 0.38, l: 0.2, su: 0.024 },
+        { z: 0.72, l: 0.1, su: 0.016 },
+        { z: 0.8, l: 0.04, su: 0.01 },
+      ], { radiali: 14, passi: 3 }).rotateY(-Math.PI / 2).translate(0, -0.01, 0);
       this.corpo.add(new THREE.Mesh(tavola, m));
-      const pinna = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.1, 0.012).translate(-0.62, -0.06, 0), m);
+      const pinna = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.08, 0.01).translate(0.55, -0.05, 0), m);
       this.corpo.add(pinna);
     }
     this.gruppo.add(this.corpo);
