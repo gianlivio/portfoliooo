@@ -13,7 +13,8 @@ import { loft } from "./comuni";
  * I rasta coprono tutta la testa, dall'attaccatura sulla fronte alla nuca: ciocche vere, catene di punti che
  * partono dal cranio pettinate all'indietro, pendono fino alle gambe, inseguono la testa e i colpi e
  * scivolano su cranio, spalle, schiena e gambe senza attraversarli.
- * Compare ogni tanto: si stampa dal basso in alto, fa la sua sequenza, si spegne dall'alto.
+ * C'è sempre: si stampa dal basso in alto all'arrivo, poi si allena; ogni tanto si stacca dal manichino e fa
+ * tai chi o colpi nell'aria, poi torna al legno.
  * Di notte è azzurro, di giorno ambra (l'azzurro sul marmo chiaro sparisce).
  * La stessa figura fa anche il musicista (modo "studio"): leggerissima, di spalle allo studietto, compare quando
  * si accende la musica e suona le macchine a tempo (i pad, le manopole, il Kaoss Pad, il Volca, i fader e le
@@ -23,9 +24,14 @@ import { loft } from "./comuni";
  * Il manichino sta a (0, 0, DISTANZA), girato come la figura: le sue misure sono quelle di cameraLivio.ts.
  */
 
-export const DISTANZA = 0.66;
+export const DISTANZA = 0.72;
+/**
+ * Le misure del Mook Jong (in cameraLivio.ts): raggio del tronco, dove comincia e finisce, la quota dei due
+ * bracci alti, del braccio di mezzo, della gamba. Il tronco è sospeso: non tocca terra.
+ */
+export const MOOK_FORMA = { r: 0.13, y0: 0.14, y1: 1.64, alti: 1.3, mezzo: 1.08, gamba: 0.78 };
 
-const VERT = /* glsl */ `
+export const VERT = /* glsl */ `
 varying vec3 vN;
 varying vec3 vV;
 varying vec3 vW;
@@ -44,7 +50,7 @@ void main(){
   gl_Position = projectionMatrix * mv;
 }`;
 
-const FRAG = /* glsl */ `
+export const FRAG = /* glsl */ `
 uniform float uT;
 uniform float uVis;
 uniform float uBase;
@@ -105,7 +111,7 @@ type Posa = {
 type Chiave = Omit<Posa, "t" | "s" | "d"> & { dt: number; s?: P3; d?: P3 };
 type Tecnica = { nome: string; chiavi: Chiave[]; bracci?: boolean; peso: number };
 
-const T = DISTANZA - 0.12; // la faccia del tronco
+const T = DISTANZA - MOOK_FORMA.r - 0.01; // la faccia del tronco
 const GS: P3 = [0.02, 1.2, 0.3];
 const GD: P3 = [-0.02, 1.16, 0.17];
 const PS: P3 = [0.18, 0, 0.02];
@@ -176,8 +182,8 @@ const TECNICHE: Tecnica[] = [
   },
   {
     nome: "calcio basso alla gamba", bracci: true, peso: 2, chiavi: [
-      { dt: 0.11, pd: [-0.07, 0.38, 0.2], h: 0.94, s: [0.04, 1.24, 0.3] },
-      { dt: 0.08, pd: [-0.02, 0.22, 0.36], h: 0.93, s: [0.04, 1.24, 0.3], colpo: "pd" },
+      { dt: 0.11, pd: [-0.07, 0.45, 0.2], h: 0.94, s: [0.04, 1.24, 0.3] },
+      { dt: 0.08, pd: [-0.02, 0.32, DISTANZA - 0.39], h: 0.93, s: [0.04, 1.24, 0.3], colpo: "pd" },
       guardia(0.13),
     ],
   },
@@ -274,6 +280,26 @@ function componi(durata: number): Posa[] {
   return P;
 }
 
+/** Una posa completa, data da fuori (vedi guida). */
+export type PosaLibera = {
+  s: THREE.Vector3; d: THREE.Vector3; ps: THREE.Vector3; pd: THREE.Vector3;
+  h: number; yaw: number; av: number; giro: number; lato: number; nod: number;
+  bs: boolean; bd: boolean; gs: boolean; gd: boolean; ms: Mano; md: Mano;
+  colpo: { quale: "s" | "d" | "ps" | "pd"; chiave: number } | null;
+};
+
+/** Fra due pose: i punti e i numeri a metà strada, le forme dalla più vicina. */
+function mescola(a: PosaLibera, b: PosaLibera, u: number): PosaLibera {
+  const v = (p: THREE.Vector3, q: THREE.Vector3) => p.clone().lerp(q, u);
+  const n = (p: number, q: number) => p + (q - p) * u;
+  const scegli = u < 0.5 ? a : b;
+  return {
+    s: v(a.s, b.s), d: v(a.d, b.d), ps: v(a.ps, b.ps), pd: v(a.pd, b.pd),
+    h: n(a.h, b.h), yaw: n(a.yaw, b.yaw), av: n(a.av, b.av), giro: n(a.giro, b.giro), lato: n(a.lato, b.lato), nod: n(a.nod, b.nod),
+    bs: scegli.bs, bd: scegli.bd, gs: scegli.gs, gd: scegli.gd, ms: scegli.ms, md: scegli.md, colpo: null,
+  };
+}
+
 const morbido = (x: number) => x * x * (3 - 2 * x);
 /** Per i colpi: parte svelto e si ferma secco. */
 const secco = (x: number) => 1 - Math.pow(1 - x, 3);
@@ -336,23 +362,25 @@ export class LivioRasta {
   private sequenza: Posa[] = [];
   private ultimoColpo = -1;
   private tempo = 0;
-  private stato: "spento" | "stampa" | "allena" | "cancella" = "spento";
-  private finoA = 7;
+  private stato: "spento" | "stampa" | "allena" | "libero" = "spento";
+  private finoA = 1.5;
+  private forma: "taichi" | "ombra" = "taichi";
+  private durataLibera = 0;
   private iniziato = false;
   // appoggi, per non creare oggetti a ogni fotogramma
   private q = new THREE.Quaternion();
   private t = V();
   private m4 = new THREE.Matrix4();
   private mTesta = new THREE.Matrix4();
-  private modo: "mook" | "studio";
+  private modo: "mook" | "studio" | "surf";
   private colori: { giorno: string; notte: string };
   /** nel modo studio: quanto si vede (sale e scende piano quando la musica si accende e si spegne) */
   private vis = 0;
   private mInv = new THREE.Matrix4();
 
-  constructor(lampo: THREE.Texture, modo: "mook" | "studio" = "mook") {
+  constructor(lampo: THREE.Texture, modo: "mook" | "studio" | "surf" = "mook") {
     this.modo = modo;
-    this.colori = modo === "mook" ? { giorno: "#D9761C", notte: "#3C96FF" } : { giorno: "#FF7A62", notte: "#C79BFF" };
+    this.colori = modo === "studio" ? { giorno: "#FF7A62", notte: "#C79BFF" } : { giorno: "#D9761C", notte: "#3C96FF" };
     this.mat = new THREE.ShaderMaterial({
       vertexShader: VERT,
       fragmentShader: FRAG,
@@ -408,6 +436,20 @@ export class LivioRasta {
     }
     // sfere sui giunti: spalle, gomiti, ginocchia, perché i tratti non si stacchino
     for (let k = 0; k < 6; k++) this.giunti.push(add(new THREE.SphereGeometry(1, 10, 8)));
+    if (modo === "surf") {
+      // la tavola sotto i piedi, lungo l'asse x del corpo: affusolata davanti, la pinna sotto
+      const tavola = loft([
+        { z: -0.95, l: 0.03, su: 0.012 },
+        { z: -0.75, l: 0.17, su: 0.022 },
+        { z: -0.2, l: 0.26, su: 0.03 },
+        { z: 0.45, l: 0.24, su: 0.028 },
+        { z: 0.85, l: 0.13, su: 0.02 },
+        { z: 0.92, l: 0.05, su: 0.012 },
+      ], { radiali: 14, passi: 3 }).rotateY(Math.PI / 2).translate(0, -0.01, 0);
+      this.corpo.add(new THREE.Mesh(tavola, m));
+      const pinna = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.1, 0.012).translate(-0.62, -0.06, 0), m);
+      this.corpo.add(pinna);
+    }
     this.gruppo.add(this.corpo);
 
     // i rasta: ciocche su tutto il cuoio capelluto, dall'attaccatura sulla fronte alla nuca, pettinate all'indietro
@@ -550,14 +592,15 @@ export class LivioRasta {
     }
     // il tempo della sequenza è quello vero; la fisica dei rasta va a passi piccoli (vedi rasta)
     this.tempo += dt;
-    // il ciclo di vita: spento, si stampa, si allena, si cancella, spento
+    // c'è sempre: si stampa una volta all'arrivo, poi si allena al manichino; ogni tanto se ne stacca, fa qualche
+    // passo indietro e si muove da solo (tai chi lento, oppure colpi nell'aria), poi torna al legno
     if (this.stato === "spento") {
       this.gruppo.visible = false;
       if (this.tempo < this.finoA) return;
       this.stato = "stampa";
       this.tempo = 0;
       this.iniziato = false;
-      this.sequenza = componi(30 + Math.random() * 12);
+      this.sequenza = componi(24 + Math.random() * 10);
       this.ultimoColpo = -1;
     }
     let taglio = 2;
@@ -567,27 +610,62 @@ export class LivioRasta {
         this.stato = "allena";
         this.tempo = 0;
       }
-    } else if (this.stato === "cancella") {
-      taglio = 2 - (this.tempo / 1.4) * 2;
-      if (this.tempo >= 1.4) {
-        this.stato = "spento";
-        this.tempo = 0;
-        this.finoA = 35 + Math.random() * 30;
-        this.gruppo.visible = false;
-        return;
-      }
     }
     this.gruppo.visible = true;
     this.mat.uniforms.uBase.value = this.base();
     this.mat.uniforms.uTaglio.value = taglio;
-    // durante la stampa e la cancellazione resta in guardia; si allena solo quando è intero
+    if (this.stato === "libero") {
+      this.daSolo(dt, t);
+      return;
+    }
     const fine = this.sequenza[this.sequenza.length - 1].t;
-    const tc = this.stato === "allena" ? Math.min(this.tempo, fine) : this.stato === "cancella" ? fine : 0;
+    const tc = this.stato === "allena" ? Math.min(this.tempo, fine) : 0;
     if (this.stato === "allena" && this.tempo >= fine) {
-      this.stato = "cancella";
+      // finita la sequenza: si stacca dal manichino, col tai chi o coi colpi nell'aria
+      this.stato = "libero";
       this.tempo = 0;
+      this.forma = Math.random() < 0.55 ? "taichi" : "ombra";
+      this.durataLibera = this.forma === "taichi" ? 16 + Math.random() * 6 : 12 + Math.random() * 4;
+      if (this.forma === "ombra") this.sequenza = componi(this.durataLibera - 2.4);
     }
     this.metti(tc, dt, t);
+  }
+
+  /**
+   * Da solo, staccato dal manichino: un passo indietro (via), poi il tai chi (le mani delle nuvole, lente, col
+   * peso che passa da una gamba all'altra) o i colpi nell'aria (la stessa sequenza, senza legno davanti);
+   * in fondo torna al manichino e riprende.
+   */
+  private daSolo(dt: number, t: number) {
+    const T0 = 1.2;
+    const resta = this.durataLibera - this.tempo;
+    // quanto si è allontanato: sale nel primo tratto, scende nell'ultimo
+    const k = morbido(Math.min(1, this.tempo / T0, Math.max(0, resta) / T0));
+    const VIA = 0.55;
+    let P: PosaLibera;
+    if (this.forma === "taichi") {
+      const tt = Math.max(0, this.tempo - T0 * 0.5);
+      const f = (tt / 5.2) * Math.PI * 2;
+      const tai: PosaLibera = {
+        s: V(0.08 + 0.2 * Math.sin(f), 1.1 + 0.16 * Math.cos(f), 0.3),
+        d: V(-0.08 + 0.2 * Math.sin(f + Math.PI), 1.1 + 0.16 * Math.cos(f + Math.PI), 0.3),
+        ps: V(0.26, 0, 0.06), pd: V(-0.26, 0, -0.06),
+        h: 0.85 + 0.02 * Math.cos(f * 2), yaw: 0.42 * Math.sin(f), av: 0.02, giro: 0, lato: 0.07 * Math.sin(f), nod: 0.05,
+        bs: false, bd: false, gs: false, gd: false, ms: "palmo", md: "palmo", colpo: null,
+      };
+      const guardia = { ...this.posa(0), nod: 0, lato: 0 };
+      P = mescola(guardia, tai, k);
+    } else {
+      const tc = Math.min(Math.max(0, this.tempo - T0), this.sequenza[this.sequenza.length - 1].t);
+      P = { ...this.posa(tc), nod: 0, lato: 0, colpo: null };
+    }
+    if (resta <= 0) {
+      this.stato = "allena";
+      this.tempo = 0;
+      this.sequenza = componi(24 + Math.random() * 10);
+      this.ultimoColpo = -1;
+    }
+    this.corpoDa({ ...P, via: VIA * k }, dt, t);
   }
 
   /** Il musicista: si accende e si spegne con la musica, piano; suona finché il loop gira. */
@@ -663,11 +741,33 @@ export class LivioRasta {
     this.corpoDa({ ...this.posa(tc), nod: 0, lato: 0 }, dt, t);
   }
 
-  private corpoDa(P: ReturnType<LivioRasta["posa"]> & { nod: number; lato: number }, dt: number, t: number) {
+  /**
+   * Per chi guida la figura da fuori (il surf): la posa, dove sta il corpo e come è girato, quanto si vede,
+   * il taglio della stampa.
+   */
+  guida(P: PosaLibera, dove: THREE.Vector3, verso: THREE.Quaternion, dt: number, t: number, vis: number, taglio: number) {
+    this.gruppo.visible = vis > 0.01;
+    if (!this.gruppo.visible) {
+      this.iniziato = false;
+      return;
+    }
+    this.mat.uniforms.uT.value = t;
+    this.mat.uniforms.uVis.value = vis;
+    this.mat.uniforms.uBase.value = this.base();
+    this.mat.uniforms.uTaglio.value = taglio;
+    this.corpoDa({ ...P, dove, verso }, dt, t);
+  }
+
+  private corpoDa(P: PosaLibera & { dove?: THREE.Vector3; verso?: THREE.Quaternion; via?: number }, dt: number, t: number) {
     // il corpo gira attorno al manichino: ruota attorno all'asse del tronco, e guarda sempre il tronco
     const c = DISTANZA;
-    this.corpo.position.set(Math.sin(P.giro) * -c + P.lato, 0, c - Math.cos(P.giro) * c);
-    this.corpo.rotation.set(0, P.giro, 0);
+    if (P.dove && P.verso) {
+      this.corpo.position.copy(P.dove);
+      this.corpo.quaternion.copy(P.verso);
+    } else {
+      this.corpo.position.set(Math.sin(P.giro) * -c + P.lato, 0, c - Math.cos(P.giro) * c - (P.via ?? 0));
+      this.corpo.rotation.set(0, P.giro, 0);
+    }
     // il bacino: basso nella posizione, un respiro leggero, la rotazione verso il colpo
     const respiro = Math.sin(t * 1.7) * 0.006;
     const bacino = V(0, P.h + respiro, 0.02 + P.av);

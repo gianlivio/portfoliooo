@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { LivioRasta, DISTANZA } from "./livioRasta";
+import { LivioRasta, DISTANZA, MOOK_FORMA } from "./livioRasta";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import { generatore, tela } from "./comuni";
 import { granaLegno } from "./polyhaven";
@@ -668,18 +668,44 @@ export class CameraDiLivio {
       metti(g, 1.78, 0, 1.24, 0, 0);
     }
 
-    // il Mook Jong: il tronco di legno coi tre bracci e la gamba, sul suo piede, più a sinistra
+    // il Mook Jong come quello di Ip Man: il tronco tondo sospeso (non tocca terra), appeso a due assi orizzontali
+    // che lo passano dietro, in alto e in basso, fissate a due montanti con i piedi; davanti i due bracci alti alla
+    // stessa quota, appena aperti a V e un poco in su, il braccio di mezzo più sotto, dritto, e la gamba che esce
+    // in basso verso il davanti e piega al ginocchio verso terra. I bracci guardano −z locale.
     {
       const g: Pezzo[] = [];
-      g.push({ g: cil(0.11, 0.11, 1.5, 16).translate(0, 0.85, 0), m: "wingChun" });
-      for (const s of [-1, 1]) g.push({ g: cil(0.026, 0.03, 0.36, 8).rotateX(Math.PI / 2).rotateY(s * 0.32).translate(s * 0.055, 1.28, -0.2), m: "wingChun" });
-      g.push({ g: cil(0.028, 0.032, 0.34, 8).rotateX(Math.PI / 2).translate(0, 1.03, -0.2), m: "wingChun" });
-      g.push({ g: cil(0.035, 0.04, 0.38, 8).rotateX(Math.PI / 2 + 0.5).translate(0, 0.45, -0.16), m: "wingChun" });
-      g.push({ g: cil(0.03, 0.035, 0.3, 8).translate(0, 0.21, -0.32), m: "wingChun" });
-      for (const s of [-1, 1]) g.push({ g: box(0.06, 0.06, 0.5, s * 0.16, 0.03, 0.02), m: "wingChun" });
-      g.push({ g: box(0.38, 0.06, 0.06, 0, 0.03, 0.2), m: "wingChun" });
-      g.push({ g: new THREE.TorusGeometry(0.05, 0.01, 6, 14, Math.PI).rotateZ(Math.PI).translate(0, 1.7, 0), m: "nero" });
-      g.push({ g: cil(0.01, 0.01, 0.1, 6).translate(0, 1.62, 0), m: "nero" });
+      const R = MOOK_FORMA.r, Y0 = MOOK_FORMA.y0, Y1 = MOOK_FORMA.y1;
+      g.push({ g: cil(R, R, Y1 - Y0, 20).translate(0, (Y0 + Y1) / 2, 0), m: "wingChun" });
+      // un braccio: dal tronco verso il davanti, lungo l, aperto di "apre" e alzato di "alza"; quadro alla radice
+      const braccio = (y: number, x0: number, apre: number, alza: number, l: number, r0: number, r1: number) => {
+        const geo = cil(r1, r0, l, 10).translate(0, l / 2, 0).rotateX(-Math.PI / 2 + alza).rotateY(apre).translate(x0, y, -R + 0.02);
+        g.push({ g: geo, m: "wingChun" });
+        g.push({ g: box(r0 * 2.2, r0 * 2.2, 0.05, x0, y, -R + 0.01), m: "wingChun" });
+      };
+      // apre negativo porta la punta verso +x: ciascun braccio si apre dalla sua parte
+      braccio(MOOK_FORMA.alti, 0.04, -0.2, 0.1, 0.38, 0.03, 0.023);
+      braccio(MOOK_FORMA.alti, -0.04, 0.2, 0.1, 0.38, 0.03, 0.023);
+      braccio(MOOK_FORMA.mezzo, 0, 0, -0.04, 0.36, 0.032, 0.026);
+      // la gamba: la coscia scende in avanti a 45°, il ginocchio, lo stinco giù verso terra
+      {
+        const yg = MOOK_FORMA.gamba, z0 = -R + 0.02;
+        const coscia = 0.33, stinco = 0.3;
+        const kz = z0 - Math.sin(Math.PI / 4) * coscia, ky = yg - Math.cos(Math.PI / 4) * coscia;
+        g.push({ g: cil(0.04, 0.045, coscia, 10).translate(0, -coscia / 2, 0).rotateX(Math.PI / 4).translate(0, yg, z0), m: "wingChun" });
+        g.push({ g: new THREE.SphereGeometry(0.045, 10, 8).translate(0, ky, kz), m: "wingChun" });
+        g.push({ g: cil(0.04, 0.035, stinco, 10).translate(0, -stinco / 2, 0).rotateX(-0.12).translate(0, ky, kz), m: "wingChun" });
+      }
+      // le due assi dietro il tronco, in alto e in basso, e i montanti coi piedi a terra
+      const AX = 0.62, PZ2 = R + 0.03;
+      for (const y of [Y1 - 0.12, Y0 + 0.14]) {
+        g.push({ g: box(AX * 2 + 0.08, 0.06, 0.035, 0, y, PZ2), m: "wingChun" });
+        // la fessura nel tronco dove passa l'asse
+        g.push({ g: box(0.12, 0.07, 0.03, 0, y, R - 0.005), m: "mobile" });
+      }
+      for (const sx of [-1, 1]) {
+        g.push({ g: box(0.07, Y1 + 0.08, 0.07, sx * AX, (Y1 + 0.08) / 2, PZ2), m: "wingChun" });
+        g.push({ g: box(0.09, 0.06, 0.6, sx * AX, 0.03, PZ2 - 0.1), m: "wingChun" });
+      }
       // girato di fianco a chi guarda, coi bracci verso la stanza: chi ci si allena sta sul fondo scuro della parete, non sulla carta bianca accanto
       metti(g, MOOK.x, 0, MOOK.z, 0, MOOK.ry);
     }
