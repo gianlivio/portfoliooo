@@ -11,9 +11,10 @@ export function middleware(request: NextRequest) {
 
   if (pathnameHasLocale) return
 
-  // Reindirizza se non c'è la lingua nell'URL
+  // Reindirizza se non c'è la lingua nell'URL. Permanente (308): con un rinvio temporaneo Google tiene
+  // la radice come pagina canonica e scarta /it come duplicato
   request.nextUrl.pathname = `/it${pathname}`
-  return NextResponse.redirect(request.nextUrl)
+  return NextResponse.redirect(request.nextUrl, 308)
 }
 
 export const config = {
