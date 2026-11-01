@@ -1,29 +1,13 @@
 /**
  * Mentre si sta nella stanza, a scena pronta e senza fretta, si scaricano in sottofondo le cose dell'uliveto:
- * la vista d'ingresso (quella del passaggio) e gli asset della scena (cielo, terra, muretti, modelli).
+ * la vista d'ingresso, quella del passaggio.
  * Così, quando si varca il cancello, arrivano dalla cache e l'attesa si accorcia.
  * Non lo fa con il risparmio dati attivo o su reti lente.
  */
 const ASSET = [
+  // l'uliveto ora è di carta (SVG nel codice della pagina): resta da scaricare solo la vista del passaggio
   "/olio/ingresso-giorno.jpg",
   "/olio/ingresso-notte.jpg",
-  ...[
-    "cielo-tramonto.jpg",
-    "cielo-notte.jpg",
-    "terra-colore.webp",
-    "terra-rilievo.webp",
-    "trazzera-colore.webp",
-    "trazzera-rilievo.webp",
-    "muretto-colore.webp",
-    "muretto-rilievo.webp",
-    "corteccia-colore.webp",
-    "coppi-colore.webp",
-    "coppi-rilievo.webp",
-    "erba.glb",
-    "masso.glb",
-    "cassetta.glb",
-    "botte.glb",
-  ].map((n) => `/olio/scena/${n}`),
 ];
 
 let fatto = false;
