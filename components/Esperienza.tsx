@@ -67,6 +67,7 @@ export default function Esperienza({
   }, [pronta]);
   const versoUliveto = useCallback(
     (x: number, y: number) => {
+      suono.sfumaVia(4);
       if (ambiente?.ridotto) {
         router.push(`/${lingua}/olio`);
         return;
@@ -138,7 +139,8 @@ export default function Esperienza({
     return () => {
       via();
       eventi.forEach((n) => window.removeEventListener(n, gesto));
-      suono.sospendi();
+      // uscendo dalla stanza la musica non si taglia: cala (se il cancello l'ha già fatta calare, continua quella)
+      suono.sfumaVia(2);
     };
   }, [ambiente?.ridotto]); // eslint-disable-line react-hooks/exhaustive-deps
 

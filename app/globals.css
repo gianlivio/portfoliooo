@@ -460,6 +460,8 @@ html.con-scena .elenco:focus-within{
 }
 html[data-tema="chiaro"] .olio{--oro:#7D6A16;--oro-tenue:rgba(125,106,22,.3);--pannello:rgba(251,248,240,.72);--pannello-testo:#16171A;--pannello-tenue:#3F4044}
 .olio:not(.olio--3d){background:radial-gradient(120% 70% at 20% 0%,var(--oro-tenue),transparent 60%),var(--fondo)}
+/* nell'uliveto lo scorrimento di lato non diventa il gesto "indietro" del browser */
+html.in-uliveto,html.in-uliveto body{overscroll-behavior-x:none}
 .uliveto{position:fixed;inset:0;z-index:0}
 .uliveto canvas{touch-action:pan-y !important}
 .olio-testata{

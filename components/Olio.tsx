@@ -57,10 +57,11 @@ export default function Olio({ d, lingua }: { d: Dizionario; lingua: Lingua }) {
     [o, lingua, tappe]
   );
 
-  // arrivando dalla stanza: la pagina scorre e la musica della stanza tace
+  // arrivando dalla stanza: la pagina scorre e la musica della stanza cala fino al silenzio (la dissolvenza
+  // comincia al clic sul cancello; se si arriva da un link o ricaricando, comincia qui)
   useEffect(() => {
     document.documentElement.classList.remove("con-scena");
-    suono.sospendi();
+    suono.sfumaVia(4);
     window.scrollTo(0, 0);
     let webgl = false;
     try {
@@ -94,6 +95,23 @@ export default function Olio({ d, lingua }: { d: Dizionario; lingua: Lingua }) {
     return () => {
       oss.disconnect();
       c.chiudi();
+    };
+  }, []);
+
+  // nella stanza il trackpad gira la vista anche di lato; qui lo stesso gesto, invece di far tornare il browser
+  // alla pagina prima (lo scorrimento di lato su Mac è "indietro"), fa camminare come quello in verticale
+  useEffect(() => {
+    const html = document.documentElement;
+    html.classList.add("in-uliveto");
+    const lato = (e: WheelEvent) => {
+      if (e.ctrlKey || Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
+      e.preventDefault();
+      window.scrollBy({ top: e.deltaX, behavior: "instant" as ScrollBehavior });
+    };
+    window.addEventListener("wheel", lato, { passive: false });
+    return () => {
+      html.classList.remove("in-uliveto");
+      window.removeEventListener("wheel", lato);
     };
   }, []);
 

@@ -115,6 +115,8 @@ class Suono {
   private brano: HTMLAudioElement | null = null;
   private branoGain: GainNode | null = null;
   private branoRotto = false;
+  /** l'uscita verso l'uliveto: il timer che, a dissolvenza finita, ferma tutto */
+  private uscita: ReturnType<typeof setTimeout> | null = null;
   /** quale pezzo dell'album suona (o suonerà al prossimo clic) */
   private indice = 0;
   private passo = 0;
@@ -134,6 +136,10 @@ class Suono {
 
   /** Legge la scelta salvata. Con "riduci movimento" non si riattiva da sola: solo a mano. */
   prepara(ridotto: boolean) {
+    if (this.uscita) {
+      clearTimeout(this.uscita);
+      this.uscita = null;
+    }
     // a ogni arrivo il fondo è acceso (solo il fondo); si spegne col bottone, per quella visita
     this.voluto = ridotto ? "spento" : "ambiente";
     // prova a partire subito: se il browser lo consente (sito già frequentato, permessi dati) si sente all'arrivo;
@@ -189,6 +195,34 @@ class Suono {
       return;
     }
     this.imposta(this.voluto === "spento" ? "ambiente" : "spento");
+  }
+
+  /**
+   * Varcando il cancello dell'uliveto: la musica e il fondo calano piano fino al silenzio, in `secondi`,
+   * poi tutto si ferma come in sospendi(). Se nel frattempo si torna nella stanza, prepara() annulla.
+   */
+  sfumaVia(secondi = 4) {
+    const c = this.ctx;
+    if (!c || c.state !== "running") {
+      this.sospendi();
+      return;
+    }
+    if (this.uscita) return;
+    const t = c.currentTime;
+    for (const g of [this.master?.gain, this.branoGain?.gain]) {
+      if (!g) continue;
+      g.cancelScheduledValues(t);
+      g.setValueAtTime(g.value, t);
+      g.linearRampToValueAtTime(0, t + secondi);
+    }
+    if (this.campanelle) {
+      clearTimeout(this.campanelle);
+      this.campanelle = null;
+    }
+    this.uscita = setTimeout(() => {
+      this.uscita = null;
+      this.sospendi();
+    }, secondi * 1000 + 100);
   }
 
   /** Uscendo dalla stanza (verso la pagina dell'olio): tutto tace, la scelta resta; al ritorno prepara() riprende. */
