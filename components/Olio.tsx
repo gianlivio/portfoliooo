@@ -1,23 +1,23 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import type { Dizionario, Lingua } from "@/dictionaries";
 import { lingue } from "@/dictionaries";
-import { mediaOlio, type Forma, type Luogo, type Media } from "@/content/olio";
-import Diorama from "./Diorama";
+import { mediaOlio, type Media } from "@/content/olio";
+import type { Quadro } from "./Uliveto";
 import Modulo from "./Modulo";
 import { Campagna } from "./campagna";
 import { suono } from "./audio";
 
-/** Una foto o un video dell'uliveto, legato alla tappa del testo che racconta la stessa cosa. */
-export type Quadro = { media: Media; luogo: Luogo; forma: Forma; didascalia: string; /** indice della tappa */ tappa: number };
+const Uliveto = dynamic(() => import("./Uliveto"), { ssr: false });
 
 /**
- * La pagina dell'olio: si attraversa un uliveto di carta scorrendo. Dietro, fisso, il teatrino di fogli
- * ritagliati (Diorama); davanti, le tappe del cammino, una per schermata: il titolo, la storia, i quattro passi
- * del metodo, il frantoio. Accanto a ogni testo, dalla parte opposta, le sue foto e i suoi video, come stampe
- * fissate col nastro; il clic le apre grandi. I suoni della campagna si accendono a mano.
+ * La pagina dell'olio: si attraversa un uliveto scorrendo. Dietro, fissa, la scena 3D (Uliveto);
+ * davanti, le tappe del cammino, una per schermata: il titolo, la storia, i quattro passi del metodo,
+ * i video, il frantoio. Ogni tappa ha il suo quadro fra gli ulivi, dalla parte opposta al testo.
+ * Senza WebGL restano le tappe, su fondo pieno. I suoni della campagna si accendono a mano.
  */
 
 type Tappa = { id: string; occhiello?: string; titolo?: string; testo?: string; lato: "sx" | "dx" | "centro" };
@@ -27,8 +27,11 @@ export default function Olio({ d, lingua }: { d: Dizionario; lingua: Lingua }) {
   const [modulo, setModulo] = useState(false);
   const [suoni, setSuoni] = useState(false);
   const [aperto, setAperto] = useState<number | null>(null);
-  const [ambiente, setAmbiente] = useState<{ ridotto: boolean; stretto: boolean } | null>(null);
+  const [ambiente, setAmbiente] = useState<{ webgl: boolean; ridotto: boolean; stretto: boolean } | null>(null);
+  const [notte, setNotte] = useState(true);
+  const [pronta, setPronta] = useState(false);
   const campagna = useRef<Campagna | null>(null);
+  const progresso = useRef(0);
 
   // le tappe del cammino, nell'ordine
   const tappe = useMemo<Tappa[]>(
@@ -60,7 +63,15 @@ export default function Olio({ d, lingua }: { d: Dizionario; lingua: Lingua }) {
     document.documentElement.classList.remove("con-scena");
     suono.sfumaVia(4);
     window.scrollTo(0, 0);
+    let webgl = false;
+    try {
+      const c = document.createElement("canvas");
+      webgl = !!(c.getContext("webgl2") || c.getContext("webgl"));
+    } catch {
+      webgl = false;
+    }
     const ambiente = {
+      webgl,
       ridotto: window.matchMedia("(prefers-reduced-motion: reduce)").matches,
       stretto: window.innerWidth < 760,
     };
@@ -73,7 +84,11 @@ export default function Olio({ d, lingua }: { d: Dizionario; lingua: Lingua }) {
   useEffect(() => {
     const c = new Campagna();
     campagna.current = c;
-    const leggi = () => c.setNotte(document.documentElement.dataset.tema !== "chiaro");
+    const leggi = () => {
+      const n = document.documentElement.dataset.tema !== "chiaro";
+      setNotte(n);
+      c.setNotte(n);
+    };
     leggi();
     const oss = new MutationObserver(leggi);
     oss.observe(document.documentElement, { attributes: true, attributeFilter: ["data-tema"] });
@@ -100,6 +115,21 @@ export default function Olio({ d, lingua }: { d: Dizionario; lingua: Lingua }) {
     };
   }, []);
 
+  // scorrere è camminare
+  useEffect(() => {
+    const leggi = () => {
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      progresso.current = max > 0 ? window.scrollY / max : 0;
+    };
+    leggi();
+    window.addEventListener("scroll", leggi, { passive: true });
+    window.addEventListener("resize", leggi);
+    return () => {
+      window.removeEventListener("scroll", leggi);
+      window.removeEventListener("resize", leggi);
+    };
+  }, []);
+
   // il testo di una tappa compare quando la tappa è a metà schermo
   useEffect(() => {
     const els = document.querySelectorAll<HTMLElement>(".tappa");
@@ -112,11 +142,34 @@ export default function Olio({ d, lingua }: { d: Dizionario; lingua: Lingua }) {
   }, []);
 
   const mediaAperto: Media = aperto === null ? null : quadri[aperto].media;
-  const lati = useMemo(() => tappe.map((t) => t.lato), [tappe]);
+  const con3d = !!ambiente?.webgl;
 
   return (
-    <div className={`olio${ambiente ? " olio--carta" : ""}`}>
-      {ambiente && <Diorama lati={lati} ridotto={ambiente.ridotto} stretto={ambiente.stretto} />}
+    <div className={`olio${con3d ? " olio--3d" : ""}`}>
+      {ambiente && con3d && (
+        <div className="uliveto" aria-hidden="true">
+          <Uliveto
+            quadri={quadri}
+            progresso={progresso}
+            notte={notte}
+            ridotto={ambiente.ridotto}
+            stretto={ambiente.stretto}
+            vuoto={o.videoInArrivo}
+            onApri={setAperto}
+            onPronta={() => setPronta(true)}
+            lati={tappe.map((t) => t.lato)}
+          />
+        </div>
+      )}
+      {/* la vista d'ingresso, la stessa del passaggio dalla stanza: copre la scena finché non è pronta, ma sta
+          sotto i testi, che si leggono e si scorrono subito; intanto si avvicina piano, e una riga dice che si sta aprendo */}
+      <div
+        className={`olio-velo${pronta || (ambiente && !con3d) ? " olio-velo--via" : ""}`}
+        aria-hidden="true"
+        style={{ backgroundImage: `url(/olio/ingresso-${notte ? "notte" : "giorno"}.jpg)` }}
+      >
+        <span className="olio-attesa">{o.attesa}</span>
+      </div>
 
       <header className="olio-testata">
         <Link className="olio-torna" href={`/${lingua}`}>
@@ -141,20 +194,22 @@ export default function Olio({ d, lingua }: { d: Dizionario; lingua: Lingua }) {
       </header>
 
       <main className="olio-cammino">
-        {tappe.map((t, it) => (
+        {tappe.map((t) => (
           <section key={t.id} className={`tappa tappa--${t.lato} tappa--${t.id.split("-")[0]}`}>
             {t.id === "apertura" ? (
               <div className="tappa-pannello tappa-apertura">
                 <p className="olio-occhiello">{o.occhiello}</p>
                 <h1 className="olio-titolo">{o.titolo}</h1>
                 <p className="olio-attacco">{o.attacco}</p>
-                <p className="olio-scorri">{o.scorri}</p>
+                {con3d && <p className="olio-scorri">{o.scorri}</p>}
               </div>
             ) : (
               <div className="tappa-pannello">
                 {t.occhiello && <p className="tappa-occhiello">{t.occhiello}</p>}
                 {t.titolo && <h2 className="tappa-titolo">{t.titolo}</h2>}
                 {t.testo && <p className="tappa-testo">{t.testo}</p>}
+                {/* senza la scena, i video della tappa stanno qui sotto */}
+                {ambiente && !con3d && <QuadriPiani quadri={quadri.filter((q) => q.tappa === tappe.indexOf(t))} vuoto={o.videoInArrivo} />}
                 {t.id === "frantoio" && (
                   <div className="olio-azioni">
                     <button className="olio-scrivimi" onClick={() => setModulo(true)}>
@@ -167,7 +222,6 @@ export default function Olio({ d, lingua }: { d: Dizionario; lingua: Lingua }) {
                 )}
               </div>
             )}
-            <Stampe quadri={quadri} tappa={it} vuoto={o.videoInArrivo} guarda={o.guarda} onApri={setAperto} />
           </section>
         ))}
       </main>
@@ -193,30 +247,26 @@ export default function Olio({ d, lingua }: { d: Dizionario; lingua: Lingua }) {
   );
 }
 
-/**
- * Le foto e i video di una tappa, come stampe fissate col nastro, dalla parte libera dal testo.
- * Il video mostra il suo fotogramma e il segno del play; il clic apre l'uno o l'altro a tutto schermo.
- */
-function Stampe({ quadri, tappa, vuoto, guarda, onApri }: { quadri: Quadro[]; tappa: number; vuoto: string; guarda: string; onApri: (i: number) => void }) {
-  const qui = quadri.map((q, i) => ({ q, i })).filter(({ q }) => q.tappa === tappa);
-  if (!qui.length) return null;
+/** Senza WebGL: i video della tappa in fila, coi controlli. */
+function QuadriPiani({ quadri, vuoto }: { quadri: Quadro[]; vuoto: string }) {
+  if (!quadri.length) return null;
   return (
-    <ul className={`stampe stampe--${Math.min(qui.length, 4)}`}>
-      {qui.map(({ q, i }, k) => (
-        <li key={i} className="stampa" style={{ ["--giro" as string]: `${(k % 2 ? 1 : -1) * (1.5 + ((k * 7) % 3))}deg` }}>
-          {q.media ? (
-            <button className="stampa-foto" onClick={() => onApri(i)} aria-label={`${guarda}: ${q.didascalia}`}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={q.media.tipo === "video" ? q.media.poster ?? "" : q.media.src} alt="" loading="lazy" decoding="async" />
-              {q.media.tipo === "video" && <span className="stampa-play" aria-hidden="true" />}
-            </button>
+    <div className="olio-piani">
+      {quadri.map((q, i) =>
+        q.media ? (
+          q.media.tipo === "video" ? (
+            <video key={i} className="olio-cornice" src={q.media.src} poster={q.media.poster} controls preload="none" playsInline />
           ) : (
-            <span className="stampa-foto stampa-foto--vuota">{vuoto}</span>
-          )}
-          <span className="stampa-didascalia">{q.didascalia}</span>
-        </li>
-      ))}
-    </ul>
+            // eslint-disable-next-line @next/next/no-img-element
+            <img key={i} className="olio-cornice" src={q.media.src} alt={q.didascalia} />
+          )
+        ) : (
+          <div key={i} className="olio-cornice olio-cornice--vuota">
+            <span>{vuoto}</span>
+          </div>
+        )
+      )}
+    </div>
   );
 }
 
