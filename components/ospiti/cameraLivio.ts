@@ -383,7 +383,8 @@ function maschera(k: number, texture: THREE.Texture[]) {
 /* ------------------------------------------------------------------ la camera */
 
 /** Il Mook Jong: dove sta e come è girato (i bracci guardano −z locale, cioè verso chi ci si allena). */
-const MOOK = { x: 4.45, z: 0.85, ry: 0.9 };
+// più verso il centro e verso chi guarda: davanti al bordo della carta accanto, che prima lo copriva
+const MOOK = { x: 4.0, z: -0.55, ry: 0.9 };
 
 export class CameraDiLivio {
   gruppo = new THREE.Group();
@@ -847,7 +848,7 @@ export class CameraDiLivio {
         this.faretto.add(corpo, lente, asta, cono, terra);
       };
       testa(new THREE.Vector3(1.85, 0, 1.0), -0.12, 0.62);
-      testa(new THREE.Vector3(4.15, 0, 0.98), 0.2, 0.78);
+      testa(new THREE.Vector3(MOOK.x - 0.3, 0, MOOK.z + 0.13), 0.2, 0.78);
       this.gruppo.add(this.faretto);
       this.faretto.visible = false;
       // di notte si accendono da soli, come presi dal faretto: il legno del Mook Jong e i neri del pianoforte

@@ -4,6 +4,7 @@ import { PELO_ACQUA } from "../condivisi";
 import { alone, bruma, generatore, liberaTutto, tela } from "./comuni";
 import { colora, rilievo, sulRing, unisci } from "./meraviglie";
 import { TempioEtna } from "./tempio";
+import { Stonehenge } from "./stonehenge";
 
 /*
  * I luoghi di Livio, da valutare uno per uno: ognuno si accende o si spegne in ATTIVI.
@@ -25,6 +26,7 @@ export const ATTIVI = {
   peritoMoreno: true,
   flamenco: true,
   tempio: true,
+  stonehenge: true,
 };
 
 const Z = ANGOLO_ZONA;
@@ -1107,6 +1109,11 @@ export class Luoghi {
       const t = new TempioEtna();
       this.sempre.add(t.gruppo);
       this.vivi.push({ aggiorna: (x) => t.aggiorna(x), libera: () => t.libera(), setNotte: (n) => t.setNotte(n) });
+    }
+    if (A.stonehenge) {
+      const s = new Stonehenge();
+      this.sempre.add(s.gruppo);
+      this.vivi.push({ aggiorna: (x) => s.aggiorna(x), libera: () => s.libera(), setNotte: (n) => s.setNotte(n) });
     }
     this.gruppo.add(this.giorno, this.sempre, this.vicini);
     this.gruppo.traverse((o) => {

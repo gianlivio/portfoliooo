@@ -7,14 +7,15 @@ import { loft } from "./comuni";
  * verso bersagli precisi sul tronco e sui bracci del manichino: le mani arrivano dove colpiscono.
  * Si allena come Ip Man, svelto: a ogni comparsa compone una sequenza diversa con le tecniche del Wing Chun
  * (pak da, tan da, bong sau e lap sau col palmo, gaan sau a forbice, il doppio palmo, le raffiche di pugni
- * a catena, il calcio frontale, il calcio basso alla gamba) e qualche colpo da picchiatore di Tekken (la
- * ginocchiata e la gomitata, il calcio circolare alto); fra una e l'altra gira attorno al manichino a passi
+ * a catena), la ginocchiata e la gomitata, e i calci del taekwondo (ap chagi, dollyo chagi, yeop chagi,
+ * naeryo chagi, il doppio circolare saltato); fra una e l'altra gira attorno al manichino a passi
  * brevi, e torna davanti quando deve lavorare sui bracci. A ogni colpo un lampo sul legno.
  * I rasta coprono tutta la testa, dall'attaccatura sulla fronte alla nuca: ciocche vere, catene di punti che
  * partono dal cranio pettinate all'indietro, pendono fino alle gambe, inseguono la testa e i colpi e
  * scivolano su cranio, spalle, schiena e gambe senza attraversarli.
  * C'è sempre: si stampa dal basso in alto all'arrivo, poi si allena; ogni tanto si stacca dal manichino e fa
- * tai chi o colpi nell'aria, poi torna al legno.
+ * boxe come Tyson (guardia peek-a-boo, pendolo e schivate, ganci e montanti spinti dalle gambe) o colpi
+ * nell'aria, poi torna al legno.
  * Di notte è azzurro, di giorno ambra (l'azzurro sul marmo chiaro sparisce).
  * La stessa figura fa anche il musicista (modo "studio"): leggerissima, di spalle allo studietto, compare quando
  * si accende la musica e suona le macchine a tempo (i pad, le manopole, il Kaoss Pad, il Volca, i fader e le
@@ -105,6 +106,8 @@ type Posa = {
   av?: number;
   /** dove sta attorno al manichino: angolo (radianti) */
   giro?: number;
+  /** spostamento di lato del corpo (le schivate della boxe) */
+  lato?: number;
   /** arrivo secco: un colpo (il lampo nasce sul bersaglio della mano o del piede indicato) */
   colpo?: "s" | "d" | "ps" | "pd";
 };
@@ -173,21 +176,6 @@ const TECNICHE: Tecnica[] = [
     ],
   },
   {
-    nome: "calcio frontale", peso: 2, chiavi: [
-      { dt: 0.12, pd: [-0.07, 0.5, 0.14], h: 0.95, d: [-0.02, 1.2, 0.24] },
-      { dt: 0.09, pd: [-0.02, 0.62, T - 0.06], h: 0.96, av: -0.05, d: [-0.02, 1.2, 0.24], colpo: "pd" },
-      { dt: 0.11, pd: [-0.08, 0.36, 0.1], h: 0.94 },
-      guardia(0.1),
-    ],
-  },
-  {
-    nome: "calcio basso alla gamba", bracci: true, peso: 2, chiavi: [
-      { dt: 0.11, pd: [-0.07, 0.45, 0.2], h: 0.94, s: [0.04, 1.24, 0.3] },
-      { dt: 0.08, pd: [-0.02, 0.32, DISTANZA - 0.39], h: 0.93, s: [0.04, 1.24, 0.3], colpo: "pd" },
-      guardia(0.13),
-    ],
-  },
-  {
     nome: "ginocchiata e gomitata", peso: 2, chiavi: [
       { dt: 0.12, ps: [0.1, 0.42, 0.24], h: 0.96, av: 0.04, s: [0.06, 1.3, 0.2], d: [-0.04, 1.25, 0.26], ms: "pugno", md: "pugno" },
       { dt: 0.1, ps: PS, h: 0.92, s: [0.04, 1.32, 0.14], gs: true, ms: "pugno", yaw: -0.35, av: 0.06, colpo: "s" },
@@ -195,15 +183,140 @@ const TECNICHE: Tecnica[] = [
       guardia(0.14),
     ],
   },
+  // i calci del taekwondo, con la gamba di dietro: la carica col ginocchio alto, lo scatto, il ritorno in carica
   {
-    nome: "calcio circolare alto", peso: 1, chiavi: [
-      { dt: 0.14, pd: [-0.25, 0.55, 0.08], yaw: 0.5, h: 0.95, av: -0.06, s: [0.05, 1.28, 0.22], d: [-0.12, 1.2, 0.1] },
-      { dt: 0.11, pd: [-0.05, 1.3, T - 0.04], yaw: 0.85, h: 0.97, av: -0.12, s: [0.08, 1.25, 0.15], d: [-0.2, 1.05, -0.05], colpo: "pd" },
-      { dt: 0.15, pd: [-0.22, 0.45, 0.08], yaw: 0.35, h: 0.95 },
+    nome: "ap chagi", peso: 2, chiavi: [
+      { dt: 0.1, pd: [-0.06, 0.62, 0.22], h: 0.95, s: [0.06, 1.25, 0.22], d: [-0.08, 1.12, 0.05], ms: "pugno", md: "pugno" },
+      { dt: 0.07, pd: [-0.03, 1.05, T - 0.02], h: 0.97, av: -0.07, colpo: "pd" },
+      { dt: 0.09, pd: [-0.06, 0.6, 0.2], h: 0.95 },
+      guardia(0.1),
+    ],
+  },
+  {
+    nome: "dollyo chagi", peso: 2, chiavi: [
+      { dt: 0.11, pd: [-0.32, 0.68, 0.06], yaw: 0.7, h: 0.96, av: -0.04, s: [0.08, 1.28, 0.18], d: [-0.18, 1.12, -0.02], ms: "pugno", md: "pugno" },
+      { dt: 0.08, pd: [-0.04, 1.3, T - 0.03], yaw: 1.15, h: 0.99, av: -0.12, colpo: "pd" },
+      { dt: 0.1, pd: [-0.3, 0.62, 0.04], yaw: 0.7, h: 0.96 },
+      guardia(0.12),
+    ],
+  },
+  {
+    nome: "yeop chagi", peso: 2, chiavi: [
+      { dt: 0.12, ps: [0.1, 0, 0.06], pd: [-0.08, 0.72, 0.02], yaw: 1.35, h: 0.94, av: -0.02, s: [0.12, 1.26, 0.12], d: [-0.12, 1.2, -0.08], ms: "pugno", md: "pugno" },
+      { dt: 0.08, pd: [-0.02, 0.98, T], yaw: 1.45, h: 0.93, av: -0.16, colpo: "pd" },
+      { dt: 0.1, pd: [-0.08, 0.7, 0.04], yaw: 1.35, h: 0.94 },
       guardia(0.14),
     ],
   },
+  {
+    nome: "naeryo chagi", peso: 2, chiavi: [
+      { dt: 0.14, pd: [-0.12, 1.55, 0.3], h: 0.97, av: -0.1, yaw: 0.2, s: [0.08, 1.3, 0.2], d: [-0.1, 1.15, 0.0], ms: "pugno", md: "pugno" },
+      { dt: 0.07, pd: [-0.03, 1.3, T - 0.03], h: 0.95, av: -0.04, colpo: "pd" },
+      { dt: 0.1, pd: [-0.06, 0.5, 0.25], h: 0.94 },
+      guardia(0.12),
+    ],
+  },
+  {
+    nome: "doppio circolare", peso: 1, chiavi: [
+      { dt: 0.1, pd: [-0.3, 0.6, 0.06], yaw: 0.7, h: 0.97, ms: "pugno", md: "pugno" },
+      { dt: 0.07, pd: [-0.04, 1.08, T - 0.03], yaw: 1.1, h: 1.0, av: -0.1, colpo: "pd" },
+      // salto: il destro torna a terra mentre il sinistro si carica e parte
+      { dt: 0.08, pd: [-0.18, 0.04, 0.0], ps: [0.3, 0.62, 0.06], yaw: -0.7, h: 1.0 },
+      { dt: 0.07, ps: [0.04, 1.25, T - 0.03], yaw: -1.1, h: 1.0, av: -0.1, colpo: "ps" },
+      { dt: 0.1, ps: [0.2, 0.3, 0.08], yaw: -0.4, h: 0.95 },
+      guardia(0.12),
+    ],
+  },
 ];
+
+/*
+ * La boxe, lontano dal manichino, come Tyson: guardia peek-a-boo (i pugni alle guance, i gomiti stretti), le
+ * ginocchia piegate, il busto avanti, la testa che non sta mai ferma. Ogni colpo parte dalle gambe: si piega,
+ * si gira sul piede, si risale. Pugni nell'aria davanti a sé (z circa 0,6), senza lampi.
+ */
+const BS: P3 = [0.08, 1.38, 0.2];
+const BD: P3 = [-0.08, 1.36, 0.16];
+const BPS: P3 = [0.15, 0, 0.14];
+const BPD: P3 = [-0.17, 0, -0.12];
+const guardiaBoxe = (dt: number, extra: Partial<Chiave> = {}): Chiave => ({ dt, s: BS, d: BD, ms: "pugno", md: "pugno", ps: BPS, pd: BPD, yaw: -0.25, av: 0.07, h: 0.86, lato: 0, ...extra });
+const BOXE: Tecnica[] = [
+  {
+    nome: "jab doppio", peso: 3, chiavi: [
+      { dt: 0.07, s: [0.04, 1.38, 0.6], yaw: -0.38, av: 0.09, h: 0.85, colpo: "s" },
+      guardiaBoxe(0.08),
+      { dt: 0.07, s: [0.04, 1.37, 0.6], yaw: -0.38, av: 0.09, h: 0.85, colpo: "s" },
+      guardiaBoxe(0.1),
+    ],
+  },
+  {
+    nome: "jab e diretto", peso: 3, chiavi: [
+      { dt: 0.07, s: [0.04, 1.38, 0.6], yaw: -0.38, av: 0.09, colpo: "s" },
+      { dt: 0.08, s: BS, d: [-0.02, 1.36, 0.62], yaw: 0.38, av: 0.11, h: 0.88, pd: [-0.15, 0.03, -0.07], colpo: "d" },
+      guardiaBoxe(0.12),
+    ],
+  },
+  {
+    nome: "gancio sinistro", peso: 2, chiavi: [
+      { dt: 0.06, h: 0.82, yaw: -0.1, lato: 0.04 },
+      { dt: 0.08, s: [-0.12, 1.38, 0.42], bs: true, yaw: 0.5, h: 0.87, ps: [0.15, 0.03, 0.14], colpo: "s" },
+      guardiaBoxe(0.12),
+    ],
+  },
+  {
+    // il colpo di Tyson: piega a destra, gancio destro al corpo, poi lo stesso pugno sale in montante
+    nome: "gancio al corpo e montante", peso: 3, chiavi: [
+      { dt: 0.08, h: 0.79, lato: -0.07, yaw: -0.1, av: 0.12 },
+      { dt: 0.07, d: [0.06, 1.05, 0.4], bd: true, yaw: -0.48, h: 0.8, colpo: "d" },
+      { dt: 0.06, d: [-0.06, 1.1, 0.24], h: 0.79, yaw: 0, lato: -0.03 },
+      { dt: 0.08, d: [-0.02, 1.52, 0.42], h: 0.96, av: 0.02, yaw: 0.28, lato: 0, colpo: "d" },
+      guardiaBoxe(0.14),
+    ],
+  },
+  {
+    nome: "pendolo", peso: 3, chiavi: [
+      { dt: 0.13, h: 0.74, lato: 0.11, yaw: -0.3, av: 0.13 },
+      { dt: 0.15, h: 0.74, lato: -0.11, yaw: 0.12, av: 0.13 },
+      { dt: 0.11, h: 0.86, lato: 0 },
+    ],
+  },
+  {
+    nome: "schivata e due ganci", peso: 2, chiavi: [
+      { dt: 0.07, lato: 0.08, h: 0.83, yaw: -0.38 },
+      { dt: 0.07, s: [-0.06, 1.05, 0.42], bs: true, yaw: 0.3, h: 0.81, colpo: "s" },
+      { dt: 0.07, s: [-0.12, 1.4, 0.42], bs: true, yaw: 0.48, h: 0.88, lato: 0.02, colpo: "s" },
+      guardiaBoxe(0.12),
+    ],
+  },
+];
+
+/** Una ripresa di boxe nell'aria: combinazioni a caso, e fra una e l'altra la testa che si muove. */
+function componiBoxe(durata: number): Posa[] {
+  const P: Posa[] = [];
+  let t = 0;
+  let prima: Posa = { t: 0, s: BS, d: BD, ms: "pugno", md: "pugno", ps: BPS, pd: BPD, h: 0.86, yaw: -0.25, av: 0.07, giro: 0, lato: 0 };
+  const metti = (c: Chiave) => {
+    t += c.dt;
+    const { dt: _dt, ...resto } = c;
+    void _dt;
+    const p: Posa = { ...prima, bs: false, bd: false, gs: false, gd: false, colpo: undefined, ...resto, t, giro: 0 } as Posa;
+    P.push(p);
+    prima = p;
+  };
+  metti(guardiaBoxe(0.4));
+  let ultima = "";
+  while (t < durata) {
+    const possibili = BOXE.filter((k) => k.nome !== ultima);
+    let tot = possibili.reduce((a, k) => a + k.peso, 0) * Math.random();
+    const scelta = possibili.find((k) => (tot -= k.peso) < 0) ?? possibili[0];
+    ultima = scelta.nome;
+    for (const c of scelta.chiavi) metti(c);
+    // la testa in movimento fra una combinazione e l'altra: un dondolo di lato, piegato
+    const quanti = 1 + Math.floor(Math.random() * 2);
+    for (let k = 0; k < quanti; k++) metti(guardiaBoxe(0.16 + Math.random() * 0.1, { lato: (k % 2 ? -1 : 1) * 0.05, h: 0.84 }));
+  }
+  metti(guardiaBoxe(0.3));
+  return P;
+}
 
 const specchia = (v: P3): P3 => [-v[0], v[1], v[2]];
 function aSpecchio(c: Chiave): Chiave {
@@ -221,6 +334,7 @@ function aSpecchio(c: Chiave): Chiave {
     ps: c.pd && specchia(c.pd),
     pd: c.ps && specchia(c.ps),
     yaw: c.yaw === undefined ? undefined : -c.yaw,
+    lato: c.lato === undefined ? undefined : -c.lato,
     colpo: c.colpo && lato[c.colpo],
   };
 }
@@ -364,7 +478,7 @@ export class LivioRasta {
   private tempo = 0;
   private stato: "spento" | "stampa" | "allena" | "libero" = "spento";
   private finoA = 1.5;
-  private forma: "taichi" | "ombra" = "taichi";
+  private forma: "boxe" | "ombra" = "boxe";
   private durataLibera = 0;
   private iniziato = false;
   // appoggi, per non creare oggetti a ogni fotogramma
@@ -558,6 +672,7 @@ export class LivioRasta {
       yaw: n(a.yaw, b.yaw, 0),
       av: n(a.av, b.av, 0),
       giro: n(a.giro, b.giro, 0),
+      lato: n(a.lato, b.lato, 0),
       bs: (u < 0.5 ? a.bs : b.bs) ?? false,
       bd: (u < 0.5 ? a.bd : b.bd) ?? false,
       gs: (u < 0.5 ? a.gs : b.gs) ?? false,
@@ -621,20 +736,19 @@ export class LivioRasta {
     const fine = this.sequenza[this.sequenza.length - 1].t;
     const tc = this.stato === "allena" ? Math.min(this.tempo, fine) : 0;
     if (this.stato === "allena" && this.tempo >= fine) {
-      // finita la sequenza: si stacca dal manichino, col tai chi o coi colpi nell'aria
+      // finita la sequenza: si stacca dal manichino, con una ripresa di boxe o coi colpi nell'aria
       this.stato = "libero";
       this.tempo = 0;
-      this.forma = Math.random() < 0.55 ? "taichi" : "ombra";
-      this.durataLibera = this.forma === "taichi" ? 16 + Math.random() * 6 : 12 + Math.random() * 4;
-      if (this.forma === "ombra") this.sequenza = componi(this.durataLibera - 2.4);
+      this.forma = Math.random() < 0.65 ? "boxe" : "ombra";
+      this.durataLibera = this.forma === "boxe" ? 14 + Math.random() * 6 : 12 + Math.random() * 4;
+      this.sequenza = this.forma === "boxe" ? componiBoxe(this.durataLibera - 2.4) : componi(this.durataLibera - 2.4);
     }
     this.metti(tc, dt, t);
   }
 
   /**
-   * Da solo, staccato dal manichino: un passo indietro (via), poi il tai chi (le mani delle nuvole, lente, col
-   * peso che passa da una gamba all'altra) o i colpi nell'aria (la stessa sequenza, senza legno davanti);
-   * in fondo torna al manichino e riprende.
+   * Da solo, staccato dal manichino: un passo indietro (via), poi una ripresa di boxe (vedi BOXE) o i colpi
+   * nell'aria (la sequenza del Wing Chun, senza legno davanti); in fondo torna al manichino e riprende.
    */
   private daSolo(dt: number, t: number) {
     const T0 = 1.2;
@@ -643,22 +757,17 @@ export class LivioRasta {
     const k = morbido(Math.min(1, this.tempo / T0, Math.max(0, resta) / T0));
     const VIA = 0.55;
     let P: PosaLibera;
-    if (this.forma === "taichi") {
-      const tt = Math.max(0, this.tempo - T0 * 0.5);
-      const f = (tt / 5.2) * Math.PI * 2;
-      const tai: PosaLibera = {
-        s: V(0.08 + 0.2 * Math.sin(f), 1.1 + 0.16 * Math.cos(f), 0.3),
-        d: V(-0.08 + 0.2 * Math.sin(f + Math.PI), 1.1 + 0.16 * Math.cos(f + Math.PI), 0.3),
-        ps: V(0.26, 0, 0.06), pd: V(-0.26, 0, -0.06),
-        h: 0.85 + 0.02 * Math.cos(f * 2), yaw: 0.42 * Math.sin(f), av: 0.02, giro: 0, lato: 0.07 * Math.sin(f), nod: 0.05,
-        bs: false, bd: false, gs: false, gd: false, ms: "palmo", md: "palmo", colpo: null,
-      };
-      const guardia = { ...this.posa(0), nod: 0, lato: 0 };
-      P = mescola(guardia, tai, k);
+    // la sequenza parte dopo il passo indietro; nella boxe le gambe molleggiano sempre, anche fra un colpo e l'altro
+    const tc = Math.min(Math.max(0, this.tempo - T0), this.sequenza[this.sequenza.length - 1].t);
+    const p = this.posa(tc);
+    if (this.forma === "boxe") {
+      const molla = Math.sin(t * 9.5) * 0.012;
+      P = { ...p, h: p.h + molla, lato: p.lato + Math.sin(t * 2.9) * 0.025, nod: 0.06, colpo: null };
     } else {
-      const tc = Math.min(Math.max(0, this.tempo - T0), this.sequenza[this.sequenza.length - 1].t);
-      P = { ...this.posa(tc), nod: 0, lato: 0, colpo: null };
+      P = { ...p, nod: 0, lato: 0, colpo: null };
     }
+    // in partenza e in arrivo il corpo passa per la guardia del legno
+    if (k < 1) P = mescola({ ...this.posaLegno(), nod: 0, lato: 0, colpo: null }, P, k);
     if (resta <= 0) {
       this.stato = "allena";
       this.tempo = 0;
@@ -739,6 +848,11 @@ export class LivioRasta {
 
   private metti(tc: number, dt: number, t: number) {
     this.corpoDa({ ...this.posa(tc), nod: 0, lato: 0 }, dt, t);
+  }
+
+  /** La guardia davanti al legno, ferma: da qui si parte e qui si torna. */
+  private posaLegno(): Omit<PosaLibera, "nod" | "lato" | "colpo"> {
+    return { s: V(...GS), d: V(...GD), ps: V(...PS), pd: V(...PD), h: 0.93, yaw: 0, av: 0, giro: 0, bs: false, bd: false, gs: false, gd: false, ms: "palmo", md: "palmo" };
   }
 
   /**

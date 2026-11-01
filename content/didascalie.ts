@@ -12,6 +12,7 @@ export type IdLuogo =
   | "labirinto"
   | "liotru"
   | "tempio"
+  | "stonehenge"
   | "alhambra"
   | "albaicin"
   | "sacromonte"
@@ -33,6 +34,7 @@ export const didascalie: Record<string, Record<IdLuogo, string>> = {
     labirinto: "Il Labirinto di Arianna di Italo Lanfredini, Fiumara d'Arte",
     liotru: "Catania: u Liotru, l'elefante di pietra lavica",
     tempio: "Un tempio dorico ai piedi dell'Etna: crolla nei secoli, e i fedeli diventano turisti",
+    stonehenge: "Stonehenge all'indietro: dai turisti di oggi all'alba del solstizio, fino a chi trascinò le pietre",
     alhambra: "Granada: l'Alhambra vista dall'Albaicín",
     albaicin: "L'Albaicín, di fronte all'Alhambra: case bianche, cármenes, il mirador di San Nicolás",
     sacromonte: "Il Sacromonte: in cima l'abbazia, sul fianco le cuevas dei gitani",
@@ -53,6 +55,7 @@ export const didascalie: Record<string, Record<IdLuogo, string>> = {
     labirinto: "Ariadne's Labyrinth by Italo Lanfredini, Fiumara d'Arte",
     liotru: "Catania: u Liotru, the lava-stone elephant",
     tempio: "A Doric temple at the foot of Etna: it crumbles over the centuries, and the faithful turn into tourists",
+    stonehenge: "Stonehenge in reverse: from today's tourists back to the solstice dawn, and to those who dragged the stones",
     alhambra: "Granada: the Alhambra seen from the Albaicín",
     albaicin: "The Albaicín, facing the Alhambra: white houses, cármenes, the San Nicolás viewpoint",
     sacromonte: "The Sacromonte: the abbey on top, the gitano cave houses on its flank",
@@ -73,6 +76,7 @@ export const didascalie: Record<string, Record<IdLuogo, string>> = {
     labirinto: "El Laberinto de Ariadna de Italo Lanfredini, Fiumara d'Arte",
     liotru: "Catania: u Liotru, el elefante de piedra volcánica",
     tempio: "Un templo dórico al pie del Etna: se derrumba con los siglos, y los fieles se vuelven turistas",
+    stonehenge: "Stonehenge al revés: de los turistas de hoy al alba del solsticio, hasta quienes arrastraron las piedras",
     alhambra: "Granada: la Alhambra vista desde el Albaicín",
     albaicin: "El Albaicín, frente a la Alhambra: casas blancas, cármenes, el mirador de San Nicolás",
     sacromonte: "El Sacromonte: arriba la abadía, en la ladera las cuevas de los gitanos",

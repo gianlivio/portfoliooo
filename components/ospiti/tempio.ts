@@ -42,7 +42,7 @@ const GRONDA = IMPOSTA + ARCHITRAVE + FREGIO + CORNICE;
 const FRONTONE = 0.36;
 const CIMA = GRONDA + FRONTONE;
 
-const VERT = /* glsl */ `
+export const VERT = /* glsl */ `
 varying vec3 vNw;
 varying vec3 vV;
 varying vec3 vW;
@@ -54,7 +54,7 @@ void main(){
   gl_Position = projectionMatrix * viewMatrix * w;
 }`;
 
-const FRAG = /* glsl */ `
+export const FRAG = /* glsl */ `
 uniform float uT;
 uniform float uVis;
 uniform float uBase;
@@ -86,7 +86,7 @@ void main(){
   #include <colorspace_fragment>
 }`;
 
-const LINEA_VERT = /* glsl */ `
+export const LINEA_VERT = /* glsl */ `
 varying vec3 vW;
 void main(){
   vec4 w = modelMatrix * vec4(position, 1.0);
@@ -94,7 +94,7 @@ void main(){
   gl_Position = projectionMatrix * viewMatrix * w;
 }`;
 
-const LINEA_FRAG = /* glsl */ `
+export const LINEA_FRAG = /* glsl */ `
 uniform float uVis;
 uniform float uBase;
 uniform float uTaglio;
