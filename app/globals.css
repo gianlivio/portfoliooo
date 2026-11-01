@@ -567,10 +567,11 @@ html[data-tema="chiaro"] .olio-scrivimi{color:#FBFAF7}
 
 /* ---------- le didascalie dei luoghi della stanza: una riga sopra il luogo, al passaggio o al tocco ---------- */
 .didascalia{
-  position:absolute;left:0;top:0;z-index:5;pointer-events:none;max-width:min(26rem,80vw);
-  padding:.45rem .8rem;border-radius:999px;
+  position:absolute;left:0;top:0;z-index:5;pointer-events:none;max-width:min(30rem,82vw);
+  padding:.5rem .9rem;border-radius:10px;
   background:rgba(14,13,18,.72);color:#F3F1EB;border:1px solid rgba(243,241,235,.18);
-  font-family:var(--mono);font-size:.7rem;letter-spacing:.04em;line-height:1.35;text-align:center;
+  /* le didascalie sono note da taccuino di viaggio: corsivo, su più righe */
+  font-family:var(--serif);font-style:italic;font-size:.92rem;letter-spacing:0;line-height:1.35;text-align:center;
   backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
   opacity:0;transition:opacity .25s ease;white-space:normal;
 }
