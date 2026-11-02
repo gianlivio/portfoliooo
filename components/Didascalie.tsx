@@ -34,7 +34,6 @@ const ANCORE: Ancora[] = [
   { id: "flamenco", a: 0.11, d: 24, y: PELO_ACQUA + 3.4, quando: "giorno" },
   { id: "bologna", a: -1.16, d: 41.5, y: SU + 7, quando: "sempre" },
   { id: "rave", a: -1.57, d: 39.5, y: PELO_ACQUA - 0.3 + 2.95 + 2.6, quando: "notte" },
-  { id: "lunaPark", a: 1.72, d: 38, y: SU + 9, quando: "notte" },
   { id: "petrolchimico", a: -2.1, d: 40, y: SU + 5, quando: "notte" },
 ];
 const RAGGIO = 90; // pixel
