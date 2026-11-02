@@ -837,7 +837,7 @@ function Riviera({ notte, ridotto }: { notte: boolean; ridotto: boolean }) {
   return <primitive object={riva.gruppo} />;
 }
 
-/** Di notte, fra il luna park e la città, un rave sul pianoro. */
+/** Di notte, sui colli di Bologna accanto a San Luca, il rave di Montedonato. */
 function FestaLibera({ notte, ridotto }: { notte: boolean; ridotto: boolean }) {
   const [rave] = useState(() => new Rave(notte));
   useEffect(() => () => rave.libera(), [rave]);

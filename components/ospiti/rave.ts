@@ -5,19 +5,25 @@ import { ANGOLO_ZONA } from "../zona";
 import { alone, bruma, generatore, liberaTutto, tela } from "./comuni";
 
 /*
- * Di notte, fra il luna park e la città, un rave in corso su un pianoro di campagna: il muro di casse
+ * Di notte, sui colli di Bologna accanto a San Luca, il rave di Montedonato: il muro di casse
  * nere col bordo di led, i laser che spazzano il cielo, i fari a cono, lo stroboscopio a tempo, la foschia
  * colorata; la folla che salta, molti con le braccia alzate; tutt'attorno i camper coi finestrini accesi,
  * i furgoni e i camion; fuori dalle transenne le volanti della polizia coi lampeggianti blu e gli agenti.
- * Sta nel varco fra due carte (2,47, dove di giorno c'è il Perito Moreno) e sul pianoro alto, perché
- * il muro, la folla e i laser spuntino sopra le carte. Tutto a materiale semplice, senza luci vere.
+ * Piccolo, su un colle tondo suo, appena a sinistra del Colle della Guardia (San Luca sta a −1,45): nel varco
+ * fra due carte, e sopra il bordo della più bassa, perché il muro, la folla e i laser si vedano.
+ * Il posto di prima (2,47, sopra il Perito Moreno) resta libero. Tutto a materiale semplice, senza luci vere.
  */
 
-const A = ANGOLO_ZONA + 2.47;
-const D = 31;
+const A = ANGOLO_ZONA - 1.57;
+const D = 39.5;
 const SU = PELO_ACQUA - 0.3;
-/** l'altezza del pianoro sopra l'acqua */
+/** tutto il rave in piccolo, e il colle alzato quanto basta a portarne la cima sopra le carte */
+const SCALA = 0.34;
+const ALZO = 2.95;
+/** l'altezza del pianoro sopra la base del gruppo, in unità del rave */
 const H = 5.2;
+/** quanto scende il colle sotto la base, fino sotto il pelo dell'acqua, in unità del rave */
+const FONDO = (ALZO + 0.4) / SCALA;
 const BPM = 142;
 
 type Pezzi = THREE.BufferGeometry[];
@@ -68,14 +74,15 @@ export class Rave {
 
   constructor(notte: boolean) {
     const g = this.gruppo;
-    g.position.set(Math.sin(A) * D, SU, -Math.cos(A) * D);
+    g.position.set(Math.sin(A) * D, SU + ALZO, -Math.cos(A) * D);
     g.rotation.y = Math.PI - A;
+    g.scale.setScalar(SCALA);
     const r = generatore(42);
     const scuro = new THREE.MeshBasicMaterial({ vertexColors: true, fog: false });
 
-    // il pianoro: piatto in cima, scende ripido verso l'acqua; terra scura, appena illuminata dal rave
+    // Montedonato: piatto in cima, poi un colle tondo che scende fin sotto l'acqua; terra scura, appena illuminata dal rave
     {
-      const geo = new THREE.PlaneGeometry(40, 28, 80, 56).rotateX(-Math.PI / 2).translate(0, 0, 1);
+      const geo = new THREE.PlaneGeometry(64, 44, 96, 66).rotateX(-Math.PI / 2).translate(0, 0, 1);
       const pos = geo.attributes.position as THREE.BufferAttribute;
       const col = new Float32Array(pos.count * 3);
       const c = new THREE.Color();
@@ -83,8 +90,8 @@ export class Rave {
         const x = pos.getX(i), z = pos.getZ(i);
         // piatto fin oltre i camper e le volanti, poi giù ripido
         const t = Math.hypot(x / 14, (z - 1) / 9.5);
-        const k = t < 1 ? 1 : t > 1.35 ? 0 : 1 - THREE.MathUtils.smoothstep(t, 1, 1.35);
-        pos.setY(i, -0.6 + (H + 0.6) * k + 0.08 * Math.sin(x * 1.7 + z));
+        const k = t < 1 ? 1 : 1 - THREE.MathUtils.smoothstep(t, 1, 2.1);
+        pos.setY(i, -FONDO + (H + FONDO) * k + 0.08 * Math.sin(x * 1.7 + z));
         // al centro la terra battuta riflette un poco le luci del palco
         const luce = Math.exp(-(x * x) / 30 - ((z - 1) * (z - 1)) / 10);
         c.setRGB(0.05, 0.045, 0.05).lerp(new THREE.Color(0.16, 0.08, 0.2), luce * k);
