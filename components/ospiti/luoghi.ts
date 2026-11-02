@@ -217,10 +217,11 @@ function sanGiorgio(p: Pezzi) {
 /** La pagoda della pace del reverendo Morishita: due terrazze bianche, lo stupa, la guglia dorata, la nicchia del Buddha. Base a y = 0. */
 function pagoda(p: Pezzi) {
   // il podio di pietra bianca, che affonda nel promontorio: la pagoda poggia, non galleggia
-  blocco(p, 0, -2.2, 0, 3.4, 2.7, 3.4, "#F3F1EC");
-  blocco(p, 0, 0.5, 0, 2.6, 0.45, 2.6, "#F3F1EC");
-  cupola(p, 0, 0.95, 0, 1.15, "#FAF9F6", 0.85);
-  blocco(p, 0, 1.92, 0, 0.5, 0.25, 0.5, "#F3F1EC");
+  // bianca come quella vera, ma appena calda e senza velo di lontananza: contro il cielo chiaro si perdeva
+  blocco(p, 0, -2.2, 0, 3.4, 2.7, 3.4, "#E9E2D2", 0.04);
+  blocco(p, 0, 0.5, 0, 2.6, 0.45, 2.6, "#E9E2D2", 0.04);
+  cupola(p, 0, 0.95, 0, 1.15, "#F4EFE4", 0.85, 0.04);
+  blocco(p, 0, 1.92, 0, 0.5, 0.25, 0.5, "#E9E2D2", 0.04);
   for (let k = 0; k < 7; k++) tamburo(p, 0, 2.17 + k * 0.14, 0, 0.2 - k * 0.022, 0.08, "#D4A73C");
   p.push(colora(new THREE.ConeGeometry(0.06, 0.5, 8).translate(0, 3.35, 0), "#D4A73C", 0.18));
   blocco(p, 0, 1.05, -1.12, 0.5, 0.6, 0.06, "#C9A04A");
@@ -291,10 +292,12 @@ function colleBarocco() {
   const p: Pezzi = [];
   const r = generatore(19);
   const sx = 0.6, sz = 0.6;
-  const px = 4.4, pz = 0.4;
+  // la pagoda più a sinistra e più in alto, su un poggio suo: prima stava dietro il pilastro del cancello dell'uliveto;
+  // così spunta sopra l'arco del cancello, fra i due pinnacoli
+  const px = 6.8, pz = 0.4;
   // lo sperone, col promontorio della pagoda sul fianco sinistro (+x è la sinistra di chi guarda)
   const sperone = (x: number, z: number) =>
-    Math.max(0, 5.2 * Math.exp(-((x * x) / 30 + ((z - 1.2) * (z - 1.2)) / 9)) + 1.6 * (1 - THREE.MathUtils.smoothstep(Math.hypot((x - px) / 1.6, (z - pz) / 1.4), 0.7, 1.6)) + 0.1 * Math.sin(x * 2 + z)) - 0.3;
+    Math.max(0, 5.2 * Math.exp(-((x * x) / 30 + ((z - 1.2) * (z - 1.2)) / 9)) + 3.5 * (1 - THREE.MathUtils.smoothstep(Math.hypot((x - px) / 2.3, (z - pz) / 1.9), 0.8, 1.75)) + 0.1 * Math.sin(x * 2 + z)) - 0.3;
   // tutt'attorno la campagna scende fin sotto il pavimento, a terrazzamenti: il colle non resta sospeso nel
   // vuoto. Da quaggiù si vedono le alzate, cioè i muretti a secco, più che i campi in piano: per questo i gradini.
   const discesa = (x: number, z: number) => 3.6 * THREE.MathUtils.smoothstep(Math.hypot(x / 10, (z - 1) / 5), 0.7, 1.45);
@@ -377,7 +380,7 @@ function colleBarocco() {
   }
   // in cima San Giorgio; sul promontorio la pagoda; in basso l'Annunziata e la Chiesa Madre
   insieme(p, sx, colle(sx, sz) - 0.15, sz, 0.75, sanGiorgio);
-  insieme(p, px, colle(px, pz) - 0.05, pz, 0.6, pagoda);
+  insieme(p, px, colle(px, pz) - 0.05, pz, 0.85, pagoda);
   insieme(p, ax, colle(ax, fz) - 0.1, fz, 0.42, annunziata);
   insieme(p, cmx, colle(cmx, fz) - 0.1, fz, 0.42, chiesaMadre);
   // l'Itria: la cupola di maiolica blu a strisce bianche sul suo tamburo, il campanile con la cuspide
