@@ -25,7 +25,7 @@ export const RACCOLTA_LONTANA = new THREE.Vector3(1, 0, -39);
 const VISTA_LONTANA = new THREE.Vector3(9.5, 0, -27);
 /** Dietro casa: la raccolta davanti a chi arriva dal pollaio. */
 export const RACCOLTA_CASA = new THREE.Vector3(-16, 0, -54);
-const VISTA_CASA = new THREE.Vector3(-16, 0, -41);
+const VISTA_CASA = new THREE.Vector3(-11, 0, -40.5);
 
 /**
  * I tre alberi della raccolta (quelli con le reti) e un punto sotto ciascuno, nella chioma, dalla parte

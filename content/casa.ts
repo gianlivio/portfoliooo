@@ -162,7 +162,7 @@ export const ZONE: Zona[] = [
       "Tonda iblea, nocellara and moresca.",
       "Tonda iblea, nocellara y moresca."
     ),
-    camera: [-16, 1.7, -41],
+    camera: [-11, 1.7, -40.5],
     guarda: [-24, 1.6, -62],
     segno: [-22, 4.6, -56],
     livio: [-15.2, 0, -46.8],
@@ -669,7 +669,7 @@ const video = (n: string) => ({ tipo: "video" as const, src: `/olio/video/${n}.m
 export const QUADRI: Quadro[] = [
   { id: "caffe", ...foto("caffe"), didascalia: t("Pausa caffè in campagna", "Coffee break in the grove", "Pausa para el café en el campo"), zona: "agrumeto", p: [1.0, 0, 22.6] },
   { id: "ulivo", ...video("ulivo"), didascalia: t("Un ulivo", "One of the olive trees", "Uno de los olivos"), zona: "uliveto", p: [-20.5, 0, -50.5] },
-  { id: "oliva", ...foto("oliva"), didascalia: t("L'oliva all'invaiatura", "An olive at veraison", "Una aceituna en envero"), zona: "uliveto", p: [-25.5, 0, -47.5] },
+  { id: "oliva", ...foto("oliva"), didascalia: t("L'oliva all'invaiatura", "An olive at veraison", "Una aceituna en envero"), zona: "uliveto", p: [-23.5, 0, -46.5] },
   { id: "carico", ...video("carico"), didascalia: t("Mia madre, col carico del giorno", "My mother, with the day's load", "Mi madre, con la carga del día"), zona: "chiaramonte", p: altrove([9.6, 0, -35.4]) },
   { id: "pranzo", ...foto("pranzo"), didascalia: t("Il pranzo, sulle cassette", "Lunch, on the crates", "El almuerzo, sobre las cajas"), zona: "chiaramonte", p: altrove([8.8, 0, -43]) },
   { id: "raccolta-reti", ...video("raccolta-reti"), didascalia: t("Si raccolgono le reti", "Gathering the nets", "Recogiendo las redes"), zona: "chiaramonte", p: altrove([-2.6, 0, -33.2]) },
