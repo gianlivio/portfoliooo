@@ -23,7 +23,7 @@ const CENTRO_IBLEI = 0.5;
 function crinale(a: number, rumore: number) {
   let d = Math.atan2(Math.sin(a - CENTRO_IBLEI), Math.cos(a - CENTRO_IBLEI));
   d /= 0.95;
-  return 5 + rumore * 3 + 32 * Math.exp(-d * d);
+  return 7 + rumore * 3 + 52 * Math.exp(-d * d);
 }
 
 function Iblei() {
@@ -208,9 +208,9 @@ export default function Orizzonte() {
       <group ref={casa}>
         <Iblei />
         <Sagoma a={ETNA} r={560} l={300} h={112} y={-6} mappa={etna} />
-        <Sagoma a={CHIARAMONTE} r={386} l={60} h={15} y={hChiaramonte - 4} mappa={paese} />
-        <Sagoma a={VITTORIA} r={300} l={170} h={21} mappa={vittoria} />
-        <Sagoma a={COMISO} r={300} l={120} h={20} mappa={comiso} />
+        <Sagoma a={CHIARAMONTE} r={386} l={80} h={20} y={hChiaramonte - 6} mappa={paese} />
+        <Sagoma a={VITTORIA} r={300} l={210} h={30} y={2} mappa={vittoria} />
+        <Sagoma a={COMISO} r={330} l={150} h={30} y={8} mappa={comiso} />
       </group>
       <group ref={via}>
         <Sagoma a={ETNA} r={560} l={300} h={112} y={-6} mappa={etna} centro={[ALTROVE[0], ALTROVE[2]]} />
