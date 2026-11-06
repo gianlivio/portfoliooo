@@ -132,10 +132,10 @@ export const ZONE: Zona[] = [
       "A courtyard inside the house, with white walls all around: the olive tree in the middle, the wood-fired oven and, along the house, a large old wooden portico.",
       "Un patio dentro de la casa, con muros blancos alrededor: el olivo en el centro, el horno de leña y, a lo largo de la casa, un gran porche antiguo de madera."
     ),
-    camera: [CAVEDIO.varco, 1.7, CAVEDIO.z1 - 1.2],
-    guarda: [-4, 1.6, -35.5],
+    camera: [CAVEDIO.x0 + 1, 2.3, CAVEDIO.z1 - 1.2],
+    guarda: [-4, 1.5, -37],
     segno: [ULIVO_CAVEDIO[0], 5.6, ULIVO_CAVEDIO[1]],
-    livio: [-11.6, 0, -29.4],
+    livio: [-11.2, 0, -26.6],
   },
   {
     id: "pollaio",

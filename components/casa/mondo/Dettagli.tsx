@@ -291,7 +291,7 @@ function Cavedio() {
   );
   const ulivo = useMemo(() => albero(777, 1.15, 0.66), []);
   const corteccia = useMemo(() => textura("corteccia-colore.webp", true, [2, 2]), []);
-  const m = useMemo(() => posa(ULIVO_CAVEDIO[0], 0, ULIVO_CAVEDIO[1], 0.6, [2.3, 2.1, 2.3]), []);
+  const m = useMemo(() => posa(ULIVO_CAVEDIO[0], 0, ULIVO_CAVEDIO[1], 0.6, [1.85, 1.75, 1.85]), []);
   return (
     <group>
       {muri.map(([x1, z1, x2, z2], i) => {
@@ -337,8 +337,8 @@ function Cavedio() {
       <mesh geometry={ulivo.frondeGeo} matrixAutoUpdate={false} matrix={m} castShadow receiveShadow>
         <meshLambertMaterial color="#76885A" flatShading />
       </mesh>
-      <mesh position={[ULIVO_CAVEDIO[0], 0.15, ULIVO_CAVEDIO[1]]}>
-        <torusGeometry args={[1.25, 0.16, 6, 24]} />
+      <mesh position={[ULIVO_CAVEDIO[0], 0.12, ULIVO_CAVEDIO[1]]} rotation-x={-Math.PI / 2}>
+        <torusGeometry args={[1.1, 0.16, 6, 24]} />
         <meshLambertMaterial color="#D8CDB8" />
       </mesh>
       <Portico />
