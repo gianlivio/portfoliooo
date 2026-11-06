@@ -3,7 +3,7 @@
 import * as THREE from "three";
 import { useEffect, useMemo, useState } from "react";
 import { generatore, modello, posa, scatola, textura } from "./base";
-import { AGRUMETO, AIA, ALTROVE, CORPI, POLLAIO, PRATO, SIEPI, STRADA, STRADE_LONTANE } from "@/content/casaLuoghi";
+import { AGRUMETO, AIA, ALTROVE, CAPANNO, CAVEDIO, CORPI, POLLAIO, PRATO, SIEPI, STRADA, STRADE_LONTANE } from "@/content/casaLuoghi";
 
 /*
  * La terra rossa, la strada di campagna, l'aia, il prato della piscina con le siepi; a Chiaramonte le trazzere
@@ -174,6 +174,8 @@ export function occupato(x: number, z: number) {
   if (x > PRATO.x0 && x < PRATO.x1 && z > PRATO.z0 && z < PRATO.z1) return true;
   if (x > AGRUMETO.x0 - 1 && x < AGRUMETO.x1 + 1 && z > AGRUMETO.z0 - 1 && z < AGRUMETO.z1 + 1) return true;
   if (Math.abs(x - POLLAIO.x) < POLLAIO.l / 2 + 1 && Math.abs(z - POLLAIO.z) < POLLAIO.p / 2 + 1) return true;
+  if (x > CAVEDIO.x0 - 0.8 && x < CAVEDIO.x1 + 0.8 && z > CAVEDIO.z0 - 0.8 && z < CAVEDIO.z1 + 0.8) return true;
+  if (Math.abs(x - CAPANNO.x) < CAPANNO.l / 2 + 1 && Math.abs(z - CAPANNO.z) < CAPANNO.p / 2 + 1) return true;
   if (x > -21 && x < -7 && z > -51 + OZ && z < -38 + OZ) return true; // frantoio
   return false;
 }
@@ -282,19 +284,19 @@ function Siepi() {
   const geo = useMemo(() => {
     const parti = SIEPI.map(([x1, z1, x2, z2]) => {
       const l = Math.hypot(x2 - x1, z2 - z1);
-      const g = new THREE.BoxGeometry(l, 1.9, 1.1, Math.max(1, Math.round(l / 1.2)), 3, 1);
+      const g = new THREE.BoxGeometry(l, 1.05, 0.9, Math.max(1, Math.round(l / 1.2)), 3, 1);
       // un poco irregolare, come una siepe vera
       const pos = g.attributes.position as THREE.BufferAttribute;
       const caso = generatore(Math.round(l * 13));
       for (let i = 0; i < pos.count; i++) {
-        if (Math.abs(pos.getY(i)) > 0.9 || Math.abs(pos.getZ(i)) > 0.5) {
+        if (Math.abs(pos.getY(i)) > 0.5 || Math.abs(pos.getZ(i)) > 0.4) {
           pos.setZ(i, pos.getZ(i) * (0.85 + caso() * 0.35));
           pos.setY(i, pos.getY(i) + (pos.getY(i) > 0 ? caso() * 0.18 : 0));
         }
       }
       g.computeVertexNormals();
       g.rotateY(-Math.atan2(z2 - z1, x2 - x1));
-      g.translate((x1 + x2) / 2, 0.95, (z1 + z2) / 2);
+      g.translate((x1 + x2) / 2, 0.52, (z1 + z2) / 2);
       return g.toNonIndexed();
     });
     return parti;
@@ -318,7 +320,6 @@ export default function Terreno({ ridotto }: { ridotto: boolean }) {
       <Prato />
       <Siepi />
       <Muretti />
-      <Colline />
       <Colline centro={[ALTROVE[0], ALTROVE[2] - 40]} alte={1.9} />
       <Sparsi ridotto={ridotto} />
     </group>

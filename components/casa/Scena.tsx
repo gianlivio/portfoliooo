@@ -15,7 +15,23 @@ import Oggetti from "./mondo/Oggetti";
 import Quadri from "./mondo/Quadri";
 import Furgone, { Cartello, Cassone } from "./mondo/Furgone";
 import Percorsi from "./mondo/Percorsi";
-import { ALTROVE, CARTELLO_CASA, CASSONE, CORPI, CORTILE, PISCINA, POLLAIO, TRATTORE_CASA, altrove } from "@/content/casaLuoghi";
+import Dettagli from "./mondo/Dettagli";
+import Orizzonte from "./mondo/Orizzonte";
+import { ALTROVE, CAPANNO, CARTELLO_CASA, CASSONE, CAVEDIO, CORPI, CORTILE, PERIMETRO, PISCINA, POLLAIO, TRATTORE_CASA, altrove } from "@/content/casaLuoghi";
+
+/** Due segmenti [a, b] e [c, d] si incrociano? */
+function incrocia(ax: number, az: number, bx: number, bz: number, cx: number, cz: number, dx: number, dz: number) {
+  const o = (px: number, pz: number, qx: number, qz: number, rx: number, rz: number) => Math.sign((qx - px) * (rz - pz) - (qz - pz) * (rx - px));
+  return o(ax, az, bx, bz, cx, cz) !== o(ax, az, bx, bz, dx, dz) && o(cx, cz, dx, dz, ax, az) !== o(cx, cz, dx, dz, bx, bz);
+}
+/** Il muretto attorno alla proprietà non si scavalca: si passa dal cancello. */
+function scavalca(px: number, pz: number, x: number, z: number) {
+  for (let i = 0; i < PERIMETRO.length - 1; i++) {
+    const [ax, az] = PERIMETRO[i], [bx, bz] = PERIMETRO[i + 1];
+    if (incrocia(px, pz, x, z, ax, az, bx, bz)) return true;
+  }
+  return false;
+}
 
 export type Modo = "guida" | "cammina";
 export type Movimento = { x: number; y: number };
@@ -53,12 +69,19 @@ function bloccato(px: number, pz: number, x: number, z: number) {
   // il cortile: si entra solo dal varco nel muro basso
   const nelCortile = (u: number, v: number) => Math.abs(u - CORTILE.x) < CORTILE.l / 2 && Math.abs(v - CORTILE.z) < CORTILE.p / 2;
   if (nelCortile(px, pz) !== nelCortile(x, z) && Math.abs(x - 10.2) > 1) return true;
+  // il cavedio: si entra solo dal varco nel muro verso l'aia, o dal porticato (che sta dentro)
+  const nelCavedio = (u: number, v: number) => u > CAVEDIO.x0 && u < CAVEDIO.x1 && v > CAVEDIO.z0 && v < CAVEDIO.z1;
+  if (nelCavedio(px, pz) !== nelCavedio(x, z) && !(Math.abs(x - CAVEDIO.varco) < 1.1 && Math.abs(z - CAVEDIO.z1) < 1)) return true;
+  // il capanno
+  if (Math.abs(x - CAPANNO.x) < CAPANNO.l / 2 + 0.3 && Math.abs(z - CAPANNO.z) < CAPANNO.p / 2 + 0.3) return true;
+  // il muretto attorno a tutto
+  if (scavalca(px, pz, x, z)) return true;
   // la vasca
   const ex = (x - PISCINA.x) / (PISCINA.l / 2 + 0.2), ez = (z - PISCINA.z) / (PISCINA.p / 2 + 0.2);
   if (ex * ex + ez * ez < 1) return true;
   // il recinto delle galline: il varco sul lato verso la casa
   const nelRecinto = (u: number, v: number) => Math.abs(u - POLLAIO.x) < POLLAIO.l / 2 && Math.abs(v - POLLAIO.z) < POLLAIO.p / 2;
-  if (nelRecinto(px, pz) !== nelRecinto(x, z) && !(Math.abs(z - POLLAIO.z) < 0.7 && x > POLLAIO.x)) return true;
+  if (nelRecinto(px, pz) !== nelRecinto(x, z) && !(Math.abs(z - POLLAIO.z) < 0.7 && x < POLLAIO.x)) return true;
   // il frantoio: muri dietro e ai lati, aperto davanti (verso +z)
   const fz = (q: number) => q - ALTROVE[2];
   const nelFrantoio = (u: number, v: number) => u > -19.3 && u < -8.7 && fz(v) > -49.8 && fz(v) < -42.4;
@@ -159,9 +182,10 @@ const AREE: [ZonaId, number, number][] = [
   ["arrivo", -7, 44],
   ["agrumeto", 7, 20],
   ["piscina", -21, 12],
-  ["casa", 3, -4],
-  ["pollaio", -12, -28],
-  ["uliveto", -24, -56],
+  ["casa", 4, -4],
+  ["cavedio", -7.5, -31],
+  ["pollaio", 4, -46],
+  ["uliveto", -26, -58],
   ["chiaramonte", 6, -50 + ALTROVE[2]],
   ["frantoio", -14, -43 + ALTROVE[2]],
 ];
@@ -593,6 +617,8 @@ export default function Scena(props: Props & { testi: { andata: string; ritorno:
         testi={props.testi}
       />
       <Terreno ridotto={props.stretto} />
+      <Orizzonte />
+      <Dettagli lingua={props.lingua} />
       <CasaInCampagna faseAgrumeto={props.fasi.agrumeto} />
       <Uliveto fase={props.fasi.uliveto} dove="casa" />
       <group position={ALTROVE}>

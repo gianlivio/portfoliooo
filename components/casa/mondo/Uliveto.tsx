@@ -25,7 +25,7 @@ export const RACCOLTA_LONTANA = new THREE.Vector3(1, 0, -39);
 const VISTA_LONTANA = new THREE.Vector3(9.5, 0, -27);
 /** Dietro casa: la raccolta davanti a chi arriva dal pollaio. */
 export const RACCOLTA_CASA = new THREE.Vector3(-16, 0, -54);
-const VISTA_CASA = new THREE.Vector3(-6, 0, -40);
+const VISTA_CASA = new THREE.Vector3(-16, 0, -41);
 
 /**
  * I tre alberi della raccolta (quelli con le reti) e un punto sotto ciascuno, nella chioma, dalla parte
@@ -52,7 +52,7 @@ export function useRaccolta(dove: "casa" | "lontano" = "lontano") {
 export function useUliviCasa() {
   return useMemo(() => {
     const caso = generatore(1987);
-    return ULIVI_CASA.filter(([x, z]) => !vicinoAUnaFoto(x, z, 2)).map(([x, z, r]): Albero => {
+    return ULIVI_CASA.filter(([x, z]) => !vicinoAUnaFoto(x, z, 2) && !occupato(x, z)).map(([x, z, r]): Albero => {
       const s = THREE.MathUtils.clamp(0.75 + r * 0.6, 1.05, 2.1) * (0.92 + caso() * 0.16), ry = caso() * 6.28;
       return { x, z, ry, s, m: posa(x, 0, z, ry, [s * 1.05, s, s * 1.05]) };
     });

@@ -4,7 +4,20 @@ import * as THREE from "three";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useFrame } from "@react-three/fiber";
 import { albero, generatore, modello, posa, scatola, smorza, textura } from "./base";
-import { AGRUMI, ALBERI_INTORNO, CORPI, CORTILE, GRANDI_ALBERI, PISCINA, POLLAIO, POZZO, type Corpo } from "@/content/casaLuoghi";
+import { AGRUMI, ALBERI_INTORNO, CORPI, CORTILE, GRANDI_ALBERI, PERIMETRO, PISCINA, POLLAIO, POZZO, type Corpo } from "@/content/casaLuoghi";
+import { occupato } from "./Terreno";
+
+/** Quanto dista un punto dal muretto a secco del perimetro. */
+function dalMuretto(x: number, z: number) {
+  let d = Infinity;
+  for (let i = 0; i < PERIMETRO.length - 1; i++) {
+    const [ax, az] = PERIMETRO[i], [bx, bz] = PERIMETRO[i + 1];
+    const dx = bx - ax, dz = bz - az;
+    const k = Math.max(0, Math.min(1, ((x - ax) * dx + (z - az) * dz) / (dx * dx + dz * dz)));
+    d = Math.min(d, Math.hypot(x - (ax + k * dx), z - (az + k * dz)));
+  }
+  return d;
+}
 
 /*
  * La casa in campagna: i corpi bianchi a tetto piano, coi pannelli solari sul tetto del corpo alto; il cortile
@@ -210,11 +223,11 @@ function Cortile({ muro }: { muro: THREE.Material }) {
         <meshLambertMaterial color="#CFC4B0" />
       </mesh>
       {/* il muro basso verso l'aia, col varco; quello alto a est */}
-      <mesh material={muro} position={[(x0 + POZZO[0] - 1.1) / 2, 0.55, z1]} castShadow>
-        <boxGeometry args={[POZZO[0] - 1.1 - x0, 1.1, 0.3]} />
+      <mesh material={muro} position={[(x0 + POZZO[0] - 1.6) / 2, 0.3, z1]} castShadow>
+        <boxGeometry args={[POZZO[0] - 1.6 - x0, 0.6, 0.3]} />
       </mesh>
-      <mesh material={muro} position={[(POZZO[0] + 1.1 + x1) / 2, 0.55, z1]} castShadow>
-        <boxGeometry args={[x1 - POZZO[0] - 1.1, 1.1, 0.3]} />
+      <mesh material={muro} position={[(POZZO[0] + 1.6 + x1) / 2, 0.3, z1]} castShadow>
+        <boxGeometry args={[x1 - POZZO[0] - 1.6, 0.6, 0.3]} />
       </mesh>
       <mesh material={muro} position={[x1, 1.1, c.z]} castShadow>
         <boxGeometry args={[0.3, 2.2, c.p]} />
@@ -422,13 +435,13 @@ function Pollaio() {
   const rete = useMemo(() => texturaRete(), []);
   const lati = useMemo(() => {
     const x0 = p.x - p.l / 2, x1 = p.x + p.l / 2, z0 = p.z - p.p / 2, z1 = p.z + p.p / 2;
-    // il varco sul lato verso la casa (+x)
+    // il varco sul lato ovest, da dove arriva il sentiero
     return [
       [x0, z0, x1, z0],
       [x0, z1, x1, z1],
-      [x0, z0, x0, z1],
-      [x1, z0, x1, p.z - 0.7],
-      [x1, p.z + 0.7, x1, z1],
+      [x1, z0, x1, z1],
+      [x0, z0, x0, p.z - 0.7],
+      [x0, p.z + 0.7, x0, z1],
     ] as [number, number, number, number][];
   }, [p]);
   const legno = useMemo(() => new THREE.MeshLambertMaterial({ color: "#7A5A3C" }), []);
@@ -457,7 +470,7 @@ function Pollaio() {
         );
       })}
       {/* la casetta, nell'angolo in fondo */}
-      <group position={[p.x - p.l / 2 + 1.7, 0, p.z - p.p / 2 + 1.4]}>
+      <group position={[p.x + p.l / 2 - 1.7, 0, p.z - p.p / 2 + 1.4]}>
         <mesh material={legno} position={[0, 0.85, 0]} castShadow receiveShadow>
           <boxGeometry args={[2.6, 1.7, 2]} />
         </mesh>
@@ -496,7 +509,7 @@ function Alberi() {
   const grandi = useMemo(() => GRANDI_ALBERI.map(([x, z, s], i) => posa(x, 0, z, generatore(11 + i * 13)() * 6.28, [s * 2.3, s * 1.9, s * 2.3])), []);
   const intorno = useMemo(() => {
     const caso = generatore(707);
-    return ALBERI_INTORNO.map(([x, z, r]) => {
+    return ALBERI_INTORNO.filter(([x, z]) => dalMuretto(x, z) > 1.8 && !occupato(x, z)).map(([x, z, r]) => {
       const s = THREE.MathUtils.clamp(0.8 + r * 0.62, 1.1, 2.3);
       return posa(x, 0, z, caso() * 6.28, [s * 1.05, s, s * 1.05]);
     });

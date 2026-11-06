@@ -44,12 +44,48 @@ export const POZZO: P3 = [10.2, 0, -17.6];
 export const PISCINA = { x: -20.4, z: 11.7, l: 4.6, p: 9.4, bordoL: 9, bordoP: 15 };
 /** Il prato della piscina e le siepi che lo chiudono: segmenti [x1, z1, x2, z2]. */
 export const PRATO = { x0: -32.5, x1: -10, z0: -4, z1: 31.5 };
+/** Siepi basse, a tratti: la piscina si intravede dalla casa e dalla strada. */
 export const SIEPI: [number, number, number, number][] = [
-  [-33, -21, -33, 32],
-  [-33, 32, -10.2, 32],
-  [-10.2, 32, -10.2, 23],
-  [-10.2, 19.5, -10.2, 3],
+  [-33, -12, -33, -3],
+  [-33, 2, -33, 13],
+  [-33, 18, -33, 30],
+  [-10.2, 4, -10.2, 9.5],
+  [-10.2, 14, -10.2, 19.5],
 ];
+
+/**
+ * Il muretto a secco che gira attorno a tutta la proprietà, col varco del cancello sulla strada.
+ * Una spezzata chiusa, dal pilastro destro del cancello fino al sinistro.
+ */
+export const PERIMETRO: [number, number][] = [
+  [-4.6, 34],
+  [15, 34],
+  [15, 8],
+  [22, 4],
+  [22, -36],
+  [29.6, -79.6],
+  [-61.2, -81.6],
+  [-63.2, -58.8],
+  [-35.7, -22.1],
+  [-34.5, -14],
+  [-34.5, 34],
+  [-9.8, 34],
+];
+/** Il cancello sulla strada, coi pilastri e le teste di moro. */
+export const CANCELLO = { x: -7.2, z: 34, largo: 5.2 };
+
+/**
+ * Il cavedio: un cortile dentro casa, chiuso dai muri bianchi, con un ulivo al centro e il forno a legna;
+ * sul lato della casa un grande porticato antico di legno. Si entra dal varco nel muro verso l'aia.
+ */
+export const CAVEDIO = { x0: -16, x1: 1, z0: -38, z1: -24, varco: -9.2 };
+export const ULIVO_CAVEDIO: [number, number] = [-7.6, -31.2];
+export const FORNO: P3 = [-13.4, 0, -35.6];
+/** Il porticato di legno, lungo la facciata ovest dell'ala, dentro il cavedio. */
+export const PORTICO = { x0: -2.4, x1: 1, z0: -36.5, z1: -26.5 };
+
+/** Il capanno nel retro. */
+export const CAPANNO = { x: 13.5, z: -42.5, l: 5, p: 4, h: 2.7 };
 
 /** L'agrumeto: subito a destra entrando, a file. */
 export const AGRUMETO = { x0: 1.5, x1: 13, z0: 9, z1: 32 };
@@ -61,8 +97,8 @@ export const AGRUMI: [number, number][] = (() => {
   return out;
 })();
 
-/** Il pollaio: la casetta e il recinto, fra la casa e l'uliveto. */
-export const POLLAIO = { x: -14, z: -31, l: 9, p: 7 };
+/** Il pollaio: la casetta e il recinto, dietro casa accanto al capanno; il varco è sul lato ovest. */
+export const POLLAIO = { x: 3, z: -47, l: 9, p: 7 };
 
 /** I grandi alberi attorno all'aia e al prato: x, z, grandezza. */
 export const GRANDI_ALBERI: [number, number, number][] = [
@@ -71,6 +107,39 @@ export const GRANDI_ALBERI: [number, number, number][] = [
   [-23, -5.1, 1.2],
   [-16.5, -1.5, 0.95],
 ];
+
+/** Gli alberi da frutto sparsi fra gli ulivi e gli agrumi: x, z, specie. */
+export type Specie = "melo" | "pero" | "papaya" | "melograno" | "prugno" | "pesco" | "azzeruolo" | "giuggiolo" | "fico" | "nespolo" | "ciliegio";
+export const FRUTTETO: [number, number, Specie][] = [
+  [17, -11.5, "melo"],
+  [14.6, -6.0, "pero"],
+  [12.5, 4.2, "papaya"],
+  [-1.6, 28.6, "melograno"],
+  [12.1, 31.7, "prugno"],
+  [-2.8, 31.6, "pesco"],
+  [14.2, -1.7, "pesco"],
+  [12.7, 25.5, "azzeruolo"],
+  [-25.5, -53.7, "giuggiolo"],
+  [-54.5, -75.6, "fico"],
+  [-41.6, -69.3, "nespolo"],
+  [-30.1, -76.5, "ciliegio"],
+  [-60.0, -70.0, "melo"],
+  [-51.1, -56.0, "pero"],
+  [-6.0, -70.2, "papaya"],
+  [-37.8, -57.1, "melograno"],
+  [-28.0, -71.9, "prugno"],
+  [-19.0, -48.1, "pesco"],
+  [-29.8, -62.5, "pesco"],
+  [12.9, -69.3, "azzeruolo"],
+  [-13.5, -70.3, "giuggiolo"],
+  [-12.2, -78.2, "fico"],
+  [-13.5, -15.4, "nespolo"],
+  [16.0, -34.1, "ciliegio"],
+];
+
+/** I cactus San Pedro, altissimi, a gruppi; i fichi d'india lungo i muretti. */
+export const CACTUS: [number, number][] = [[-38.5, -38.6], [-32.3, -54.8], [14.7, 11.1], [-42.2, -54.4], [3.2, -60.8], [-50.6, -62.9], [-30.5, -18.0]];
+export const FICHI_INDIA: [number, number][] = [[-50.2, -78.4], [-38.7, -32.7], [22.8, -50.7], [-55.5, -52.8], [3.0, -77.8]];
 
 /** Dove sta il trattore all'aia (col muso verso la strada) e il suo cartello. */
 export const TRATTORE_CASA: { p: P3; r: number } = { p: [-3.8, 0, -2.4], r: 0 };

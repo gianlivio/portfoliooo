@@ -37,7 +37,7 @@ function supportaWebGL() {
   }
 }
 
-const FASI_INIZIALI: Record<ZonaId, number> = { arrivo: 0, agrumeto: 2, piscina: 0, casa: 0, pollaio: 0, uliveto: 2, chiaramonte: 0, frantoio: 1 };
+const FASI_INIZIALI: Record<ZonaId, number> = { arrivo: 0, agrumeto: 2, piscina: 0, casa: 0, cavedio: 0, pollaio: 0, uliveto: 2, chiaramonte: 0, frantoio: 1 };
 
 export default function Olio({ d, lingua }: { d: Dizionario; lingua: Lingua }) {
   const o = d.olio;

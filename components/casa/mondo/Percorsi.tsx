@@ -3,7 +3,7 @@
 import * as THREE from "three";
 import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
-import { AGRUMETO, CORTILE, PISCINA, POLLAIO, altrove, type P3 } from "@/content/casaLuoghi";
+import { AGRUMETO, CAVEDIO, CORTILE, PISCINA, POLLAIO, altrove, type P3 } from "@/content/casaLuoghi";
 import { TESTI, zona } from "@/content/casa";
 import type { Lingua } from "@/dictionaries";
 
@@ -26,10 +26,12 @@ const SENTIERI: THREE.Vector3[][] = [
   [V(-7.4, 21.4), V(-10.2, 21.2), V(-14.6, 18.6), V(PISCINA.x + 3.4, PISCINA.z + 2)],
   // dall'aia al pozzo, nel cortile
   [V(1.5, -1.5), V(7, -7), V(CORTILE.x - 0.4, CORTILE.z + CORTILE.p / 2 + 1), V(CORTILE.x - 0.4, CORTILE.z + 1.4)],
-  // dall'aia al pollaio, girando attorno alla casa
-  [V(0, 0), V(-5.6, -6), V(-7, -16), V(-8, -26), V(POLLAIO.x + POLLAIO.l / 2 + 0.6, POLLAIO.z)],
-  // dal pollaio all'uliveto
-  [V(-8, -26), V(-7.2, -38), V(-11, -48), V(-16, -54)],
+  // dall'aia al cavedio, dentro dal varco
+  [V(0, 0), V(-5.6, -6), V(-8.6, -16), V(CAVEDIO.varco, CAVEDIO.z1 + 1.4), V(CAVEDIO.varco, CAVEDIO.z1 - 2.4)],
+  // dal varco del cavedio, girando attorno, alle galline dietro casa
+  [V(CAVEDIO.varco, CAVEDIO.z1 + 1.4), V(-17.6, CAVEDIO.z1 + 1.2), V(-18, CAVEDIO.z0 - 1.8), V(-6, CAVEDIO.z0 - 3.6), V(POLLAIO.x - POLLAIO.l / 2 - 0.6, POLLAIO.z)],
+  // e all'uliveto
+  [V(-18, CAVEDIO.z0 - 1.8), V(-19.6, -46), V(-17, -53)],
   // dall'aia al trattore
   [V(0.8, 0.6), V(-2.4, 1.2), V(-3.6, 0.6)],
   // a Chiaramonte: dal trattore alla raccolta, poi al frantoio
@@ -43,8 +45,9 @@ const INGRESSI: P3[] = [
   [AGRUMETO.x0 + 2.6, 0, 21.6],
   [-14.6, 0, 18.6],
   [CORTILE.x - 0.4, 0, CORTILE.z + CORTILE.p / 2 + 0.8],
-  [POLLAIO.x + POLLAIO.l / 2 + 0.6, 0, POLLAIO.z],
-  [-16, 0, -54],
+  [CAVEDIO.varco, 0, CAVEDIO.z1 + 0.6],
+  [POLLAIO.x - POLLAIO.l / 2 - 0.6, 0, POLLAIO.z],
+  [-17, 0, -53],
   [-3.6, 0, 0.6],
   altrove([-14, 0, -42]),
   altrove([4, 0, -35.5]),
@@ -145,7 +148,9 @@ function Segnavia({ p, verso, assi }: { p: P3; verso: number; assi: { testo: str
         x.lineWidth = 8;
         x.stroke();
         x.fillStyle = "#2A2016";
-        x.font = "400 62px Newsreader, Georgia, serif";
+        let corpo = 62;
+        x.font = `400 ${corpo}px Newsreader, Georgia, serif`;
+        while (x.measureText((dir === "su" ? "↑ " : "") + testo).width > 620 && corpo > 30) x.font = `400 ${(corpo -= 2)}px Newsreader, Georgia, serif`;
         x.textAlign = "center";
         x.textBaseline = "middle";
         const freccia = dir === "su" ? "↑ " : "";
@@ -196,7 +201,7 @@ export default function Percorsi({ visibile, lingua }: { visibile: boolean; ling
         verso={0.4}
         assi={[
           { testo: TESTI.trattoreVa[lingua], dir: "sx" },
-          { testo: zona("pollaio").nome[lingua] + " · " + zona("uliveto").nome[lingua], dir: "sx" },
+          { testo: zona("cavedio").nome[lingua] + " · " + zona("pollaio").nome[lingua] + " · " + zona("uliveto").nome[lingua], dir: "sx" },
           { testo: zona("casa").nome[lingua], dir: "dx" },
         ]}
       />

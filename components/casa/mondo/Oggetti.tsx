@@ -6,7 +6,7 @@ import { useFrame } from "@react-three/fiber";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { MeshoptDecoder } from "three/examples/jsm/libs/meshopt_decoder.module.js";
 import { smorza } from "./base";
-import { ALTROVE, CORPI } from "@/content/casaLuoghi";
+import { ALTROVE, CORPI, PISCINA, PORTICO } from "@/content/casaLuoghi";
 
 /*
  * Gli oggetti di Poly Haven (polyhaven.com, CC0), compressi con gltf-transform (meshopt, texture webp a 512 px)
@@ -78,6 +78,12 @@ const FISSI: Posto[] = [
   { nome: "planter_pot_clay", p: [B.x + 2.1, 0, B.z + B.p / 2 + 0.45], r: 0.4 },
   { nome: "painted_wooden_bench", p: [AL.x + AL.l / 2 + 0.5, 0, AL.z + 1], r: -Math.PI / 2 },
   { nome: "jug_01", p: [10.2, 0.74, -1.6], r: 0.3 },
+  // sotto il gazebo della piscina
+  { nome: "outdoor_table_chair_set_01", p: [PISCINA.x + 0.4, 0, PISCINA.z - PISCINA.bordoP / 2 - 3.4], r: 0.8 },
+  // sotto il porticato del cavedio: il tavolo, la panca
+  { nome: "outdoor_table_chair_set_01", p: [(PORTICO.x0 + PORTICO.x1) / 2, 0.04, -31.6], r: Math.PI / 2 },
+  { nome: "painted_wooden_bench", p: [PORTICO.x1 - 0.4, 0.04, -34.6], r: -Math.PI / 2 },
+  { nome: "wooden_crate_01", p: [13.4, 0, -40.2], r: 0.3 },
 ];
 
 /** A Chiaramonte: la scala e le ceste vicino al cassone, la cassa di legno (coordinate dell'area lontana). */

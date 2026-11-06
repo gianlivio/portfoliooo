@@ -102,6 +102,25 @@ const BRANI: Record<ZonaId, Brano> = {
     armonia: ". c . . . c . .",
     batteria: "k . . . s . . .",
   },
+  // il cavedio: in La minore armonico, una canzone antica, piana, da cortile
+  cavedio: {
+    passo: 0.33,
+    duty: 0.25,
+    melodia: [
+      "A4 - C5 - E5 - D5 C5",
+      "B4 - - - G#4 - . .",
+      "A4 - C5 - F5 - E5 D5",
+      "E5 - - - . . . .",
+      "F5 - E5 - D5 - C5 B4",
+      "C5 - B4 - A4 - G#4 -",
+      "A4 - B4 - C5 - B4 G#4",
+      "A4 - - - . . . .",
+    ],
+    accordi: ["Am", "E", "Dm", "Am", "Dm", "Am", "E", "Am"],
+    basso: "r . . . q . . .",
+    armonia: "a . a . a . a .",
+    batteria: ". . h . . . h .",
+  },
   // le galline: in La#, a passettini, staccato e sorridente
   pollaio: {
     passo: 0.26,

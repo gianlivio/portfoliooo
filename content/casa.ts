@@ -6,12 +6,12 @@
  */
 
 import type { Lingua } from "@/dictionaries";
-import { AGRUMETO, CORPI, PISCINA, POLLAIO, altrove, type P3 } from "./casaLuoghi";
+import { AGRUMETO, CAVEDIO, CORPI, PISCINA, POLLAIO, POZZO, ULIVO_CAVEDIO, altrove, type P3 } from "./casaLuoghi";
 
 export type Testo = Record<Lingua, string>;
 const t = (it: string, en: string, es: string): Testo => ({ it, en, es });
 
-export type ZonaId = "arrivo" | "agrumeto" | "piscina" | "casa" | "pollaio" | "uliveto" | "chiaramonte" | "frantoio";
+export type ZonaId = "arrivo" | "agrumeto" | "piscina" | "casa" | "cavedio" | "pollaio" | "uliveto" | "chiaramonte" | "frantoio";
 /** Le zone che stanno a Chiaramonte: ci si arriva in trattore. */
 export const ZONE_LONTANE: ZonaId[] = ["chiaramonte", "frantoio"];
 
@@ -42,9 +42,9 @@ export const ZONE: Zona[] = [
     occhiello: t("La strada di campagna", "The country lane", "El camino de campo"),
     titolo: t("La casa in campagna", "The house in the country", "La casa en el campo"),
     testo: t(
-      "Dalla strada si entra nella proprietà: subito a destra l'agrumeto, a sinistra la piscina, in fondo la casa. Dietro la casa ci sono l'uliveto e le galline. Gli altri uliveti sono a Chiaramonte Gulfi: ci si va in trattore.",
-      "From the lane you enter the property: the citrus grove straight away on the right, the pool on the left, the house at the end. Behind the house are the olive grove and the hens. The other olive groves are in Chiaramonte Gulfi: you get there by tractor.",
-      "Desde el camino se entra en la finca: enseguida a la derecha el huerto de cítricos, a la izquierda la piscina, al fondo la casa. Detrás de la casa están el olivar y las gallinas. Los otros olivares están en Chiaramonte Gulfi: se va en tractor."
+      "Dal cancello con le teste di moro si entra nella proprietà, chiusa dal muretto a secco: subito a destra l'agrumeto, a sinistra la piscina, in fondo la casa col cavedio. Dietro la casa ci sono il capanno, le galline e l'uliveto; fra gli ulivi e gli agrumi, gli alberi da frutto. Gli altri uliveti sono a Chiaramonte Gulfi: ci si va in trattore.",
+      "Through the gate with the Moor's heads you enter the property, closed by a dry-stone wall: the citrus grove straight away on the right, the pool on the left, the house with its courtyard at the end. Behind the house are the shed, the hens and the olive grove; among the olive and citrus trees, the fruit trees. The other olive groves are in Chiaramonte Gulfi: you get there by tractor.",
+      "Por la verja con las cabezas de moro se entra en la finca, cerrada por el muro de piedra seca: enseguida a la derecha los cítricos, a la izquierda la piscina, al fondo la casa con su patio. Detrás de la casa están el cobertizo, las gallinas y el olivar; entre los olivos y los cítricos, los frutales. Los otros olivares están en Chiaramonte Gulfi: se va en tractor."
     ),
     camera: [-7.2, 1.7, 49],
     guarda: [3, 2.6, -18],
@@ -117,10 +117,25 @@ export const ZONE: Zona[] = [
       "Water comes from the well, which is inside the house, in the courtyard. Power comes from the solar panels on the roof: the house runs on renewable energy.",
       "El agua viene del pozo, que está dentro de la casa, en el patio. La energía viene de los paneles solares del tejado: la casa funciona con energía renovable."
     ),
-    camera: [2.2, 1.75, 4.2],
-    guarda: [9.4, 3, -20],
+    camera: [8.6, 1.75, -4.6],
+    guarda: [POZZO[0], 1.4, POZZO[2]],
     segno: [C.torretta.x, C.torretta.h + 2.2, C.torretta.z],
-    livio: [5.6, 0, -4.2],
+    livio: [7, 0, -10.2],
+  },
+  {
+    id: "cavedio",
+    nome: t("Cavedio", "Courtyard", "Patio"),
+    occhiello: t("Dentro casa", "Inside the house", "Dentro de la casa"),
+    titolo: t("Il cavedio", "The courtyard", "El patio"),
+    testo: t(
+      "Un cortile dentro casa, coi muri bianchi tutt'attorno: l'ulivo al centro, il forno a legna e, lungo la casa, un grande porticato antico di legno.",
+      "A courtyard inside the house, with white walls all around: the olive tree in the middle, the wood-fired oven and, along the house, a large old wooden portico.",
+      "Un patio dentro de la casa, con muros blancos alrededor: el olivo en el centro, el horno de leña y, a lo largo de la casa, un gran porche antiguo de madera."
+    ),
+    camera: [CAVEDIO.varco, 1.7, CAVEDIO.z1 - 1.2],
+    guarda: [-4, 1.6, -35.5],
+    segno: [ULIVO_CAVEDIO[0], 5.6, ULIVO_CAVEDIO[1]],
+    livio: [-11.6, 0, -29.4],
   },
   {
     id: "pollaio",
@@ -128,14 +143,14 @@ export const ZONE: Zona[] = [
     occhiello: t("Le uova di casa", "Eggs for the house", "Los huevos de casa"),
     titolo: t("Il pollaio", "The hen house", "El gallinero"),
     testo: t(
-      "Fra la casa e l'uliveto: le galline razzolano nel recinto e fanno le uova per la casa.",
-      "Between the house and the olive grove: the hens scratch about in their run and lay eggs for the house.",
-      "Entre la casa y el olivar: las gallinas escarban en su corral y ponen los huevos para la casa."
+      "Dietro casa, accanto al capanno: le galline razzolano nel recinto e fanno le uova per la casa.",
+      "Behind the house, next to the shed: the hens scratch about in their run and lay eggs for the house.",
+      "Detrás de la casa, junto al cobertizo: las gallinas escarban en su corral y ponen los huevos para la casa."
     ),
-    camera: [-4.8, 1.7, -19.5],
+    camera: [-8.4, 1.7, -40.6],
     guarda: [POLLAIO.x, 0.4, POLLAIO.z],
     segno: [POLLAIO.x, 3.6, POLLAIO.z - 1],
-    livio: [-7.6, 0, -24.2],
+    livio: [-5, 0, -43.4],
   },
   {
     id: "uliveto",
@@ -147,10 +162,10 @@ export const ZONE: Zona[] = [
       "Tonda iblea, nocellara and moresca.",
       "Tonda iblea, nocellara y moresca."
     ),
-    camera: [-6, 1.7, -40],
-    guarda: [-26, 1.6, -60],
-    segno: [-20, 4.6, -52],
-    livio: [-9.2, 0, -44.6],
+    camera: [-16, 1.7, -41],
+    guarda: [-24, 1.6, -62],
+    segno: [-22, 4.6, -56],
+    livio: [-15.2, 0, -46.8],
     fasi: [
       {
         titolo: t("Fioritura", "Flowering", "Floración"),
@@ -400,8 +415,34 @@ const livio: Personaggio = {
           ),
         },
         {
-          d: t("Cosa c'è dietro?", "What's behind?", "¿Qué hay detrás?"),
-          r: t("Le galline, e dietro ancora l'uliveto.", "The hens, and further back the olive grove.", "Las gallinas, y más atrás el olivar."),
+          d: t("E le teste di moro?", "And the Moor's heads?", "¿Y las cabezas de moro?"),
+          r: t(
+            "Sono vasi di ceramica, tipici della Sicilia: stanno sui pilastri del cancello e sopra l'ingresso di casa.",
+            "They are ceramic pots, typical of Sicily: they sit on the gate pillars and above the entrance of the house.",
+            "Son jarrones de cerámica, típicos de Sicilia: están sobre los pilares de la verja y encima de la entrada de la casa."
+          ),
+        },
+        {
+          d: t("E di là?", "And over there?", "¿Y por allí?"),
+          r: t("Il cavedio, dentro casa.", "The courtyard, inside the house.", "El patio, dentro de la casa."),
+          vai: "cavedio",
+        },
+      ],
+    },
+    cavedio: {
+      saluto: t("Il cavedio.", "The courtyard.", "El patio."),
+      temi: [
+        {
+          d: t("Cos'è quel forno?", "What's that oven?", "¿Qué es ese horno?"),
+          r: t("Il forno a legna.", "The wood-fired oven.", "El horno de leña."),
+        },
+        {
+          d: t("E il porticato?", "And the portico?", "¿Y el porche?"),
+          r: t("È di legno, antico.", "It's wooden, and old.", "Es de madera, antiguo."),
+        },
+        {
+          d: t("Cosa c'è dietro casa?", "What's behind the house?", "¿Qué hay detrás de la casa?"),
+          r: t("Il capanno e le galline, e più in là l'uliveto.", "The shed and the hens, and further on the olive grove.", "El cobertizo y las gallinas, y más allá el olivar."),
           vai: "pollaio",
         },
       ],
@@ -415,7 +456,7 @@ const livio: Personaggio = {
         },
         {
           d: t("Chi è il cane?", "Who's the dog?", "¿Quién es el perro?"),
-          r: t("Romero, il mio cane.", "Romero, my dog.", "Romero, mi perro."),
+          r: t("Romero, il mio cane: un cane corso.", "Romero, my dog: a cane corso.", "Romero, mi perro: un cane corso."),
         },
         {
           d: t("E l'uliveto?", "And the olive grove?", "¿Y el olivar?"),
@@ -463,6 +504,14 @@ const livio: Personaggio = {
             "Tonda iblea, nocellara e moresca. La tonda iblea e la moresca sono varietà della Sicilia sud-orientale.",
             "Tonda iblea, nocellara and moresca. Tonda iblea and moresca are varieties of south-eastern Sicily.",
             "Tonda iblea, nocellara y moresca. La tonda iblea y la moresca son variedades del sudeste de Sicilia."
+          ),
+        },
+        {
+          d: t("E gli altri alberi?", "And the other trees?", "¿Y los otros árboles?"),
+          r: t(
+            "Alberi da frutto, sparsi fra gli ulivi e gli agrumi: meli, peri, papaye, melograni, prugni, peschi di tanti tipi, azzeruoli, giuggioli, fichi, nespoli, ciliegi. E i cactus San Pedro, altissimi.",
+            "Fruit trees, scattered among the olive and citrus trees: apples, pears, papayas, pomegranates, plums, all kinds of peaches, azaroles, jujubes, figs, loquats, cherries. And the San Pedro cacti, very tall.",
+            "Frutales, repartidos entre los olivos y los cítricos: manzanos, perales, papayos, granados, ciruelos, melocotoneros de muchas clases, acerolos, azufaifos, higueras, nísperos, cerezos. Y los cactus San Pedro, altísimos."
           ),
         },
         {
@@ -619,8 +668,8 @@ const video = (n: string) => ({ tipo: "video" as const, src: `/olio/video/${n}.m
 
 export const QUADRI: Quadro[] = [
   { id: "caffe", ...foto("caffe"), didascalia: t("Pausa caffè in campagna", "Coffee break in the grove", "Pausa para el café en el campo"), zona: "agrumeto", p: [1.0, 0, 22.6] },
-  { id: "ulivo", ...video("ulivo"), didascalia: t("Un ulivo", "One of the olive trees", "Uno de los olivos"), zona: "uliveto", p: [-15.5, 0, -45] },
-  { id: "oliva", ...foto("oliva"), didascalia: t("L'oliva all'invaiatura", "An olive at veraison", "Una aceituna en envero"), zona: "uliveto", p: [-10, 0, -50.5] },
+  { id: "ulivo", ...video("ulivo"), didascalia: t("Un ulivo", "One of the olive trees", "Uno de los olivos"), zona: "uliveto", p: [-20.5, 0, -50.5] },
+  { id: "oliva", ...foto("oliva"), didascalia: t("L'oliva all'invaiatura", "An olive at veraison", "Una aceituna en envero"), zona: "uliveto", p: [-25.5, 0, -47.5] },
   { id: "carico", ...video("carico"), didascalia: t("Mia madre, col carico del giorno", "My mother, with the day's load", "Mi madre, con la carga del día"), zona: "chiaramonte", p: altrove([9.6, 0, -35.4]) },
   { id: "pranzo", ...foto("pranzo"), didascalia: t("Il pranzo, sulle cassette", "Lunch, on the crates", "El almuerzo, sobre las cajas"), zona: "chiaramonte", p: altrove([8.8, 0, -43]) },
   { id: "raccolta-reti", ...video("raccolta-reti"), didascalia: t("Si raccolgono le reti", "Gathering the nets", "Recogiendo las redes"), zona: "chiaramonte", p: altrove([-2.6, 0, -33.2]) },

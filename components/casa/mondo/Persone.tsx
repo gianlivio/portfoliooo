@@ -128,8 +128,8 @@ function Romero({ verso, lingua }: { verso: [number, number, number]; lingua: Li
   const nome = useMemo(() => pillola("Romero", TESTI.romero[lingua]), [lingua]);
   const { camera } = useThree();
   const st = useRef({ abbaia: -10, primo: true });
-  // un pixel è 4 cm: Romero è lungo un metro e mezzo di tela, alto mezzo metro alla spalla
-  const px = 0.028;
+  // un pixel è 3,3 cm: un cane corso, alto quasi settanta centimetri alla spalla
+  const px = 0.033;
   useFrame(({ clock }, dtGrezzo) => {
     const gr = g.current;
     if (!gr) return;

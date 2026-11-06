@@ -430,59 +430,68 @@ function nitida(tela: HTMLCanvasElement) {
 }
 
 export type PosaCane = "seduto" | "cammina" | "abbaia";
-/** Romero, di profilo verso destra, su una tela di 36 × 26: pelo fulvo corto, muso chiaro, orecchie che pendono. */
+/**
+ * Romero, un cane corso nero, di profilo verso destra, su una tela di 36 × 26: pelo corto nero coi riflessi
+ * grigi, petto largo, collo grosso, testa quadrata col muso corto, orecchie piccole che ricadono, coda lunga.
+ */
 export const CANE = { l: 36, h: 26 };
 export function disegnaCane(posa: PosaCane, f: 0 | 1) {
-  const pelo = "#A65A2C", scuro = "#7E4120", chiaro = "#C98A58", naso = "#2A1A14";
+  const pelo = "#1C1C20", riflesso = "#3C3E46", scuro = "#0E0E10", muso = "#2A2A2E", naso = "#050505";
   return telaPixel(CANE.l, CANE.h, (set, rett) => {
     const seduto = posa === "seduto";
-    // il corpo
     if (seduto) {
-      rett(9, 20, 10, 20, pelo);
-      rett(8, 14, 16, 22, pelo);
-      rett(17, 20, 12, 21, chiaro);
-      rett(7, 13, 21, 23, scuro);
-      // le zampe davanti, dritte
-      rett(17, 18, 18, 24, pelo);
-      rett(19, 20, 18, 24, scuro);
-      rett(17, 20, 25, 25, chiaro);
+      // seduto: il dorso in discesa, il petto alto e largo, le zampe davanti dritte
+      rett(10, 21, 9, 20, pelo);
+      rett(8, 15, 15, 22, pelo);
+      rett(7, 14, 21, 23, scuro);
+      rett(17, 21, 10, 18, riflesso);
+      rett(18, 20, 18, 24, pelo);
+      rett(21, 22, 17, 24, scuro);
+      rett(18, 22, 25, 25, scuro);
+      rett(11, 18, 9, 9, riflesso);
       // la coda a terra, che si muove
-      rett(2, 8, f ? 22 : 23, f ? 23 : 24, scuro);
+      rett(1, 7, f ? 22 : 23, f ? 23 : 24, pelo);
     } else {
-      rett(6, 22, 11, 17, pelo);
-      rett(8, 21, 17, 17, chiaro);
-      rett(6, 9, 11, 13, scuro);
-      // quattro zampe, due fotogrammi di passo
+      // in piedi: il corpo massiccio, il dorso dritto
+      rett(5, 22, 10, 17, pelo);
+      rett(17, 23, 11, 18, pelo);
+      rett(6, 21, 10, 10, riflesso);
+      rett(18, 22, 12, 16, riflesso);
+      rett(7, 16, 17, 17, scuro);
       const a = f ? 1 : 0;
-      rett(7 + a, 8 + a, 18, 24, scuro);
-      rett(10 - a, 11 - a, 18, 24, pelo);
-      rett(18 + a, 19 + a, 18, 24, scuro);
-      rett(21 - a, 22 - a, 18, 24, pelo);
-      // la coda alta, che scodinzola
-      if (f) rett(2, 6, 7, 8, pelo);
-      else rett(3, 6, 9, 10, pelo);
-      rett(1, 2, f ? 6 : 8, f ? 7 : 9, pelo);
+      rett(6 + a, 8 + a, 18, 24, scuro);
+      rett(9 - a, 11 - a, 18, 24, pelo);
+      rett(18 + a, 20 + a, 19, 24, scuro);
+      rett(21 - a, 23 - a, 19, 24, pelo);
+      // la coda, che scodinzola
+      if (f) rett(1, 5, 8, 9, pelo);
+      else rett(2, 5, 10, 11, pelo);
+      rett(0, 1, f ? 7 : 11, f ? 8 : 12, pelo);
     }
-    // la testa e il muso
-    const hx = seduto ? 19 : 21, hy = seduto ? 3 : 4;
-    rett(hx, hx + 8, hy, hy + 7, pelo);
-    rett(hx + 6, hx + 12, hy + 4, hy + 8, chiaro);
-    set(hx + 12, hy + 4, naso);
-    set(hx + 13, hy + 4, naso);
-    set(hx + 12, hy + 5, naso);
-    // l'occhio
-    set(hx + 6, hy + 2, "#1A1210");
-    set(hx + 7, hy + 2, "#1A1210");
-    // l'orecchio che pende
-    rett(hx + 1, hx + 4, hy - 1, hy + 6, scuro);
-    rett(hx + 2, hx + 3, hy + 7, hy + 8, scuro);
+    // la testa quadrata, il collo grosso, il muso corto e un po' più chiaro
+    const hx = seduto ? 19 : 21, hy = seduto ? 1 : 3;
+    rett(hx - 1, hx + 2, hy + 6, hy + 11, pelo);
+    rett(hx, hx + 9, hy, hy + 8, pelo);
+    rett(hx + 1, hx + 8, hy, hy, riflesso);
+    rett(hx + 8, hx + 12, hy + 3, hy + 8, muso);
+    rett(hx + 9, hx + 12, hy + 7, hy + 9, muso);
+    rett(hx + 11, hx + 13, hy + 3, hy + 4, naso);
+    // le pieghe del muso e l'occhio con un riflesso
+    set(hx + 8, hy + 6, scuro);
+    set(hx + 6, hy + 2, "#6A4A20");
+    set(hx + 7, hy + 2, "#6A4A20");
+    set(hx + 7, hy + 1, scuro);
+    // l'orecchio piccolo che ricade
+    rett(hx + 1, hx + 4, hy - 1, hy + 1, scuro);
+    rett(hx + 2, hx + 4, hy + 2, hy + 4, scuro);
     // la bocca aperta quando abbaia
     if (posa === "abbaia" && f) {
-      rett(hx + 8, hx + 12, hy + 8, hy + 9, "#3A1414");
-      rett(hx + 9, hx + 11, hy + 9, hy + 9, "#C85A5A");
+      rett(hx + 9, hx + 13, hy + 9, hy + 10, "#3A1414");
+      rett(hx + 10, hx + 12, hy + 10, hy + 10, "#C85A5A");
+      set(hx + 13, hy + 9, "#F0EDE6");
     }
     // il collare
-    rett(hx, hx + 2, hy + 7, hy + 9, "#2F5A8A");
+    rett(hx - 1, hx + 1, hy + 7, hy + 10, "#B23A2A");
   });
 }
 
