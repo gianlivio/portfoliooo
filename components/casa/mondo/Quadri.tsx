@@ -75,7 +75,8 @@ function Foto({ q, alto, onApri }: { q: Quadro; alto: number; onApri: (id: strin
       </mesh>
       <mesh position={[0, 0, 0.012]}>
         <planeGeometry args={[l, h]} />
-        {t ? <meshBasicMaterial map={t.texture} toneMapped={false} /> : <meshBasicMaterial color="#2A2A26" />}
+        {/* due materiali distinti (key): aggiungere la mappa a un materiale già compilato non basta */}
+        {t ? <meshBasicMaterial key="foto" map={t.texture} toneMapped={false} /> : <meshBasicMaterial key="vuoto" color="#2A2A26" />}
       </mesh>
       {q.tipo === "video" && (
         <group position={[0, 0, 0.02]}>

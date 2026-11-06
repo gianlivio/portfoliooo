@@ -67,7 +67,7 @@ export function useUlivi() {
       for (let x = -52; x < 54; x += 7.2) {
         const px = x + (caso() - 0.5) * 2.4, pz = z + (caso() - 0.5) * 2.4;
         if (vicinoAUnaTrazzera(px, pz + ALTROVE[2], 1.6) || occupato(px, pz + ALTROVE[2])) continue;
-        if (px > -24 && px < -4 && pz > -54 && pz < -35) continue; // lo spiazzo del frantoio
+        if (px > -26 && px < -2 && pz > -54 && pz < -27) continue; // lo spiazzo del frantoio, col suo davanti
         if (Math.abs(pz + 58) < 1.5 || Math.abs(pz + 70) < 1.5) continue; // i muretti dei terrazzi
         if (Math.hypot(px - 6.6, pz + 33.2) < 4.2) continue; // il cassone
         if (vicinoAUnaFoto(px, pz + ALTROVE[2], 2.6)) continue;
