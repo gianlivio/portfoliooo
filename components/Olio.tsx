@@ -1,281 +1,630 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { Dizionario, Lingua } from "@/dictionaries";
 import { lingue } from "@/dictionaries";
-import { mediaOlio, type Media } from "@/content/olio";
-import type { Quadro } from "./Uliveto";
+import { PERSONAGGI, QUADRI, TESTI, ZONE, zona, type Tema, type ZonaId } from "@/content/casa";
 import Modulo from "./Modulo";
-import { Campagna } from "./campagna";
 import { suono } from "./audio";
+import { ascoltaCaricamento } from "./casa/mondo/base";
+import { musica } from "./casa/musica";
+import type { Modo, Movimento } from "./casa/Scena";
+import "@/app/casa.css";
 
-const Uliveto = dynamic(() => import("./Uliveto"), { ssr: false });
+const Scena = dynamic(() => import("./casa/Scena"), { ssr: false });
 
 /**
- * La pagina dell'olio: si attraversa un uliveto scorrendo. Dietro, fissa, la scena 3D (Uliveto);
- * davanti, le tappe del cammino, una per schermata: il titolo, la storia, i quattro passi del metodo,
- * i video, il frantoio. Ogni tappa ha il suo quadro fra gli ulivi, dalla parte opposta al testo.
- * Senza WebGL restano le tappe, su fondo pieno. I suoni della campagna si accendono a mano.
+ * La pagina dell'olio: la visita alla casa in campagna, come un piccolo gioco. Si arriva dalla strada e si
+ * cammina (o ci si fa portare) fra l'agrumeto, la piscina, la casa col pozzo e i pannelli, le galline e
+ * l'uliveto dietro casa; col trattore si va agli uliveti di Chiaramonte Gulfi e al frantoio. Livio accompagna,
+ * Romero gli corre dietro; ogni posto ha la sua musica, calma. Le foto e i video stanno sparsi nella campagna.
+ * Senza WebGL restano i testi, le foto e i video, in colonna.
  */
 
-type Tappa = { id: string; occhiello?: string; titolo?: string; testo?: string; lato: "sx" | "dx" | "centro" };
+type Ambiente = { webgl: boolean; stretto: boolean; tocco: boolean; ridotto: boolean; compatto: boolean };
+
+/** Schermi dove il pannello va in basso e parte chiuso: telefoni, tablet in verticale, schermi bassi. */
+const COMPATTO = "(max-width: 900px), (max-height: 520px), (orientation: portrait) and (max-width: 1100px)";
+
+function supportaWebGL() {
+  try {
+    const c = document.createElement("canvas");
+    return !!(c.getContext("webgl2") || c.getContext("webgl"));
+  } catch {
+    return false;
+  }
+}
+
+const FASI_INIZIALI: Record<ZonaId, number> = { arrivo: 0, agrumeto: 2, piscina: 0, casa: 0, pollaio: 0, uliveto: 2, chiaramonte: 0, frantoio: 1 };
 
 export default function Olio({ d, lingua }: { d: Dizionario; lingua: Lingua }) {
   const o = d.olio;
-  const [modulo, setModulo] = useState(false);
-  const [suoni, setSuoni] = useState(false);
-  const [aperto, setAperto] = useState<number | null>(null);
-  const [ambiente, setAmbiente] = useState<{ webgl: boolean; ridotto: boolean; stretto: boolean } | null>(null);
-  const [notte, setNotte] = useState(true);
+  const T = (k: keyof typeof TESTI) => TESTI[k][lingua];
+  const [ambiente, setAmbiente] = useState<Ambiente | null>(null);
+  const [fontPronti, setFontPronti] = useState(false);
+  const [progresso, setProgresso] = useState(0);
   const [pronta, setPronta] = useState(false);
-  const campagna = useRef<Campagna | null>(null);
-  const progresso = useRef(0);
+  const [entrato, setEntrato] = useState(false);
+  const [modo, setModo] = useState<Modo>("cammina");
+  /** la schermata dei comandi, come nei videogiochi: compare entrando, si riapre col "?" */
+  const [comandi, setComandi] = useState(false);
+  const [zonaId, setZonaId] = useState<ZonaId>("arrivo");
+  const [vicina, setVicina] = useState<ZonaId>("arrivo");
+  const [fasi, setFasi] = useState(FASI_INIZIALI);
+  /** il dialogo aperto: con chi, e la catena delle domande fatte (vuota = il saluto) */
+  const [dialogo, setDialogo] = useState<{ chi: string; percorso: Tema[] } | null>(null);
+  /** le domande già fatte, per persona e zona: non tornano nel menu */
+  const [chiesti, setChiesti] = useState<Record<string, string[]>>({});
+  const [pannello, setPannello] = useState(true);
+  const [mosso, setMosso] = useState(false);
+  const [aperto, setAperto] = useState<string | null>(null);
+  const [modulo, setModulo] = useState(false);
+  const movimento = useRef<Movimento>({ x: 0, y: 0 });
+  const schermo = useRef<HTMLDivElement>(null);
+  const [musicaAccesa, setMusicaAccesa] = useState(false);
+  // la vista d'ingresso è quella del passaggio dalla stanza, di giorno o di notte secondo il tema
+  const [notte, setNotte] = useState(true);
+  useEffect(() => musica.ascolta(setMusicaAccesa), []);
 
-  // le tappe del cammino, nell'ordine
-  const tappe = useMemo<Tappa[]>(
-    () => [
-      { id: "apertura", lato: "sx" },
-      ...o.storia.map((t, i): Tappa => ({ id: `storia-${i}`, occhiello: o.storiaTitolo, titolo: o.storiaTitoli[i], testo: t, lato: i % 2 ? "dx" : "sx" })),
-      ...o.metodo.map((m, i): Tappa => ({ id: `metodo-${i}`, occhiello: `${o.metodoTitolo} · ${String(i + 1).padStart(2, "0")}`, titolo: m.titolo, testo: m.testo, lato: i % 2 ? "sx" : "dx" })),
-      { id: "frantoio", occhiello: o.luoghi.frantoio, titolo: o.percheTitolo, testo: o.perche, lato: "sx" },
-    ],
-    [o]
-  );
-
-  // i quadri: nel luogo del loro contenuto, non nelle tappe
-  const quadri = useMemo<Quadro[]>(
-    () =>
-      mediaOlio.map((v) => ({
-        media: v.media,
-        luogo: v.luogo,
-        forma: v.forma ?? "bacheca",
-        didascalia: v.didascalia?.[lingua] ?? o.luoghi[v.luogo],
-        tappa: Math.max(0, tappe.findIndex((t) => t.id === v.tappa)),
-      })),
-    [o, lingua, tappe]
-  );
-
-  // arrivando dalla stanza: la pagina scorre e la musica della stanza cala fino al silenzio (la dissolvenza
-  // comincia al clic sul cancello; se si arriva da un link o ricaricando, comincia qui)
+  // arrivando dalla stanza la sua musica cala fino al silenzio; uscendo, la musica della campagna si spegne
   useEffect(() => {
     document.documentElement.classList.remove("con-scena");
     suono.sfumaVia(4);
-    window.scrollTo(0, 0);
-    let webgl = false;
-    try {
-      const c = document.createElement("canvas");
-      webgl = !!(c.getContext("webgl2") || c.getContext("webgl"));
-    } catch {
-      webgl = false;
-    }
-    const ambiente = {
-      webgl,
-      ridotto: window.matchMedia("(prefers-reduced-motion: reduce)").matches,
-      stretto: window.innerWidth < 760,
-    };
-    // dopo il primo disegno, come nella stanza
-    const primo = requestAnimationFrame(() => setAmbiente(ambiente));
-    return () => cancelAnimationFrame(primo);
+    return () => musica.chiudi();
   }, []);
 
-  // il tema: di giorno il tramonto, di notte i faretti; il suono lo segue
   useEffect(() => {
-    const c = new Campagna();
-    campagna.current = c;
-    const leggi = () => {
-      const n = document.documentElement.dataset.tema !== "chiaro";
-      setNotte(n);
-      c.setNotte(n);
+    const leggi = () =>
+      setAmbiente({
+        webgl: supportaWebGL(),
+        stretto: window.innerWidth < 760,
+        tocco: window.matchMedia("(pointer: coarse)").matches,
+        ridotto: window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+        compatto: window.matchMedia(COMPATTO).matches,
+      });
+    const primo = requestAnimationFrame(() => {
+      leggi();
+      setNotte(document.documentElement.dataset.tema !== "chiaro");
+      if (window.matchMedia(COMPATTO).matches) setPannello(false);
+    });
+    let attesa: ReturnType<typeof setTimeout>;
+    const ridim = () => {
+      clearTimeout(attesa);
+      attesa = setTimeout(() => setAmbiente((a) => (a ? { ...a, stretto: window.innerWidth < 760, compatto: window.matchMedia(COMPATTO).matches } : a)), 250);
     };
-    leggi();
-    const oss = new MutationObserver(leggi);
-    oss.observe(document.documentElement, { attributes: true, attributeFilter: ["data-tema"] });
+    window.addEventListener("resize", ridim);
+    // i font servono anche alle scritte disegnate nella scena: si aspetta che siano pronti (al massimo 2 s)
+    const fonti = ["300 20px Newsreader", "400 20px Newsreader", "500 20px 'IBM Plex Sans'", "400 20px 'IBM Plex Mono'", "500 20px 'IBM Plex Mono'"];
+    Promise.race([Promise.all(fonti.map((f) => document.fonts.load(f))), new Promise((r) => setTimeout(r, 2000))]).then(() => setFontPronti(true));
+    const via = ascoltaCaricamento(setProgresso);
     return () => {
-      oss.disconnect();
-      c.chiudi();
+      cancelAnimationFrame(primo);
+      window.removeEventListener("resize", ridim);
+      via();
     };
   }, []);
 
-  // nella stanza il trackpad gira la vista anche di lato; qui lo stesso gesto, invece di far tornare il browser
-  // alla pagina prima (lo scorrimento di lato su Mac è "indietro"), fa camminare come quello in verticale
+  // la pagina non scorre: lo scorrimento di lato del trackpad non deve diventare il gesto "indietro" del browser
   useEffect(() => {
     const html = document.documentElement;
-    html.classList.add("in-uliveto");
+    html.classList.add("in-uliveto", "in-campagna");
     const lato = (e: WheelEvent) => {
-      if (e.ctrlKey || Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
-      e.preventDefault();
-      window.scrollBy({ top: e.deltaX, behavior: "instant" as ScrollBehavior });
+      if (!e.ctrlKey && Math.abs(e.deltaX) > Math.abs(e.deltaY)) e.preventDefault();
     };
     window.addEventListener("wheel", lato, { passive: false });
     return () => {
-      html.classList.remove("in-uliveto");
+      html.classList.remove("in-uliveto", "in-campagna");
       window.removeEventListener("wheel", lato);
     };
   }, []);
 
-  // scorrere è camminare
-  useEffect(() => {
-    const leggi = () => {
-      const max = document.documentElement.scrollHeight - window.innerHeight;
-      progresso.current = max > 0 ? window.scrollY / max : 0;
-    };
-    leggi();
-    window.addEventListener("scroll", leggi, { passive: true });
-    window.addEventListener("resize", leggi);
-    return () => {
-      window.removeEventListener("scroll", leggi);
-      window.removeEventListener("resize", leggi);
-    };
+  const vai = useCallback((id: ZonaId) => {
+    setModo("guida");
+    setZonaId(id);
+    setVicina(id);
+    setDialogo(null);
+    // sugli schermi piccoli il pannello resta chiuso: si apre al tocco
+    setPannello(!window.matchMedia(COMPATTO).matches);
   }, []);
 
-  // il testo di una tappa compare quando la tappa è a metà schermo
+  const parla = useCallback((id: string) => {
+    setDialogo({ chi: id, percorso: [] });
+    if (window.matchMedia(COMPATTO).matches) setPannello(false);
+  }, []);
+
+  // il velo nero del viaggio in trattore, e la sua riga
+  const velo = useCallback((o: number) => {
+    if (schermo.current) schermo.current.style.opacity = String(o);
+  }, []);
+  const scritta = useCallback((t: string) => {
+    const p = schermo.current?.querySelector("p");
+    if (p) p.textContent = t;
+  }, []);
+  const muovi = useCallback((x: number, y: number) => {
+    movimento.current = { x, y };
+  }, []);
+
+  const cambiaModo = (m: Modo) => {
+    if (m === modo) return;
+    if (m === "guida") setZonaId(vicina);
+    setModo(m);
+    setMosso(false);
+  };
+
+  const zonaAttiva = modo === "guida" ? zonaId : vicina;
   useEffect(() => {
-    const els = document.querySelectorAll<HTMLElement>(".tappa");
-    const oss = new IntersectionObserver(
-      (voci) => voci.forEach((v) => v.target.classList.toggle("tappa--qui", v.isIntersecting)),
-      { rootMargin: "-35% 0px -35% 0px" }
+    musica.zonaAttiva(zonaAttiva);
+  }, [zonaAttiva]);
+
+  // da tastiera: Esc chiude il dialogo, i comandi e la foto aperta; le frecce servono a camminare
+  useEffect(() => {
+    const tasti = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      setDialogo(null);
+      setComandi(false);
+      setAperto(null);
+    };
+    window.addEventListener("keydown", tasti);
+    return () => window.removeEventListener("keydown", tasti);
+  }, []);
+
+  const testata = (
+    <header className="olio-testata cv-testata">
+      <Link className="olio-torna" href={`/${lingua}`}>
+        <span aria-hidden="true">←</span> {o.torna}
+      </Link>
+      <nav className="olio-comandi" aria-label={d.testata.lingua}>
+        {lingue.map((l) => (
+          <Link key={l} href={`/${l}/olio`} aria-current={l === lingua ? "page" : undefined} className="olio-lingua">
+            {l.toUpperCase()}
+          </Link>
+        ))}
+      </nav>
+    </header>
+  );
+
+  const quadroAperto = aperto ? QUADRI.find((q) => q.id === aperto) ?? null : null;
+  const schermoMedia = quadroAperto && (
+    <div className="olio-schermo" role="dialog" aria-modal="true" aria-label={quadroAperto.didascalia[lingua]} onClick={() => setAperto(null)}>
+      <div className="olio-schermo-dentro" onClick={(e) => e.stopPropagation()}>
+        {quadroAperto.tipo === "video" ? (
+          <video src={quadroAperto.src} poster={quadroAperto.anteprima} controls autoPlay playsInline />
+        ) : (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={quadroAperto.src} alt={quadroAperto.didascalia[lingua]} />
+        )}
+        <p className="cv-didascalia">{quadroAperto.didascalia[lingua]}</p>
+        <button className="olio-schermo-chiudi" onClick={() => setAperto(null)} autoFocus>
+          {o.chiudi}
+        </button>
+      </div>
+    </div>
+  );
+
+  // i testi della visita in colonna: si vedono senza WebGL; con la scena restano per i lettori di schermo
+  // e per chi legge l'HTML senza eseguire il codice (sono già nella pagina servita)
+  const colonna = (visibile: boolean) => (
+    <main className={visibile ? "cv-colonna" : "cv-solo-schermo"}>
+      <p className="olio-occhiello">{T("luogo")}</p>
+      <h1 className="cv-titolo">{T("titolo")}</h1>
+      <p className={visibile ? "cv-nota" : undefined}>{visibile ? T("senza3d") : o.attacco}</p>
+      {ZONE.map((z) => (
+        <section key={z.id}>
+          <p className="olio-occhiello">{z.occhiello[lingua]}</p>
+          <h2>{z.titolo[lingua]}</h2>
+          <p>{z.testo[lingua]}</p>
+          {z.fasi && (
+            <ol>
+              {z.fasi.map((f) => (
+                <li key={f.titolo.it}>
+                  <strong>{f.titolo[lingua]}.</strong> {f.testo[lingua]}
+                </li>
+              ))}
+            </ol>
+          )}
+          {visibile && (
+            <div className="olio-piani">
+              {QUADRI.filter((q) => q.zona === z.id).map((q) =>
+                q.tipo === "video" ? (
+                  <video key={q.id} className="olio-cornice" src={q.src} poster={q.anteprima} controls preload="none" playsInline aria-label={q.didascalia[lingua]} />
+                ) : (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img key={q.id} className="olio-cornice" src={q.src} alt={q.didascalia[lingua]} />
+                )
+              )}
+            </div>
+          )}
+        </section>
+      ))}
+      <section>
+        <h2>{o.percheTitolo}</h2>
+        <p>{o.perche}</p>
+        <button className="olio-scrivimi" onClick={() => setModulo(true)}>
+          {o.scrivimi}
+        </button>
+      </section>
+    </main>
+  );
+
+  if (!ambiente)
+    return (
+      <div className="olio cv">
+        {testata}
+        {colonna(false)}
+      </div>
     );
-    els.forEach((e) => oss.observe(e));
-    return () => oss.disconnect();
-  }, []);
 
-  const mediaAperto: Media = aperto === null ? null : quadri[aperto].media;
-  const con3d = !!ambiente?.webgl;
+  // senza WebGL: i posti, le foto e i video in colonna
+  if (!ambiente.webgl) {
+    return (
+      <div className="olio cv cv-senza">
+        {testata}
+        {colonna(true)}
+        {modulo && <Modulo d={d} lingua={lingua} onChiudi={() => setModulo(false)} />}
+      </div>
+    );
+  }
+
+  const z = zona(zonaAttiva);
+  const fase = fasi[zonaAttiva];
+  const cambiaFase = (n: number) => {
+    if (!z.fasi) return;
+    const k = (n + z.fasi.length) % z.fasi.length;
+    setFasi((f) => ({ ...f, [zonaAttiva]: k }));
+  };
+
+  const personaggio = dialogo ? PERSONAGGI.find((p) => p.id === dialogo.chi) ?? null : null;
+  // Livio parla della zona in cui si è; gli altri della loro
+  const zonaDialogo: ZonaId = personaggio?.zona ?? zonaAttiva;
+  const copione = personaggio ? personaggio.copioni[zonaDialogo] : undefined;
+  const chiave = `${personaggio?.id}|${zonaDialogo}`;
+  const giaChiesti = chiesti[chiave] ?? [];
+  const faseDialogo = fasi[zonaDialogo];
+  const nomeFase = zona(zonaDialogo).fasi?.[faseDialogo]?.titolo[lingua];
+  const ultimo = dialogo && dialogo.percorso.length ? dialogo.percorso[dialogo.percorso.length - 1] : null;
+  const nuove = (temi: (Tema | undefined)[]) => temi.filter((t): t is Tema => !!t && !giaChiesti.includes(t.d.it));
+  const domande = copione ? (ultimo ? nuove(ultimo.poi ?? []) : nuove([copione.perFase?.[faseDialogo], ...copione.temi])) : [];
+  const testoDialogo = !copione ? "" : ultimo ? ultimo.r[lingua] : domande.length ? copione.saluto[lingua] : copione.perFase ? T("finitoFasi") : T("finito");
+  const chiedi = (t: Tema) => {
+    if (!personaggio) return;
+    setChiesti((c) => ({ ...c, [chiave]: [...(c[chiave] ?? []), t.d.it] }));
+    setDialogo({ chi: personaggio.id, percorso: [...(dialogo?.percorso ?? []), t] });
+  };
+  const altri = PERSONAGGI.filter((p) => p.zona === zonaAttiva);
 
   return (
-    <div className={`olio${con3d ? " olio--3d" : ""}`}>
-      {ambiente && con3d && (
-        <div className="uliveto" aria-hidden="true">
-          <Uliveto
-            quadri={quadri}
-            progresso={progresso}
-            notte={notte}
-            ridotto={ambiente.ridotto}
+    <div className="olio cv">
+      {fontPronti && (
+        <div className={`cv-esperienza${entrato ? " cv-esperienza--dentro" : ""}`}>
+          <Scena
+            modo={modo}
+            zonaId={zonaId}
+            fasi={fasi}
+            lingua={lingua}
+            parlante={dialogo?.chi ?? null}
             stretto={ambiente.stretto}
-            vuoto={o.videoInArrivo}
+            ridotto={ambiente.ridotto}
+            movimento={movimento}
+            onVelo={velo}
+            onScritta={scritta}
+            testi={{ andata: T("versoLontano"), ritorno: T("versoCasa"), vai: T("vai") }}
             onApri={setAperto}
+            onVai={vai}
+            onVicina={setVicina}
+            onParla={parla}
             onPronta={() => setPronta(true)}
-            lati={tappe.map((t) => t.lato)}
+            onMosso={() => {
+              setMosso(true);
+              setComandi(false);
+            }}
+            onCammina={() => {
+              setModo("cammina");
+              setComandi(false);
+            }}
           />
         </div>
       )}
-      {/* la vista d'ingresso, la stessa del passaggio dalla stanza: copre la scena finché non è pronta, ma sta
-          sotto i testi, che si leggono e si scorrono subito; intanto si avvicina piano, e una riga dice che si sta aprendo */}
-      <div
-        className={`olio-velo${pronta || (ambiente && !con3d) ? " olio-velo--via" : ""}`}
-        aria-hidden="true"
-        style={{ backgroundImage: `url(/olio/ingresso-${notte ? "notte" : "giorno"}.jpg)` }}
-      >
-        <span className="olio-attesa">{o.attesa}</span>
+
+      {/* il velo nero del viaggio in trattore */}
+      <div className="cv-viaggio" ref={schermo} aria-live="polite">
+        <p />
       </div>
 
-      <header className="olio-testata">
-        <Link className="olio-torna" href={`/${lingua}`}>
-          <span aria-hidden="true">←</span> {o.torna}
-        </Link>
-        <nav className="olio-comandi" aria-label={d.testata.lingua}>
-          {lingue.map((l) => (
-            <Link key={l} href={`/${l}/olio`} aria-current={l === lingua ? "page" : undefined} className="olio-lingua">
-              {l.toUpperCase()}
-            </Link>
-          ))}
-          <button
-            className="olio-suoni"
-            aria-pressed={suoni}
-            aria-label={suoni ? o.silenzio : o.suoni}
-            onClick={() => setSuoni(campagna.current?.alterna() ?? false)}
-          >
-            <Onde attive={suoni} />
-            <span className="olio-suoni-testo">{suoni ? o.silenzio : o.suoni}</span>
-          </button>
-        </nav>
-      </header>
-
-      <main className="olio-cammino">
-        {tappe.map((t) => (
-          <section key={t.id} className={`tappa tappa--${t.lato} tappa--${t.id.split("-")[0]}`}>
-            {t.id === "apertura" ? (
-              <div className="tappa-pannello tappa-apertura">
-                <p className="olio-occhiello">{o.occhiello}</p>
-                <h1 className="olio-titolo">{o.titolo}</h1>
-                <p className="olio-attacco">{o.attacco}</p>
-                {con3d && <p className="olio-scorri">{o.scorri}</p>}
-              </div>
+      {/* l'attesa: la vista d'ingresso (la stessa del passaggio dalla stanza), poi "Entra" */}
+      {!entrato && (
+        <div className={`olio-velo cv-avvio${pronta ? " cv-avvio--pronta" : ""}`} style={{ backgroundImage: `url(/olio/ingresso-${notte ? "notte" : "giorno"}.jpg)` }}>
+          <div className="cv-avvio-centro" role="dialog" aria-label={T("titolo")}>
+            <p className="olio-occhiello">{T("luogo")}</p>
+            <p className="cv-titolo">{T("titolo")}</p>
+            <p className="cv-attacco">{o.attacco}</p>
+            {pronta ? (
+              <button
+                className="cv-entra"
+                autoFocus
+                onClick={() => {
+                  setEntrato(true);
+                  setComandi(true);
+                  // il clic su "Entra" è il gesto che permette al browser di suonare
+                  musica.zonaAttiva("arrivo");
+                  musica.accendi();
+                }}
+              >
+                {T("entra")}
+              </button>
             ) : (
-              <div className="tappa-pannello">
-                {t.occhiello && <p className="tappa-occhiello">{t.occhiello}</p>}
-                {t.titolo && <h2 className="tappa-titolo">{t.titolo}</h2>}
-                {t.testo && <p className="tappa-testo">{t.testo}</p>}
-                {/* senza la scena, i video della tappa stanno qui sotto */}
-                {ambiente && !con3d && <QuadriPiani quadri={quadri.filter((q) => q.tappa === tappe.indexOf(t))} vuoto={o.videoInArrivo} />}
-                {t.id === "frantoio" && (
-                  <div className="olio-azioni">
-                    <button className="olio-scrivimi" onClick={() => setModulo(true)}>
-                      {o.scrivimi}
-                    </button>
-                    <Link className="olio-torna" href={`/${lingua}`}>
-                      <span aria-hidden="true">←</span> {o.torna}
-                    </Link>
-                  </div>
-                )}
-              </div>
+              <span className="olio-attesa cv-carica">
+                {T("carica")} · {Math.round(Math.min(progresso, 0.99) * 100)}%
+              </span>
             )}
-          </section>
-        ))}
-      </main>
-
-      {mediaAperto && (
-        <div className="olio-schermo" role="dialog" aria-modal="true" onClick={() => setAperto(null)}>
-          <div className="olio-schermo-dentro" onClick={(e) => e.stopPropagation()}>
-            {mediaAperto.tipo === "video" ? (
-              <video src={mediaAperto.src} poster={mediaAperto.poster} controls autoPlay playsInline />
-            ) : (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={mediaAperto.src} alt={aperto !== null ? quadri[aperto].didascalia : ""} />
-            )}
-            <button className="olio-schermo-chiudi" onClick={() => setAperto(null)} autoFocus>
-              {o.chiudi}
-            </button>
           </div>
         </div>
       )}
 
+      {testata}
+
+      {entrato && (
+        <div className={`cv-interfaccia${ambiente.compatto ? " cv-interfaccia--compatta" : ""}${pannello ? " cv-pannello-aperto" : ""}${dialogo ? " cv-con-dialogo" : ""}`}>
+          <div className="cv-comandi">
+            <button className="cv-aiuto" onClick={() => setComandi((v) => !v)} aria-label={T("comandi")} title={T("comandi")}>
+              ?
+            </button>
+            <button
+              className="cv-suono"
+              onClick={() => musica.interruttore()}
+              aria-pressed={musicaAccesa}
+              aria-label={musicaAccesa ? T("spegniMusica") : T("accendiMusica")}
+              title={musicaAccesa ? T("spegniMusica") : T("accendiMusica")}
+            >
+              <span className={`cv-suono-segno${musicaAccesa ? " cv-suono-segno--acceso" : ""}`} aria-hidden="true">
+                <i />
+                <i />
+                <i />
+                <i />
+              </span>
+              <span className="cv-suono-testo">{musicaAccesa ? T("musica") : T("muto")}</span>
+            </button>
+            <div className="cv-modi" role="group" aria-label={T("modo")}>
+              <button aria-pressed={modo === "guida"} onClick={() => cambiaModo("guida")}>
+                {T("guidata")}
+              </button>
+              <button aria-pressed={modo === "cammina"} onClick={() => cambiaModo("cammina")}>
+                {T("cammina")}
+              </button>
+            </div>
+          </div>
+
+          {comandi && <Comandi tocco={ambiente.tocco} lingua={lingua} onChiudi={() => setComandi(false)} />}
+
+          <p className={`cv-guida${mosso || comandi ? " cv-guida--via" : ""}`} aria-hidden="true">
+            {modo === "guida" ? (ambiente.tocco ? T("guidaTocco") : T("guidaMouse")) : ambiente.tocco ? T("camminaTocco") : T("camminaMouse")}
+          </p>
+
+          {/* il pannello della zona, con le fasi */}
+          <aside
+            className={`cv-pannello${pannello ? "" : " cv-pannello--chiuso"}${comandi ? " cv-pannello--nascosto" : ""}`}
+            key={zonaAttiva}
+            aria-labelledby="cv-pannello-titolo"
+            onClick={() => !pannello && setPannello(true)}
+          >
+            <button className="cv-pannello-maniglia" onClick={() => setPannello((v) => !v)} aria-expanded={pannello}>
+              <span className="cv-occhiello">{z.occhiello[lingua]}</span>
+              <span className="cv-pannello-segno" aria-hidden="true">
+                {pannello ? "–" : "+"}
+              </span>
+            </button>
+            <h2 id="cv-pannello-titolo" className="cv-pannello-titolo">
+              {z.fasi ? z.fasi[fase].titolo[lingua] : z.titolo[lingua]}
+            </h2>
+            {pannello && (
+              <>
+                {z.fasi && (
+                  <p className="cv-pannello-luogo">
+                    {z.titolo[lingua]} · {T("fase")} {fase + 1} {T("di")} {z.fasi.length}
+                  </p>
+                )}
+                <p className="cv-pannello-testo" key={`${zonaAttiva}-${fase}`}>
+                  {z.fasi ? z.fasi[fase].testo[lingua] : z.testo[lingua]}
+                </p>
+                {z.fasi && (
+                  <div className="cv-fasi">
+                    <button className="cv-freccia" onClick={() => cambiaFase(fase - 1)} aria-label={T("fasePrec")}>
+                      ←
+                    </button>
+                    <ol className="cv-fasi-punti">
+                      {z.fasi.map((f, i) => (
+                        <li key={f.titolo.it}>
+                          <button aria-current={i === fase ? "step" : undefined} onClick={() => cambiaFase(i)} title={f.titolo[lingua]}>
+                            <span className="cv-solo-schermo">{f.titolo[lingua]}</span>
+                          </button>
+                        </li>
+                      ))}
+                    </ol>
+                    <button className="cv-freccia" onClick={() => cambiaFase(fase + 1)} aria-label={T("faseSucc")}>
+                      →
+                    </button>
+                  </div>
+                )}
+                {zonaAttiva === "frantoio" && (
+                  <div className="cv-perche">
+                    <p className="cv-occhiello">{o.percheTitolo}</p>
+                    <p>{o.perche}</p>
+                  </div>
+                )}
+                <div className="cv-parla-con">
+                  <button className="cv-parla" onClick={() => parla("livio")}>
+                    {T("parlaCon")} Livio
+                  </button>
+                  {altri.map((p) => (
+                    <button key={p.id} className="cv-parla cv-parla--altro" onClick={() => parla(p.id)}>
+                      {T("parlaCon")} {p.nome[lingua].toLowerCase()}
+                    </button>
+                  ))}
+                  {zonaAttiva === "frantoio" && (
+                    <button className="cv-parla cv-parla--altro" onClick={() => setModulo(true)}>
+                      {o.scrivimi}
+                    </button>
+                  )}
+                </div>
+              </>
+            )}
+          </aside>
+
+          {personaggio && copione && (
+            <aside className="cv-dialogo" aria-live="polite" key={`${personaggio.id}-${zonaDialogo}-${dialogo?.percorso.length}-${faseDialogo}`}>
+              <p className="cv-occhiello">
+                {zona(zonaDialogo).titolo[lingua]}
+                {nomeFase && `, ${nomeFase.toLowerCase()}`}
+              </p>
+              {personaggio.ritratto && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img className="cv-ritratto" src={personaggio.ritratto} alt="" width={64} height={64} />
+              )}
+              <h2 className="cv-dialogo-nome">{personaggio.nome[lingua]}</h2>
+              {ultimo && <p className="cv-dialogo-domanda">{ultimo.d[lingua]}</p>}
+              <p className="cv-dialogo-testo">{testoDialogo}</p>
+              <div className="cv-scelte">
+                {domande.map((t) => (
+                  <button key={t.d.it} onClick={() => chiedi(t)}>
+                    {t.d[lingua]}
+                  </button>
+                ))}
+                {ultimo?.vai && (
+                  <button className="cv-scelta-vai" onClick={() => vai(ultimo.vai as ZonaId)}>
+                    {T("andiamo")}: {zona(ultimo.vai).nome[lingua]} →
+                  </button>
+                )}
+                {ultimo && (
+                  <button className="cv-scelta-tenue" onClick={() => setDialogo({ chi: personaggio.id, percorso: [] })}>
+                    {T("altraDomanda")}
+                  </button>
+                )}
+                <button className="cv-scelta-tenue" onClick={() => setDialogo(null)}>
+                  {T("grazie")}
+                </button>
+              </div>
+              <button className="cv-chiudi" onClick={() => setDialogo(null)} aria-label={T("chiudi")}>
+                ×
+              </button>
+            </aside>
+          )}
+
+          <nav className="cv-zone" aria-label={T("zone")}>
+            {ZONE.map((zz) => (
+              <button key={zz.id} aria-current={zonaAttiva === zz.id ? "true" : undefined} onClick={() => vai(zz.id)}>
+                {zz.nome[lingua]}
+              </button>
+            ))}
+          </nav>
+
+          {ambiente.tocco && <Joystick onMuovi={muovi} />}
+        </div>
+      )}
+
+      {colonna(false)}
+      {schermoMedia}
       {modulo && <Modulo d={d} lingua={lingua} onChiudi={() => setModulo(false)} />}
     </div>
   );
 }
 
-/** Senza WebGL: i video della tappa in fila, coi controlli. */
-function QuadriPiani({ quadri, vuoto }: { quadri: Quadro[]; vuoto: string }) {
-  if (!quadri.length) return null;
+function Joystick({ onMuovi }: { onMuovi: (x: number, y: number) => void }) {
+  const base = useRef<HTMLDivElement>(null);
+  const [p, setP] = useState({ x: 0, y: 0 });
+  const id = useRef<number | null>(null);
+  const muovi = (e: React.PointerEvent) => {
+    if (id.current !== e.pointerId || !base.current) return;
+    const r = base.current.getBoundingClientRect();
+    let x = (e.clientX - (r.left + r.width / 2)) / (r.width / 2);
+    let y = (e.clientY - (r.top + r.height / 2)) / (r.height / 2);
+    const l = Math.hypot(x, y);
+    if (l > 1) {
+      x /= l;
+      y /= l;
+    }
+    setP({ x, y });
+    onMuovi(x, -y);
+  };
+  const fine = () => {
+    id.current = null;
+    setP({ x: 0, y: 0 });
+    onMuovi(0, 0);
+  };
   return (
-    <div className="olio-piani">
-      {quadri.map((q, i) =>
-        q.media ? (
-          q.media.tipo === "video" ? (
-            <video key={i} className="olio-cornice" src={q.media.src} poster={q.media.poster} controls preload="none" playsInline />
-          ) : (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img key={i} className="olio-cornice" src={q.media.src} alt={q.didascalia} />
-          )
-        ) : (
-          <div key={i} className="olio-cornice olio-cornice--vuota">
-            <span>{vuoto}</span>
-          </div>
-        )
-      )}
+    <div
+      ref={base}
+      className="cv-joystick"
+      onPointerDown={(e) => {
+        e.stopPropagation();
+        id.current = e.pointerId;
+        (e.target as HTMLElement).setPointerCapture(e.pointerId);
+        muovi(e);
+      }}
+      onPointerMove={muovi}
+      onPointerUp={fine}
+      onPointerCancel={fine}
+    >
+      <i style={{ transform: `translate(${p.x * 34}px, ${p.y * 34}px)` }} />
     </div>
   );
 }
 
-function Onde({ attive }: { attive: boolean }) {
+/** La schermata dei comandi, come all'inizio di un videogioco. */
+function Comandi({ tocco, lingua, onChiudi }: { tocco: boolean; lingua: Lingua; onChiudi: () => void }) {
+  const T = (k: keyof typeof TESTI) => TESTI[k][lingua];
   return (
-    <span className={`olio-onde${attive ? " olio-onde--attive" : ""}`} aria-hidden="true">
-      <i />
-      <i />
-      <i />
-    </span>
+    <div className="cv-comandi-gioco" role="dialog" aria-label={T("comeMuoversi")}>
+      <p className="cv-occhiello">{T("comeMuoversi")}</p>
+      <h2>{T("benvenuto")}</h2>
+      {tocco ? (
+        <div className="cv-righe">
+          <div className="cv-riga">
+            <span className="cv-stick" aria-hidden="true">
+              <i />
+            </span>
+            <span>{T("joystick")}</span>
+          </div>
+          <div className="cv-riga">
+            <span className="cv-tasto cv-tasto--largo">☝ {T("trascina")}</span>
+            <span>{T("trascinaDito")}</span>
+          </div>
+        </div>
+      ) : (
+        <div className="cv-righe">
+          <div className="cv-riga">
+            <span className="cv-croce" aria-hidden="true">
+              <kbd className="cv-tasto c-su">W</kbd>
+              <kbd className="cv-tasto c-sx">A</kbd>
+              <kbd className="cv-tasto c-giu">S</kbd>
+              <kbd className="cv-tasto c-dx">D</kbd>
+            </span>
+            <span className="cv-croce" aria-hidden="true">
+              <kbd className="cv-tasto c-su">↑</kbd>
+              <kbd className="cv-tasto c-sx">←</kbd>
+              <kbd className="cv-tasto c-giu">↓</kbd>
+              <kbd className="cv-tasto c-dx">→</kbd>
+            </span>
+            <span>{T("camminaFrecce")}</span>
+          </div>
+          <div className="cv-riga">
+            <kbd className="cv-tasto cv-tasto--largo">Shift</kbd>
+            <span>{T("corri")}</span>
+          </div>
+          <div className="cv-riga">
+            <kbd className="cv-tasto cv-tasto--largo">🖱 {T("trascina")}</kbd>
+            <span>{T("guardati")}</span>
+          </div>
+        </div>
+      )}
+      <ul className="cv-note">
+        <li>{T("nota1")}</li>
+        <li>{T("nota2")}</li>
+        <li>{T("nota3")}</li>
+      </ul>
+      <button className="cv-entra" onClick={onChiudi}>
+        {T("capito")}
+      </button>
+    </div>
   );
 }

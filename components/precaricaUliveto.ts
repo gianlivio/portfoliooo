@@ -1,6 +1,6 @@
 /**
  * Mentre si sta nella stanza, a scena pronta e senza fretta, si scaricano in sottofondo le cose dell'uliveto:
- * la vista d'ingresso (quella del passaggio) e gli asset della scena (cielo, terra, muretti, modelli).
+ * la vista d'ingresso (quella del passaggio) e gli asset della scena della campagna (cielo, terra, muretti, modelli).
  * Così, quando si varca il cancello, arrivano dalla cache e l'attesa si accorcia.
  * Non lo fa con il risparmio dati attivo o su reti lente.
  */
@@ -9,7 +9,6 @@ const ASSET = [
   "/olio/ingresso-notte.jpg",
   ...[
     "cielo-tramonto.jpg",
-    "cielo-notte.jpg",
     "terra-colore.webp",
     "terra-rilievo.webp",
     "trazzera-colore.webp",
@@ -22,7 +21,9 @@ const ASSET = [
     "erba.glb",
     "masso.glb",
     "cassetta.glb",
-    "botte.glb",
+    "oggetti/outdoor_table_chair_set_01.glb",
+    "oggetti/planter_pot_clay.glb",
+    "oggetti/painted_wooden_bench.glb",
   ].map((n) => `/olio/scena/${n}`),
 ];
 

@@ -1,0 +1,252 @@
+/* =============================================================
+   La casa in campagna (pagina dell'olio): una scena a tutto schermo e pochi strati di HTML sopra.
+   Tutto sotto .cv, perché non tocchi il resto del sito. I pannelli restano scuri anche col tema chiaro:
+   stanno sopra la scena, non sulla carta.
+   ============================================================= */
+
+/* i nomi veri delle famiglie, per le scritte disegnate su tela nella scena (next/font li rinomina) */
+@font-face{font-family:"Newsreader";src:url("/fonts/newsreader-latin-300-normal.woff2") format("woff2");font-weight:300;font-style:normal;font-display:swap}
+@font-face{font-family:"Newsreader";src:url("/fonts/newsreader-latin-400-normal.woff2") format("woff2");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"IBM Plex Sans";src:url("/fonts/ibm-plex-sans-latin-500-normal.woff2") format("woff2");font-weight:500;font-display:swap}
+@font-face{font-family:"IBM Plex Mono";src:url("/fonts/ibm-plex-mono-latin-400-normal.woff2") format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:"IBM Plex Mono";src:url("/fonts/ibm-plex-mono-latin-500-normal.woff2") format("woff2");font-weight:500;font-display:swap}
+
+html.in-campagna,html.in-campagna body{overflow:hidden;overscroll-behavior:none;height:100%}
+
+.cv{
+  --cv-testo:#F3F1EB;
+  --cv-tenue:#D5D2C6;
+  --cv-grigio:#9A9B94;
+  --cv-bordo:rgba(243,241,235,0.14);
+  --cv-oro:#D9C26A;
+  --cv-oro-tenue:rgba(217,194,106,.32);
+  --cv-verde:#183F35;
+  --cv-pannello:rgba(12,13,10,.66);
+  position:fixed;inset:0;background:#0B0C10;color:var(--cv-testo);
+}
+.cv button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+.cv :focus-visible{outline:2px solid var(--cv-oro);outline-offset:3px}
+.cv-solo-schermo{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.cv-occhiello,.cv .olio-occhiello{font-family:var(--mono);font-size:.72rem;text-transform:uppercase;letter-spacing:.14em;color:var(--cv-oro)}
+
+/* la testata del sito resta sopra tutto, coi colori della scena */
+.cv .cv-testata{z-index:60;color:var(--cv-testo);--pannello:rgba(12,13,10,.55)}
+.cv .cv-testata .olio-torna:hover{color:var(--cv-oro)}
+
+/* ---------- scena ---------- */
+.cv-esperienza{position:fixed;inset:0}
+.cv-esperienza .tela{position:fixed !important;inset:0}
+.cv-esperienza .tela canvas{touch-action:none}
+
+/* ---------- l'attesa e l'ingresso ---------- */
+.cv-avvio{z-index:50;pointer-events:auto;display:grid;place-items:center;animation:none}
+.cv-avvio::before{content:"";position:absolute;inset:0;background:radial-gradient(70% 65% at 50% 50%,rgba(8,9,7,.72),rgba(8,9,7,.3))}
+.cv-avvio-centro{position:relative;text-align:center;max-width:36rem;padding:2rem 1.5rem;display:flex;flex-direction:column;align-items:center;gap:1rem;text-shadow:0 2px 24px rgba(0,0,0,.6)}
+.cv-titolo{font-family:var(--serif);font-weight:300;font-size:clamp(2.6rem,8vw,5.2rem);line-height:.95;letter-spacing:-.02em}
+.cv-attacco{font-family:var(--serif);font-weight:300;font-size:clamp(1rem,1.8vw,1.22rem);line-height:1.5;color:var(--cv-tenue)}
+.cv-carica{position:static;transform:none;margin-top:.6rem}
+.cv-entra{
+  margin-top:.6rem;padding:1rem 1.9rem;border-radius:999px;background:var(--cv-oro) !important;color:#14130C !important;
+  font-family:var(--mono);font-size:.82rem;letter-spacing:.1em;text-transform:uppercase;
+  box-shadow:0 0 0 0 rgba(217,194,106,.6);animation:cv-pulsa 2.2s ease-out 1s infinite;
+}
+.cv-entra:hover{filter:brightness(1.1)}
+@keyframes cv-pulsa{0%{box-shadow:0 0 0 0 rgba(217,194,106,.55)}100%{box-shadow:0 0 0 22px rgba(217,194,106,0)}}
+
+/* ---------- interfaccia ---------- */
+.cv-interfaccia{position:fixed;inset:0;pointer-events:none;z-index:10;animation:cv-appare 1.2s var(--curva) .3s both}
+.cv-interfaccia > *{pointer-events:auto}
+@keyframes cv-appare{from{opacity:0}to{opacity:1}}
+
+.cv-comandi{position:absolute;top:3.6rem;right:clamp(1rem,3vw,2rem);display:flex;align-items:center;gap:.6rem}
+.cv-modi{display:flex;padding:.25rem;border:1px solid var(--cv-bordo);border-radius:999px;background:var(--cv-pannello);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.cv-modi button{font-family:var(--mono);font-size:.74rem;letter-spacing:.06em;padding:.45rem .9rem;border-radius:999px;color:var(--cv-tenue);transition:background .25s,color .25s}
+.cv-modi button[aria-pressed="true"]{background:var(--cv-oro);color:#14130C}
+.cv-aiuto{width:2.3rem;height:2.3rem;border-radius:50%;border:1px solid var(--cv-bordo) !important;background:var(--cv-pannello) !important;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);font-family:var(--mono);font-size:.9rem}
+.cv-aiuto:hover{border-color:var(--cv-oro) !important}
+.cv-suono{display:inline-flex;align-items:center;gap:.55rem;padding:.55rem .9rem;border:1px solid var(--cv-bordo) !important;border-radius:999px;background:var(--cv-pannello) !important;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);font-family:var(--mono);font-size:.74rem;letter-spacing:.06em;color:var(--cv-tenue) !important}
+.cv-suono[aria-pressed="true"]{border-color:var(--cv-oro-tenue) !important;color:var(--cv-testo) !important}
+.cv-suono-segno{display:inline-flex;align-items:flex-end;gap:2px;height:12px}
+.cv-suono-segno i{display:block;width:2px;height:3px;background:var(--cv-grigio);border-radius:1px}
+.cv-suono-segno--acceso i{background:var(--cv-oro);animation:cv-balla .9s steps(4) infinite}
+.cv-suono-segno--acceso i:nth-child(2){animation-delay:.2s}
+.cv-suono-segno--acceso i:nth-child(3){animation-delay:.45s}
+.cv-suono-segno--acceso i:nth-child(4){animation-delay:.1s}
+@keyframes cv-balla{0%,100%{height:3px}50%{height:12px}}
+
+.cv-guida{
+  position:absolute;left:50%;bottom:5.6rem;transform:translateX(-50%);
+  font-family:var(--mono);font-size:.72rem;letter-spacing:.04em;
+  white-space:nowrap;pointer-events:none;transition:opacity .8s ease;
+  padding:.45rem .9rem;border-radius:999px;background:rgba(12,13,10,.45);
+}
+.cv-guida--via{opacity:0}
+
+/* il pannello della zona */
+.cv-pannello{
+  position:absolute;right:1.75rem;top:52%;transform:translateY(-50%);
+  width:min(25rem,calc(100% - 3.5rem));max-height:calc(100dvh - 12rem);overflow:auto;
+  padding:1.5rem 1.6rem 1.4rem;
+  background:var(--cv-pannello);
+  border:1px solid var(--cv-oro-tenue);border-radius:8px;
+  backdrop-filter:blur(12px) saturate(1.1);-webkit-backdrop-filter:blur(12px) saturate(1.1);
+  box-shadow:0 30px 80px -40px rgba(0,0,0,.6);
+  animation:cv-entra .6s var(--curva);
+}
+@keyframes cv-entra{from{opacity:0;transform:translate(14px,-50%)}to{opacity:1;transform:translate(0,-50%)}}
+.cv-pannello-maniglia{display:flex;width:100%;justify-content:space-between;align-items:center;text-align:left;cursor:default !important}
+.cv-pannello-segno{display:none;font-family:var(--mono);color:var(--cv-oro);font-size:1.1rem}
+.cv-pannello-titolo{font-family:var(--serif);font-weight:400;font-size:2.2rem;line-height:1.05;letter-spacing:-.01em;margin:.7rem 0 .4rem}
+.cv-pannello-titolo::after{content:"";display:block;width:2.6rem;height:1px;background:var(--cv-oro);margin-top:.9rem}
+.cv-pannello-luogo{font-family:var(--mono);font-size:.7rem;letter-spacing:.06em;color:var(--cv-grigio);margin:.2rem 0 .8rem}
+.cv-pannello-testo{font-family:var(--serif);font-weight:300;font-size:1.18rem;line-height:1.5;animation:cv-sfuma .6s var(--curva)}
+@keyframes cv-sfuma{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.cv-fasi{display:flex;align-items:center;gap:.6rem;margin-top:1.3rem}
+.cv-freccia{width:2.4rem;height:2.4rem;flex-shrink:0;border:1px solid var(--cv-bordo) !important;border-radius:50%;font-family:var(--mono);transition:border-color .2s,background .2s}
+.cv-freccia:hover{border-color:var(--cv-oro) !important;background:rgba(217,194,106,.08) !important}
+.cv-fasi-punti{flex:1;display:flex;list-style:none;gap:.35rem;justify-content:center;margin:0;padding:0}
+.cv-fasi-punti li{flex:1;max-width:3rem}
+.cv-fasi-punti button{display:block;width:100%;height:1.6rem;position:relative}
+.cv-fasi-punti button::before{content:"";position:absolute;left:0;right:0;top:50%;height:3px;border-radius:2px;background:rgba(243,241,235,.2);transition:background .3s}
+.cv-fasi-punti button[aria-current="step"]::before{background:var(--cv-oro)}
+.cv-fasi-punti button:hover::before{background:rgba(217,194,106,.6)}
+.cv-perche{margin-top:1.2rem;padding-top:1rem;border-top:1px solid var(--cv-bordo)}
+.cv-perche p:last-child{font-family:var(--serif);font-weight:300;font-size:1rem;line-height:1.5;color:var(--cv-tenue);margin-top:.5rem}
+.cv-parla-con{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1.2rem}
+.cv-parla{padding:.75rem 1.3rem;border-radius:999px;background:var(--cv-oro) !important;color:#14130C !important;font-family:var(--mono);font-size:.75rem;letter-spacing:.08em;text-transform:uppercase}
+.cv-parla:hover{filter:brightness(1.08)}
+.cv-parla--altro{background:transparent !important;color:var(--cv-testo) !important;border:1px solid var(--cv-oro-tenue) !important}
+.cv-parla--altro:hover{border-color:var(--cv-oro) !important}
+
+/* il dialogo */
+.cv-dialogo{
+  position:absolute;left:1.75rem;bottom:5.4rem;
+  width:min(30rem,calc(100% - 3.5rem));max-height:calc(100dvh - 14rem);overflow:auto;
+  padding:1.4rem 1.5rem 1.3rem;
+  background:rgba(251,248,240,.95);color:#16171A;
+  border-radius:14px;box-shadow:0 40px 100px -40px rgba(0,0,0,.7);
+  animation:cv-sale .45s var(--curva);
+}
+@keyframes cv-sale{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.cv-dialogo .cv-occhiello{color:#7D6A16;padding-right:2rem}
+.cv-ritratto{float:left;width:4rem;height:4rem;border-radius:50%;object-fit:cover;margin:.35rem .9rem .2rem 0;border:2px solid var(--cv-oro);box-shadow:0 6px 18px -8px rgba(0,0,0,.5)}
+.cv-dialogo-nome{font-family:var(--serif);font-weight:400;font-size:1.7rem;line-height:1.1;margin:.4rem 0 .6rem}
+.cv-dialogo-domanda{font-family:var(--mono);font-size:.74rem;letter-spacing:.02em;color:#5A5B55;margin:-.2rem 0 .5rem;padding-left:.7rem;border-left:2px solid var(--cv-oro)}
+.cv-dialogo-testo{font-family:var(--serif);font-weight:300;font-size:1.12rem;line-height:1.5}
+.cv-scelte{clear:both;display:flex;flex-wrap:wrap;gap:.45rem;margin-top:1rem}
+.cv-scelte button{font-size:.86rem;padding:.48rem .9rem;border-radius:999px;border:1px solid #D5D0C2 !important;background:#fff !important;color:#16171A !important;transition:background .2s,border-color .2s,color .2s}
+.cv-scelte button:hover{background:var(--cv-verde) !important;border-color:var(--cv-verde) !important;color:#F3F1EB !important}
+.cv-scelte .cv-scelta-tenue{border-color:transparent !important;background:transparent !important;color:#5A5B55 !important;text-decoration:underline;text-underline-offset:3px}
+.cv-scelte .cv-scelta-tenue:hover{background:transparent !important;color:#16171A !important}
+.cv-scelte .cv-scelta-vai{background:var(--cv-verde) !important;border-color:var(--cv-verde) !important;color:#F3F1EB !important}
+.cv-chiudi{position:absolute;top:.7rem;right:.8rem;width:2rem;height:2rem;font-size:1.4rem;line-height:1;color:#77786F !important}
+.cv-chiudi:hover{color:#16171A !important}
+
+/* le zone, in basso */
+.cv-zone{
+  position:absolute;left:50%;bottom:1.4rem;transform:translateX(-50%);
+  display:flex;gap:.3rem;padding:.3rem;max-width:calc(100% - 2rem);overflow-x:auto;scrollbar-width:none;
+  border:1px solid var(--cv-bordo);border-radius:999px;background:var(--cv-pannello);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+}
+.cv-zone::-webkit-scrollbar{display:none}
+.cv-zone button{white-space:nowrap;font-size:.86rem;padding:.5rem 1rem;border-radius:999px;color:var(--cv-tenue);transition:background .25s,color .25s}
+.cv-zone button:hover{color:var(--cv-testo);background:rgba(243,241,235,.08)}
+.cv-zone button[aria-current="true"]{background:var(--cv-testo);color:#16171A}
+
+.cv-joystick{position:absolute;left:1.4rem;bottom:5.4rem;width:7.5rem;height:7.5rem;border-radius:50%;border:1px solid var(--cv-bordo);background:rgba(12,13,10,.4);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);touch-action:none;display:grid;place-items:center}
+.cv-joystick i{display:block;width:3rem;height:3rem;border-radius:50%;background:var(--cv-oro);opacity:.9;pointer-events:none}
+
+/* il viaggio in trattore: lo schermo si fa nero, una riga in oro */
+.cv-viaggio{position:fixed;inset:0;z-index:40;pointer-events:none;opacity:0;background:#050505;display:grid;place-items:center}
+.cv-viaggio p{font-family:var(--serif);font-weight:300;font-style:italic;font-size:clamp(1.6rem,4vw,2.6rem);color:var(--cv-oro)}
+.cv-viaggio p::after{content:"";display:block;width:3rem;height:1px;margin:1.1rem auto 0;background:var(--cv-oro);animation:cv-strada 1s linear infinite}
+@keyframes cv-strada{from{transform:scaleX(.2)}to{transform:scaleX(1)}}
+
+/* la schermata dei comandi, da videogioco */
+.cv-comandi-gioco{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:30;
+  width:min(34rem,calc(100% - 2rem));max-height:calc(100dvh - 9rem);overflow:auto;
+  padding:1.6rem 1.8rem 1.5rem;border-radius:14px;
+  background:rgba(10,11,9,.86);border:1px solid var(--cv-oro-tenue);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  box-shadow:0 40px 120px -40px rgba(0,0,0,.8);
+  animation:cv-sale .5s var(--curva);
+}
+.cv-comandi-gioco h2{font-family:var(--serif);font-weight:300;font-size:2rem;line-height:1.1;margin:.4rem 0 1.1rem}
+.cv-righe{display:grid;gap:.9rem}
+.cv-riga{display:flex;align-items:center;gap:1rem;font-size:.95rem;color:var(--cv-tenue)}
+.cv-tasto{display:inline-grid;place-items:center;min-width:2.1rem;height:2.1rem;padding:0 .45rem;border-radius:6px;font-family:var(--mono);font-size:.82rem;color:var(--cv-testo);background:linear-gradient(#2A2C28,#1A1B18);border:1px solid rgba(243,241,235,.25);border-bottom-width:3px;box-shadow:0 2px 0 rgba(0,0,0,.4)}
+.cv-tasto--largo{min-width:auto;padding:0 .8rem;white-space:nowrap}
+.cv-croce{display:grid;grid-template-columns:repeat(3,2.1rem);grid-template-rows:repeat(2,2.1rem);gap:.2rem;flex-shrink:0}
+.cv-croce .c-su{grid-column:2;grid-row:1}.cv-croce .c-sx{grid-column:1;grid-row:2}.cv-croce .c-giu{grid-column:2;grid-row:2}.cv-croce .c-dx{grid-column:3;grid-row:2}
+.cv-croce .cv-tasto{animation:cv-premi 2.4s steps(1) infinite}
+.cv-croce .c-sx{animation-delay:.6s}.cv-croce .c-giu{animation-delay:1.2s}.cv-croce .c-dx{animation-delay:1.8s}
+@keyframes cv-premi{0%{background:var(--cv-oro);color:#14130C;border-bottom-width:1px;transform:translateY(2px)}25%,100%{background:linear-gradient(#2A2C28,#1A1B18);color:var(--cv-testo);border-bottom-width:3px;transform:none}}
+.cv-stick{display:grid;place-items:center;width:3.6rem;height:3.6rem;border-radius:50%;border:1px solid rgba(243,241,235,.3);flex-shrink:0}
+.cv-stick i{width:1.5rem;height:1.5rem;border-radius:50%;background:var(--cv-oro);animation:cv-stick 2s ease-in-out infinite}
+@keyframes cv-stick{0%,100%{transform:translate(0,-.6rem)}50%{transform:translate(.5rem,.3rem)}}
+.cv-note{list-style:none;margin:1.2rem 0 1.3rem;padding:1rem 0 0;display:grid;gap:.45rem;font-size:.88rem;color:var(--cv-tenue);border-top:1px solid var(--cv-bordo)}
+.cv-comandi-gioco .cv-entra{animation:none}
+.cv-pannello--nascosto{display:none}
+
+/* la didascalia sotto la foto aperta */
+.cv-didascalia{font-family:var(--serif);font-style:italic;font-weight:300;font-size:1.05rem;color:#F3F1EB;text-align:center;max-width:40rem}
+
+/* senza WebGL */
+.cv-senza{position:static;min-height:100svh;overflow:auto}
+html.in-campagna:has(.cv-senza),html.in-campagna:has(.cv-senza) body{overflow:auto;height:auto}
+.cv-colonna{max-width:44rem;margin:0 auto;padding:6rem 1.25rem 4rem;display:grid;gap:2.4rem}
+.cv-colonna h2{font-family:var(--serif);font-weight:400;font-size:1.6rem;margin:.4rem 0 .6rem}
+.cv-colonna p,.cv-colonna li{color:var(--cv-tenue);line-height:1.55}
+.cv-colonna ol{padding-left:1.2rem;margin-top:.8rem;display:grid;gap:.5rem}
+.cv-nota{font-family:var(--mono);font-size:.78rem}
+
+/* ---------- schermi compatti (telefoni, tablet in verticale, schermi bassi): la scena prima di tutto ---------- */
+.cv-interfaccia--compatta .cv-guida{display:none}
+.cv-interfaccia--compatta .cv-comandi{top:3.2rem;right:.75rem;gap:.4rem}
+.cv-interfaccia--compatta .cv-suono-testo{display:none}
+.cv-interfaccia--compatta .cv-suono{padding:.45rem .6rem}
+.cv-interfaccia--compatta .cv-modi button{font-size:.66rem;padding:.38rem .7rem}
+.cv-interfaccia--compatta .cv-pannello{
+  top:auto;bottom:4.3rem;right:.75rem;left:8rem;width:auto;max-width:30rem;margin-left:auto;transform:none;
+  padding:.6rem .9rem .65rem;max-height:46dvh;animation:cv-sale .45s var(--curva);
+}
+.cv-interfaccia--compatta.cv-pannello-aperto .cv-pannello{left:.75rem;max-width:34rem}
+.cv-interfaccia--compatta .cv-pannello--chiuso{cursor:pointer}
+.cv-interfaccia--compatta .cv-pannello--chiuso .cv-occhiello{font-size:.6rem}
+.cv-interfaccia--compatta .cv-pannello--chiuso .cv-pannello-titolo{font-size:1.08rem;margin:.15rem 0 0}
+.cv-interfaccia--compatta .cv-pannello--chiuso .cv-pannello-titolo::after{display:none}
+.cv-interfaccia--compatta .cv-pannello-maniglia{cursor:pointer !important}
+.cv-interfaccia--compatta .cv-pannello-segno{display:block;font-size:1.3rem;line-height:1}
+.cv-interfaccia--compatta .cv-pannello-titolo{font-size:1.4rem;margin:.35rem 0 .2rem}
+.cv-interfaccia--compatta .cv-pannello-titolo::after{width:1.8rem;margin-top:.5rem}
+.cv-interfaccia--compatta .cv-pannello-luogo{font-size:.62rem;margin:.1rem 0 .4rem}
+.cv-interfaccia--compatta .cv-pannello-testo{font-size:.98rem;line-height:1.42}
+.cv-interfaccia--compatta .cv-fasi{margin-top:.8rem}
+.cv-interfaccia--compatta .cv-freccia{width:2.1rem;height:2.1rem}
+.cv-interfaccia--compatta .cv-parla-con{margin-top:.8rem}
+.cv-interfaccia--compatta .cv-parla{padding:.6rem 1rem}
+.cv-interfaccia--compatta .cv-dialogo{left:.75rem;right:.75rem;width:auto;max-width:34rem;bottom:4.3rem;max-height:56dvh;padding:1.05rem 1.1rem 1rem}
+.cv-interfaccia--compatta .cv-dialogo-nome{font-size:1.35rem}
+.cv-interfaccia--compatta .cv-dialogo-testo{font-size:1rem}
+.cv-interfaccia--compatta .cv-scelte button{font-size:.8rem;padding:.4rem .75rem}
+.cv-interfaccia--compatta .cv-zone{bottom:.8rem;left:.75rem;right:.75rem;transform:none;max-width:none}
+.cv-interfaccia--compatta .cv-zone button{font-size:.78rem;padding:.45rem .8rem}
+.cv-interfaccia--compatta .cv-joystick{top:auto;bottom:4.3rem;left:.8rem;width:6.4rem;height:6.4rem}
+/* con il pannello aperto o il dialogo, il joystick si fa da parte */
+.cv-interfaccia--compatta.cv-pannello-aperto .cv-joystick,.cv-interfaccia.cv-con-dialogo .cv-joystick{display:none}
+.cv-interfaccia--compatta .cv-ritratto{width:3rem;height:3rem}
+.cv-interfaccia--compatta .cv-comandi-gioco{padding:1.1rem 1.1rem 1rem}
+.cv-interfaccia--compatta .cv-comandi-gioco h2{font-size:1.45rem}
+.cv-interfaccia--compatta .cv-riga{font-size:.85rem}
+@media (max-height:520px){
+  .cv-interfaccia--compatta .cv-comandi{top:.6rem;right:auto;left:50%;transform:translateX(-50%)}
+  .cv-interfaccia--compatta .cv-pannello{max-height:60dvh}
+  .cv-interfaccia--compatta .cv-dialogo{max-height:64dvh}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .cv-entra,.cv-croce .cv-tasto,.cv-stick i,.cv-suono-segno--acceso i{animation:none !important}
+  .cv-pannello,.cv-dialogo,.cv-pannello-testo,.cv-interfaccia{animation:none}
+}

@@ -462,8 +462,6 @@ html[data-tema="chiaro"] .olio{--oro:#7D6A16;--oro-tenue:rgba(125,106,22,.3);--p
 .olio:not(.olio--3d){background:radial-gradient(120% 70% at 20% 0%,var(--oro-tenue),transparent 60%),var(--fondo)}
 /* nell'uliveto lo scorrimento di lato non diventa il gesto "indietro" del browser */
 html.in-uliveto,html.in-uliveto body{overscroll-behavior-x:none}
-.uliveto{position:fixed;inset:0;z-index:0}
-.uliveto canvas{touch-action:pan-y !important}
 .olio-testata{
   position:fixed;inset:0 0 auto;z-index:20;
   display:flex;justify-content:space-between;align-items:center;gap:1rem;
@@ -476,48 +474,6 @@ html.in-uliveto,html.in-uliveto body{overscroll-behavior-x:none}
 .olio-comandi{display:flex;align-items:center;gap:.9rem}
 .olio-lingua{text-decoration:none;opacity:.65}
 .olio-lingua[aria-current="page"]{opacity:1;text-decoration:underline;text-underline-offset:4px}
-.olio-suoni{
-  display:inline-flex;align-items:center;gap:.55rem;
-  padding:.45rem .8rem;border:1px solid var(--oro-tenue);border-radius:999px;background:var(--pannello);
-  font-family:var(--mono);font-size:.72rem;letter-spacing:.06em;
-  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
-}
-.olio-suoni:hover,.olio-suoni[aria-pressed="true"]{border-color:var(--oro)}
-.olio-onde{display:inline-flex;align-items:flex-end;gap:2px;height:12px}
-.olio-onde i{display:block;width:2px;height:4px;background:currentColor;border-radius:1px}
-.olio-onde--attive i{background:var(--oro);animation:olio-onda 1.1s ease-in-out infinite}
-.olio-onde--attive i:nth-child(2){animation-delay:.25s}
-.olio-onde--attive i:nth-child(3){animation-delay:.5s}
-@keyframes olio-onda{0%,100%{height:3px}50%{height:12px}}
-
-/* le tappe: una per schermata, il testo da un lato, il quadro dall'altro (nella scena) */
-.olio-cammino{position:relative;z-index:1;pointer-events:none}
-.tappa{min-height:100vh;display:flex;align-items:center;padding:6rem clamp(1.25rem,6vw,6rem)}
-.tappa--dx{justify-content:flex-end}
-.tappa--centro{justify-content:center;align-items:flex-start;padding-top:18vh}
-.tappa-pannello{
-  pointer-events:auto;max-width:33rem;padding:2rem 2.3rem 2.2rem;border-radius:6px;
-  background:var(--pannello);color:var(--pannello-testo);
-  backdrop-filter:blur(10px) saturate(1.1);-webkit-backdrop-filter:blur(10px) saturate(1.1);
-  border:1px solid var(--oro-tenue);
-  opacity:0;transform:translateY(18px);
-  transition:opacity .9s var(--curva),transform .9s var(--curva);
-}
-.tappa--qui .tappa-pannello,.olio:not(.olio--3d) .tappa-pannello{opacity:1;transform:none}
-.tappa--centro .tappa-pannello{text-align:center;padding:.9rem 1.6rem}
-.tappa-apertura{max-width:38rem;padding:2rem 2.2rem}
-.olio-occhiello{font-family:var(--mono);font-size:.78rem;text-transform:uppercase;letter-spacing:.14em;color:var(--oro);margin-bottom:1.2rem}
-.olio-titolo{font-family:var(--serif);font-weight:300;font-size:clamp(4.2rem,14vw,10rem);line-height:.9;letter-spacing:-.02em;margin-bottom:1.4rem}
-.olio-attacco{font-family:var(--serif);font-weight:300;font-size:clamp(1.15rem,2.1vw,1.5rem);line-height:1.45}
-.olio-scorri{margin-top:2.2rem;font-family:var(--mono);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--oro);display:flex;align-items:center;gap:.8rem}
-.olio-scorri::after{content:"";width:1px;height:2.2rem;background:linear-gradient(var(--oro),transparent);animation:olio-scendi 2.4s var(--curva) infinite}
-@keyframes olio-scendi{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
-/* il pannello: l'occhiello in monospaziato d'oro, il titolo grande in serif, un filo d'oro, il testo */
-.tappa-occhiello{font-family:var(--mono);font-size:.72rem;text-transform:uppercase;letter-spacing:.16em;color:var(--oro);margin-bottom:.9rem}
-.tappa-titolo{font-family:var(--serif);font-weight:400;font-size:clamp(2rem,3.6vw,2.9rem);line-height:1.05;letter-spacing:-.01em;margin-bottom:1.1rem}
-.tappa-titolo::after{content:"";display:block;width:2.6rem;height:1px;background:var(--oro);margin-top:1.1rem}
-.tappa-testo{font-family:var(--serif);font-weight:300;font-size:clamp(1.15rem,1.8vw,1.38rem);line-height:1.55;color:var(--pannello-testo)}
-.olio-azioni{display:flex;flex-wrap:wrap;align-items:center;gap:1.5rem;margin-top:1.8rem;font-family:var(--mono);font-size:.8rem}
 .olio-scrivimi{
   padding:.85rem 1.6rem;border-radius:999px;
   background:var(--oro);color:#14130C;font-family:var(--mono);font-size:.8rem;letter-spacing:.08em;text-transform:uppercase;
@@ -525,7 +481,7 @@ html.in-uliveto,html.in-uliveto body{overscroll-behavior-x:none}
 .olio-scrivimi:hover{filter:brightness(1.1)}
 html[data-tema="chiaro"] .olio-scrivimi{color:#FBFAF7}
 
-/* senza la scena: i video sotto il testo della tappa */
+/* senza la scena: le foto e i video sotto il testo di ogni posto */
 .olio-piani{display:grid;grid-template-columns:repeat(auto-fit,minmax(9rem,1fr));gap:1rem;margin-top:1.4rem}
 .olio-cornice{display:block;width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:4px;background:var(--fondo-alto)}
 .olio-cornice--vuota{
@@ -541,28 +497,11 @@ html[data-tema="chiaro"] .olio-scrivimi{color:#FBFAF7}
 .olio-schermo-chiudi{font-family:var(--mono);font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;color:#F3F1EB;border:1px solid rgba(243,241,235,.3);border-radius:999px;padding:.55rem 1.2rem}
 
 @media (max-width:760px){
-  /* su telefono i pannelli stanno in fondo, bassi e compatti: la scena sopra resta libera */
-  .tappa{align-items:flex-end;padding:5rem .75rem 1.1rem}
-  .tappa--dx{justify-content:flex-start}
-  .tappa--centro{align-items:flex-start;padding-top:14vh}
-  .tappa-pannello{padding:.8rem 1rem .9rem;max-width:none;width:100%}
-  .tappa-occhiello{font-size:.6rem;margin-bottom:.4rem}
-  .tappa-titolo{font-size:1.45rem;margin-bottom:.45rem}
-  .tappa-titolo::after{width:1.8rem;margin-top:.45rem}
-  .tappa-testo{font-size:.94rem;line-height:1.42}
-  .tappa-apertura{align-self:center;padding:1.2rem 1.2rem 1.3rem}
-  .olio-titolo{font-size:3.6rem;margin-bottom:.8rem}
-  .olio-attacco{font-size:1rem;line-height:1.42}
-  .olio-scorri{margin-top:1.2rem}
-  .olio-azioni{margin-top:1rem;gap:1rem}
   .olio-attesa{bottom:1.4rem}
   .olio-testata{font-size:.7rem}
-  .olio-suoni-testo{display:none}
-  .olio-suoni{padding:.55rem .7rem}
 }
 @media (prefers-reduced-motion:reduce){
-  .olio-scorri::after,.olio-onde--attive i,.olio-velo,.olio-attesa::after{animation:none}
-  .tappa-pannello{transition:none}
+  .olio-velo,.olio-attesa::after{animation:none}
 }
 
 /* ---------- le didascalie dei luoghi della stanza: una riga sopra il luogo, al passaggio o al tocco ---------- */
