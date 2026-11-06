@@ -611,7 +611,7 @@ function PiscinaAttrezzata() {
       <Lettino p={[xl, 0.1, p.z - 2]} telo="#E8B23A" />
       <Lettino p={[xl, 0.1, p.z + 2.8]} telo="#C8302A" />
       <Ombrellone p={[xl - 0.2, 0.1, p.z + 0.4]} />
-      <Doccia p={[p.x + p.bordoL / 2 - 0.8, 0.1, p.z + p.bordoP / 2 - 0.8]} />
+      <Doccia p={[p.x + p.bordoL / 2 - 0.8, 0.1, p.z + p.bordoP / 2 - 2.8]} />
       <Gazebo p={[p.x + 0.4, 0, p.z - p.bordoP / 2 - 3.4]} />
       <Lampade />
       <Fenicottero />
