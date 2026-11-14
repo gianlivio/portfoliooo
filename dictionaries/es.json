@@ -32,6 +32,46 @@
       ],
       "strumenti": "Open2B/Scriggo · PHP · JavaScript · HTML/CSS · API REST y webhooks · Google Tag Manager · GA4"
     },
+    "bellelli": {
+      "tipo": "E-commerce · Open2B",
+      "titolo": "Bellelli Linea Ufficio",
+      "riga": "E-commerce de sillas y mobiliario de oficina en Open2B, en italiano, francés y alemán. Intervenciones en el tema de la tienda y en los datos de producto para Google, presupuestadas una a una.",
+      "ruolo": "Desarrollador Open2B · freelance",
+      "compiti": [
+        "Enlace entre las fichas de productos afines («Disponible también en»), sin modificar el catálogo.",
+        "Datos estructurados Schema.org/JSON-LD.",
+        "Revisión de la versión móvil y nuevos bloques de productos en la home.",
+        "Google Merchant Center: categoría de Google para los 392 productos en los tres idiomas, control de los datos enviados para las campañas de Shopping."
+      ],
+      "strumenti": "Open2B/Scriggo · HTML/CSS · JavaScript · JSON-LD · Google Merchant Center · Google Ads"
+    },
+    "sanires": {
+      "tipo": "E-commerce · Open2B",
+      "titolo": "Sanires",
+      "riga": "E-commerce de guantes desechables y productos de higiene profesional en Open2B. Tras una revisión de la tienda, intervenciones en SEO técnico, velocidad, accesibilidad y diseño.",
+      "ruolo": "Desarrollador Open2B · freelance",
+      "compiti": [
+        "SEO técnico: títulos, sintaxis, datos estructurados y metadatos.",
+        "Textos para Google en las páginas de la tienda.",
+        "Velocidad y accesibilidad.",
+        "Renovación gráfica sobre el diseño existente, con vista previa antes de publicar.",
+        "Privacidad y cookies con iubenda."
+      ],
+      "strumenti": "Open2B/Scriggo · HTML/CSS · JavaScript · Schema.org · iubenda · Lighthouse"
+    },
+    "ghigomiranda": {
+      "tipo": "E-commerce · WordPress",
+      "titolo": "Ghigo Miranda",
+      "riga": "Tienda online de una empresa agrícola del Piamonte, productos a base de miel. Google Shopping, rediseño del sitio y versión para móvil y tablet.",
+      "ruolo": "Desarrollador web · freelance",
+      "compiti": [
+        "Feed para Google Shopping corregido y productos bloqueados devueltos a la aprobación en Merchant Center.",
+        "Rediseño del sitio: alineaciones, tipografías, adaptación a móvil y tablet.",
+        "Velocidad del sitio en móvil.",
+        "Tarifas de envío ligadas a la provincia de entrega."
+      ],
+      "strumenti": "WordPress · PHP · CSS · Google Merchant Center · Lighthouse"
+    },
     "osservatorio": {
       "tipo": "Datos públicos · open source",
       "titolo": "Osservatorio Accoglienza",

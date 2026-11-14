@@ -7,6 +7,9 @@ import { writeFileSync, mkdirSync, existsSync } from "node:fs";
 // shop.puntoluce.net e puntoluce.net/comefare sono dietro la verifica anti-bot di Cloudflare:
 // le loro schermate si aggiungono a mano in public/lavori/ (shop.jpg, blog.jpg).
 const lavori = {
+  bellelli: "https://www.bellelliufficio.it",
+  sanires: "https://www.sanires.com",
+  ghigomiranda: "https://www.ghigomiranda.it",
   osservatorio: "https://osservatorioaccoglienza.org",
   livellozero: "https://livellozero.games",
   ndnluxury: "https://www.ndnluxury.com",

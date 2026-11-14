@@ -14,6 +14,21 @@ if (extraUE(cliente)) avvisa(messaggi[lingua].extraUE)
 // feed: solo prodotti con giacenza > 0
 feed = prodotti.filter(p => p.stock > 0).map(perKelkoo)`,
 
+  bellelli: `Disponibile anche in →
+schede collegate, catalogo intatto
+JSON-LD · mobile
+Merchant Center: 392 prodotti × 3 lingue`,
+
+  sanires: `titoli · metadati · JSON-LD
+testi per Google
+velocità · accessibilità
+privacy e cookie: iubenda`,
+
+  ghigomiranda: `feed → Google Shopping
+prodotti di nuovo approvati
+restyling · telefono · tablet
+spedizioni per provincia`,
+
   osservatorio: `# 90 report ministeriali, 2016–2025
 for pdf in report:
     serie += leggi_tabelle(pdfplumber.open(pdf), "MSNA")
@@ -73,6 +88,21 @@ if (outsideEU(customer)) warn(messages[lang].outsideEU)
 // feed: only products with stock > 0
 feed = products.filter(p => p.stock > 0).map(toKelkoo)`,
 
+  bellelli: `Also available in →
+linked pages, catalogue untouched
+JSON-LD · mobile
+Merchant Center: 392 products × 3 languages`,
+
+  sanires: `titles · metadata · JSON-LD
+texts for Google
+speed · accessibility
+privacy and cookies: iubenda`,
+
+  ghigomiranda: `feed → Google Shopping
+products approved again
+restyling · phone · tablet
+shipping by province`,
+
   osservatorio: `# 90 ministry reports, 2016–2025
 for pdf in reports:
     series += read_tables(pdfplumber.open(pdf), "MSNA")
@@ -131,6 +161,21 @@ if (envio === ENVIO_GRATUITO) mostrarSolo(TRANSFERENCIA)
 if (fueraUE(cliente)) avisar(mensajes[idioma].fueraUE)
 // feed: solo productos con stock > 0
 feed = productos.filter(p => p.stock > 0).map(paraKelkoo)`,
+
+  bellelli: `Disponible también en →
+fichas enlazadas, catálogo intacto
+JSON-LD · móvil
+Merchant Center: 392 productos × 3 idiomas`,
+
+  sanires: `títulos · metadatos · JSON-LD
+textos para Google
+velocidad · accesibilidad
+privacidad y cookies: iubenda`,
+
+  ghigomiranda: `feed → Google Shopping
+productos aprobados de nuevo
+rediseño · móvil · tablet
+envíos por provincia`,
 
   osservatorio: `# 90 informes ministeriales, 2016–2025
 for pdf in informes:

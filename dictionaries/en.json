@@ -32,6 +32,46 @@
       ],
       "strumenti": "Open2B/Scriggo · PHP · JavaScript · HTML/CSS · REST APIs and webhooks · Google Tag Manager · GA4"
     },
+    "bellelli": {
+      "tipo": "E-commerce · Open2B",
+      "titolo": "Bellelli Linea Ufficio",
+      "riga": "E-commerce of office seating and furniture on Open2B, in Italian, French and German. Work on the shop theme and on the product data sent to Google, quoted one job at a time.",
+      "ruolo": "Open2B developer · freelance",
+      "compiti": [
+        "Links between the pages of related products (“Also available in”), with no changes to the catalogue.",
+        "Schema.org/JSON-LD structured data.",
+        "Review of the mobile version and new product blocks on the home page.",
+        "Google Merchant Center: a Google category for all 392 products in the three languages, checks on the data sent for Shopping campaigns."
+      ],
+      "strumenti": "Open2B/Scriggo · HTML/CSS · JavaScript · JSON-LD · Google Merchant Center · Google Ads"
+    },
+    "sanires": {
+      "tipo": "E-commerce · Open2B",
+      "titolo": "Sanires",
+      "riga": "E-commerce of disposable gloves and professional hygiene products on Open2B. After a review of the shop, work on technical SEO, speed, accessibility and design.",
+      "ruolo": "Open2B developer · freelance",
+      "compiti": [
+        "Technical SEO: titles, markup, structured data and metadata.",
+        "Texts for Google on the shop's pages.",
+        "Speed and accessibility.",
+        "Graphic renewal of the existing layout, with a preview before publishing.",
+        "Privacy and cookies with iubenda."
+      ],
+      "strumenti": "Open2B/Scriggo · HTML/CSS · JavaScript · Schema.org · iubenda · Lighthouse"
+    },
+    "ghigomiranda": {
+      "tipo": "E-commerce · WordPress",
+      "titolo": "Ghigo Miranda",
+      "riga": "Online shop of a farm in Piedmont, honey-based products. Google Shopping, site restyling and a phone and tablet version.",
+      "ruolo": "Web developer · freelance",
+      "compiti": [
+        "Google Shopping feed fixed and blocked products brought back to approval in Merchant Center.",
+        "Site restyling: alignment, typefaces, phone and tablet layout.",
+        "Mobile speed.",
+        "Shipping rates tied to the delivery province."
+      ],
+      "strumenti": "WordPress · PHP · CSS · Google Merchant Center · Lighthouse"
+    },
     "osservatorio": {
       "tipo": "Public data · open source",
       "titolo": "Osservatorio Accoglienza",
