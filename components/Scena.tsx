@@ -13,7 +13,7 @@ import { mondo } from "./condivisi";
 import { suono } from "./audio";
 import { ANGOLO_ZONA, RAGGIO_ULIVETO } from "./zona";
 import { supporto, muoviApi, sollevamento } from "./lavori3d/supporti";
-import { PANNELLO, SCHERMO, disegnaPannello, disegnaApri, materialeSchermo, giroPagina, type Schermo } from "./lavori3d/pannello";
+import { PANNELLO, SCHERMO, disegnaPannello, disegnaApri, disegnaAlone, materialeSchermo, giroPagina, type Schermo } from "./lavori3d/pannello";
 import { PELO_ACQUA } from "./condivisi";
 import type { Supporto } from "@/content/lavori";
 import { Zona, LIBRI, type Azione } from "./ospiti/zonaSviluppatore";
@@ -198,6 +198,7 @@ type Grafica = {
   nastri: (THREE.CanvasTexture | null)[];
   lampada: THREE.CanvasTexture;
   apri: THREE.CanvasTexture;
+  alone: THREE.CanvasTexture;
   /** per ridisegnare i pannelli quando cambia il tema, sulla stessa tela */
   conSchermo: boolean[];
   famiglie: Famiglie;
@@ -321,7 +322,7 @@ function Carte({
       const anis = gl.capabilities.getMaxAnisotropy();
       const pannelli = carte.map((c, i) => {
         const tela = document.createElement("canvas");
-        disegnaPannello(tela, c.dati, f, 1000 + i * 97, PALETTE[tema].carta, !!immagini[i]);
+        disegnaPannello(tela, c.dati, f, 1000 + i * 97, tema === "scuro", !!immagini[i]);
         const t = new THREE.CanvasTexture(tela);
         t.colorSpace = THREE.SRGBColorSpace;
         t.anisotropy = anis;
@@ -347,7 +348,7 @@ function Carte({
       );
       setGrafica({
         pannelli, schermi, rapporti, frammenti, nastri,
-        lampada: disegnaLampada(), apri: disegnaApri(APRI[lingua] ?? APRI.it, f.mono),
+        lampada: disegnaLampada(), apri: disegnaApri(APRI[lingua] ?? APRI.it, f.mono), alone: disegnaAlone(),
         conSchermo: immagini.map((i) => !!i), famiglie: f, tema,
       });
       onPronta();
@@ -369,6 +370,7 @@ function Carte({
       grafica?.nastri.forEach((t) => t?.dispose());
       grafica?.lampada.dispose();
       grafica?.apri.dispose();
+      grafica?.alone.dispose();
       grafica?.frammenti.forEach((t) => t.dispose());
     },
     [grafica]
@@ -381,10 +383,15 @@ function Carte({
     carte.forEach((c, i) => {
       if (c.dati.contatto || c.dati.uliveto) return;
       const t = grafica.pannelli[i];
-      disegnaPannello(t.image as HTMLCanvasElement, c.dati, grafica.famiglie, 1000 + i * 97, PALETTE[tema].carta, grafica.conSchermo[i]);
+      disegnaPannello(t.image as HTMLCanvasElement, c.dati, grafica.famiglie, 1000 + i * 97, tema === "scuro", grafica.conSchermo[i]);
       t.needsUpdate = true;
     });
   }, [grafica, tema, carte]);
+
+  // di notte gli oggetti si accendono appena
+  useEffect(() => {
+    supporti.forEach((sp) => sp?.setNotte(tema === "scuro"));
+  }, [supporti, tema]);
 
   useEffect(() => {
     document.body.style.cursor = sopra ? "pointer" : "";
@@ -547,6 +554,19 @@ function Carte({
           >
             {/* l'oggetto che richiama il lavoro, a terra accanto al pannello, nella sua posa */}
             {sp && <primitive object={sp.gruppo} />}
+            {/* di notte il pannello è un totem acceso: un alone dietro e una pozza di luce a terra davanti */}
+            {tema === "scuro" && (
+              <>
+                <mesh position={[0, MEZZO + su, -0.03]} raycast={() => null} renderOrder={1}>
+                  <planeGeometry args={[L * 1.9, A * 1.45]} />
+                  <meshBasicMaterial map={grafica.alone} color="#8FA6D8" transparent opacity={0.32} depthWrite={false} blending={THREE.AdditiveBlending} toneMapped={false} />
+                </mesh>
+                <mesh position={[0, 0.01, 0.55]} rotation={[-Math.PI / 2, 0, 0]} raycast={() => null} renderOrder={1}>
+                  <planeGeometry args={[L * 2.2, 1.5]} />
+                  <meshBasicMaterial map={grafica.alone} color="#E8DCC4" transparent opacity={0.28} depthWrite={false} blending={THREE.AdditiveBlending} toneMapped={false} />
+                </mesh>
+              </>
+            )}
             <mesh
               ref={(l) => {
                 lastre.current[i] = l;

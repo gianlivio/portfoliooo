@@ -25,8 +25,11 @@ export const SCHERMO = {
   y: (0.5 - (FIN.y + FIN.h / 2) / TA) * PANNELLO.alto,
 };
 
-const INCHIOSTRO = "#16171A";
-const GRIGIO = "#77786F";
+/** I colori del pannello: di giorno carta e inchiostro; di notte un totem scuro, illuminato dallo schermo. */
+const COLORI = {
+  giorno: { fondo: "#FFFFFF", inchiostro: "#16171A", grigio: "#77786F", filo: "rgba(22,23,26,0.10)" },
+  notte: { fondo: "#17181D", inchiostro: "#F1EEE6", grigio: "#9C9B93", filo: "rgba(241,238,230,0.30)" },
+};
 
 /** Disegna il pannello sulla tela. Senza schermata (lavori in costruzione) la finestra ha il suo motivo. */
 export function disegnaPannello(
@@ -34,19 +37,25 @@ export function disegnaPannello(
   dati: Omit<DatiCopertina, "immagine" | "finestraVuota">,
   famiglie: Famiglie,
   seme: number,
-  carta: string,
+  notte: boolean,
   conSchermo: boolean
 ) {
+  const k = notte ? COLORI.notte : COLORI.giorno;
   tela.width = TL;
   tela.height = TA;
   const x = tela.getContext("2d");
   if (!x) return;
   x.clearRect(0, 0, TL, TA);
   rettangoloArrotondato(x, 0, 0, TL, TA, 24);
-  x.fillStyle = carta;
+  x.fillStyle = k.fondo;
   x.fill();
   x.save();
   x.clip();
+  // il filo del bordo: di notte disegna la sagoma del totem contro il buio
+  rettangoloArrotondato(x, 1.5, 1.5, TL - 3, TA - 3, 23);
+  x.strokeStyle = k.filo;
+  x.lineWidth = 3;
+  x.stroke();
   rettangoloArrotondato(x, FIN.x, FIN.y, FIN.w, FIN.h, 12);
   if (conSchermo) {
     x.save();
@@ -66,13 +75,13 @@ export function disegnaPannello(
   // la fascia: numero e tipo, il titolo grande, l'indirizzo
   const y0 = FIN.y + FIN.h + 52;
   x.textBaseline = "alphabetic";
-  x.fillStyle = GRIGIO;
+  x.fillStyle = k.grigio;
   x.font = `500 19px ${famiglie.mono}`;
   x.fillText(dati.numero, M + 2, y0);
   x.font = `400 19px ${famiglie.mono}`;
   const tipo = [dati.tipo.toUpperCase(), dati.anno].filter(Boolean).join("  ·  ");
   x.fillText(adatta(x, tipo, TL - 2 * M - 52), M + 48, y0);
-  x.fillStyle = INCHIOSTRO;
+  x.fillStyle = k.inchiostro;
   let corpo = 62;
   x.font = `300 ${corpo}px ${famiglie.serif}`;
   while (x.measureText(dati.titolo).width > TL - 2 * M && corpo > 38) {
@@ -80,10 +89,26 @@ export function disegnaPannello(
     x.font = `300 ${corpo}px ${famiglie.serif}`;
   }
   x.fillText(adatta(x, dati.titolo, TL - 2 * M), M - 2, y0 + 84);
-  x.fillStyle = GRIGIO;
+  x.fillStyle = k.grigio;
   x.font = `400 20px ${famiglie.mono}`;
   x.fillText(adatta(x, dati.dominio, TL - 2 * M), M + 2, TA - M - 14);
   x.restore();
+}
+
+/** L'alone di luce: dietro il pannello e a terra davanti, di notte. Bianco: il colore lo dà il materiale. */
+export function disegnaAlone() {
+  const c = document.createElement("canvas");
+  c.width = c.height = 256;
+  const x = c.getContext("2d") as CanvasRenderingContext2D;
+  const g = x.createRadialGradient(128, 128, 0, 128, 128, 128);
+  g.addColorStop(0, "rgba(255,255,255,1)");
+  g.addColorStop(0.35, "rgba(255,255,255,0.45)");
+  g.addColorStop(1, "rgba(255,255,255,0)");
+  x.fillStyle = g;
+  x.fillRect(0, 0, 256, 256);
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  return t;
 }
 
 /** La scritta "Apri ↗" che compare sullo schermo quando ci si passa sopra. */

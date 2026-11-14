@@ -4,7 +4,7 @@ import type { Supporto } from "@/content/lavori";
 
 /*
  * Gli oggetti che accompagnano alcuni lavori nella scena, a terra accanto al pannello:
- * la sedia di design sotto Bellelli (il pannello ci sta seduto sopra), il gommone dietro l'Osservatorio,
+ * la sedia di design davanti a Bellelli, il gommone davanti all'Osservatorio con la prua verso il centro,
  * l'arnia accanto a Ghigo Miranda. Ognuno ha la sua posa.
  *
  * Modelli e texture da Poly Haven (polyhaven.com, licenza CC0), ridotti per il web e serviti da public/lavori/oggetti:
@@ -46,27 +46,28 @@ type Definizione = {
 const trasparente = (m: THREE.MeshStandardMaterial) => {
   // il policarbonato delle sedie di design: trasparente, appena fumé
   m.transparent = true;
-  m.opacity = 0.42;
-  m.color.set("#D8E4EC");
+  m.opacity = 0.55;
+  m.color.set("#CFDDE8");
   m.map = null;
   m.roughness = 0.08;
   m.metalness = 0;
   m.depthWrite = false;
 };
 const DEF: Record<Supporto, Definizione> = {
-  // Bellelli, sedie di design: una sedia trasparente in miniatura, col pannello seduto sopra
+  // Bellelli, sedie di design: la sedia trasparente davanti al pannello, girata di tre quarti
   sedia: {
     pezzi: [{ nome: "plastic_monobloc_chair_01", pos: [0, 0, 0], scala: 1, ritocco: trasparente }],
-    posa: { x: 0, z: -0.04, giro: 0.32, alto: 0.6, pannello: 0.2 },
+    posa: { x: 0.62, z: 0.62, giro: -0.85, alto: 0.72 },
   },
-  // Osservatorio Accoglienza: il gommone arenato dietro il pannello, a sinistra, coi giubbotti e il salvagente
+  // Osservatorio Accoglienza: il gommone davanti al pannello, la prua verso il centro della scena,
+  // coi giubbotti e il salvagente
   gommone: {
     pezzi: [
       { nome: "life_jacket", pos: [-0.75, 0.2, 0.2], rot: [-1.45, 0, 0.5], scala: 0.9 },
       { nome: "life_jacket", pos: [0.4, 0.2, -0.15], rot: [-1.5, 0, -0.7], scala: 0.9 },
-      { nome: "lifebuoy", pos: [1.25, 0.44, 0.5], rot: [-0.3, -0.4, 0.1], scala: 0.85 },
+      { nome: "lifebuoy", pos: [-1.2, 0.44, 0.1], rot: [-0.3, 0.6, 0.1], scala: 0.85 },
     ],
-    posa: { x: -0.78, z: -0.5, giro: 0.5, alto: 0.38 },
+    posa: { x: 0.42, z: 1.0, giro: -1.15, alto: 0.42 },
     costruisci: gommone,
   },
   // Ghigo Miranda, miele: l'arnia a destra, appena girata, con le api
@@ -292,7 +293,29 @@ export function supporto(id: Supporto) {
     esterno.rotation.y = giro;
     esterno.visible = true;
   });
-  return { gruppo: esterno };
+  // di notte l'oggetto si accende appena: la luce della luna da sola lo lascerebbe una sagoma nera
+  let notte = false;
+  const applicaNotte = () =>
+    gruppo.traverse((o) => {
+      const m = (o as THREE.Mesh).material as THREE.MeshStandardMaterial | undefined;
+      if (!(o as THREE.Mesh).isMesh || !m || !("emissive" in m)) return;
+      if (notte) {
+        m.emissiveMap = m.map;
+        m.emissive.copy(m.map ? new THREE.Color("#FFFFFF") : m.color);
+        m.emissiveIntensity = 0.42;
+      } else {
+        m.emissiveMap = null;
+        m.emissive.set("#000000");
+        m.emissiveIntensity = 1;
+      }
+      m.needsUpdate = true;
+    });
+  pronto.then(applicaNotte);
+  const setNotte = (n: boolean) => {
+    notte = n;
+    applicaNotte();
+  };
+  return { gruppo: esterno, setNotte };
 }
 
 /** Le api attorno all'arnia: girano davanti all'entrata, sbattono le ali, guardano dove vanno. */
