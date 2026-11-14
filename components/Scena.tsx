@@ -340,8 +340,6 @@ function Carte({
         t.needsUpdate = true;
         return t;
       });
-      // l'oggetto accanto al pannello mostra sul suo schermino la cima della stessa pagina
-      supporti.forEach((sp, i) => sp?.prepara(pagine[i]));
       const schermi = pagine.map((t) => (t ? materialeSchermo(t) : null));
       const rapporti = immagini.map((img) => (img ? img.naturalWidth / img.naturalHeight : 1));
       const nastri = carte.map((c) =>
@@ -545,12 +543,8 @@ function Carte({
             rotation={[0, -a, 0]}
             scale={s}
           >
-            {/* l'oggetto che richiama il lavoro, piccolo, ai piedi del pannello */}
-            {sp && (
-              <group position={[L / 2 - 0.1, 0, 0.3]}>
-                <primitive object={sp.gruppo} />
-              </group>
-            )}
+            {/* l'oggetto che richiama il lavoro, a terra accanto al pannello, nella sua posa */}
+            {sp && <primitive object={sp.gruppo} />}
             <mesh
               ref={(l) => {
                 lastre.current[i] = l;

@@ -3,22 +3,19 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import type { Supporto } from "@/content/lavori";
 
 /*
- * Gli oggetti che accompagnano i lavori nella scena, piccoli, ai piedi del pannello: ognuno richiama il lavoro
+ * Gli oggetti che accompagnano i lavori nella scena, a terra accanto al pannello: ognuno richiama il lavoro
  * (il quadro elettrico per lo shop di materiale elettrico, la sedia per Bellelli, il guanto monouso per Sanires...).
- * Sullo schermino dell'oggetto c'è la cima della pagina del sito; la pagina vera sta sul pannello (pannello.ts).
+ * Ognuno ha la sua posa: da che parte del pannello sta, quanto è avanti, come è girato, quanto è alto.
  *
  * I modelli vengono da Poly Haven (polyhaven.com, licenza CC0), ridotti per il web con gltf-transform
  * (texture webp 256–512 px, geometria semplificata e quantizzata) e serviti da public/lavori/oggetti:
  *   power_box_01, standing_chalkboard_01, plastic_monobloc_chair_01, garden_gloves_01, television_02,
- *   cement_bag, trowel_01, vintage_suitcase, ornate_mirror_01, BarberShopChair_01, concrete_road_barrier,
- *   WetFloorSign_01, projector_screen, classic_laptop, standing_picture_frame_02, clipboard, life_jacket, lifebuoy.
+ *   cement_bag, trowel_01, vintage_suitcase, BarberShopChair_01, WetFloorSign_01, spray_paint_bottles, classic_laptop, standing_picture_frame_02, clipboard, life_jacket, lifebuoy.
  * Il gommone, l'arnia e il blocco di resina non ci sono: sono costruiti qui.
  *
- * Coordinate: in metri, y in alto dal pavimento, +z verso chi guarda dal centro della scena.
- * Lo schermo ha sempre le proporzioni 16:11 (largo / 1,4545): le stesse delle vecchie carte.
+ * Coordinate: in metri, y in alto dal pavimento, +z verso chi guarda dal centro della scena,
+ * x = 0 al centro del pannello (largo 1,22: i fianchi stanno a ±0,61).
  */
-
-export const PROPORZIONE = 2.4 / 1.65;
 
 type Pezzo = {
   nome: string;
@@ -29,11 +26,15 @@ type Pezzo = {
   ritocco?: (m: THREE.MeshStandardMaterial) => void;
 };
 
-type SchermoOggetto = { pos: [number, number, number]; rot: [number, number, number]; largo: number };
+/**
+ * La posa dell'oggetto accanto al pannello: dove sta il suo centro (x, z), di quanto è girato
+ * (radianti; positivo verso destra di chi guarda) e quanto è alto, in metri.
+ */
+type Posa = { x: number; z: number; giro: number; alto: number };
 
 type Definizione = {
   pezzi: Pezzo[];
-  schermo: SchermoOggetto;
+  posa: Posa;
   /** le parti costruite qui, senza modello */
   costruisci?: (g: THREE.Group) => void;
 };
@@ -56,96 +57,90 @@ const nitrile = (m: THREE.MeshStandardMaterial) => {
 };
 
 const DEF: Record<Supporto, Definizione> = {
-  // shop.puntoluce.net, materiale elettrico: un quadro elettrico grande, lo schermo davanti all'interno
+  // shop.puntoluce.net, materiale elettrico: il quadro elettrico con lo sportello aperto, posato a terra a sinistra
   quadro: {
-    pezzi: [{ nome: "power_box_01", pos: [0.08, 0.66, -0.12], scala: 2.6 }],
-    schermo: { pos: [0.08, 0.68, 0.02], rot: [0, 0, 0], largo: 0.86 },
+    pezzi: [{ nome: "power_box_01", pos: [0, 0, 0], rot: [0, 0, 0], scala: 1 }],
+    posa: { x: -0.92, z: 0.25, giro: 0.55, alto: 0.62 },
   },
-  // blog Punto Luce: la lavagna a cavalletto
+  // blog Punto Luce: la lavagna a cavalletto, dietro a destra, come davanti a un locale
   lavagna: {
     pezzi: [{ nome: "standing_chalkboard_01", pos: [0, 0, 0], scala: 1 }],
-    schermo: { pos: [0.01, 0.88, 0.2], rot: [-0.25, 0, 0], largo: 0.74 },
+    posa: { x: 0.95, z: -0.15, giro: -0.45, alto: 1.05 },
   },
-  // Bellelli, sedie di design: la sedia trasparente, lo schermo appoggiato sul sedile
+  // Bellelli, sedie di design: la sedia trasparente accanto, girata verso il pannello
   sedia: {
-    pezzi: [{ nome: "plastic_monobloc_chair_01", pos: [0, 0, 0], scala: 1.35, ritocco: trasparente }],
-    schermo: { pos: [0, 0.94, 0.02], rot: [-0.18, 0, 0], largo: 0.86 },
+    pezzi: [{ nome: "plastic_monobloc_chair_01", pos: [0, 0, 0], scala: 1, ritocco: trasparente }],
+    posa: { x: 0.95, z: 0.25, giro: -0.85, alto: 0.84 },
   },
-  // Sanires, guanti monouso: un guanto enorme che spunta dal pavimento e regge lo schermo
+  // Sanires, guanti monouso: un paio di guanti blu buttati a terra davanti al pannello
   guanto: {
-    pezzi: [{ nome: "garden_gloves_01", pos: [0, 0, 0.1], rot: [-Math.PI / 2, 0, 0], scala: 5, ritocco: nitrile }],
-    schermo: { pos: [0, 0.86, 0.42], rot: [-0.1, 0, 0], largo: 0.95 },
+    pezzi: [{ nome: "garden_gloves_01", pos: [0, 0, 0], scala: 1, ritocco: nitrile }],
+    posa: { x: 0.55, z: 0.6, giro: -0.9, alto: 0.09 },
   },
-  // Ghigo Miranda, miele: l'arnia
+  // Ghigo Miranda, miele: l'arnia a destra, appena girata, con le api
   arnia: {
     pezzi: [],
-    schermo: { pos: [0, 1.27, 0.02], rot: [-0.1, 0, 0], largo: 0.9 },
+    posa: { x: 1.0, z: 0.0, giro: -0.4, alto: 0.95 },
     costruisci: arnia,
   },
-  // Livello Zero, videogiochi: il televisore a tubo
+  // Livello Zero, videogiochi: il televisore a tubo per terra, girato verso chi guarda
   televisore: {
-    pezzi: [{ nome: "television_02", pos: [0, 0, 0], scala: 2.7 }],
-    schermo: { pos: [-0.06, 0.68, 0.34], rot: [0, 0, 0], largo: 0.7 },
+    pezzi: [{ nome: "television_02", pos: [0, 0, 0], scala: 1 }],
+    posa: { x: -0.9, z: 0.3, giro: 0.6, alto: 0.48 },
   },
-  // Osservatorio Accoglienza: il gommone
+  // Osservatorio Accoglienza: il gommone arenato dietro il pannello, di traverso, coi giubbotti e il salvagente
   gommone: {
     pezzi: [
-      { nome: "life_jacket", pos: [-0.95, 0.2, 0.2], rot: [-1.45, 0, 0.5], scala: 0.9 },
-      { nome: "life_jacket", pos: [0.6, 0.2, 0.25], rot: [-1.5, 0, -0.7], scala: 0.9 },
+      { nome: "life_jacket", pos: [-0.75, 0.2, 0.2], rot: [-1.45, 0, 0.5], scala: 0.9 },
+      { nome: "life_jacket", pos: [0.4, 0.2, -0.15], rot: [-1.5, 0, -0.7], scala: 0.9 },
       { nome: "lifebuoy", pos: [1.25, 0.44, 0.5], rot: [-0.3, -0.4, 0.1], scala: 0.85 },
     ],
-    schermo: { pos: [-0.15, 0.8, -0.25], rot: [-0.1, 0, 0], largo: 1.0 },
+    posa: { x: 0.55, z: -0.55, giro: -0.55, alto: 0.52 },
     costruisci: gommone,
   },
-  // NDN Luxury, resina e microcemento: un blocco di resina colata, il sacco e la cazzuola
+  // NDN Luxury, resina e microcemento: il blocco di resina colata, il sacco e la cazzuola, a sinistra
   resina: {
     pezzi: [
       { nome: "cement_bag", pos: [0.85, 0, 0.05], rot: [0, 0.4, 0], scala: 1 },
-      { nome: "trowel_01", pos: [0.36, 0.56, 0.2], rot: [0, 1.9, 0], scala: 1.6 },
+      { nome: "trowel_01", pos: [0.3, 0.56, 0.12], rot: [0, 1.9, 0], scala: 1.6 },
     ],
-    schermo: { pos: [0, 0.86, -0.05], rot: [-0.1, 0, 0], largo: 0.9 },
+    posa: { x: -1.0, z: 0.25, giro: 0.5, alto: 0.34 },
     costruisci: resina,
   },
-  // ESH, alloggi per studenti Erasmus: le valigie con gli adesivi
+  // ESH, alloggi per studenti Erasmus: le valigie con gli adesivi, appena arrivate
   valigia: {
     pezzi: [{ nome: "vintage_suitcase", pos: [0, 0, 0], scala: 1 }],
-    schermo: { pos: [0, 0.9, 0.0], rot: [-0.06, 0, 0], largo: 1.0 },
+    posa: { x: 0.98, z: 0.3, giro: -0.7, alto: 0.48 },
   },
-  // Beauty Broker: lo specchio da camerino (lo schermo nello specchio) e la poltrona da barbiere
+  // Beauty Broker: la poltrona da barbiere, girata verso chi guarda
   specchio: {
-    pezzi: [
-      { nome: "ornate_mirror_01", pos: [-0.25, 1.0, 0], scala: 2.3 },
-      { nome: "BarberShopChair_01", pos: [0.85, 0, 0.35], rot: [0, -0.7, 0], scala: 0.9 },
-    ],
-    schermo: { pos: [-0.25, 0.97, 0.08], rot: [0, 0, 0], largo: 0.8 },
+    pezzi: [{ nome: "BarberShopChair_01", pos: [0, 0, 0], scala: 1 }],
+    posa: { x: -0.98, z: 0.2, giro: 0.75, alto: 1.05 },
   },
-  // in costruzione: la barriera di cemento e il cartello giallo
+  // in costruzione: il cartello giallo, davanti a destra
   cantiere: {
-    pezzi: [
-      { nome: "concrete_road_barrier", pos: [0, 0, 0], scala: 1 },
-      { nome: "WetFloorSign_01", pos: [1.0, 0, 0.35], rot: [0, -0.4, 0], scala: 1.2 },
-    ],
-    schermo: { pos: [0, 1.17, 0], rot: [-0.06, 0, 0], largo: 1.0 },
+    pezzi: [{ nome: "WetFloorSign_01", pos: [0, 0, 0], scala: 1 }],
+    posa: { x: 0.88, z: 0.35, giro: -0.5, alto: 0.78 },
   },
-  // All Studios, app per grafici (in costruzione): il telo da proiezione sul treppiede
-  proiettore: {
-    pezzi: [{ nome: "projector_screen", pos: [0, 0, 0], scala: 1 }],
-    schermo: { pos: [0, 1.33, 0.1], rot: [0, 0, 0], largo: 0.92 },
+  // All Studios, app per grafici (in costruzione): le bombolette di vernice a terra
+  bombolette: {
+    pezzi: [{ nome: "spray_paint_bottles", pos: [0, 0, 0], scala: 1 }],
+    posa: { x: 0.85, z: 0.45, giro: -0.5, alto: 0.24 },
   },
-  // Jointoyou: la cornice da tavolo, grande
+  // Jointoyou: la cornice da tavolo, appoggiata a terra
   cornice: {
-    pezzi: [{ nome: "standing_picture_frame_02", pos: [0, 0, 0], rot: [0, -Math.PI / 2, 0], scala: 4.4 }],
-    schermo: { pos: [0, 0.6, 0.1], rot: [-0.15, 0, 0], largo: 0.78 },
+    pezzi: [{ nome: "standing_picture_frame_02", pos: [0, 0, 0], rot: [0, -Math.PI / 2, 0], scala: 1 }],
+    posa: { x: -0.9, z: 0.3, giro: 0.5, alto: 0.5 },
   },
-  // Copystudio: il portatile d'epoca
+  // Copystudio: il portatile d'epoca, aperto per terra
   portatile: {
-    pezzi: [{ nome: "classic_laptop", pos: [0, 0, 0], scala: 2 }],
-    schermo: { pos: [0, 0.68, -0.28], rot: [-0.2, 0, 0], largo: 0.86 },
+    pezzi: [{ nome: "classic_laptop", pos: [0, 0, 0], scala: 1 }],
+    posa: { x: 0.9, z: 0.35, giro: -0.6, alto: 0.36 },
   },
-  // Hetaweb: la cartellina portablocco, in piedi
+  // Hetaweb: la cartellina portablocco appoggiata al pannello
   appunti: {
-    pezzi: [{ nome: "clipboard", pos: [0, 0.9, 0], rot: [Math.PI / 2 - 0.2, 0, 0], scala: 5 }],
-    schermo: { pos: [0, 1.02, 0.25], rot: [-0.2, 0, 0], largo: 0.86 },
+    pezzi: [{ nome: "clipboard", pos: [0, 0, 0], rot: [Math.PI / 2 - 0.25, 0, 0], scala: 1 }],
+    posa: { x: -0.75, z: 0.18, giro: 0.35, alto: 0.48 },
   },
 };
 
@@ -291,17 +286,13 @@ function modello(nome: string) {
 }
 
 /**
- * Costruisce l'oggetto che accompagna il pannello del lavoro: torna il gruppo (si riempie quando i modelli
- * arrivano) e prepara(), che sullo schermo dell'oggetto mette la cima della pagina del sito, poi rimpicciolisce
- * l'oggetto (al massimo 0,55 m di larghezza e 0,6 di altezza) e lo appoggia a terra col fianco sinistro in x = 0.
+ * Costruisce l'oggetto che accompagna il pannello del lavoro, nella sua posa: torna il gruppo, che compare
+ * quando i modelli sono arrivati, già all'altezza giusta, girato e al suo posto accanto al pannello.
  */
 export function supporto(id: Supporto) {
   const def = DEF[id];
   const gruppo = new THREE.Group();
   if (def.costruisci) def.costruisci(gruppo);
-  gruppo.traverse((o) => {
-    if ((o as THREE.Mesh).isMesh) (o as THREE.Mesh).raycast = () => null;
-  });
   const pronto = Promise.all(
     def.pezzi.map(async (p) => {
       const sorgente = await modello(p.nome);
@@ -321,35 +312,35 @@ export function supporto(id: Supporto) {
       gruppo.add(copia);
     })
   ).catch(() => undefined);
-  // il contenuto (oggetto + schermino) sta in un gruppo interno: quello esterno si scala e si sposta
+  // dentro: l'oggetto, centrato e appoggiato a terra; fuori: la posa
   const esterno = new THREE.Group();
   esterno.add(gruppo);
   esterno.visible = false;
-  const prepara = (pagina: THREE.Texture | null) => {
-    if (pagina) {
-      const t = pagina.clone();
-      const L = def.schermo.largo, A = L / PROPORZIONE;
-      const img = pagina.image as HTMLImageElement;
-      const q = Math.min(1, (A / L) * (img.naturalWidth / img.naturalHeight));
-      t.repeat.set(1, q);
-      t.offset.set(0, 1 - q);
-      t.needsUpdate = true;
-      const schermino = new THREE.Mesh(new THREE.PlaneGeometry(L, A), new THREE.MeshBasicMaterial({ map: t, toneMapped: false }));
-      schermino.position.set(...def.schermo.pos);
-      schermino.rotation.set(...def.schermo.rot);
-      schermino.raycast = () => null;
-      gruppo.add(schermino);
-    }
-    pronto.then(() => {
-      const b = new THREE.Box3().setFromObject(gruppo);
-      const w = b.max.x - b.min.x, h = b.max.y - b.min.y;
-      const k = Math.min(0.55, 0.55 / w, 0.6 / h);
-      esterno.scale.setScalar(k);
-      esterno.position.set(-b.min.x * k, -b.min.y * k, -((b.min.z + b.max.z) / 2) * k);
-      esterno.visible = true;
+  pronto.then(() => {
+    gruppo.traverse((o) => {
+      if ((o as THREE.Mesh).isMesh) (o as THREE.Mesh).raycast = () => null;
     });
-  };
-  return { gruppo: esterno, pronto, prepara };
+    // l'ingombro nelle coordinate del gruppo stesso (il gruppo è già nella scena, girato e spostato)
+    gruppo.updateMatrixWorld(true);
+    const inversa = gruppo.matrixWorld.clone().invert();
+    const b = new THREE.Box3();
+    const pezzo = new THREE.Box3();
+    gruppo.traverse((o) => {
+      const m = o as THREE.Mesh;
+      if (!m.isMesh || !m.visible || o.parent?.userData.api) return;
+      if (!m.geometry.boundingBox) m.geometry.computeBoundingBox();
+      pezzo.copy(m.geometry.boundingBox as THREE.Box3).applyMatrix4(m.matrixWorld).applyMatrix4(inversa);
+      b.union(pezzo);
+    });
+    const { x, z, giro, alto } = def.posa;
+    const k = alto / Math.max(0.01, b.max.y - b.min.y);
+    gruppo.scale.setScalar(k);
+    gruppo.position.set(-((b.min.x + b.max.x) / 2) * k, -b.min.y * k, -((b.min.z + b.max.z) / 2) * k);
+    esterno.position.set(x, 0, z);
+    esterno.rotation.y = giro;
+    esterno.visible = true;
+  });
+  return { gruppo: esterno };
 }
 
 /** Le api attorno all'arnia: girano piano davanti all'entrata. */

@@ -18,7 +18,7 @@ export type Sezione = "sviluppo" | "editoria";
  */
 export type Supporto =
   | "quadro" | "lavagna" | "sedia" | "guanto" | "arnia" | "televisore" | "gommone"
-  | "resina" | "valigia" | "specchio" | "cantiere" | "proiettore" | "cornice" | "portatile" | "appunti";
+  | "resina" | "valigia" | "specchio" | "cantiere" | "bombolette" | "cornice" | "portatile" | "appunti";
 
 /**
  * Dove sta il lavoro nella scena.
@@ -134,7 +134,7 @@ export const lavori: Lavoro[] = [
   {
     id: "allstudios",
     sezione: "sviluppo",
-    posto: { piano: 2, passo: 3.15, supporto: "proiettore" },
+    posto: { piano: 2, passo: 3.15, supporto: "bombolette" },
     anno: "2026",
     motivo: "cantiere",
     tinta: "#0E0E0E",
