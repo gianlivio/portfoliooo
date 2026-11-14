@@ -133,7 +133,7 @@ IT = {
         ("Lavori per clienti (freelance)", [
             {"titolo": "Bellelli Linea Ufficio — web developer",
              "meta": "ott 2026 – in corso · bellelliufficio.it",
-             "testo": "E-commerce Open2B di sedute e arredi per ufficio, in italiano, francese e tedesco.",
+             "testo": "E-commerce Open2B di sedie, sgabelli, tavoli e poltrone di design, in italiano, francese e tedesco.",
              "punti": [
                  "Collegamento fra le schede di prodotti affini («Disponibile anche in») senza modifiche al catalogo",
                  "Dati strutturati Schema.org/JSON-LD, revisione della versione mobile, nuovi blocchi in home",
@@ -269,7 +269,7 @@ EN = {
         ("Client work (freelance)", [
             {"titolo": "Bellelli Linea Ufficio — web developer",
              "meta": "Oct 2026 – present · bellelliufficio.it",
-             "testo": "Open2B e-commerce of office seating and furniture, in Italian, French and German.",
+             "testo": "Open2B e-commerce of design chairs, stools, tables and armchairs, in Italian, French and German.",
              "punti": [
                  "Links between the pages of related products (“Also available in”) with no changes to the catalogue",
                  "Schema.org/JSON-LD structured data, mobile version review, new home page blocks",
@@ -405,7 +405,7 @@ ES = {
         ("Trabajos para clientes (freelance)", [
             {"titolo": "Bellelli Linea Ufficio — web developer",
              "meta": "oct 2026 – actualidad · bellelliufficio.it",
-             "testo": "E-commerce Open2B de sillas y mobiliario de oficina, en italiano, francés y alemán.",
+             "testo": "E-commerce Open2B de sillas, taburetes, mesas y sillones de diseño, en italiano, francés y alemán.",
              "punti": [
                  "Enlace entre las fichas de productos afines («Disponible también en») sin cambios en el catálogo",
                  "Datos estructurados Schema.org/JSON-LD, revisión de la versión móvil, nuevos bloques en la home",
