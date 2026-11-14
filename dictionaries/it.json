@@ -288,7 +288,9 @@
     "volume": "Volume",
     "posizione": "Posizione nel brano",
     "prima": "Brano precedente",
-    "dopo": "Brano successivo"
+    "dopo": "Brano successivo",
+    "pausa": "Ferma la musica",
+    "riprendi": "Riprendi la musica"
   },
   "avvio": "Semiosfera in allineamento",
   "ulivo": {

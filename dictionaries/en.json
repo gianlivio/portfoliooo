@@ -288,7 +288,9 @@
     "volume": "Volume",
     "posizione": "Track position",
     "prima": "Previous track",
-    "dopo": "Next track"
+    "dopo": "Next track",
+    "pausa": "Pause the music",
+    "riprendi": "Resume the music"
   },
   "avvio": "Semiosphere in alignment",
   "ulivo": {

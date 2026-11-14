@@ -288,7 +288,9 @@
     "volume": "Volumen",
     "posizione": "Posición en la pista",
     "prima": "Pista anterior",
-    "dopo": "Pista siguiente"
+    "dopo": "Pista siguiente",
+    "pausa": "Pausar la música",
+    "riprendi": "Reanudar la música"
   },
   "avvio": "Semiosfera en alineación",
   "ulivo": {

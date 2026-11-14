@@ -570,10 +570,13 @@ html[data-tema="chiaro"] .ascolta a{text-decoration-color:rgba(22,23,26,.3)}
   animation:entra .5s var(--curva);
 }
 .lettore-riga{display:flex;align-items:center;gap:.6rem}
-.lettore-titolo{flex:1;margin:0;font-family:var(--serif);font-weight:300;font-size:1.05rem;line-height:1.2;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lettore-titolo{flex:1;min-width:0;margin:0;font-family:var(--serif);font-weight:300;font-size:1.05rem;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .lettore-titolo span{display:block;font-family:var(--mono);font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;color:var(--grigio)}
 .lettore-tasto{width:1.9rem;height:1.9rem;flex:none;border-radius:50%;border:1px solid var(--bordo);background:transparent;color:var(--testo);font-size:1.1rem;line-height:1;cursor:pointer}
 .lettore-tasto:hover{border-color:var(--testo)}
+.lettore-tasto--grande{width:2.3rem;height:2.3rem;display:grid;place-items:center;background:var(--testo);border-color:var(--testo)}
+.lettore-segno-pausa{width:.6rem;height:.7rem;border-left:3px solid var(--fondo);border-right:3px solid var(--fondo)}
+.lettore-segno-play{width:0;height:0;margin-left:3px;border-left:.62rem solid var(--fondo);border-top:.38rem solid transparent;border-bottom:.38rem solid transparent}
 .lettore-tempo,.lettore-etichetta{font-family:var(--mono);font-size:.66rem;color:var(--grigio);min-width:2.6rem}
 .lettore-tempo:last-child{text-align:right}
 .lettore-cursore{flex:1;accent-color:var(--blu-chiaro);height:1rem;cursor:pointer}

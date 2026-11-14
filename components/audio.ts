@@ -36,17 +36,19 @@ export const SOTTOFONDO: { url: string | null; volume: number } = { url: null, v
 export type Brano = { url: string | { giorno: string; notte: string }; titolo: string; quarti: number; bpm: number; volume: number };
 const urlDi = (b: Brano, notte: boolean) => (typeof b.url === "string" ? b.url : notte ? b.url.notte : b.url.giorno);
 export const ARTISTA = "Juan Lee";
-/** volume: per pareggiare i pezzi a orecchio (i master hanno livelli medi diversi, fino a 4 dB) */
+/**
+ * L'album intero, pezzo per pezzo, dall'inizio alla fine: i file sono gli originali portati a -16 LUFS
+ * (ffmpeg loudnorm) e compressi in mp3 VBR; per questo il volume è lo stesso per tutti.
+ * quarti: i battiti del pezzo (durata × bpm / 60), per il musicista che suona a tempo.
+ */
 export const BRANI: Brano[] = [
-  // due file dello stesso giro: di giorno parte dalla parte più luminosa (2:07 dell'originale), di notte dal drop (3:43).
-  // Due file e non un salto dentro lo stesso: sul telefono il salto avanti nel file si faceva aspettare
-  { url: { giorno: "/audio/juan-lee-signification-giorno.mp3", notte: "/audio/juan-lee-signification-notte.mp3" }, titolo: "Signification", quarti: 448, bpm: 120, volume: 0.85 },
-  { url: "/audio/juan-lee-the-platipus-paradox.mp3", titolo: "The Platipus Paradox", quarti: 384, bpm: 120, volume: 0.68 },
-  { url: "/audio/juan-lee-ecology-of-mind.mp3", titolo: "Ecology of Mind", quarti: 512, bpm: 150, volume: 0.81 },
-  { url: "/audio/juan-lee-probabilistic-regime.mp3", titolo: "Probabilistic Regime", quarti: 544, bpm: 150, volume: 0.69 },
-  { url: "/audio/juan-lee-epigenetica.mp3", titolo: "Epigenetica", quarti: 448, bpm: 120, volume: 0.77 },
-  { url: "/audio/juan-lee-rizoma.mp3", titolo: "Rizoma", quarti: 448, bpm: 120, volume: 0.85 },
-  { url: "/audio/juan-lee-semiosi-illimitata.mp3", titolo: "Semiosi Illimitata", quarti: 480, bpm: 150, volume: 0.56 },
+  { url: "/audio/juan-lee-signification.mp3", titolo: "Signification", quarti: 816, bpm: 120, volume: 0.8 },
+  { url: "/audio/juan-lee-the-platipus-paradox.mp3", titolo: "The Platipus Paradox", quarti: 1032, bpm: 120, volume: 0.8 },
+  { url: "/audio/juan-lee-ecology-of-mind.mp3", titolo: "Ecology of Mind", quarti: 1418, bpm: 150, volume: 0.8 },
+  { url: "/audio/juan-lee-probabilistic-regime.mp3", titolo: "Probabilistic Regime", quarti: 1416, bpm: 150, volume: 0.8 },
+  { url: "/audio/juan-lee-epigenetica.mp3", titolo: "Epigenetica", quarti: 1032, bpm: 120, volume: 0.8 },
+  { url: "/audio/juan-lee-rizoma.mp3", titolo: "Rizoma", quarti: 1100, bpm: 120, volume: 0.8 },
+  { url: "/audio/juan-lee-semiosi-illimitata.mp3", titolo: "Semiosi Illimitata", quarti: 950, bpm: 150, volume: 0.8 },
 ];
 
 const CHIAVE = "audio";
@@ -125,6 +127,8 @@ class Suono {
   private brano: HTMLAudioElement | null = null;
   private branoGain: GainNode | null = null;
   private branoRotto = false;
+  /** il pezzo fermato dal lettore: resta lì, al suo punto, finché non si riprende */
+  private inPausa = false;
   /** il volume scelto col cursore (0–1), sopra tutto: fondo, effetti e pezzo */
   private uscitaVol: GainNode | null = null;
   private livello = leggiVolume();
@@ -375,7 +379,10 @@ class Suono {
     const m = this.voluto;
     // col pezzo vero il fondo si ritira quasi del tutto, e il loop sintetizzato tace
     const pezzo = m === "loop" && this.suonaBrano();
-    if (m !== "loop") this.fermaBrano();
+    if (m !== "loop") {
+      this.inPausa = false;
+      this.fermaBrano();
+    }
     this.master.gain.cancelScheduledValues(t);
     this.master.gain.setTargetAtTime(m === "spento" ? 0 : pezzo ? VOLUME * 0.15 : VOLUME, t, 0.4);
     this.loopBus.gain.cancelScheduledValues(t);
@@ -414,7 +421,10 @@ class Suono {
     if (!c || this.branoRotto) return false;
     if (!this.brano) {
       const a = new Audio();
-      a.loop = true;
+      // finito un pezzo, parte quello dopo
+      a.addEventListener("ended", () => {
+        if (this.modo === "loop" && !this.inPausa) this.cambiaBrano(1);
+      });
       a.preload = "auto";
       a.crossOrigin = "anonymous";
       a.addEventListener("error", () => {
@@ -429,11 +439,12 @@ class Suono {
       this.branoGain = g;
     }
     const a = this.brano, g = this.branoGain as GainNode, t = c.currentTime;
+    // fermato dal lettore: resta fermo al suo punto
+    if (this.inPausa) return true;
     if (a.paused) {
-      // il file del pezzo per il tema di adesso, sempre dall'inizio: nessun salto dentro il file
+      // un pezzo nuovo parte dall'inizio; lo stesso pezzo riprende da dove era
       const u = urlDi(BRANI[this.indice], this.eNotte);
       if (!a.src.endsWith(u)) a.src = u;
-      else a.currentTime = 0;
       a.play().catch(() => undefined);
     }
     g.gain.cancelScheduledValues(t);
@@ -461,6 +472,7 @@ class Suono {
     if (n < 2) return;
     this.indice = (this.indice + verso + n) % n;
     this.branoRotto = false;
+    this.inPausa = false;
     const a = this.brano, g = this.branoGain, c = this.ctx;
     if (a && g && c) {
       const t = c.currentTime;
@@ -498,6 +510,32 @@ class Suono {
     }
     const c = this.ctx, g = this.uscitaVol;
     if (c && g) g.gain.setTargetAtTime(this.livello, c.currentTime, 0.05);
+  }
+
+  /** Il pezzo è fermo, dal lettore? */
+  fermo() {
+    return this.inPausa;
+  }
+
+  /** Ferma il pezzo al suo punto (sfumando un attimo), o lo fa ripartire da lì. Da chiamare dentro un gesto. */
+  pausa() {
+    const c = this.ctx, a = this.brano, g = this.branoGain;
+    if (!c || !a || !g || this.modo !== "loop" || this.branoRotto) return;
+    const t = c.currentTime;
+    g.gain.cancelScheduledValues(t);
+    if (!this.inPausa) {
+      this.inPausa = true;
+      g.gain.setTargetAtTime(0, t, 0.06);
+      setTimeout(() => {
+        if (this.inPausa) a.pause();
+      }, 300);
+    } else {
+      this.inPausa = false;
+      if (c.state === "suspended") c.resume().catch(() => undefined);
+      a.play().catch(() => undefined);
+      g.gain.setTargetAtTime(BRANI[this.indice].volume, t, 0.12);
+    }
+    this.avvisa();
   }
 
   /** Dove è arrivato il pezzo, in secondi, e quanto dura. Null se non suona il pezzo vero. */

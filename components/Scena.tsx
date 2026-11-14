@@ -8,7 +8,6 @@ import Portale from "./Portale";
 import Fauna from "./Fauna";
 import Suolo, { CieloDiGiorno } from "./Suolo";
 import { FLUO, type DatiCopertina, type Famiglie } from "./copertina";
-import { lavori } from "@/content/lavori";
 import { mondo } from "./condivisi";
 import { suono } from "./audio";
 import { ANGOLO_ZONA, RAGGIO_ULIVETO } from "./zona";
@@ -59,8 +58,6 @@ type Props = {
   lingua: string;
   /** con il modulo aperto le carte affondano nel suolo, una dopo l'altra */
   moduloAperto: boolean;
-  /** il titolo della sezione "Editoria, SEO e copywriting", nella lingua della pagina */
-  sezioneEditoria: string;
   /** la scritta sopra il tavolino delle macchine: [accendi, spegni] */
   testiMusica: [string, string];
   /** la scritta sopra l'ulivo, e dove porta */
@@ -255,7 +252,7 @@ type Riflesso = THREE.ShaderMaterial & {
 const APRI: Record<string, string> = { it: "Apri ↗", en: "Open ↗", es: "Abrir ↗" };
 
 function Carte({
-  carte, selezionato, focale, onSeleziona, ridotto, onPronta, tema, conIngresso, moduloAperto, attiva, sezioneEditoria, lingua,
+  carte, selezionato, focale, onSeleziona, ridotto, onPronta, tema, conIngresso, moduloAperto, attiva, lingua,
 }: Omit<Props, "onInteragisci" | "stretto" | "testiMusica" | "testoUlivo" | "onOlio"> & { attiva: React.MutableRefObject<string | null> }) {
   const [grafica, setGrafica] = useState<Grafica | null>(null);
   const [sopra, setSopra] = useState<string | null>(null);
@@ -668,71 +665,7 @@ function Carte({
           </group>
         );
       })}
-      {sezioneEditoria && (
-        <EtichettaSezione
-          testo={sezioneEditoria}
-          carte={carte}
-          colore={p.filigrana}
-          mono={famiglie.mono}
-          spenta={!!selezionato || moduloAperto}
-          ridotto={ridotto}
-        />
-      )}
     </>
-  );
-}
-
-/** Il centro dei lavori lontani (editoria, SEO e copywriting): direzione media e distanza. */
-function centroLontani(carte: Carta[]) {
-  const lontane = carte.filter((c) => c.posto.r > 6 && lavori.find((l) => l.id === c.id)?.sezione === "editoria");
-  if (!lontane.length) return null;
-  const v = lontane.reduce((acc, c) => acc.add(new THREE.Vector2(Math.sin(c.posto.a), -Math.cos(c.posto.a))), new THREE.Vector2());
-  return { a: Math.atan2(v.x, -v.y), r: lontane[0].posto.r };
-}
-
-/**
- * Il titolo della sezione "Editoria, SEO e copywriting", sopra i suoi lavori, laggiù vicino al Liotru,
- * nello stesso carattere e colore della filigrana.
- */
-function EtichettaSezione({
-  testo, carte, colore, mono, spenta, ridotto,
-}: { testo: string; carte: Carta[]; colore: string; mono: string; spenta: boolean; ridotto: boolean }) {
-  const tx = useMemo(() => {
-    const tela = document.createElement("canvas");
-    tela.width = 1024;
-    tela.height = 72;
-    const c = tela.getContext("2d");
-    if (c) {
-      c.fillStyle = "#FFFFFF";
-      c.font = `500 34px ${mono}`;
-      c.textAlign = "center";
-      c.textBaseline = "middle";
-      const lettere = testo.toUpperCase().split("").join(String.fromCharCode(8202));
-      c.fillText(lettere, 512, 38, 1000);
-      c.fillRect(312, 68, 400, 2);
-    }
-    const t = new THREE.CanvasTexture(tela);
-    t.colorSpace = THREE.SRGBColorSpace;
-    return t;
-  }, [testo, mono]);
-  useEffect(() => () => tx.dispose(), [tx]);
-  const mat = useRef<THREE.MeshBasicMaterial>(null);
-  const inizio = useRef<number | null>(null);
-  useFrame((stato, dt) => {
-    if (!mat.current) return;
-    if (inizio.current === null) inizio.current = stato.clock.elapsedTime;
-    const entrata = ridotto ? 1 : THREE.MathUtils.smoothstep(stato.clock.elapsedTime - inizio.current, 1.4, 2.6);
-    const bersaglio = spenta ? 0 : 0.55 * entrata;
-    mat.current.opacity = ridotto ? bersaglio : THREE.MathUtils.lerp(mat.current.opacity, bersaglio, 1 - Math.exp(-dt * 4));
-  });
-  const centro = centroLontani(carte);
-  if (!centro) return null;
-  const p = direzione(centro.a).multiplyScalar(centro.r + 0.3);
-  return (
-    <mesh position={[p.x, PELO_ACQUA + 2.45, p.z]} rotation={[0, -centro.a, 0]} raycast={() => null} renderOrder={1}>
-      <planeGeometry args={[3.6, 3.6 * (72 / 1024)]} />
-      <meshBasicMaterial ref={mat} map={tx} color={colore} transparent opacity={0} depthWrite={false} toneMapped={false} fog={false} />
-    </mesh>
   );
 }
 
@@ -1004,7 +937,7 @@ function Ambiente({ tema }: { tema: Tema }) {
 
 function Regia({
   carte, selezionato, focale, onSeleziona, onInteragisci, ridotto, stretto, conIngresso,
-}: Omit<Props, "onPronta" | "tema" | "sezioneEditoria" | "testiMusica" | "testoUlivo" | "onOlio">) {
+}: Omit<Props, "onPronta" | "tema" | "testiMusica" | "testoUlivo" | "onOlio">) {
   const { camera, gl } = useThree();
   const s = useRef({
     // si comincia guardando la zona dello sviluppatore, il centro del mondo
@@ -1167,7 +1100,6 @@ export default function Scena(props: Props) {
         conIngresso={props.conIngresso}
         moduloAperto={props.moduloAperto}
         attiva={attiva}
-        sezioneEditoria={props.sezioneEditoria}
         lingua={props.lingua}
       />
       <ZonaSviluppatore notte={tema === "scuro"} ridotto={props.ridotto} testi={props.testiMusica} />

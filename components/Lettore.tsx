@@ -3,19 +3,19 @@
 import { useEffect, useState } from "react";
 import { suono } from "./audio";
 
-type Testi = { volume: string; posizione: string; prima: string; dopo: string };
+type Testi = { volume: string; posizione: string; prima: string; dopo: string; pausa: string; riprendi: string };
 
 const minuti = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
 
 /**
  * Il lettore del pezzo: compare in basso a sinistra quando suona la musica di Juan Lee.
- * Il titolo, il pezzo prima e quello dopo, il cursore per spostarsi nel brano, il volume.
+ * Il titolo, il pezzo prima, fermo e riprendi, il pezzo dopo, il cursore per spostarsi nel brano, il volume.
  */
 export default function Lettore({ testi }: { testi: Testi }) {
   const leggi = () => {
     const p = suono.pezzo();
     const pos = suono.posizione();
-    return p && pos ? { titolo: p.titolo, artista: p.artista, t: pos.t, durata: pos.durata } : null;
+    return p && pos ? { titolo: p.titolo, artista: p.artista, t: pos.t, durata: pos.durata, fermo: suono.fermo() } : null;
   };
   const [stato, setStato] = useState(leggi);
   const [volume, setVolume] = useState(() => suono.volume());
@@ -32,12 +32,23 @@ export default function Lettore({ testi }: { testi: Testi }) {
   return (
     <div className="lettore" role="group" aria-label={`${stato.artista} — ${stato.titolo}`}>
       <div className="lettore-riga">
-        <button className="lettore-tasto" onClick={() => suono.cambiaBrano(-1)} aria-label={testi.prima} title={testi.prima}>
-          ‹
-        </button>
         <p className="lettore-titolo">
           <span>{stato.artista}</span> {stato.titolo}
         </p>
+        <button className="lettore-tasto" onClick={() => suono.cambiaBrano(-1)} aria-label={testi.prima} title={testi.prima}>
+          ‹
+        </button>
+        <button
+          className="lettore-tasto lettore-tasto--grande"
+          onClick={() => {
+            suono.pausa();
+            setStato(leggi());
+          }}
+          aria-label={stato.fermo ? testi.riprendi : testi.pausa}
+          title={stato.fermo ? testi.riprendi : testi.pausa}
+        >
+          <span className={stato.fermo ? "lettore-segno-play" : "lettore-segno-pausa"} aria-hidden="true" />
+        </button>
         <button className="lettore-tasto" onClick={() => suono.cambiaBrano(1)} aria-label={testi.dopo} title={testi.dopo}>
           ›
         </button>

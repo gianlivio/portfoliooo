@@ -427,7 +427,6 @@ export default function Esperienza({
             conIngresso
             lingua={lingua}
             moduloAperto={modulo}
-            sezioneEditoria={d.elenco.editoria}
             testiMusica={testiMusica}
             testoUlivo={d.ulivo.scritta}
             onOlio={versoUliveto}
@@ -506,7 +505,7 @@ export default function Esperienza({
         </p>
 
         {suonaJuan && (
-          <Lettore testi={{ volume: d.audio.volume, posizione: d.audio.posizione, prima: d.audio.prima, dopo: d.audio.dopo }} />
+          <Lettore testi={{ volume: d.audio.volume, posizione: d.audio.posizione, prima: d.audio.prima, dopo: d.audio.dopo, pausa: d.audio.pausa, riprendi: d.audio.riprendi }} />
         )}
         {suonaJuan && (
           <nav className="ascolta" aria-label={d.audio.ascolta}>

@@ -20,7 +20,8 @@ export type Supporto = "sedia" | "arnia" | "gommone";
  * Dove sta il lavoro nella scena.
  * piano: 1 vicino e grande, 2 a metà, 3 lontano e piccolo (dove sta il Liotru).
  * passo: la direzione, in passi da 0 a 14 (components/zona.ts): la zona dello sviluppatore è a 12 (occupa da 11,4 a 12,6),
- * il cancello dell'uliveto a 5 (da 4,65 a 5,35), il Liotru a 1,5 (va lasciato libero da 1,25 a 1,75).
+ * il cancello dell'uliveto a 5 (da 4,65 a 5,35), il Liotru a 1,5 (lì davanti, un po' più vicino degli altri lavori
+ * di editoria, il blog di Punto Luce).
  * Un pannello occupa 0,3 passi per parte se vicino, 0,2 a metà, 0,15 se lontano: due lavori non devono sovrapporsi,
  * e accanto alla zona va lasciato libero chi suona i sintetizzatori.
  * supporto: l'oggetto che accompagna il lavoro (components/lavori3d/supporti.ts), solo per alcuni.
@@ -149,7 +150,7 @@ export const lavori: Lavoro[] = [
   {
     id: "blog",
     sezione: "editoria",
-    posto: { piano: 1, passo: 7.15 },
+    posto: { piano: 2, passo: 1.5 },
     anno: "2024–2026",
     motivo: "editoriale",
     tinta: "#C7D2DA",
