@@ -181,7 +181,7 @@ export default function Esperienza({
           a: l.posto.passo * PASSO,
           r: DISTANZE[l.posto.piano],
           s: GRANDEZZE[l.posto.piano],
-          supporto: l.posto.supporto,
+          supporto: l.posto.supporto ?? null,
         },
         immagine: (schermate as string[]).includes(l.id)
           ? `/lavori/${l.id}.jpg`

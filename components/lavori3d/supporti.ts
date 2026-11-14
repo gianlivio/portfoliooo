@@ -3,18 +3,18 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import type { Supporto } from "@/content/lavori";
 
 /*
- * Gli oggetti che accompagnano i lavori nella scena, a terra accanto al pannello: ognuno richiama il lavoro
- * (il quadro elettrico per lo shop di materiale elettrico, la sedia per Bellelli, il guanto monouso per Sanires...).
- * Ognuno ha la sua posa: da che parte del pannello sta, quanto è avanti, come è girato, quanto è alto.
+ * Gli oggetti che accompagnano alcuni lavori nella scena, a terra accanto al pannello:
+ * la sedia di design sotto Bellelli (il pannello ci sta seduto sopra), il gommone dietro l'Osservatorio,
+ * l'arnia accanto a Ghigo Miranda. Ognuno ha la sua posa.
  *
- * I modelli vengono da Poly Haven (polyhaven.com, licenza CC0), ridotti per il web con gltf-transform
- * (texture webp 256–512 px, geometria semplificata e quantizzata) e serviti da public/lavori/oggetti:
- *   power_box_01, standing_chalkboard_01, plastic_monobloc_chair_01, garden_gloves_01, television_02,
- *   cement_bag, trowel_01, vintage_suitcase, BarberShopChair_01, WetFloorSign_01, spray_paint_bottles, classic_laptop, standing_picture_frame_02, clipboard, life_jacket, lifebuoy.
- * Il gommone, l'arnia e il blocco di resina non ci sono: sono costruiti qui.
+ * Modelli e texture da Poly Haven (polyhaven.com, licenza CC0), ridotti per il web e serviti da public/lavori/oggetti:
+ *   plastic_monobloc_chair_01, life_jacket, lifebuoy (glb, gltf-transform: webp, geometria quantizzata);
+ *   wood_peeling_paint_weathered, weathered_brown_planks, metal_plate (texture dell'arnia, webp 512 px,
+ *   schiarite e ritinte: legno dipinto color crema, legno grezzo, lamiera zincata).
+ * Il gommone e l'arnia sono costruiti qui.
  *
  * Coordinate: in metri, y in alto dal pavimento, +z verso chi guarda dal centro della scena,
- * x = 0 al centro del pannello (largo 1,22: i fianchi stanno a ±0,61).
+ * x = 0 al centro del pannello (largo 1,22: i fianchi stanno a ±0,61; +x a destra di chi guarda).
  */
 
 type Pezzo = {
@@ -30,7 +30,11 @@ type Pezzo = {
  * La posa dell'oggetto accanto al pannello: dove sta il suo centro (x, z), di quanto è girato
  * (radianti; positivo verso destra di chi guarda) e quanto è alto, in metri.
  */
-type Posa = { x: number; z: number; giro: number; alto: number };
+type Posa = {
+  x: number; z: number; giro: number; alto: number;
+  /** di quanto si alza il pannello, se ci sta sopra */
+  pannello?: number;
+};
 
 type Definizione = {
   pezzi: Pezzo[];
@@ -49,100 +53,34 @@ const trasparente = (m: THREE.MeshStandardMaterial) => {
   m.metalness = 0;
   m.depthWrite = false;
 };
-const nitrile = (m: THREE.MeshStandardMaterial) => {
-  // il guanto monouso: nitrile blu
-  m.map = null;
-  m.color.set("#3F7FD8");
-  m.roughness = 0.45;
-};
-
 const DEF: Record<Supporto, Definizione> = {
-  // shop.puntoluce.net, materiale elettrico: il quadro elettrico con lo sportello aperto, posato a terra a sinistra
-  quadro: {
-    pezzi: [{ nome: "power_box_01", pos: [0, 0, 0], rot: [0, 0, 0], scala: 1 }],
-    posa: { x: -0.92, z: 0.25, giro: 0.55, alto: 0.62 },
-  },
-  // blog Punto Luce: la lavagna a cavalletto, dietro a destra, come davanti a un locale
-  lavagna: {
-    pezzi: [{ nome: "standing_chalkboard_01", pos: [0, 0, 0], scala: 1 }],
-    posa: { x: 0.95, z: -0.15, giro: -0.45, alto: 1.05 },
-  },
-  // Bellelli, sedie di design: la sedia trasparente accanto, girata verso il pannello
+  // Bellelli, sedie di design: una sedia trasparente in miniatura, col pannello seduto sopra
   sedia: {
     pezzi: [{ nome: "plastic_monobloc_chair_01", pos: [0, 0, 0], scala: 1, ritocco: trasparente }],
-    posa: { x: 0.95, z: 0.25, giro: -0.85, alto: 0.84 },
+    posa: { x: 0, z: -0.04, giro: 0.32, alto: 0.6, pannello: 0.2 },
   },
-  // Sanires, guanti monouso: un paio di guanti blu buttati a terra davanti al pannello
-  guanto: {
-    pezzi: [{ nome: "garden_gloves_01", pos: [0, 0, 0], scala: 1, ritocco: nitrile }],
-    posa: { x: 0.55, z: 0.6, giro: -0.9, alto: 0.09 },
-  },
-  // Ghigo Miranda, miele: l'arnia a destra, appena girata, con le api
-  arnia: {
-    pezzi: [],
-    posa: { x: 1.0, z: 0.0, giro: -0.4, alto: 0.95 },
-    costruisci: arnia,
-  },
-  // Livello Zero, videogiochi: il televisore a tubo per terra, girato verso chi guarda
-  televisore: {
-    pezzi: [{ nome: "television_02", pos: [0, 0, 0], scala: 1 }],
-    posa: { x: -0.9, z: 0.3, giro: 0.6, alto: 0.48 },
-  },
-  // Osservatorio Accoglienza: il gommone arenato dietro il pannello, di traverso, coi giubbotti e il salvagente
+  // Osservatorio Accoglienza: il gommone arenato dietro il pannello, a sinistra, coi giubbotti e il salvagente
   gommone: {
     pezzi: [
       { nome: "life_jacket", pos: [-0.75, 0.2, 0.2], rot: [-1.45, 0, 0.5], scala: 0.9 },
       { nome: "life_jacket", pos: [0.4, 0.2, -0.15], rot: [-1.5, 0, -0.7], scala: 0.9 },
       { nome: "lifebuoy", pos: [1.25, 0.44, 0.5], rot: [-0.3, -0.4, 0.1], scala: 0.85 },
     ],
-    posa: { x: 0.55, z: -0.55, giro: -0.55, alto: 0.52 },
+    posa: { x: -0.78, z: -0.5, giro: 0.5, alto: 0.38 },
     costruisci: gommone,
   },
-  // NDN Luxury, resina e microcemento: il blocco di resina colata, il sacco e la cazzuola, a sinistra
-  resina: {
-    pezzi: [
-      { nome: "cement_bag", pos: [0.85, 0, 0.05], rot: [0, 0.4, 0], scala: 1 },
-      { nome: "trowel_01", pos: [0.3, 0.56, 0.12], rot: [0, 1.9, 0], scala: 1.6 },
-    ],
-    posa: { x: -1.0, z: 0.25, giro: 0.5, alto: 0.34 },
-    costruisci: resina,
-  },
-  // ESH, alloggi per studenti Erasmus: le valigie con gli adesivi, appena arrivate
-  valigia: {
-    pezzi: [{ nome: "vintage_suitcase", pos: [0, 0, 0], scala: 1 }],
-    posa: { x: 0.98, z: 0.3, giro: -0.7, alto: 0.48 },
-  },
-  // Beauty Broker: la poltrona da barbiere, girata verso chi guarda
-  specchio: {
-    pezzi: [{ nome: "BarberShopChair_01", pos: [0, 0, 0], scala: 1 }],
-    posa: { x: -0.98, z: 0.2, giro: 0.75, alto: 1.05 },
-  },
-  // in costruzione: il cartello giallo, davanti a destra
-  cantiere: {
-    pezzi: [{ nome: "WetFloorSign_01", pos: [0, 0, 0], scala: 1 }],
-    posa: { x: 0.88, z: 0.35, giro: -0.5, alto: 0.78 },
-  },
-  // All Studios, app per grafici (in costruzione): le bombolette di vernice a terra
-  bombolette: {
-    pezzi: [{ nome: "spray_paint_bottles", pos: [0, 0, 0], scala: 1 }],
-    posa: { x: 0.85, z: 0.45, giro: -0.5, alto: 0.24 },
-  },
-  // Jointoyou: la cornice da tavolo, appoggiata a terra
-  cornice: {
-    pezzi: [{ nome: "standing_picture_frame_02", pos: [0, 0, 0], rot: [0, -Math.PI / 2, 0], scala: 1 }],
-    posa: { x: -0.9, z: 0.3, giro: 0.5, alto: 0.5 },
-  },
-  // Copystudio: il portatile d'epoca, aperto per terra
-  portatile: {
-    pezzi: [{ nome: "classic_laptop", pos: [0, 0, 0], scala: 1 }],
-    posa: { x: 0.9, z: 0.35, giro: -0.6, alto: 0.36 },
-  },
-  // Hetaweb: la cartellina portablocco appoggiata al pannello
-  appunti: {
-    pezzi: [{ nome: "clipboard", pos: [0, 0, 0], rot: [Math.PI / 2 - 0.25, 0, 0], scala: 1 }],
-    posa: { x: -0.75, z: 0.18, giro: 0.35, alto: 0.48 },
+  // Ghigo Miranda, miele: l'arnia a destra, appena girata, con le api
+  arnia: {
+    pezzi: [],
+    posa: { x: 0.98, z: 0.05, giro: -0.4, alto: 0.62 },
+    costruisci: arnia,
   },
 };
+
+/** Di quanto si alza il pannello del lavoro sopra il suo oggetto (la sedia di Bellelli). */
+export function sollevamento(id: Supporto | null) {
+  return id ? DEF[id].posa.pannello ?? 0 : 0;
+}
 
 /* ------------------------------------------------------------- costruiti */
 
@@ -190,79 +128,92 @@ function gommone(g: THREE.Group) {
   // il gommone si vede di fianco, con la prua verso destra
 }
 
-/** L'arnia: il basamento, due melari bianchi e il coperchio di lamiera; qualche ape davanti. */
-function arnia(g: THREE.Group) {
-  const legno = new THREE.MeshStandardMaterial({ color: "#EEE6D2", roughness: 0.85 });
-  const legnoScuro = new THREE.MeshStandardMaterial({ color: "#B79A6B", roughness: 0.9 });
-  const lamiera = new THREE.MeshStandardMaterial({ color: "#A9ADB0", roughness: 0.45, metalness: 0.6 });
-  const L = 0.62, P = 0.52;
-  // il basamento a quattro piedi
-  [-1, 1].forEach((sx) => [-1, 1].forEach((sz) => {
-    const piede = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.32, 0.06), legnoScuro);
-    piede.position.set((sx * L) / 2.4, 0.16, (sz * P) / 2.4);
-    g.add(piede);
-  }));
-  const base = new THREE.Mesh(new THREE.BoxGeometry(L + 0.06, 0.05, P + 0.1), legnoScuro);
-  base.position.y = 0.345;
-  g.add(base);
-  // il nido e il melario, con la fessura dell'entrata
-  let y = 0.37;
-  [0.3, 0.22].forEach((h, i) => {
-    const c = new THREE.Mesh(new THREE.BoxGeometry(L, h, P), legno);
-    c.position.y = y + h / 2;
-    g.add(c);
-    // le maniglie incavate sui fianchi
-    [-1, 1].forEach((s) => {
-      const man = new THREE.Mesh(new THREE.BoxGeometry(0.012, 0.03, 0.14), legnoScuro);
-      man.position.set((s * L) / 2 + s * 0.004, y + h * 0.65, 0);
-      g.add(man);
-    });
-    if (i === 0) {
-      const entrata = new THREE.Mesh(new THREE.BoxGeometry(L * 0.6, 0.022, 0.01), new THREE.MeshBasicMaterial({ color: "#1A140C" }));
-      entrata.position.set(0, y + 0.02, P / 2 + 0.004);
-      g.add(entrata);
-    }
-    y += h + 0.004;
-  });
-  const coperchio = new THREE.Mesh(new THREE.BoxGeometry(L + 0.06, 0.06, P + 0.06), lamiera);
-  coperchio.position.y = y + 0.03;
-  g.add(coperchio);
-  // le api: puntini scuri davanti all'entrata (si muovono in Lavoro3D, se c'è userData.api)
-  const api = new THREE.Group();
-  api.userData.api = true;
-  const ape = new THREE.MeshBasicMaterial({ color: "#2A1F0C" });
-  for (let i = 0; i < 9; i++) {
-    const a = new THREE.Mesh(new THREE.SphereGeometry(0.014, 6, 4).scale(1.4, 1, 1), ape);
-    a.userData.fase = i * 0.7;
-    api.add(a);
+/** Una texture di Poly Haven, una volta sola. */
+const texture = new Map<string, THREE.Texture>();
+function foto(nome: string, colore = true) {
+  let t = texture.get(nome);
+  if (!t) {
+    t = new THREE.TextureLoader().load(`/lavori/oggetti/${nome}.webp`);
+    if (colore) t.colorSpace = THREE.SRGBColorSpace;
+    t.anisotropy = 4;
+    texture.set(nome, t);
   }
-  api.position.set(0, 0.45, P / 2 + 0.2);
-  g.add(api);
+  return t;
 }
 
-/** Il blocco di resina colata: lucido, a strati, con una sbavatura che cola su un fianco. */
-function resina(g: THREE.Group) {
-  const c = document.createElement("canvas");
-  c.width = 16;
-  c.height = 256;
-  const x = c.getContext("2d") as CanvasRenderingContext2D;
-  const gr = x.createLinearGradient(0, 0, 0, 256);
-  gr.addColorStop(0, "#E9E2D6");
-  gr.addColorStop(0.45, "#CFC4B2");
-  gr.addColorStop(0.7, "#B6A894");
-  gr.addColorStop(1, "#8F8270");
-  x.fillStyle = gr;
-  x.fillRect(0, 0, 16, 256);
-  const t = new THREE.CanvasTexture(c);
-  t.colorSpace = THREE.SRGBColorSpace;
-  const mat = new THREE.MeshPhysicalMaterial({ map: t, roughness: 0.12, clearcoat: 1, clearcoatRoughness: 0.05 });
-  const blocco = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.52, 0.62, 1, 1, 1), mat);
-  blocco.position.y = 0.26;
-  g.add(blocco);
-  const cola = new THREE.Mesh(new THREE.CapsuleGeometry(0.05, 0.26, 4, 10), mat);
-  cola.scale.set(1, 1, 0.35);
-  cola.position.set(-0.38, 0.33, 0.31);
-  g.add(cola);
+/**
+ * L'arnia, come quelle nei campi: il cavalletto di legno grezzo, il fondo col predellino d'entrata,
+ * il nido e il melario di legno dipinto e scrostato (di due tinte appena diverse), le maniglie incavate,
+ * il coprifavo e il tetto di lamiera che sporge. Davanti all'entrata, le api.
+ */
+function arnia(g: THREE.Group) {
+  const grezzo = new THREE.MeshStandardMaterial({ map: foto("arnia-base-colore"), normalMap: foto("arnia-base-rilievo", false), roughness: 0.95 });
+  const nido = new THREE.MeshStandardMaterial({ map: foto("arnia-legno-colore"), normalMap: foto("arnia-legno-rilievo", false), color: "#FFFFFF", roughness: 0.85 });
+  const melario = new THREE.MeshStandardMaterial({ map: foto("arnia-legno-colore"), normalMap: foto("arnia-legno-rilievo", false), color: "#F6E7BE", roughness: 0.85 });
+  const lamiera = new THREE.MeshStandardMaterial({ map: foto("arnia-lamiera-colore"), normalMap: foto("arnia-lamiera-rilievo", false), roughness: 0.5, metalness: 0.1 });
+  const buio = new THREE.MeshBasicMaterial({ color: "#140F08" });
+  const L = 0.5, P = 0.5;
+  const scatola = (l: number, a: number, p: number, m: THREE.Material, x: number, y: number, z: number) => {
+    const b = new THREE.Mesh(new THREE.BoxGeometry(l, a, p), m);
+    b.position.set(x, y, z);
+    g.add(b);
+    return b;
+  };
+  // il cavalletto: quattro gambe un po' divaricate, due traverse
+  [-1, 1].forEach((sx) => [-1, 1].forEach((sz) => {
+    const gamba = scatola(0.05, 0.36, 0.05, grezzo, sx * 0.21, 0.18, sz * 0.2);
+    gamba.rotation.z = -sx * 0.06;
+    gamba.rotation.x = sz * 0.06;
+  }));
+  scatola(L + 0.04, 0.04, 0.06, grezzo, 0, 0.3, 0.2);
+  scatola(L + 0.04, 0.04, 0.06, grezzo, 0, 0.3, -0.2);
+  // il fondo, e il predellino inclinato davanti all'entrata
+  scatola(L + 0.02, 0.04, P + 0.02, grezzo, 0, 0.34, 0);
+  const predellino = scatola(L * 0.8, 0.018, 0.12, grezzo, 0, 0.33, P / 2 + 0.05);
+  predellino.rotation.x = 0.28;
+  // il nido e il melario, con una fuga scura fra l'uno e l'altro
+  let y = 0.36;
+  ([[0.29, nido], [0.17, melario]] as const).forEach(([h, m], i) => {
+    scatola(L, h, P, m, 0, y + h / 2, 0);
+    // le maniglie incavate sui fianchi
+    [-1, 1].forEach((s) => scatola(0.008, 0.026, 0.13, buio, s * (L / 2 + 0.002), y + h * 0.66, 0));
+    if (i === 0) scatola(L * 0.62, 0.016, 0.006, buio, 0, y + 0.014, P / 2 + 0.002); // l'entrata
+    y += h;
+    scatola(L + 0.004, 0.004, P + 0.004, buio, 0, y, 0);
+  });
+  // il coprifavo e il tetto di lamiera, più largo, coi bordi ripiegati
+  scatola(L, 0.02, P, melario, 0, y + 0.01, 0);
+  y += 0.02;
+  scatola(L + 0.07, 0.03, P + 0.07, lamiera, 0, y + 0.015, 0);
+  [-1, 1].forEach((s) => {
+    scatola(L + 0.07, 0.05, 0.008, lamiera, 0, y - 0.005, s * (P / 2 + 0.035));
+    scatola(0.008, 0.05, P + 0.07, lamiera, s * (L / 2 + 0.035), y - 0.005, 0);
+  });
+  // le api: il corpo giallo bruno a righe, le ali di vetro; girano davanti all'entrata (muoviApi)
+  const api = new THREE.Group();
+  api.userData.api = true;
+  const corpo = new THREE.MeshStandardMaterial({ color: "#C08A1E", roughness: 0.6 });
+  const righe = new THREE.MeshBasicMaterial({ color: "#1E1408" });
+  const ali = new THREE.MeshBasicMaterial({ color: "#FFFFFF", transparent: true, opacity: 0.55, side: THREE.DoubleSide, depthWrite: false });
+  for (let i = 0; i < 11; i++) {
+    const a = new THREE.Group();
+    const c = new THREE.Mesh(new THREE.SphereGeometry(0.011, 8, 6).scale(1.6, 1, 1), corpo);
+    a.add(c);
+    const r = new THREE.Mesh(new THREE.CylinderGeometry(0.0112, 0.0112, 0.005, 8).rotateZ(Math.PI / 2), righe);
+    r.position.x = -0.004;
+    a.add(r);
+    [-1, 1].forEach((s) => {
+      const ala = new THREE.Mesh(new THREE.PlaneGeometry(0.016, 0.009), ali);
+      ala.position.set(0.002, 0.009, s * 0.008);
+      ala.rotation.x = s * 0.5;
+      ala.userData.ala = s;
+      a.add(ala);
+    });
+    a.userData.fase = i * 0.61;
+    api.add(a);
+  }
+  api.position.set(0, 0.42, P / 2 + 0.2);
+  g.add(api);
 }
 
 /* ------------------------------------------------------------- caricamento */
@@ -327,7 +278,8 @@ export function supporto(id: Supporto) {
     const pezzo = new THREE.Box3();
     gruppo.traverse((o) => {
       const m = o as THREE.Mesh;
-      if (!m.isMesh || !m.visible || o.parent?.userData.api) return;
+      if (!m.isMesh || !m.visible) return;
+      for (let p = o.parent; p; p = p.parent) if (p.userData.api) return; // le api non contano
       if (!m.geometry.boundingBox) m.geometry.computeBoundingBox();
       pezzo.copy(m.geometry.boundingBox as THREE.Box3).applyMatrix4(m.matrixWorld).applyMatrix4(inversa);
       b.union(pezzo);
@@ -343,13 +295,17 @@ export function supporto(id: Supporto) {
   return { gruppo: esterno };
 }
 
-/** Le api attorno all'arnia: girano piano davanti all'entrata. */
+/** Le api attorno all'arnia: girano davanti all'entrata, sbattono le ali, guardano dove vanno. */
 export function muoviApi(g: THREE.Object3D, t: number) {
   g.traverse((o) => {
     if (!o.userData.api) return;
     o.children.forEach((a, i) => {
-      const f = (a.userData.fase as number) + t * (0.9 + (i % 3) * 0.25);
-      a.position.set(Math.sin(f * 1.3) * 0.32, Math.sin(f * 2.1) * 0.12 + 0.1, Math.cos(f) * 0.18);
+      const f = (a.userData.fase as number) + t * (0.8 + (i % 3) * 0.22);
+      a.position.set(Math.sin(f * 1.3) * 0.3, Math.sin(f * 2.1) * 0.1 + 0.08, Math.cos(f) * 0.16);
+      a.rotation.y = Math.atan2(-Math.cos(f * 1.3) * 1.3 * 0.3, -Math.sin(f) * 0.16);
+      a.children.forEach((c) => {
+        if (c.userData.ala) c.rotation.x = (c.userData.ala as number) * (0.3 + Math.abs(Math.sin(t * 60 + i)) * 0.9);
+      });
     });
   });
 }

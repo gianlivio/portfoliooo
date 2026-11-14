@@ -12,7 +12,7 @@ import { lavori } from "@/content/lavori";
 import { mondo } from "./condivisi";
 import { suono } from "./audio";
 import { ANGOLO_ZONA, RAGGIO_ULIVETO } from "./zona";
-import { supporto, muoviApi } from "./lavori3d/supporti";
+import { supporto, muoviApi, sollevamento } from "./lavori3d/supporti";
 import { PANNELLO, SCHERMO, disegnaPannello, disegnaApri, materialeSchermo, giroPagina, type Schermo } from "./lavori3d/pannello";
 import { PELO_ACQUA } from "./condivisi";
 import type { Supporto } from "@/content/lavori";
@@ -137,7 +137,7 @@ const MEZZO = PANNELLO.daTerra + PANNELLO.alto / 2;
 /** Il centro dello schermo di un lavoro, in coordinate del mondo. */
 function centroSchermo(c: Carta) {
   const { a, r, s } = c.posto;
-  const y = PELO_ACQUA + (MEZZO + SCHERMO.y) * s;
+  const y = PELO_ACQUA + (MEZZO + sollevamento(c.posto.supporto) + SCHERMO.y) * s;
   return new THREE.Vector3(Math.sin(a) * r, y, -Math.cos(a) * r);
 }
 const direzione = (yaw: number) => new THREE.Vector3(Math.sin(yaw), 0, -Math.cos(yaw));
@@ -533,6 +533,8 @@ function Carte({
         const { a, r, s } = c.posto;
         const sp = supporti[i];
         const schermo = grafica.schermi[i];
+        // sopra la sedia di Bellelli il pannello si alza
+        const su = sollevamento(c.posto.supporto);
         return (
           <group
             key={c.id}
@@ -549,7 +551,7 @@ function Carte({
               ref={(l) => {
                 lastre.current[i] = l;
               }}
-              position={[0, MEZZO, 0]}
+              position={[0, MEZZO + su, 0]}
               userData={{ carta: true }}
               renderOrder={3}
               onPointerOver={(e: ThreeEvent<PointerEvent>) => {
@@ -629,7 +631,7 @@ function Carte({
               )}
             </mesh>
             {/* filigrana: il testo dietro il lavoro, sopra il pannello e un passo indietro */}
-            <mesh position={[-0.1, PANNELLO.daTerra + A + 0.55, -0.6]} raycast={() => null} renderOrder={1}>
+            <mesh position={[-0.1, PANNELLO.daTerra + su + A + 0.55, -0.6]} raycast={() => null} renderOrder={1}>
               <planeGeometry args={[1.9, 1.9 * (440 / 1024)]} />
               <meshBasicMaterial
                 ref={(m) => {
