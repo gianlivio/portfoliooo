@@ -105,7 +105,7 @@ export const lavori: Lavoro[] = [
   {
     id: "ndnluxury",
     sezione: "sviluppo",
-    posto: { piano: 2, passo: 6.4 },
+    posto: { piano: 2, passo: 7.3 },
     anno: "2026",
     motivo: "sito",
     tinta: "#D2CFBE",
@@ -123,7 +123,7 @@ export const lavori: Lavoro[] = [
   {
     id: "beautybroker",
     sezione: "sviluppo",
-    posto: { piano: 2, passo: 5.75 },
+    posto: { piano: 2, passo: 6.6 },
     anno: "2026",
     motivo: "app",
     tinta: "#DBCBD0",
