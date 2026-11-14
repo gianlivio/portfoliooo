@@ -75,8 +75,8 @@
     "osservatorio": {
       "tipo": "Dati pubblici · open source",
       "titolo": "Osservatorio Accoglienza",
-      "riga": "Archivio pubblico dei contratti per l'accoglienza dei migranti in Italia, provincia per provincia, ricostruito incrociando tre dataset aperti ANAC. Nasce dagli anni di lavoro come educatore con i minori stranieri non accompagnati.",
-      "ruolo": "Progetto personale · open source",
+      "riga": "Da educatore con i minori stranieri non accompagnati ho visto che l'integrazione riesce o fallisce soprattutto per come la gestiscono le strutture. Le cause stanno lì; guardare solo i sintomi, cioè microcriminalità e marginalità, nutre l'estremismo invece di migliorare l'accoglienza.",
+      "ruolo": "Progetto personale · ideato e sviluppato da me · open source",
       "compiti": [
         "Pipeline Python su 18.058 contratti dal 2015 al 2025, da tre dataset ANAC uniti per codice CIG.",
         "Filtro su codici CPV e testo per isolare l'accoglienza, corretto con la segnalazione di un'operatrice del settore.",

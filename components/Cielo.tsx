@@ -115,14 +115,15 @@ function etichetta(testo: string, mono: string) {
 type Nodo = { id: string; nome: string; peso: number; pos: THREE.Vector3 };
 
 export default function Cielo({
-  notte, colore, lingua, angoli, quote, attiva, ridotto, stretto, mono,
+  notte, colore, lingua, angoli, origini, attiva, ridotto, stretto, mono,
 }: {
   notte: boolean;
   colore: string;
   lingua: string;
   /** angolo e quota di ogni carta, per id */
   angoli: Record<string, number>;
-  quote: Record<string, number>;
+  /** da dove partono i fili verso le competenze, per ogni lavoro */
+  origini: Record<string, THREE.Vector3>;
   /** id della carta attiva (passaggio, fuoco o apertura), scritto dalle carte */
   attiva: MutableRefObject<string | null>;
   ridotto: boolean;
@@ -324,12 +325,11 @@ export default function Cielo({
       const usate = id === "contatto" ? competenze.map((c) => c.id) : id ? competenzeDi[id] ?? [] : [];
       accese.current = new Set(usate);
       if (id && angoli[id] !== undefined) {
-        const a = angoli[id];
-        // dalla carta; per il contatto, dalla luce che esce dal cassetto
+        // dal lavoro; per il contatto, dalla luce che esce dal cassetto
         const da =
           id === "contatto"
             ? nelMondo(new THREE.Vector3(POSIZIONI.cassetto.x, 1.3, POSIZIONI.cassetto.z - 0.38))
-            : new THREE.Vector3(Math.sin(a) * 5.75, (quote[id] ?? 0) + 0.85, -Math.cos(a) * 5.75);
+            : origini[id] ?? new THREE.Vector3();
         const arr = grafica.fili.geometry.attributes.position.array as Float32Array;
         let k = 0;
         nodi.forEach((n) => {

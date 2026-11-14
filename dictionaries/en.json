@@ -75,8 +75,8 @@
     "osservatorio": {
       "tipo": "Public data · open source",
       "titolo": "Osservatorio Accoglienza",
-      "riga": "A public archive of the contracts for migrant reception in Italy, province by province, rebuilt by joining three ANAC open datasets. It grew out of my years as an educator with unaccompanied foreign minors.",
-      "ruolo": "Personal project · open source",
+      "riga": "As an educator working with unaccompanied foreign minors, I saw that integration succeeds or fails mostly on how the reception centres manage it. That is where the causes lie; looking only at the symptoms, petty crime and marginalisation, feeds extremism instead of improving reception.",
+      "ruolo": "Personal project · conceived and built by me · open source",
       "compiti": [
         "Python pipeline over 18,058 contracts from 2015 to 2025, from three ANAC datasets joined on the CIG code.",
         "CPV-code and text filter to isolate reception services, refined after feedback from a social worker.",

@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import type { Dizionario, Lingua } from "@/dictionaries";
 import { lingue } from "@/dictionaries";
 import { lavori, ID_CONTATTO, ID_ULIVETO } from "@/content/lavori";
-import { POSTI, POSTO_ULIVETO, POSTO_ZONA } from "./zona";
+import { ANGOLO_ULIVETO, ANGOLO_ZONA, PASSO, RAGGIO_ULIVETO, RAGGIO_ZONA } from "./zona";
 import { precaricaUliveto } from "./precaricaUliveto";
 import { frammenti } from "@/content/frammenti";
 import { curriculum, musica } from "@/content/collegamenti";
@@ -17,6 +17,10 @@ import Avvio from "./Avvio";
 import { suono, type Modo } from "./audio";
 
 const Scena = dynamic(() => import("./Scena"), { ssr: false });
+
+/** I tre piani della scena: quanto stanno lontani dal centro e quanto sono grandi gli oggetti. */
+const DISTANZE = { 1: 4.5, 2: 6.3, 3: 8.6 } as const;
+const GRANDEZZE = { 1: 1, 2: 0.85, 3: 0.7 } as const;
 
 function supportaWebGL() {
   try {
@@ -173,6 +177,12 @@ export default function Esperienza({
       const t = d.lavori[l.id as keyof typeof d.lavori];
       return {
         id: l.id,
+        posto: {
+          a: l.posto.passo * PASSO,
+          r: DISTANZE[l.posto.piano],
+          s: GRANDEZZE[l.posto.piano],
+          supporto: l.posto.supporto,
+        },
         immagine: (schermate as string[]).includes(l.id)
           ? `/lavori/${l.id}.jpg`
           : null,
@@ -194,6 +204,7 @@ export default function Esperienza({
     });
     const contatto: Carta = {
       id: ID_CONTATTO,
+      posto: { a: ANGOLO_ZONA, r: RAGGIO_ZONA, s: 1, supporto: null },
       immagine: null,
       frammento: "",
       dati: {
@@ -210,6 +221,7 @@ export default function Esperienza({
     // l'ingresso dell'uliveto: un posto sull'anello come le carte, ma sulla scena è un cancello
     const uliveto: Carta = {
       id: ID_ULIVETO,
+      posto: { a: ANGOLO_ULIVETO, r: RAGGIO_ULIVETO, s: 1, supporto: null },
       immagine: null,
       frammento: "",
       dati: {
@@ -224,9 +236,8 @@ export default function Esperienza({
         uliveto: true,
       },
     };
-    // l'anello: la zona e l'uliveto ai loro posti, i lavori in ordine negli altri
-    const resto = [...elenco];
-    return Array.from({ length: POSTI }, (_, i) => (i === POSTO_ZONA ? contatto : i === POSTO_ULIVETO ? uliveto : (resto.shift() as Carta)));
+    // in ordine di direzione: le frecce passano da un oggetto a quello accanto
+    return [...elenco, contatto, uliveto].sort((x, y) => x.posto.a - y.posto.a);
   }, [d, lingua]);
 
   // la vista elenco: la classe sull'html la mostra sopra la scena; Esc la chiude; si apre col fuoco sul titolo
@@ -285,18 +296,30 @@ export default function Esperienza({
   const indice = selezionato
     ? lavori.findIndex((l) => l.id === selezionato)
     : -1;
+  /** i lavori nell'ordine in cui stanno nella scena, girando */
+  const giro = useMemo(() => carte.filter((c) => c.id !== ID_CONTATTO && c.id !== ID_ULIVETO).map((c) => c.id), [carte]);
   const vai = useCallback(
     (passo: number) => {
-      if (indice < 0) return;
-      const n = lavori.length;
-      setSelezionato(lavori[(indice + passo + n) % n].id);
+      const i = selezionato ? giro.indexOf(selezionato) : -1;
+      if (i < 0) return;
+      const n = giro.length;
+      setSelezionato(giro[(i + passo + n) % n]);
     },
-    [indice],
+    [selezionato, giro],
   );
 
   const chiudiVignetta = useCallback(() => {
     setSelezionato(null);
     if (daTastiera.current) palco.current?.focus();
+  }, []);
+
+  // ?subito: per le prove automatiche, un lavoro si apre da fuori
+  useEffect(() => {
+    if (!location.search.includes("subito")) return;
+    (window as unknown as { __seleziona: (id: string | null) => void }).__seleziona = (id) => {
+      setMosso(true);
+      setSelezionato(id);
+    };
   }, []);
 
   // con la vignetta aperta: Esc chiude, ← → passano al lavoro accanto
@@ -309,9 +332,9 @@ export default function Esperienza({
       if (e.key === "ArrowRight") vai(1);
       if (e.key === "ArrowLeft") vai(-1);
       if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
-        const n = lavori.length;
+        const n = giro.length;
         suono.notaCarta(
-          (lavori.findIndex((l) => l.id === selezionato) +
+          (giro.indexOf(selezionato) +
             (e.key === "ArrowRight" ? 1 : -1) +
             n) %
             n,
@@ -320,7 +343,7 @@ export default function Esperienza({
     };
     window.addEventListener("keydown", tasti);
     return () => window.removeEventListener("keydown", tasti);
-  }, [selezionato, modulo, vai, chiudiVignetta]);
+  }, [selezionato, modulo, vai, chiudiVignetta, giro]);
 
   // aperta da tastiera, la vignetta prende il fuoco
   useEffect(() => {

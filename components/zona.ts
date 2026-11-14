@@ -1,5 +1,4 @@
 import * as THREE from "three";
-import { lavori } from "@/content/lavori";
 import { PELO_ACQUA } from "./condivisi";
 
 /**
@@ -11,18 +10,21 @@ import { PELO_ACQUA } from "./condivisi";
  */
 
 /**
- * Posti sull'anello: uno per lavoro, più la zona e l'ingresso dell'uliveto. La zona sta dopo i lavori;
- * l'uliveto dalla parte opposta, alle spalle di chi entra: i lavori riempiono i posti rimasti, in ordine.
+ * Le direzioni della scena si contano in passi: quattordici per giro, i posti dell'anello di carte con cui
+ * il paesaggio è stato disegnato. Il numero è fisso: i lavori hanno ciascuno il suo posto (content/lavori.ts),
+ * e aggiungerne uno non fa più ruotare il paesaggio.
  */
-export const POSTI = lavori.length + 2;
-export const POSTO_ZONA = lavori.length;
-export const POSTO_ULIVETO = (POSTO_ZONA + Math.round(POSTI / 2)) % POSTI;
+export const POSTI = 14;
+export const POSTO_ZONA = 12;
+export const POSTO_ULIVETO = 5;
 /** L'angolo fra due posti vicini. */
 export const PASSO = (Math.PI * 2) / POSTI;
 export const ANGOLO_ZONA = POSTO_ZONA * PASSO;
 export const ANGOLO_ULIVETO = POSTO_ULIVETO * PASSO;
 export const RAGGIO_ZONA = 5.45;
 export const SCALA_ZONA = 0.55;
+/** Il cancello dell'uliveto: più indietro dei lavori vicini. */
+export const RAGGIO_ULIVETO = 7.6;
 
 /** Le cose della zona, in coordinate della scrivania (x di lato, y in alto, z verso fuori). */
 export const POSIZIONI = {

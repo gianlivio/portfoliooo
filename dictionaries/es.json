@@ -75,8 +75,8 @@
     "osservatorio": {
       "tipo": "Datos públicos · open source",
       "titolo": "Osservatorio Accoglienza",
-      "riga": "Archivo público de los contratos para la acogida de migrantes en Italia, provincia por provincia, reconstruido cruzando tres conjuntos de datos abiertos de ANAC. Nace de mis años como educador con menores extranjeros no acompañados.",
-      "ruolo": "Proyecto personal · open source",
+      "riga": "Como educador con menores extranjeros no acompañados vi que la integración sale bien o mal sobre todo según cómo la gestionan los centros. Las causas están ahí; mirar solo los síntomas, la pequeña delincuencia y la marginación, alimenta el extremismo en lugar de mejorar la acogida.",
+      "ruolo": "Proyecto personal · ideado y desarrollado por mí · código abierto",
       "compiti": [
         "Pipeline en Python sobre 18.058 contratos de 2015 a 2025, de tres conjuntos de datos de ANAC unidos por el código CIG.",
         "Filtro por códigos CPV y texto para aislar la acogida, corregido con la indicación de una trabajadora del sector.",
