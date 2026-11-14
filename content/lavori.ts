@@ -23,8 +23,10 @@ export type Supporto =
 /**
  * Dove sta il lavoro nella scena.
  * piano: 1 vicino e grande, 2 a metà, 3 lontano e piccolo (dove sta il Liotru).
- * passo: la direzione, in passi da 0 a 14 (components/zona.ts): la zona dello sviluppatore è a 12,
- * il cancello dell'uliveto a 5, il Liotru a 1,5. Due lavori sullo stesso piano stanno almeno a 0,7 passi.
+ * passo: la direzione, in passi da 0 a 14 (components/zona.ts): la zona dello sviluppatore è a 12 (occupa da 11,4 a 12,6),
+ * il cancello dell'uliveto a 5 (da 4,65 a 5,35), il Liotru a 1,5 (va lasciato libero da 1,25 a 1,75).
+ * Un pannello col suo oggetto occupa, da 0,3 passi a sinistra del suo passo a 0,5 a destra se vicino,
+ * da 0,2 a 0,37 a metà, da 0,15 a 0,26 se lontano: due lavori non devono sovrapporsi.
  */
 export type Posto = { piano: 1 | 2 | 3; passo: number; supporto: Supporto };
 
@@ -42,7 +44,7 @@ export const lavori: Lavoro[] = [
   {
     id: "shop",
     sezione: "sviluppo",
-    posto: { piano: 1, passo: 13.0, supporto: "quadro" },
+    posto: { piano: 1, passo: 12.95, supporto: "quadro" },
     anno: "2024–2026",
     motivo: "negozio",
     tinta: "#C7D2DA",
@@ -51,7 +53,7 @@ export const lavori: Lavoro[] = [
   {
     id: "bellelli",
     sezione: "sviluppo",
-    posto: { piano: 1, passo: 13.7, supporto: "sedia" },
+    posto: { piano: 1, passo: 13.8, supporto: "sedia" },
     anno: "2026 →",
     motivo: "negozio",
     tinta: "#CDCBD6",
@@ -60,7 +62,7 @@ export const lavori: Lavoro[] = [
   {
     id: "sanires",
     sezione: "sviluppo",
-    posto: { piano: 1, passo: 14.4, supporto: "guanto" },
+    posto: { piano: 1, passo: 9.7, supporto: "guanto" },
     anno: "2026",
     motivo: "negozio",
     tinta: "#CBD6C9",
@@ -69,7 +71,7 @@ export const lavori: Lavoro[] = [
   {
     id: "ghigomiranda",
     sezione: "sviluppo",
-    posto: { piano: 1, passo: 9.9, supporto: "arnia" },
+    posto: { piano: 1, passo: 8.85, supporto: "arnia" },
     anno: "2026 →",
     motivo: "negozio",
     tinta: "#D8D1C0",
@@ -78,7 +80,7 @@ export const lavori: Lavoro[] = [
   {
     id: "osservatorio",
     sezione: "sviluppo",
-    posto: { piano: 1, passo: 10.9, supporto: "gommone" },
+    posto: { piano: 1, passo: 10.55, supporto: "gommone" },
     anno: "2026",
     motivo: "dati",
     tinta: "#D8D1C0",
@@ -87,7 +89,7 @@ export const lavori: Lavoro[] = [
   {
     id: "livellozero",
     sezione: "sviluppo",
-    posto: { piano: 1, passo: 9.2, supporto: "televisore" },
+    posto: { piano: 1, passo: 8.0, supporto: "televisore" },
     anno: "2026 →",
     motivo: "editoriale",
     tinta: "#DBCBD0",
@@ -96,7 +98,7 @@ export const lavori: Lavoro[] = [
   {
     id: "futuraauthor",
     sezione: "sviluppo",
-    posto: { piano: 2, passo: 3.5, supporto: "cantiere" },
+    posto: { piano: 2, passo: 2.5, supporto: "cantiere" },
     anno: "2026 →",
     motivo: "cantiere",
     tinta: "#0E0E0E",
@@ -105,7 +107,7 @@ export const lavori: Lavoro[] = [
   {
     id: "ndnluxury",
     sezione: "sviluppo",
-    posto: { piano: 2, passo: 7.8, supporto: "resina" },
+    posto: { piano: 2, passo: 6.4, supporto: "resina" },
     anno: "2026",
     motivo: "sito",
     tinta: "#D2CFBE",
@@ -114,7 +116,7 @@ export const lavori: Lavoro[] = [
   {
     id: "esh",
     sezione: "sviluppo",
-    posto: { piano: 2, passo: 7.1, supporto: "valigia" },
+    posto: { piano: 2, passo: 3.8, supporto: "valigia" },
     anno: "2026",
     motivo: "sito",
     tinta: "#CBD6C9",
@@ -123,7 +125,7 @@ export const lavori: Lavoro[] = [
   {
     id: "beautybroker",
     sezione: "sviluppo",
-    posto: { piano: 2, passo: 6.4, supporto: "specchio" },
+    posto: { piano: 2, passo: 5.75, supporto: "specchio" },
     anno: "2026",
     motivo: "app",
     tinta: "#DBCBD0",
@@ -132,7 +134,7 @@ export const lavori: Lavoro[] = [
   {
     id: "allstudios",
     sezione: "sviluppo",
-    posto: { piano: 2, passo: 4.25, supporto: "proiettore" },
+    posto: { piano: 2, passo: 3.15, supporto: "proiettore" },
     anno: "2026",
     motivo: "cantiere",
     tinta: "#0E0E0E",
@@ -141,7 +143,7 @@ export const lavori: Lavoro[] = [
   {
     id: "jointoyou",
     sezione: "editoria",
-    posto: { piano: 3, passo: 1.0, supporto: "cornice" },
+    posto: { piano: 3, passo: 14.5, supporto: "cornice" },
     anno: "",
     motivo: "editoriale",
     tinta: "#DBCBD0",
@@ -150,7 +152,7 @@ export const lavori: Lavoro[] = [
   {
     id: "blog",
     sezione: "editoria",
-    posto: { piano: 1, passo: 8.5, supporto: "lavagna" },
+    posto: { piano: 1, passo: 7.15, supporto: "lavagna" },
     anno: "2024–2026",
     motivo: "editoriale",
     tinta: "#C7D2DA",
@@ -159,7 +161,7 @@ export const lavori: Lavoro[] = [
   {
     id: "copystudio",
     sezione: "editoria",
-    posto: { piano: 3, passo: 2.0, supporto: "portatile" },
+    posto: { piano: 3, passo: 14.95, supporto: "portatile" },
     anno: "2023–2024",
     motivo: "testo",
     tinta: "#CDCBD6",
@@ -168,7 +170,7 @@ export const lavori: Lavoro[] = [
   {
     id: "hetaweb",
     sezione: "editoria",
-    posto: { piano: 3, passo: 2.6, supporto: "appunti" },
+    posto: { piano: 3, passo: 1.95, supporto: "appunti" },
     anno: "2023",
     motivo: "testo",
     tinta: "#D2CFBE",

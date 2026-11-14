@@ -54,7 +54,7 @@ function casuale(seme: number) {
   };
 }
 
-function rettangoloArrotondato(
+export function rettangoloArrotondato(
   ctx: CanvasRenderingContext2D,
   x: number, y: number, w: number, h: number, r: number
 ) {
@@ -68,14 +68,14 @@ function rettangoloArrotondato(
 }
 
 /** Taglia il testo con i puntini se non entra nella larghezza data. */
-function adatta(ctx: CanvasRenderingContext2D, testo: string, max: number) {
+export function adatta(ctx: CanvasRenderingContext2D, testo: string, max: number) {
   if (ctx.measureText(testo).width <= max) return testo;
   let t = testo;
   while (t.length > 1 && ctx.measureText(t + "…").width > max) t = t.slice(0, -1);
   return t + "…";
 }
 
-function motivo(
+export function motivo(
   ctx: CanvasRenderingContext2D,
   tipo: Motivo, x: number, y: number, w: number, h: number, seme: number
 ) {
@@ -173,7 +173,7 @@ function motivo(
 }
 
 /** Il cartello di cantiere: nero, strisce gialle fluo, triangolo arancio, scritta verde acido. */
-function cantiere(
+export function cantiere(
   ctx: CanvasRenderingContext2D,
   x: number, y: number, w: number, h: number, avviso: string, famiglie: Famiglie
 ) {

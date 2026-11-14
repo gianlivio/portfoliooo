@@ -19,8 +19,8 @@ import { suono, type Modo } from "./audio";
 const Scena = dynamic(() => import("./Scena"), { ssr: false });
 
 /** I tre piani della scena: quanto stanno lontani dal centro e quanto sono grandi gli oggetti. */
-const DISTANZE = { 1: 4.5, 2: 6.3, 3: 8.6 } as const;
-const GRANDEZZE = { 1: 1, 2: 0.85, 3: 0.7 } as const;
+const DISTANZE = { 1: 4.6, 2: 5.7, 3: 6.8 } as const;
+const GRANDEZZE = { 1: 1, 2: 0.88, 3: 0.76 } as const;
 
 function supportaWebGL() {
   try {

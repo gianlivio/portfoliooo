@@ -3,9 +3,9 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import type { Supporto } from "@/content/lavori";
 
 /*
- * Gli oggetti su cui stanno i lavori nella scena: ognuno richiama il lavoro (il quadro elettrico per lo shop di
- * materiale elettrico, la sedia per Bellelli, il guanto monouso per Sanires...). Sopra o dentro c'è lo schermo,
- * dove scorre la pagina del sito.
+ * Gli oggetti che accompagnano i lavori nella scena, piccoli, ai piedi del pannello: ognuno richiama il lavoro
+ * (il quadro elettrico per lo shop di materiale elettrico, la sedia per Bellelli, il guanto monouso per Sanires...).
+ * Sullo schermino dell'oggetto c'è la cima della pagina del sito; la pagina vera sta sul pannello (pannello.ts).
  *
  * I modelli vengono da Poly Haven (polyhaven.com, licenza CC0), ridotti per il web con gltf-transform
  * (texture webp 256–512 px, geometria semplificata e quantizzata) e serviti da public/lavori/oggetti:
@@ -29,11 +29,11 @@ type Pezzo = {
   ritocco?: (m: THREE.MeshStandardMaterial) => void;
 };
 
-export type Schermo = { pos: [number, number, number]; rot: [number, number, number]; largo: number };
+type SchermoOggetto = { pos: [number, number, number]; rot: [number, number, number]; largo: number };
 
 type Definizione = {
   pezzi: Pezzo[];
-  schermo: Schermo;
+  schermo: SchermoOggetto;
   /** le parti costruite qui, senza modello */
   costruisci?: (g: THREE.Group) => void;
 };
@@ -291,8 +291,9 @@ function modello(nome: string) {
 }
 
 /**
- * Costruisce il supporto: torna il gruppo (che si riempie quando i modelli arrivano) e lo schermo.
- * La sagoma è un volume invisibile grande quanto l'oggetto: serve al puntatore.
+ * Costruisce l'oggetto che accompagna il pannello del lavoro: torna il gruppo (si riempie quando i modelli
+ * arrivano) e prepara(), che sullo schermo dell'oggetto mette la cima della pagina del sito, poi rimpicciolisce
+ * l'oggetto (al massimo 0,55 m di larghezza e 0,6 di altezza) e lo appoggia a terra col fianco sinistro in x = 0.
  */
 export function supporto(id: Supporto) {
   const def = DEF[id];
@@ -320,17 +321,35 @@ export function supporto(id: Supporto) {
       gruppo.add(copia);
     })
   ).catch(() => undefined);
-  return { gruppo, schermo: def.schermo, pronto };
-}
-
-/** Altezza a cui sta il centro dello schermo: serve alla camera e ai fili delle competenze. */
-export function altezzaSchermo(id: Supporto) {
-  return DEF[id].schermo.pos[1];
-}
-
-/** Precarica i modelli, quando la scena è pronta. */
-export function precaricaSupporti(ids: Supporto[]) {
-  ids.forEach((id) => DEF[id].pezzi.forEach((p) => modello(p.nome)));
+  // il contenuto (oggetto + schermino) sta in un gruppo interno: quello esterno si scala e si sposta
+  const esterno = new THREE.Group();
+  esterno.add(gruppo);
+  esterno.visible = false;
+  const prepara = (pagina: THREE.Texture | null) => {
+    if (pagina) {
+      const t = pagina.clone();
+      const L = def.schermo.largo, A = L / PROPORZIONE;
+      const img = pagina.image as HTMLImageElement;
+      const q = Math.min(1, (A / L) * (img.naturalWidth / img.naturalHeight));
+      t.repeat.set(1, q);
+      t.offset.set(0, 1 - q);
+      t.needsUpdate = true;
+      const schermino = new THREE.Mesh(new THREE.PlaneGeometry(L, A), new THREE.MeshBasicMaterial({ map: t, toneMapped: false }));
+      schermino.position.set(...def.schermo.pos);
+      schermino.rotation.set(...def.schermo.rot);
+      schermino.raycast = () => null;
+      gruppo.add(schermino);
+    }
+    pronto.then(() => {
+      const b = new THREE.Box3().setFromObject(gruppo);
+      const w = b.max.x - b.min.x, h = b.max.y - b.min.y;
+      const k = Math.min(0.55, 0.55 / w, 0.6 / h);
+      esterno.scale.setScalar(k);
+      esterno.position.set(-b.min.x * k, -b.min.y * k, -((b.min.z + b.max.z) / 2) * k);
+      esterno.visible = true;
+    });
+  };
+  return { gruppo: esterno, pronto, prepara };
 }
 
 /** Le api attorno all'arnia: girano piano davanti all'entrata. */

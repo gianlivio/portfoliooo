@@ -7,12 +7,13 @@ import Cielo from "./Cielo";
 import Portale from "./Portale";
 import Fauna from "./Fauna";
 import Suolo, { CieloDiGiorno } from "./Suolo";
-import { disegnaCopertina, FLUO, type DatiCopertina, type Famiglie } from "./copertina";
+import { FLUO, type DatiCopertina, type Famiglie } from "./copertina";
 import { lavori } from "@/content/lavori";
 import { mondo } from "./condivisi";
 import { suono } from "./audio";
 import { ANGOLO_ZONA, RAGGIO_ULIVETO } from "./zona";
-import { supporto, altezzaSchermo, muoviApi, PROPORZIONE } from "./lavori3d/supporti";
+import { supporto, muoviApi } from "./lavori3d/supporti";
+import { PANNELLO, SCHERMO, disegnaPannello, disegnaApri, materialeSchermo, giroPagina, type Schermo } from "./lavori3d/pannello";
 import { PELO_ACQUA } from "./condivisi";
 import type { Supporto } from "@/content/lavori";
 import { Zona, LIBRI, type Azione } from "./ospiti/zonaSviluppatore";
@@ -107,6 +108,7 @@ uniform float uFascia;
 uniform float uForza;
 uniform float uAlone;
 uniform float uOpacita;
+uniform float uAspetto;
 uniform vec2 uPuntatore;
 uniform vec3 uColore;
 varying vec2 vUv;
@@ -116,23 +118,26 @@ float rettangolo(vec2 p, vec2 b, float r){
 }
 void main(){
   // sagoma della carta con gli angoli arrotondati, in coordinate con le proporzioni vere
-  vec2 p = (vUv - 0.5) * vec2(1.4545, 1.0);
-  float dentro = 1.0 - smoothstep(-0.004, 0.004, rettangolo(p, vec2(0.7272, 0.5), 0.037));
+  vec2 p = (vUv - 0.5) * vec2(uAspetto, 1.0);
+  float dentro = 1.0 - smoothstep(-0.004, 0.004, rettangolo(p, vec2(uAspetto * 0.5, 0.5), 0.022));
   // fascio diagonale: un alone largo e un filo più netto al centro
   float d = vUv.x - vUv.y * 0.55;
   float x = d - uFascia;
   float fascio = exp(-pow(x / 0.12, 2.0)) * 0.6 + exp(-pow(x / 0.022, 2.0)) * 0.28;
   // riflesso che segue il puntatore
-  vec2 dp = (vUv - uPuntatore) * vec2(1.4545, 1.0);
+  vec2 dp = (vUv - uPuntatore) * vec2(uAspetto, 1.0);
   float alone = exp(-dot(dp, dp) / 0.05) * uAlone;
   float luce = (fascio * uForza + alone * 0.16) * dentro * uOpacita;
   gl_FragColor = vec4(uColore * luce, 1.0);
 }`;
 
+/** Il centro del pannello, dal suolo. */
+const MEZZO = PANNELLO.daTerra + PANNELLO.alto / 2;
+
 /** Il centro dello schermo di un lavoro, in coordinate del mondo. */
 function centroSchermo(c: Carta) {
-  const { a, r, s, supporto: sp } = c.posto;
-  const y = PELO_ACQUA + (sp ? altezzaSchermo(sp) : 1) * s;
+  const { a, r, s } = c.posto;
+  const y = PELO_ACQUA + (MEZZO + SCHERMO.y) * s;
   return new THREE.Vector3(Math.sin(a) * r, y, -Math.cos(a) * r);
 }
 const direzione = (yaw: number) => new THREE.Vector3(Math.sin(yaw), 0, -Math.cos(yaw));
@@ -182,14 +187,19 @@ function disegnaFrammento(testo: string, mono: string) {
 /* ------------------------------------------------------------------ carte */
 
 type Grafica = {
-  /** le copertine, sullo schermo dei lavori senza schermata */
-  copertine: THREE.CanvasTexture[];
-  targhe: THREE.CanvasTexture[];
+  /** la faccia dei pannelli: finestra vuota se c'è la schermata, col motivo se no */
+  pannelli: THREE.CanvasTexture[];
+  /** lo schermo con la pagina del sito, se c'è la schermata */
+  schermi: (Schermo | null)[];
+  /** larghezza / altezza di ogni pagina */
+  rapporti: number[];
   frammenti: THREE.CanvasTexture[];
-  schermi: (THREE.Texture | null)[];
   /** nastro da cantiere che scorre, per i lavori in costruzione */
   nastri: (THREE.CanvasTexture | null)[];
   lampada: THREE.CanvasTexture;
+  apri: THREE.CanvasTexture;
+  /** per ridisegnare i pannelli quando cambia il tema, sulla stessa tela */
+  conSchermo: boolean[];
   famiglie: Famiglie;
   tema: Tema;
 };
@@ -235,56 +245,27 @@ function disegnaLampada() {
 }
 
 type Riflesso = THREE.ShaderMaterial & {
-  uniforms: Record<"uFascia" | "uForza" | "uAlone" | "uOpacita", { value: number }> & {
+  uniforms: Record<"uFascia" | "uForza" | "uAlone" | "uOpacita" | "uAspetto", { value: number }> & {
     uPuntatore: { value: THREE.Vector2 };
     uColore: { value: THREE.Color };
   };
 };
 
-/** Quanta parte della pagina entra nello schermo (0–1, in altezza). */
-function quotaVisibile(img: HTMLImageElement) {
-  return Math.min(1, (1 / PROPORZIONE) * (img.naturalWidth / img.naturalHeight));
-}
-
-/** La targa sotto il lavoro: tipo e anno in piccolo, il titolo in grande, su un cartellino del colore della carta. */
-function disegnaTarga(tela: HTMLCanvasElement, c: Carta, f: Famiglie, fondo: string) {
-  tela.width = 1024;
-  tela.height = 240;
-  const x = tela.getContext("2d");
-  if (!x) return;
-  x.clearRect(0, 0, 1024, 240);
-  x.fillStyle = fondo;
-  x.beginPath();
-  x.roundRect(4, 4, 1016, 232, 22);
-  x.fill();
-  x.fillStyle = "#77786F";
-  x.font = `400 26px ${f.mono}`;
-  x.textBaseline = "alphabetic";
-  const sotto = [c.dati.tipo.toUpperCase(), c.dati.anno].filter(Boolean).join("  ·  ");
-  x.fillText(sotto, 36, 64, 952);
-  x.fillStyle = "#16171A";
-  let corpo = 92;
-  x.font = `300 ${corpo}px ${f.serif}`;
-  while (x.measureText(c.dati.titolo).width > 952 && corpo > 52) {
-    corpo -= 4;
-    x.font = `300 ${corpo}px ${f.serif}`;
-  }
-  x.fillText(c.dati.titolo, 32, 178, 956);
-}
+const APRI: Record<string, string> = { it: "Apri ↗", en: "Open ↗", es: "Abrir ↗" };
 
 function Carte({
-  carte, selezionato, focale, onSeleziona, ridotto, onPronta, tema, conIngresso, moduloAperto, attiva, sezioneEditoria,
-}: Omit<Props, "onInteragisci" | "stretto" | "lingua" | "testiMusica" | "testoUlivo" | "onOlio"> & { attiva: React.MutableRefObject<string | null> }) {
+  carte, selezionato, focale, onSeleziona, ridotto, onPronta, tema, conIngresso, moduloAperto, attiva, sezioneEditoria, lingua,
+}: Omit<Props, "onInteragisci" | "stretto" | "testiMusica" | "testoUlivo" | "onOlio"> & { attiva: React.MutableRefObject<string | null> }) {
   const [grafica, setGrafica] = useState<Grafica | null>(null);
   const [sopra, setSopra] = useState<string | null>(null);
   const gruppi = useRef<(THREE.Group | null)[]>([]);
   const lastre = useRef<(THREE.Mesh | null)[]>([]);
   const materiali = useRef<(THREE.MeshBasicMaterial | null)[]>([]);
   const filigrane = useRef<(THREE.MeshBasicMaterial | null)[]>([]);
-  const targhe = useRef<(THREE.MeshBasicMaterial | null)[]>([]);
+  const apriMat = useRef<(THREE.MeshBasicMaterial | null)[]>([]);
   const lampade = useRef<(THREE.SpriteMaterial | null)[]>([]);
   const nastriMat = useRef<(THREE.MeshBasicMaterial | null)[]>([]);
-  // gli oggetti su cui stanno i lavori: si costruiscono una volta, i modelli arrivano quando arrivano
+  // gli oggetti che accompagnano i lavori: si costruiscono una volta, i modelli arrivano quando arrivano
   const supporti = useMemo(() => carte.map((c) => (c.posto.supporto ? supporto(c.posto.supporto) : null)), [carte]);
   const riflessi = useMemo(
     () =>
@@ -298,6 +279,7 @@ function Carte({
               uForza: { value: 0 },
               uAlone: { value: 0 },
               uOpacita: { value: 0 },
+              uAspetto: { value: PANNELLO.largo / PANNELLO.alto },
               uPuntatore: { value: new THREE.Vector2(0.5, 0.5) },
               uColore: { value: new THREE.Color() },
             },
@@ -314,7 +296,6 @@ function Carte({
   useEffect(() => {
     riflessi.forEach((r) => r.uniforms.uColore.value.set(tema === "scuro" ? "#FFFFFF" : "#FFF8EC"));
   }, [riflessi, tema]);
-  const scorrimento = useRef<{ p: number; verso: number }[]>([]);
   const puntatore = useRef(new THREE.Vector2());
   const moduloRif = useRef(false);
   const opacitaPortale = useRef({ current: 0 });
@@ -338,18 +319,9 @@ function Carte({
       );
       if (annullato) return;
       const anis = gl.capabilities.getMaxAnisotropy();
-      // senza schermata (i lavori in costruzione), lo schermo mostra la copertina col suo motivo
-      const copertine = carte.map((c, i) => {
+      const pannelli = carte.map((c, i) => {
         const tela = document.createElement("canvas");
-        disegnaCopertina(tela, { ...c.dati, immagine: null, finestraVuota: false }, f, 1000 + i * 97, PALETTE[tema].carta);
-        const t = new THREE.CanvasTexture(tela);
-        t.colorSpace = THREE.SRGBColorSpace;
-        t.anisotropy = anis;
-        return t;
-      });
-      const targhe = carte.map((c) => {
-        const tela = document.createElement("canvas");
-        disegnaTarga(tela, c, f, PALETTE[tema].carta);
+        disegnaPannello(tela, c.dati, f, 1000 + i * 97, PALETTE[tema].carta, !!immagini[i]);
         const t = new THREE.CanvasTexture(tela);
         t.colorSpace = THREE.SRGBColorSpace;
         t.anisotropy = anis;
@@ -360,21 +332,26 @@ function Carte({
         t.anisotropy = anis;
         return t;
       });
-      const schermi = immagini.map((img) => {
+      const pagine = immagini.map((img) => {
         if (!img) return null;
         const t = new THREE.Texture(img);
         t.colorSpace = THREE.SRGBColorSpace;
         t.anisotropy = anis;
-        const q = quotaVisibile(img);
-        t.repeat.set(1, q);
-        t.offset.set(0, 1 - q); // si parte dall'alto della pagina
         t.needsUpdate = true;
         return t;
       });
+      // l'oggetto accanto al pannello mostra sul suo schermino la cima della stessa pagina
+      supporti.forEach((sp, i) => sp?.prepara(pagine[i]));
+      const schermi = pagine.map((t) => (t ? materialeSchermo(t) : null));
+      const rapporti = immagini.map((img) => (img ? img.naturalWidth / img.naturalHeight : 1));
       const nastri = carte.map((c) =>
         c.dati.motivo === "cantiere" ? disegnaNastro(c.dati.avviso ?? "", f.mono) : null
       );
-      setGrafica({ copertine, targhe, frammenti, schermi, nastri, lampada: disegnaLampada(), famiglie: f, tema });
+      setGrafica({
+        pannelli, schermi, rapporti, frammenti, nastri,
+        lampada: disegnaLampada(), apri: disegnaApri(APRI[lingua] ?? APRI.it, f.mono),
+        conSchermo: immagini.map((i) => !!i), famiglie: f, tema,
+      });
       onPronta();
     })();
     return () => {
@@ -386,28 +363,28 @@ function Carte({
 
   useEffect(
     () => () => {
-      grafica?.copertine.forEach((t) => t.dispose());
-      grafica?.targhe.forEach((t) => t.dispose());
-      grafica?.schermi.forEach((t) => t?.dispose());
+      grafica?.pannelli.forEach((t) => t.dispose());
+      grafica?.schermi.forEach((m) => {
+        m?.uniforms.uPagina.value.dispose();
+        m?.dispose();
+      });
       grafica?.nastri.forEach((t) => t?.dispose());
       grafica?.lampada.dispose();
+      grafica?.apri.dispose();
       grafica?.frammenti.forEach((t) => t.dispose());
     },
     [grafica]
   );
 
-  // il tema cambia la carta di copertine e targhe: si ridisegnano sulle loro tele, senza ricreare la scena
+  // il tema cambia la carta dei pannelli: si ridisegnano sulle loro tele, senza ricreare la scena
   useEffect(() => {
     if (!grafica || grafica.tema === tema) return;
     grafica.tema = tema;
     carte.forEach((c, i) => {
       if (c.dati.contatto || c.dati.uliveto) return;
-      const t = grafica.copertine[i];
-      disegnaCopertina(t.image as HTMLCanvasElement, { ...c.dati, immagine: null, finestraVuota: false }, grafica.famiglie, 1000 + i * 97, PALETTE[tema].carta);
+      const t = grafica.pannelli[i];
+      disegnaPannello(t.image as HTMLCanvasElement, c.dati, grafica.famiglie, 1000 + i * 97, PALETTE[tema].carta, grafica.conSchermo[i]);
       t.needsUpdate = true;
-      const tg = grafica.targhe[i];
-      disegnaTarga(tg.image as HTMLCanvasElement, c, grafica.famiglie, PALETTE[tema].carta);
-      tg.needsUpdate = true;
     });
   }, [grafica, tema, carte]);
 
@@ -460,13 +437,13 @@ function Carte({
       if (!g || !lastra || !m || !fil) return;
       const { a, r, s } = c.posto;
 
-      // ingresso: i lavori salgono dal suolo, uno dopo l'altro
+      // ingresso: i pannelli salgono dal suolo, uno dopo l'altro
       const entrata = ridotto || !conIngresso ? 1 : THREE.MathUtils.smoothstep(t, 0.3 + i * 0.08, 0.3 + i * 0.08 + 0.9);
       const accesa = c.id === selezionato || (!selezionato && (c.id === sopra || focale === i));
       const altra = !!selezionato && c.id !== selezionato;
 
-      // il lavoro acceso si fa avanti di un passo verso chi guarda
-      const rr = r - (accesa && !selezionato ? 0.3 * s : 0);
+      // il pannello acceso si fa avanti e cresce appena
+      const rr = r - (accesa && !selezionato ? 0.35 * s : 0);
       g.position.x = THREE.MathUtils.lerp(g.position.x, Math.sin(a) * rr, k);
       g.position.z = THREE.MathUtils.lerp(g.position.z, -Math.cos(a) * rr, k);
       const affondo = ridotto
@@ -474,27 +451,31 @@ function Carte({
         : moduloAperto
           ? THREE.MathUtils.smoothstep(dalCambio, i * 0.06, i * 0.06 + 1.6)
           : 1 - THREE.MathUtils.smoothstep(dalCambio, 0.15 + i * 0.04, 0.15 + i * 0.04 + 1.3);
-      g.position.y = PELO_ACQUA - (1 - entrata) * 2 * s - affondo * affondo * 2.6 * s;
+      g.position.y = PELO_ACQUA - (1 - entrata) * 2.4 * s - affondo * affondo * 2.8 * s;
       g.visible = entrata > 0.01 && affondo < 0.99;
+      const gs = s * (accesa && !selezionato ? 1.04 : 1);
+      g.scale.setScalar(THREE.MathUtils.lerp(g.scale.x, gs, k));
+
+      // inclinazione verso il puntatore, solo sul pannello sotto il mouse
+      const inclina = c.id === sopra && !selezionato && !ridotto;
+      lastra.rotation.x = THREE.MathUtils.lerp(lastra.rotation.x, inclina ? -puntatore.current.y * 0.08 : 0, k);
+      lastra.rotation.y = THREE.MathUtils.lerp(lastra.rotation.y, inclina ? puntatore.current.x * 0.12 : 0, k);
 
       const sp = supporti[i];
       if (sp && !ridotto && c.posto.supporto === "arnia") muoviApi(sp.gruppo, stato.clock.elapsedTime);
 
-      m.opacity = THREE.MathUtils.lerp(m.opacity, (altra ? 0.35 : 1) * entrata * (1 - affondo * 0.85), k);
-      const tg = targhe.current[i];
-      if (tg) tg.opacity = m.opacity * (altra ? 0.6 : 1);
+      m.opacity = THREE.MathUtils.lerp(m.opacity, (altra ? 0.25 : 1) * entrata * (1 - affondo * 0.85), k);
+      const am = apriMat.current[i];
+      if (am) am.opacity = THREE.MathUtils.lerp(am.opacity, c.id === sopra && !selezionato ? 1 : 0, k);
 
-      // la pagina del sito scorre nello schermo: piano sempre, più svelta quando il lavoro è acceso
+      // la pagina nel suo giro: scorre, si allontana intera, torna in cima; ogni pannello col suo passo
       const schermo = grafica.schermi[i];
       if (schermo) {
-        const corsa = 1 - schermo.repeat.y;
-        const sc = (scorrimento.current[i] ??= { p: 0, verso: 1 });
-        if (corsa > 0 && !ridotto) {
-          sc.p += dt * (accesa ? 0.045 : 0.012) * sc.verso;
-          if (sc.p >= corsa) { sc.p = corsa; sc.verso = -1; }
-          if (sc.p <= 0) { sc.p = 0; sc.verso = 1; }
-        }
-        schermo.offset.y = corsa - sc.p;
+        schermo.uniforms.uOpacita.value = m.opacity;
+        if (!ridotto) {
+          const passo = 0.085 + ((i * 37) % 7) * 0.012;
+          giroPagina(stato.clock.elapsedTime + i * 2.7, grafica.rapporti[i], accesa ? passo * 1.6 : passo, schermo.uniforms.uRett.value);
+        } else giroPagina(0, grafica.rapporti[i], 1, schermo.uniforms.uRett.value);
       }
 
       // cantiere: il nastro scorre, la lampada lampeggia
@@ -528,6 +509,7 @@ function Carte({
 
   if (!grafica) return null;
 
+  const L = PANNELLO.largo, A = PANNELLO.alto;
   return (
     <>
       {carte.map((c, i) => {
@@ -550,23 +532,9 @@ function Carte({
             />
           );
         }
-        const sp = supporti[i];
-        if (!sp) return null;
         const { a, r, s } = c.posto;
-        const L = sp.schermo.largo;
-        const A = L / PROPORZIONE;
-        const [sx, sy, sz] = sp.schermo.pos;
-        const mappa = grafica.schermi[i] ?? grafica.copertine[i];
-        const sopraIl = (e: ThreeEvent<PointerEvent>) => {
-          e.stopPropagation();
-          setSopra(c.id);
-        };
-        const fuori = () => setSopra((x) => (x === c.id ? null : x));
-        const clic = (e: ThreeEvent<MouseEvent>) => {
-          e.stopPropagation();
-          if (e.delta > 6) return; // era un trascinamento
-          onSeleziona(c.id);
-        };
+        const sp = supporti[i];
+        const schermo = grafica.schermi[i];
         return (
           <group
             key={c.id}
@@ -577,44 +545,69 @@ function Carte({
             rotation={[0, -a, 0]}
             scale={s}
           >
-            <primitive object={sp.gruppo} />
-            {/* la sagoma: un volume invisibile grande quanto l'oggetto, per il puntatore */}
-            <mesh position={[sx, (sy + A / 2) / 2, sz]} onPointerOver={sopraIl} onPointerOut={fuori} onClick={clic}>
-              <boxGeometry args={[Math.max(L, 1.1), sy + A / 2, 0.7]} />
-              <meshBasicMaterial transparent opacity={0} depthWrite={false} colorWrite={false} />
-            </mesh>
+            {/* l'oggetto che richiama il lavoro, piccolo, ai piedi del pannello */}
+            {sp && (
+              <group position={[L / 2 - 0.1, 0, 0.3]}>
+                <primitive object={sp.gruppo} />
+              </group>
+            )}
             <mesh
               ref={(l) => {
                 lastre.current[i] = l;
               }}
-              position={[sx, sy, sz]}
-              rotation={sp.schermo.rot}
+              position={[0, MEZZO, 0]}
               userData={{ carta: true }}
               renderOrder={3}
-              onPointerOver={sopraIl}
+              onPointerOver={(e: ThreeEvent<PointerEvent>) => {
+                e.stopPropagation();
+                setSopra(c.id);
+              }}
               onPointerMove={(e: ThreeEvent<PointerEvent>) => {
                 if (e.uv) puntatore.current.set(e.uv.x * 2 - 1, e.uv.y * 2 - 1);
               }}
-              onPointerOut={fuori}
-              onClick={clic}
+              onPointerOut={() => setSopra((x) => (x === c.id ? null : x))}
+              onClick={(e: ThreeEvent<MouseEvent>) => {
+                e.stopPropagation();
+                if (e.delta > 6) return; // era un trascinamento
+                onSeleziona(c.id);
+              }}
             >
               <planeGeometry args={[L, A]} />
               <meshBasicMaterial
                 ref={(m) => {
                   materiali.current[i] = m;
                 }}
-                map={mappa}
+                map={grafica.pannelli[i]}
                 transparent
                 opacity={0}
                 toneMapped={false}
               />
-              <mesh position={[0, 0, 0.003]} raycast={() => null} renderOrder={4} material={riflessi[i]}>
+              {schermo && (
+                <mesh position={[SCHERMO.x, SCHERMO.y, -0.004]} raycast={() => null} renderOrder={2} material={schermo}>
+                  <planeGeometry args={[SCHERMO.largo + 0.02, SCHERMO.alto + 0.02]} />
+                </mesh>
+              )}
+              <mesh position={[0, 0, 0.004]} raycast={() => null} renderOrder={4} material={riflessi[i]}>
                 <planeGeometry args={[L, A]} />
+              </mesh>
+              {/* "Apri": compare sullo schermo quando ci si passa sopra */}
+              <mesh position={[SCHERMO.x, SCHERMO.y - SCHERMO.alto / 2 + 0.13, 0.012]} raycast={() => null} renderOrder={6}>
+                <planeGeometry args={[0.4, 0.12]} />
+                <meshBasicMaterial
+                  ref={(m) => {
+                    apriMat.current[i] = m;
+                  }}
+                  map={grafica.apri}
+                  transparent
+                  opacity={0}
+                  depthWrite={false}
+                  toneMapped={false}
+                />
               </mesh>
               {grafica.nastri[i] && (
                 <>
-                  <mesh position={[0.02, -0.06, 0.008]} rotation={[0, 0, 0.17]} raycast={() => null} renderOrder={5}>
-                    <planeGeometry args={[L * 1.18, 0.07]} />
+                  <mesh position={[0.03, SCHERMO.y - 0.1, 0.008]} rotation={[0, 0, 0.32]} raycast={() => null} renderOrder={5}>
+                    <planeGeometry args={[L * 1.25, 0.1]} />
                     <meshBasicMaterial
                       ref={(n) => {
                         nastriMat.current[i] = n;
@@ -625,7 +618,7 @@ function Carte({
                       toneMapped={false}
                     />
                   </mesh>
-                  <sprite position={[-L / 2 + 0.05, A / 2 + 0.01, 0.02]} scale={[0.2, 0.2, 1]} raycast={() => null} renderOrder={6}>
+                  <sprite position={[-L / 2 + 0.06, A / 2 + 0.01, 0.02]} scale={[0.26, 0.26, 1]} raycast={() => null} renderOrder={6}>
                     <spriteMaterial
                       ref={(l) => {
                         lampade.current[i] = l;
@@ -641,21 +634,8 @@ function Carte({
                 </>
               )}
             </mesh>
-            {/* la targa, appoggiata a terra davanti all'oggetto, inclinata verso chi guarda */}
-            <mesh position={[0, 0.16, 0.95]} rotation={[-1.0, 0, 0]} raycast={() => null} renderOrder={2}>
-              <planeGeometry args={[0.92, 0.92 * (240 / 1024)]} />
-              <meshBasicMaterial
-                ref={(m) => {
-                  targhe.current[i] = m;
-                }}
-                map={grafica.targhe[i]}
-                transparent
-                opacity={0}
-                toneMapped={false}
-              />
-            </mesh>
-            {/* filigrana: il testo dietro il lavoro, sopra l'oggetto e un passo indietro */}
-            <mesh position={[-0.1, sy + A / 2 + 0.75, -0.6]} raycast={() => null} renderOrder={1}>
+            {/* filigrana: il testo dietro il lavoro, sopra il pannello e un passo indietro */}
+            <mesh position={[-0.1, PANNELLO.daTerra + A + 0.55, -0.6]} raycast={() => null} renderOrder={1}>
               <planeGeometry args={[1.9, 1.9 * (440 / 1024)]} />
               <meshBasicMaterial
                 ref={(m) => {
@@ -688,7 +668,7 @@ function Carte({
 
 /** Il centro dei lavori lontani (editoria, SEO e copywriting): direzione media e distanza. */
 function centroLontani(carte: Carta[]) {
-  const lontane = carte.filter((c) => c.posto.r > 8 && lavori.find((l) => l.id === c.id)?.sezione === "editoria");
+  const lontane = carte.filter((c) => c.posto.r > 6 && lavori.find((l) => l.id === c.id)?.sezione === "editoria");
   if (!lontane.length) return null;
   const v = lontane.reduce((acc, c) => acc.add(new THREE.Vector2(Math.sin(c.posto.a), -Math.cos(c.posto.a))), new THREE.Vector2());
   return { a: Math.atan2(v.x, -v.y), r: lontane[0].posto.r };
@@ -733,7 +713,7 @@ function EtichettaSezione({
   if (!centro) return null;
   const p = direzione(centro.a).multiplyScalar(centro.r + 0.3);
   return (
-    <mesh position={[p.x, PELO_ACQUA + 1.75, p.z]} rotation={[0, -centro.a, 0]} raycast={() => null} renderOrder={1}>
+    <mesh position={[p.x, PELO_ACQUA + 2.45, p.z]} rotation={[0, -centro.a, 0]} raycast={() => null} renderOrder={1}>
       <planeGeometry args={[3.6, 3.6 * (72 / 1024)]} />
       <meshBasicMaterial ref={mat} map={tx} color={colore} transparent opacity={0} depthWrite={false} toneMapped={false} fog={false} />
     </mesh>
@@ -1091,14 +1071,14 @@ function Regia({
       st.vy = 0;
       // davanti all'oggetto, a una distanza che dipende da quanto è grande
       const centro = centroSchermo(c);
-      const dist = (stretto ? 3.6 : 3.0) * g;
+      const dist = (stretto ? 4.6 : 3.7) * g;
       posB.copy(direzione(a)).multiplyScalar(c.posto.r - dist);
       // la vignetta copre il lato destro: la camera scivola a destra e il lavoro resta a sinistra, di fronte
       const lato = stretto ? 0 : 0.85 * g;
       posB.x += Math.cos(a) * lato;
       posB.z += Math.sin(a) * lato;
-      // un po' più in alto dello schermo, per inquadrare anche il testo che gli sta sopra
-      posB.y = centro.y + (stretto ? -0.3 : 0.22) * g;
+      // all'altezza dello schermo; sul telefono un po' più in basso, per lasciare spazio alla vignetta
+      posB.y = centro.y + (stretto ? -0.45 : 0.05) * g;
     } else {
       if (focale !== null && !st.trascina) {
         // da tastiera: la camera si gira verso la carta col fuoco
@@ -1172,6 +1152,7 @@ export default function Scena(props: Props) {
         moduloAperto={props.moduloAperto}
         attiva={attiva}
         sezioneEditoria={props.sezioneEditoria}
+        lingua={props.lingua}
       />
       <ZonaSviluppatore notte={tema === "scuro"} ridotto={props.ridotto} testi={props.testiMusica} />
       <Podere notte={tema === "scuro"} ridotto={props.ridotto} />
