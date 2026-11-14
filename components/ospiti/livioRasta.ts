@@ -17,10 +17,10 @@ import { loft } from "./comuni";
  * boxe come Tyson (guardia peek-a-boo, pendolo e schivate, ganci e montanti spinti dalle gambe) o colpi
  * nell'aria, poi torna al legno.
  * Di notte è azzurro, di giorno ambra (l'azzurro sul marmo chiaro sparisce).
- * La stessa figura fa anche il musicista (modo "studio"): leggerissima, di spalle allo studietto, compare quando
- * si accende la musica e suona le macchine a tempo (i pad, le manopole, il Kaoss Pad, il Volca, i fader e le
- * manopole del mixer, con un passo di lato), annuendo sul
- * battito; di notte lilla, di giorno corallo.
+ * La stessa figura fa anche il musicista (modo "studio"): di spalle allo studietto, a colori d'arcobaleno che
+ * salgono lungo il corpo, compare quando si accende la musica e suona le macchine a tempo (i pad, le manopole,
+ * il Kaoss Pad, il Volca, i fader e le manopole del mixer, con un passo di lato), annuendo forte sul battito
+ * e ondeggiando a ogni battuta.
  * Coordinate della figura: +z verso il manichino, +x è la sua sinistra, y in alto, i piedi a y = 0.
  * Il manichino sta a (0, 0, DISTANZA), girato come la figura: le sue misure sono quelle di cameraLivio.ts.
  */
@@ -57,6 +57,7 @@ uniform float uVis;
 uniform float uBase;
 uniform float uTaglio;
 uniform vec3 uColore;
+uniform float uArco;
 varying vec3 vN;
 varying vec3 vV;
 varying vec3 vW;
@@ -70,7 +71,10 @@ void main(){
   float banda = smoothstep(0.08, 0.0, abs(fract(vW.y * 0.4 - uT * 0.25) - 0.5) - 0.42);
   float tremo = 0.88 + 0.12 * sin(uT * 31.0) * sin(uT * 7.0);
   float a = (0.42 + 0.58 * fres + banda * 0.2) * righe * tremo * uVis + bordo * 0.9;
-  vec3 c = uColore * (0.55 + 0.9 * fres) + vec3(0.75, 0.95, 1.0) * (banda * 0.4 + bordo);
+  // l'arcobaleno (solo il musicista): i colori salgono lungo il corpo e girano col tempo
+  vec3 arco = 0.55 + 0.45 * cos(6.28318 * (fract(vW.y * 0.85 - uT * 0.18) + vec3(0.0, 0.33, 0.67)));
+  vec3 base = mix(uColore, arco, uArco);
+  vec3 c = base * (0.55 + 0.9 * fres) + mix(vec3(0.75, 0.95, 1.0), vec3(1.0), uArco) * (banda * 0.4 + bordo);
   gl_FragColor = vec4(c, clamp(a, 0.0, 1.0));
   #include <colorspace_fragment>
 }`;
@@ -500,6 +504,7 @@ export class LivioRasta {
       fragmentShader: FRAG,
       uniforms: {
         uT: { value: 0 }, uVis: { value: 1 }, uBase: { value: 0 }, uTaglio: { value: 0 }, uColore: { value: new THREE.Color("#3C96FF") },
+        uArco: { value: modo === "studio" ? 1 : 0 },
       },
       transparent: true,
       depthWrite: false,
@@ -789,8 +794,8 @@ export class LivioRasta {
     this.gruppo.visible = true;
     this.mat.uniforms.uBase.value = this.base();
     this.mat.uniforms.uTaglio.value = 2;
-    // leggerissimo: si vedono le macchine attraverso
-    this.mat.uniforms.uVis.value = this.vis * 0.42;
+    // ben visibile, a colori d'arcobaleno: si capisce che c'è qualcuno che suona
+    this.mat.uniforms.uVis.value = this.vis * 0.95;
     this.corpoDa(this.posaStudio(b), dt, t);
   }
 
@@ -836,13 +841,15 @@ export class LivioRasta {
       d = mix(d0, d1);
       lato = l0 + (l1 - l0) * u;
     }
+    // il corpo ondeggia a tempo, di qua e di là ogni battuta: le mani restano sulle macchine
+    lato += Math.sin((q * Math.PI) / 2) * 0.05;
     // i bersagli sono sul tavolo: nel corpo spostato di lato si leggono spostati al contrario
     return {
       lato,
       s: V(s[0] - lato, s[1], s[2]), d: V(d[0] - lato, d[1], d[2]), ps: V(...PS), pd: V(...PD),
-      h: 0.93 - 0.018 * colpo, yaw: Math.sin((q * Math.PI) / 4) * 0.08, av: 0.11, giro: 0,
+      h: 0.93 - 0.045 * colpo, yaw: Math.sin((q * Math.PI) / 4) * 0.16, av: 0.13, giro: 0,
       bs: false, bd: false, gs: false, gd: false, ms: "palmo" as Mano, md: "palmo" as Mano,
-      colpo: null, nod: 0.18 + 0.12 * colpo,
+      colpo: null, nod: 0.24 + 0.22 * colpo,
     };
   }
 

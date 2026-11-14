@@ -92,6 +92,16 @@ const SCALA = [220, 261.63, 293.66, 329.63, 392, 440, 523.25, 587.33, 659.25, 78
 
 type Ascoltatore = (m: Modo) => void;
 
+const CHIAVE_VOLUME = "audio-volume";
+function leggiVolume() {
+  try {
+    const v = Number(localStorage.getItem(CHIAVE_VOLUME));
+    return localStorage.getItem(CHIAVE_VOLUME) !== null && v >= 0 && v <= 1 ? v : 1;
+  } catch {
+    return 1;
+  }
+}
+
 function salvaScelta(m: Modo) {
   try {
     localStorage.setItem(CHIAVE, m);
@@ -115,6 +125,9 @@ class Suono {
   private brano: HTMLAudioElement | null = null;
   private branoGain: GainNode | null = null;
   private branoRotto = false;
+  /** il volume scelto col cursore (0–1), sopra tutto: fondo, effetti e pezzo */
+  private uscitaVol: GainNode | null = null;
+  private livello = leggiVolume();
   /** l'uscita verso l'uliveto: il timer che, a dissolvenza finita, ferma tutto */
   private uscita: ReturnType<typeof setTimeout> | null = null;
   /** quale pezzo dell'album suona (o suonerà al prossimo clic) */
@@ -286,7 +299,10 @@ class Suono {
     const limita = c.createDynamicsCompressor();
     limita.threshold.value = -14;
     limita.ratio.value = 4;
-    this.master.connect(limita).connect(c.destination);
+    this.uscitaVol = c.createGain();
+    this.uscitaVol.gain.value = this.livello;
+    this.uscitaVol.connect(c.destination);
+    this.master.connect(limita).connect(this.uscitaVol);
 
     // un riverbero fatto in casa: rumore che decade, uno per canale
     this.riverbero = c.createConvolver();
@@ -408,7 +424,7 @@ class Suono {
       });
       const g = c.createGain();
       g.gain.value = 0;
-      c.createMediaElementSource(a).connect(g).connect(c.destination);
+      c.createMediaElementSource(a).connect(g).connect(this.uscitaVol ?? c.destination);
       this.brano = a;
       this.branoGain = g;
     }
@@ -466,6 +482,36 @@ class Suono {
     if (this.modo !== "loop" || !this.brano || this.branoRotto) return null;
     const b = BRANI[this.indice];
     return { artista: ARTISTA, titolo: b.titolo, bpm: b.bpm, indice: this.indice, quanti: BRANI.length };
+  }
+
+  /** Il volume generale, da 0 a 1: si ricorda per le visite dopo. */
+  volume() {
+    return this.livello;
+  }
+
+  setVolume(v: number) {
+    this.livello = Math.min(1, Math.max(0, v));
+    try {
+      localStorage.setItem(CHIAVE_VOLUME, String(this.livello));
+    } catch {
+      /* archivio non disponibile: vale per questa visita */
+    }
+    const c = this.ctx, g = this.uscitaVol;
+    if (c && g) g.gain.setTargetAtTime(this.livello, c.currentTime, 0.05);
+  }
+
+  /** Dove è arrivato il pezzo, in secondi, e quanto dura. Null se non suona il pezzo vero. */
+  posizione(): { t: number; durata: number } | null {
+    const a = this.brano;
+    if (this.modo !== "loop" || !a || this.branoRotto || !a.duration || !isFinite(a.duration)) return null;
+    return { t: a.currentTime, durata: a.duration };
+  }
+
+  /** Salta a un punto del pezzo, in secondi. */
+  cerca(secondi: number) {
+    const a = this.brano;
+    if (!a || this.branoRotto || !a.duration) return;
+    a.currentTime = Math.min(Math.max(0, secondi), a.duration - 0.25);
   }
 
   /* ---------------------------------------------------------------- il fondo */

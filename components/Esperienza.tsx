@@ -13,6 +13,7 @@ import { curriculum, musica } from "@/content/collegamenti";
 import schermate from "@/content/schermate.json";
 import type { Carta, Tema } from "./Scena";
 import Modulo from "./Modulo";
+import Lettore from "./Lettore";
 import Avvio from "./Avvio";
 import { suono, type Modo } from "./audio";
 
@@ -320,6 +321,7 @@ export default function Esperienza({
       setMosso(true);
       setSelezionato(id);
     };
+    (window as unknown as { __suono: typeof suono }).__suono = suono;
   }, []);
 
   // con la vignetta aperta: Esc chiude, ← → passano al lavoro accanto
@@ -503,6 +505,9 @@ export default function Esperienza({
           {ambiente.tocco ? d.guida.tocco : d.guida.mouse}
         </p>
 
+        {suonaJuan && (
+          <Lettore testi={{ volume: d.audio.volume, posizione: d.audio.posizione, prima: d.audio.prima, dopo: d.audio.dopo }} />
+        )}
         {suonaJuan && (
           <nav className="ascolta" aria-label={d.audio.ascolta}>
             <span className="ascolta-testo">{d.audio.ascolta}</span>

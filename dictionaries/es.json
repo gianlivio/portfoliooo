@@ -284,7 +284,11 @@
     "nome": "Sonido",
     "musica": "Enciende la música",
     "silenzio": "Apaga la música",
-    "ascolta": "El álbum Semeiosis en"
+    "ascolta": "El álbum Semeiosis en",
+    "volume": "Volumen",
+    "posizione": "Posición en la pista",
+    "prima": "Pista anterior",
+    "dopo": "Pista siguiente"
   },
   "avvio": "Semiosfera en alineación",
   "ulivo": {
