@@ -103,41 +103,44 @@
       "tipo": "Company website · SEO and accessibility",
       "titolo": "NDN Luxury",
       "riga": "Next.js website of a resin and microcement flooring company near Milan. Technical SEO, structured data, accessibility and blog: Lighthouse from 96 to 100 on accessibility and from 92 to 100 on SEO.",
-      "ruolo": "Web developer, SEO and editorial lead · freelance",
+      "ruolo": "Web developer, editorial line, SEO and GEO · freelance",
       "compiti": [
         "Search Console: separated a near-namesake competitor's searches from real traffic; actual CTR around 5% instead of the apparent 3.2%.",
         "JSON-LD structured data aligned across pages: service area, service catalog, FAQ.",
         "Related articles picked by a relevance score instead of by date, working for future articles too.",
         "Accessibility: real buttons instead of divs and links without a target; the pink closest to the original that passes the WCAG contrast threshold.",
-        "Editorial plan, draft review, proposal for client acquisition through paid campaigns."
+        "Editorial line, copy for the service pages and the blog; monitoring on Search Console and DataForSEO."
       ],
-      "strumenti": "Next.js · TypeScript · Tailwind CSS · JSON-LD · Vercel · Google Search Console · Lighthouse"
+      "strumenti": "Next.js · TypeScript · Tailwind CSS · JSON-LD · Vercel · Google Search Console · DataForSEO · Lighthouse"
     },
     "esh": {
       "tipo": "Web platform · development and multilingual SEO",
       "titolo": "ESH – Erasmus Student Housing",
       "riga": "A European housing platform for students abroad, with verified hosts in 26 cities. Development on the Next.js codebase and coordination of the blog in three languages: AI-generated articles, fact-checked and corrected by hand.",
-      "ruolo": "Developer and editorial coordinator · freelance",
+      "ruolo": "Developer, editorial line, SEO and GEO · freelance",
       "compiti": [
         "New pages and features on the Next.js codebase; infrastructure maintenance (Vercel, Neon, Resend).",
         "Every figure checked against the primary source: fixed inverted signs, wrong attributions, a university counted twice, wrong metro lines.",
         "Cannibalization check of editorial plans against the published archive, before writing.",
         "Review of the Spanish and English versions, rendering Italian tax and tenancy terms for an international audience.",
-        "City-by-city planning on real Search Console data."
+        "Editorial line of the blog and copy for the service pages, in three languages.",
+        "SEO and GEO, tracked on Search Console and DataForSEO; city-by-city plans on real data."
       ],
-      "strumenti": "Next.js · TypeScript · Prisma · PostgreSQL (Neon) · Vercel · Stripe · Google Search Console"
+      "strumenti": "Next.js · TypeScript · Prisma · PostgreSQL (Neon) · Vercel · Stripe · Google Search Console · DataForSEO"
     },
     "blog": {
-      "tipo": "Blog · WordPress",
+      "tipo": "Blog · WordPress · SEO and GEO",
       "titolo": "Come fare — Punto Luce",
-      "riga": "Punto Luce's technical blog on WordPress, separate from the shop but linked to it.",
-      "ruolo": "Web developer · Punto Luce / EDIF · employee",
+      "riga": "Punto Luce's technical blog: built on WordPress, with the editorial line, the copy, SEO and GEO.",
+      "ruolo": "Development, editorial line and SEO · Punto Luce / EDIF · employee",
       "compiti": [
+        "Editorial line and article plan.",
+        "SEO and GEO, tracked on Search Console and DataForSEO.",
         "Article layout.",
         "Table of contents with scrolling to each section.",
         "Blog–store link: articles featured on the shop's pages."
       ],
-      "strumenti": "WordPress"
+      "strumenti": "WordPress · Google Search Console · DataForSEO"
     },
     "allstudios": {
       "tipo": "Web platform · copy and development",

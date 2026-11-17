@@ -60,7 +60,8 @@ IT · EN · ES
 piani per città
 Next.js, Neon, Vercel`,
 
-  blog: `WordPress
+  blog: `linea editoriale · piano degli articoli
+SEO e GEO: Search Console, DataForSEO
 indice → sezione, scorrimento dolce
 articoli dentro lo shop`,
 
@@ -134,7 +135,8 @@ IT · EN · ES
 city-by-city plans
 Next.js, Neon, Vercel`,
 
-  blog: `WordPress
+  blog: `editorial line · article plan
+SEO and GEO: Search Console, DataForSEO
 table of contents → section, smooth scroll
 articles inside the shop`,
 
@@ -208,7 +210,8 @@ IT · EN · ES
 planes por ciudad
 Next.js, Neon, Vercel`,
 
-  blog: `WordPress
+  blog: `línea editorial · plan de artículos
+SEO y GEO: Search Console, DataForSEO
 índice → sección, desplazamiento suave
 artículos dentro de la tienda`,
 

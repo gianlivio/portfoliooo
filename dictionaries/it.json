@@ -103,41 +103,44 @@
       "tipo": "Sito aziendale · SEO e accessibilità",
       "titolo": "NDN Luxury",
       "riga": "Sito Next.js di un'azienda di pavimenti in resina e microcemento dell'Alto Milanese. SEO tecnica, dati strutturati, accessibilità e blog: Lighthouse da 96 a 100 sull'accessibilità e da 92 a 100 sulla SEO.",
-      "ruolo": "Sviluppatore web e responsabile SEO ed editoriale · freelance",
+      "ruolo": "Sviluppatore web, linea editoriale, SEO e GEO · freelance",
       "compiti": [
         "Search Console: separate dal traffico reale le ricerche di un concorrente dal nome quasi uguale; CTR effettivo intorno al 5% invece del 3,2% apparente.",
         "Dati strutturati JSON-LD allineati tra le pagine: area servita, catalogo dei servizi, FAQ.",
         "Articoli correlati scelti con un punteggio di pertinenza invece che per data, validi anche per gli articoli futuri.",
         "Accessibilità: pulsanti veri al posto di div e link senza destinazione; il rosa più vicino all'originale che supera la soglia di contrasto WCAG.",
-        "Piano editoriale, revisione delle bozze, proposta per l'acquisizione di clienti con campagne a pagamento."
+        "Linea editoriale, testi delle pagine di servizio e del blog; monitoraggio su Search Console e DataForSEO."
       ],
-      "strumenti": "Next.js · TypeScript · Tailwind CSS · JSON-LD · Vercel · Google Search Console · Lighthouse"
+      "strumenti": "Next.js · TypeScript · Tailwind CSS · JSON-LD · Vercel · Google Search Console · DataForSEO · Lighthouse"
     },
     "esh": {
       "tipo": "Piattaforma web · sviluppo e SEO multilingue",
       "titolo": "ESH – Erasmus Student Housing",
       "riga": "Piattaforma europea di alloggi per studenti in mobilità, con host verificati in 26 città. Sviluppo sul codice Next.js e coordinamento del blog in tre lingue: articoli generati con l'AI, verificati e corretti a mano.",
-      "ruolo": "Sviluppatore e coordinatore editoriale · freelance",
+      "ruolo": "Sviluppatore, linea editoriale, SEO e GEO · freelance",
       "compiti": [
         "Nuove pagine e funzionalità sul codice Next.js; manutenzione dell'infrastruttura (Vercel, Neon, Resend).",
         "Verifica di ogni dato citato sulla fonte primaria: corretti segni invertiti, attribuzioni sbagliate, atenei sdoppiati, linee della metro inesatte.",
         "Controllo di cannibalizzazione dei piani editoriali sull'archivio pubblicato, prima della scrittura.",
         "Revisione delle versioni spagnola e inglese, con la terminologia fiscale e contrattuale italiana resa per un pubblico internazionale.",
-        "Pianificazione per città sui dati reali di Search Console."
+        "Linea editoriale del blog e testi delle pagine di servizio, in tre lingue.",
+        "SEO e GEO, seguite su Search Console e DataForSEO; piani per città sui dati reali."
       ],
-      "strumenti": "Next.js · TypeScript · Prisma · PostgreSQL (Neon) · Vercel · Stripe · Google Search Console"
+      "strumenti": "Next.js · TypeScript · Prisma · PostgreSQL (Neon) · Vercel · Stripe · Google Search Console · DataForSEO"
     },
     "blog": {
-      "tipo": "Blog · WordPress",
+      "tipo": "Blog · WordPress · SEO e GEO",
       "titolo": "Come fare — Punto Luce",
-      "riga": "Il blog tecnico di Punto Luce su WordPress, separato dallo shop ma collegato al negozio.",
-      "ruolo": "Web developer · Punto Luce / EDIF · dipendente",
+      "riga": "Il blog tecnico di Punto Luce: costruito su WordPress, con la linea editoriale, i testi, la SEO e la GEO.",
+      "ruolo": "Sviluppo, linea editoriale e SEO · Punto Luce / EDIF · dipendente",
       "compiti": [
+        "Linea editoriale e piano degli articoli.",
+        "SEO e GEO, seguite su Search Console e DataForSEO.",
         "Impaginazione degli articoli.",
         "Indice dei contenuti con scorrimento alla sezione.",
         "Collegamento fra blog e negozio: gli articoli richiamati nelle pagine dello shop."
       ],
-      "strumenti": "WordPress"
+      "strumenti": "WordPress · Google Search Console · DataForSEO"
     },
     "allstudios": {
       "tipo": "Piattaforma web · copy e sviluppo",
