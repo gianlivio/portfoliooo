@@ -21,7 +21,6 @@ import { Citta } from "./ospiti/citta";
 import { Lontano } from "./ospiti/lontano";
 import { Riva } from "./ospiti/riva";
 import { Rave } from "./ospiti/rave";
-import Didascalie from "./Didascalie";
 import { Luoghi } from "./ospiti/luoghi";
 import { Ulivo } from "./ospiti/ulivo";
 import { Ingresso } from "./ospiti/ingresso";
@@ -1111,7 +1110,6 @@ export default function Scena(props: Props) {
       <Riviera notte={tema === "scuro"} ridotto={props.ridotto} />
       <FestaLibera notte={tema === "scuro"} ridotto={props.ridotto} />
       <Posti notte={tema === "scuro"} ridotto={props.ridotto} />
-      <Didascalie lingua={props.lingua} notte={tema === "scuro"} />
       <Transizione tema={tema} ridotto={props.ridotto} />
       {tema === "chiaro" && <CieloDiGiorno orizzonte={p.fondo} />}
       <Fauna

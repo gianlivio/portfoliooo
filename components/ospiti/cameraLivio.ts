@@ -10,7 +10,7 @@ import { granaLegno } from "./polyhaven";
  * rosa, il sitar, la classica di legno, l'elettrica bianca col battipenna crema e il ponte mobile, la nera a
  * punte), le tre maschere africane in colonna, lo schiacciasogni; sotto le chitarre il pianoforte digitale sul
  * supporto a X; davanti, in vista, il mobile scuro col giradischi che gira; più in là il Mook Jong, l'uomo di
- * legno del kung fu; dietro lo studietto la libreria bianca a celle irregolari (in cima i tre libri, in
+ * legno del kung fu; dietro lo studietto la libreria bianca a celle irregolari, larga due metri (in cima i tre libri, in
  * zonaSviluppatore.ts) e accanto la Les Paul dorata sul portachitarra, con l'amplificatore.
  * Coordinate della zona (components/zona.ts): x di lato (+x a sinistra per chi guarda), y in alto, z verso
  * fuori (+z lontano da chi guarda). Le facce "davanti" guardano −z, verso chi guarda.
@@ -711,10 +711,11 @@ export class CameraDiLivio {
       metti(g, MOOK.x, 0, MOOK.z, 0, MOOK.ry);
     }
 
-    // la libreria bianca a celle irregolari, dietro il tavolino delle macchine, piena di libri
+    // la libreria bianca a celle irregolari, dietro il tavolino delle macchine, piena di libri:
+    // larga due metri, il doppio di prima, allungata dalla parte delle chitarre (il fianco verso la finestra resta dov'era)
     {
       const g: Pezzo[] = [];
-      const X = -2.35, Z = 1.45, W = 1.0, H = 2.05, D = 0.3;
+      const X = -2.85, Z = 1.45, W = 2.0, H = 2.05, D = 0.3;
       const r = generatore(31);
       g.push({ g: box(W, H, 0.02, X, H / 2, Z + D / 2), m: "libreria" });
       for (const s of [-1, 1]) g.push({ g: box(0.035, H, D, X + s * (W / 2 - 0.0175), H / 2, Z), m: "libreria" });
@@ -727,11 +728,15 @@ export class CameraDiLivio {
         const y0 = ripiani[i], y1 = ripiani[i + 1];
         const inc = (i % 2 ? 1 : -1) * 0.1;
         if (i > 0) g.push({ g: box(W - 0.05, 0.03, D - 0.01, 0, 0, 0).rotateZ(inc).translate(X, y0, Z), m: "libreria" });
-        // due divisori obliqui per piano, sfalsati
-        const dx = [-0.18 + (i % 2) * 0.12, 0.2 - (i % 2) * 0.1];
-        dx.forEach((d, k) => g.push({ g: box(0.03, y1 - y0 + 0.06, D - 0.01, 0, 0, 0).rotateZ((k ? -1 : 1) * (0.28 + r() * 0.15)).translate(X + d, (y0 + y1) / 2, Z), m: "libreria" }));
+        // due divisori obliqui per piano in ogni metro di larghezza, sfalsati; un montante dritto a metà
+        const dx = [-0.68 + (i % 2) * 0.12, -0.3 - (i % 2) * 0.1, 0.32 + ((i + 1) % 2) * 0.1, 0.7 - ((i + 1) % 2) * 0.12];
+        dx.forEach((d, k) => g.push({ g: box(0.03, y1 - y0 + 0.06, D - 0.01, 0, 0, 0).rotateZ((k % 2 ? -1 : 1) * (0.28 + r() * 0.15)).translate(X + d, (y0 + y1) / 2, Z), m: "libreria" }));
+        g.push({ g: box(0.035, y1 - y0, D - 0.01, X, (y0 + y1) / 2, Z), m: "libreria" });
         // i libri: in piedi, di altezze diverse; in qualche cella una pila coricata
-        const celle = [[-W / 2 + 0.04, dx[0] - 0.04], [dx[0] + 0.04, dx[1] - 0.04], [dx[1] + 0.04, W / 2 - 0.04]];
+        const celle = [
+          [-W / 2 + 0.04, dx[0] - 0.04], [dx[0] + 0.04, dx[1] - 0.04], [dx[1] + 0.04, -0.04],
+          [0.04, dx[2] - 0.04], [dx[2] + 0.04, dx[3] - 0.04], [dx[3] + 0.04, W / 2 - 0.04],
+        ];
         celle.forEach(([a, b]) => {
           const base = y0 + 0.02 + inc * 0.0;
           if (r() < 0.25) {

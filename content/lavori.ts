@@ -42,7 +42,7 @@ export const lavori: Lavoro[] = [
   {
     id: "shop",
     sezione: "sviluppo",
-    posto: { piano: 1, passo: 13.2 },
+    posto: { piano: 1, passo: 13.35 },
     anno: "2024–2026",
     motivo: "negozio",
     tinta: "#C7D2DA",
@@ -51,7 +51,7 @@ export const lavori: Lavoro[] = [
   {
     id: "bellelli",
     sezione: "sviluppo",
-    posto: { piano: 1, passo: 14.0, supporto: "sedia" },
+    posto: { piano: 1, passo: 14.15, supporto: "sedia" },
     anno: "2026 →",
     motivo: "negozio",
     tinta: "#CDCBD6",
@@ -105,7 +105,7 @@ export const lavori: Lavoro[] = [
   {
     id: "ndnluxury",
     sezione: "sviluppo",
-    posto: { piano: 2, passo: 7.3 },
+    posto: { piano: 2, passo: 7.35 },
     anno: "2026",
     motivo: "sito",
     tinta: "#D2CFBE",
@@ -123,7 +123,7 @@ export const lavori: Lavoro[] = [
   {
     id: "beautybroker",
     sezione: "sviluppo",
-    posto: { piano: 2, passo: 6.6 },
+    posto: { piano: 2, passo: 6.45 },
     anno: "2026",
     motivo: "app",
     tinta: "#DBCBD0",

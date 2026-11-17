@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { PELO_ACQUA } from "../condivisi";
-import { ANGOLO_ZONA } from "../zona";
+import { ANGOLO_ZONA, PASSO } from "../zona";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import { alone, bruma, generatore, liberaTutto, tela } from "./comuni";
 import { alhambra, bologna, colora, labirinto, rilievo, sulRing, unisci } from "./meraviglie";
@@ -9,7 +9,8 @@ import { alhambra, bologna, colora, labirinto, rilievo, sulRing, unisci } from "
  * L'orizzonte a sinistra dello sviluppatore, fino alla città: tutto in lontananza.
  * Di notte un petrolchimico come quelli di Priolo e di Gela, con le torce che bruciano, e più in qua
  * un faro su uno scoglio col fascio che gira. Di giorno colline siciliane d'erba secca,
- * pale eoliche sulla cresta e una fila di radiotelescopi sull'altopiano.
+ * pale eoliche sulla cresta, una fila di radiotelescopi sull'altopiano e, in cima alla prima altura,
+ * il Labirinto di Arianna.
  */
 
 const SU = PELO_ACQUA - 0.3;
@@ -286,7 +287,9 @@ export class Lontano {
     // le colline stanno nel mezzo: verso la città Bologna e San Luca, verso lo sviluppatore l'Alhambra
     // da sinistra a destra (per chi guarda): Bologna, le colline, l'Albaicín, l'Alhambra; ognuno a una distanza sua
     // le colline dove prima stava Bologna; Bologna passa sopra la carta più bassa, perché San Luca si veda
-    const C0 = ANGOLO_ZONA - 2.4, C1 = ANGOLO_ZONA - 1.74;
+    // le colline cominciano dal labirinto, nel varco fra Beauty Broker e NDN Luxury (6,9 passi, content/lavori.ts)
+    const aL = ANGOLO_ZONA + (6.9 - 12) * PASSO;
+    const C0 = aL - 0.04, C1 = ANGOLO_ZONA - 1.74;
     const ang = (u: number) => C0 + (C1 - C0) * u;
     const crinale = (d: number, alto: number, velo: number, piani: [number, number, number][], seme: number) => {
       const N = 140, M = 8;
@@ -328,19 +331,18 @@ export class Lontano {
       return (u: number) => SU - 1 + quota(u) + 1;
     };
     const dietro = crinale(43, 6.4, 0.4, [], 1.3);
-    // davanti: due pianori, uno (dove stava il labirinto) vuoto, più in qua quello dei radiotelescopi
-    const davanti = crinale(37.5, 4.6, 0.14, [[0.2, 0.36, 1], [0.55, 0.75, 0.78]], 4.1);
-    // il labirinto: sul pianoro stava dietro una carta. Ora sta da solo nel varco fra le carte (3,81, dove prima
-    // c'era Comiso), più vicino, in cima a un poggio suo all'inizio delle colline delle pale, inclinato verso chi guarda
+    // davanti: il pianoro dei radiotelescopi
+    const davanti = crinale(37.5, 4.6, 0.14, [[0.55, 0.75, 0.78]], 4.1);
+    // il labirinto: in cima alla prima altura delle colline, dove la cresta comincia, alla stessa distanza;
+    // un poggio largo, piatto in cima e inclinato verso chi guarda, che si fonde col crinale
     {
-      const aL = ANGOLO_ZONA + 3.81, H = 6.4;
-      const lab = sulRing(aL, 33, 0);
+      const H = 5.4;
+      const lab = sulRing(aL, 37.5, 0);
       lab.add(
         unisci([
           colora(
-            // un poggio largo, piatto in cima e inclinato verso chi guarda come il labirinto, che vi poggia tutto
-            rilievo(-8, 8, -5.5, 5.5, 64, 44, (x, z) => {
-              const k = 1 - THREE.MathUtils.smoothstep(Math.hypot(x / 3.4, z / 3.4), 0.85, 2.2);
+            rilievo(-9, 9, -6, 6, 64, 44, (x, z) => {
+              const k = 1 - THREE.MathUtils.smoothstep(Math.hypot(x / 3.4, z / 3.4), 0.85, 2.4);
               return (H + 0.5 * z) * k + 0.08 * Math.sin(x * 2 + z) - 0.25;
             }),
             "#B99A58",
