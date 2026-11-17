@@ -3,42 +3,46 @@ import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js
 import { PELO_ACQUA } from "../condivisi";
 import { ANGOLO_ZONA, PASSO } from "../zona";
 import { fra, generatore, liberaTutto, loft, morbido } from "./comuni";
-import { rilievo } from "./meraviglie";
 import { FRAG as FRAG_FIGURA, VERT as VERT_FIGURA } from "./livioRasta";
 import { FRAG, LINEA_FRAG, LINEA_VERT, VERT } from "./tempio";
 
 /**
- * L'aula universitaria, fatta di luce come il tempio: le gradinate di legno in due spicchi attorno alla cattedra,
- * col corridoio in mezzo da cui la si guarda, la pedana, la cattedra, la lavagna. Umberto Eco fa lezione:
+ * L'aula universitaria, fatta di luce come il tempio, in piccolo: la grande tribuna di legno a semicerchio (come
+ * l'aula di via Zamboni 38), con le scale fra gli spicchi, e in basso la pedana, la cattedra, la lavagna al muro.
+ * Umberto Eco (la barba e gli occhiali neri) fa lezione:
  * va alla lavagna e disegna il triangolo di Peirce (segno, oggetto, interpretante, la base tratteggiata perché
  * fra il segno e l'oggetto non c'è un legame diretto), poi aggiunge la semiosi illimitata; si gira verso gli
  * studenti, indica i vertici, gesticola; alla fine cancella e ricomincia.
- * Sta dietro i lavori di editoria, accanto al Liotru, su un colle come quello del tempio: alto quanto basta
- * perché si veda sopra i pannelli davanti. Coordinate dell'aula: −z verso chi guarda, y in alto.
+ * Grande quanto il podere dell'ulivo (una persona alta una trentina di centimetri), a terra nel varco fra ESH e il
+ * cancello dell'uliveto. Si guarda come da chi entra dalla porta in cima alla tribuna: da quaggiù l'occhio sta
+ * troppo basso, e le file alte, le più vicine, coprirebbero il fondo; così l'ologramma è inclinato verso chi guarda,
+ * il bordo vicino a terra e il muro della lavagna sollevato. Coordinate dell'aula: −z verso chi guarda, y in alto.
  * Con "riduci movimento" non viene aggiornata e resta ferma a lezione, con la lavagna scritta.
  */
 
 const PAV = PELO_ACQUA;
 /** Dove sta: in passi dalla zona (components/zona.ts), e la distanza dal centro. */
-export const AULA_A = ANGOLO_ZONA + (2.2 + 14 - 12) * PASSO;
-export const AULA_D = 17;
-/** Il ripiano del colle, sopra il pavimento: alto quanto basta perché l'aula si veda sopra i lavori davanti. */
-const ALZO = 2.9;
-const SCALA = 1.45;
+export const AULA_A = ANGOLO_ZONA + (4.33 + 14 - 12) * PASSO;
+export const AULA_D = 7.6;
+/** Eco, alto 1,78 nelle misure dell'aula, nel mondo è alto circa 35 centimetri. */
+const SCALA = 0.2;
+/** Quanto è inclinata verso chi guarda: con l'occhio a quella distanza, si vede dall'alto come dalla porta. */
+const INCLINA = 0.5;
 const CICLO = 38;
 
 /* le misure, in metri prima di SCALA */
-const PEDANA = { l: 3.4, z0: -1.05, z1: 1.1, h: 0.3 };
-const LAVAGNA = { l: 2.4, h: 1.1, y: PEDANA.h + 1.0, z: 0.8 };
-/**
- * La cattedra: davanti alla lavagna, a destra di chi guarda, appena girata verso il corridoio. È bassa e la lavagna
- * è alta: da quaggiù copre solo il bordo di sotto, dove non c'è scritto niente. Ai lati la coprirebbero le gradinate.
- */
-const CATTEDRA = { x: -0.72, z: -0.3, giro: -0.25 };
-const CENTRO = new THREE.Vector3(0, 0, 0.25); // il centro delle gradinate: dove sta chi parla
-const FILE = [2.0, 2.45, 2.9];
-const GRADINO = 0.28;
-const SPICCHIO = [0.6, 1.08]; // da dove a dove gira ogni spicchio, in radianti da −z
+const PEDANA = { l: 3.4, z0: -0.8, z1: 1.2, h: 0.3 };
+const LAVAGNA = { l: 3.2, h: 1.35, y: PEDANA.h + 0.85, z: 1.0 };
+/** Il muro di fondo, dietro la lavagna: chiude il semicerchio. */
+const MURO = { z: 1.28, h: 2.7 };
+/** La cattedra: davanti alla lavagna, a destra di chi guarda, appena girata verso la tribuna. */
+const CATTEDRA = { x: -0.95, z: -0.35, giro: -0.2 };
+const CENTRO = new THREE.Vector3(0, 0, 0.25); // il centro della tribuna: dove sta chi parla
+const GRADINO = 0.3;
+const FILE = Array.from({ length: 7 }, (_, i) => 2.3 + i * 0.48);
+const ESTERNO = FILE[FILE.length - 1] + 0.24;
+/** Gli spicchi della tribuna, in radianti da −z: fra uno e l'altro le scale, quella di mezzo davanti alla porta. */
+const SPICCHI: [number, number][] = [[-Math.PI / 2, -0.97], [-0.86, -0.07], [0.07, 0.86], [0.97, Math.PI / 2]];
 
 const LEGNO = { giorno: new THREE.Color("#A0500F"), notte: new THREE.Color("#FFC25A") };
 const ECO = { giorno: new THREE.Color("#1A4FB0"), notte: new THREE.Color("#6CC4FF") };
@@ -56,14 +60,14 @@ const S: [number, number] = [0.42, 0.79];
 const O: [number, number] = [0.16, 0.39];
 const I: [number, number] = [0.68, 0.39];
 const TRATTI: Tratto[] = [
-  { tipo: "testo", testo: "segno", u: 0.42, v: 0.9, corpo: 68, dura: 1.4 },
+  { tipo: "testo", testo: "segno", u: 0.42, v: 0.9, corpo: 80, dura: 1.4 },
   { tipo: "linea", da: S, a: O, dura: 0.9 },
-  { tipo: "testo", testo: "oggetto", u: 0.16, v: 0.26, corpo: 68, dura: 1.5 },
+  { tipo: "testo", testo: "oggetto", u: 0.16, v: 0.26, corpo: 80, dura: 1.5 },
   { tipo: "linea", da: O, a: I, dura: 1.1, tratteggio: true },
-  { tipo: "testo", testo: "interpretante", u: 0.68, v: 0.26, corpo: 68, dura: 2.1 },
+  { tipo: "testo", testo: "interpretante", u: 0.68, v: 0.26, corpo: 80, dura: 2.1 },
   { tipo: "linea", da: I, a: S, dura: 0.9 },
   { tipo: "freccia", punti: [[0.76, 0.45], [0.84, 0.56], [0.86, 0.67]], dura: 0.8 },
-  { tipo: "testo", testo: "semiosi illimitata", u: 0.83, v: 0.76, corpo: 40, dura: 1.8 },
+  { tipo: "testo", testo: "semiosi illimitata", u: 0.83, v: 0.76, corpo: 46, dura: 1.8 },
 ];
 const VAI = 0.4; // il tempo per spostare la mano da un tratto al successivo
 const INIZIO_SCRIVE = 3.2;
@@ -88,7 +92,7 @@ function puntaTratto(tr: Tratto, k: number, larghezzaTesto: number, out: [number
     // la mano corre lungo la parola, su e giù come chi scrive
     const w = larghezzaTesto / TL;
     out[0] = tr.u - w / 2 + w * k;
-    out[1] = tr.v + 0.03 * Math.sin(k * 40) * (tr.corpo / 68);
+    out[1] = tr.v + 0.03 * Math.sin(k * 40) * (tr.corpo / 80);
   } else if (tr.tipo === "linea") {
     out[0] = THREE.MathUtils.lerp(tr.da[0], tr.a[0], k);
     out[1] = THREE.MathUtils.lerp(tr.da[1], tr.a[1], k);
@@ -293,6 +297,8 @@ class Eco {
   private giunti: THREE.Object3D[] = [];
   private gomito = V();
   private punta = V();
+  /** il nero della barba e degli occhiali */
+  private nero = new THREE.MeshBasicMaterial({ color: "#121214", fog: false });
 
   constructor() {
     const m = this.mat, k = this.maschera;
@@ -318,19 +324,23 @@ class Eco {
     // il collo, corto
     add(new THREE.CylinderGeometry(0.065, 0.07, 0.12, 12).translate(0, 1.58, 0), this.busto);
     this.gruppo.add(this.busto);
-    // la testa: tonda, la fronte alta; la barba corta sulle guance e sul mento, i baffi; gli occhiali; i capelli
-    // solo ai lati e dietro
+    // la testa: tonda, la fronte alta, un poco più grande del vero perché si riconosca anche in piccolo;
+    // la barba (guance, mento, baffi) e gli occhiali neri, pieni, non di luce; i capelli solo ai lati e dietro
     this.testa.position.set(0, 1.62, 0);
-    this.testa.scale.setScalar(1.12);
+    this.testa.scale.setScalar(1.3);
     add(new THREE.SphereGeometry(1, 18, 14).scale(0.105, 0.125, 0.115).translate(0, 0.12, 0), this.testa);
-    add(new THREE.SphereGeometry(1, 16, 10, 0, Math.PI, Math.PI * 0.4, Math.PI * 0.6).scale(0.116, 0.11, 0.135).translate(0, 0.075, 0.012), this.testa);
-    add(new THREE.BoxGeometry(0.1, 0.022, 0.03).translate(0, 0.07, 0.115), this.testa);
     add(new THREE.ConeGeometry(0.02, 0.045, 6).rotateX(Math.PI / 2).translate(0, 0.11, 0.125), this.testa);
+    const nero = (g: THREE.BufferGeometry) => {
+      const o = new THREE.Mesh(g, this.nero);
+      this.testa.add(o);
+    };
+    nero(new THREE.SphereGeometry(1, 16, 10, 0, Math.PI, Math.PI * 0.42, Math.PI * 0.58).scale(0.114, 0.105, 0.13).translate(0, 0.078, 0.01));
+    nero(new THREE.BoxGeometry(0.1, 0.026, 0.034).translate(0, 0.075, 0.118));
     for (const s of [-1, 1]) {
-      add(new THREE.TorusGeometry(0.037, 0.009, 6, 18).translate(s * 0.046, 0.135, 0.124), this.testa);
-      add(new THREE.BoxGeometry(0.006, 0.006, 0.12).translate(s * 0.1, 0.14, 0.06), this.testa);
+      nero(new THREE.TorusGeometry(0.04, 0.013, 6, 18).translate(s * 0.048, 0.138, 0.126));
+      nero(new THREE.BoxGeometry(0.012, 0.012, 0.13).translate(s * 0.102, 0.142, 0.065));
     }
-    add(new THREE.BoxGeometry(0.03, 0.008, 0.008).translate(0, 0.14, 0.127), this.testa);
+    nero(new THREE.BoxGeometry(0.03, 0.012, 0.012).translate(0, 0.142, 0.132));
     // i capelli: una corona dietro, dalle orecchie alla nuca, la fronte scoperta
     const capelli = new THREE.SphereGeometry(1, 16, 10, Math.PI * 0.85, Math.PI * 1.3, Math.PI * 0.22, Math.PI * 0.38).scale(0.115, 0.13, 0.122).translate(0, 0.12, -0.005);
     add(capelli, this.testa);
@@ -414,6 +424,7 @@ class Eco {
 
   libera() {
     this.maschera.dispose();
+    this.nero.dispose();
   }
 }
 
@@ -455,66 +466,6 @@ class Studente {
     this.braccio.rotation.z = su * 0.25;
   }
 }
-
-/* ------------------------------------------------------------------ il colle */
-
-/* Il colle: un ripiano ellittico appena più largo dell'aula, poi i fianchi che scendono fin sotto il pavimento,
-   ripidi davanti (per non venire avanti fra i pannelli), più dolci ai lati e dietro. In unità dell'aula. */
-const COLLE = { a: 3.4, b: 2.3, cz: -0.85 };
-function quotaColle(x: number, z: number) {
-  const giu = ALZO / SCALA + 0.3;
-  const davanti = z < COLLE.cz ? 1 : 0;
-  const t = Math.hypot(x / COLLE.a, (z - COLLE.cz) / COLLE.b);
-  const k = t < 1 ? 0 : THREE.MathUtils.smoothstep(t, 1, davanti ? 1.45 : 1.75);
-  const rugo = 0.07 * Math.sin(x * 1.7 + z * 0.9) + 0.05 * Math.sin(x * 3.9 - z * 2.3) + 0.03 * Math.sin(z * 6.1 + x);
-  return -giu * k + rugo * Math.min(1, k * 3) - 0.02;
-}
-
-function colle() {
-  const A = COLLE.a, B = COLLE.b;
-  const geo = rilievo(-A * 1.85, A * 1.85, COLLE.cz - B * 1.5, COLLE.cz + B * 1.85, 72, 56, quotaColle);
-  geo.computeVertexNormals();
-  const pos = geo.attributes.position as THREE.BufferAttribute, nor = geo.attributes.normal as THREE.BufferAttribute;
-  const col = new Float32Array(pos.count * 3);
-  const c = new THREE.Color(), n = new THREE.Vector3();
-  const erba = new THREE.Color("#B39A5C"), secca = new THREE.Color("#C9B27A"), verde = new THREE.Color("#7E8452"), roccia = new THREE.Color("#7D746A");
-  for (let i = 0; i < pos.count; i++) {
-    const x = pos.getX(i), z = pos.getZ(i), ny = nor.getY(i);
-    const macchia = 0.5 + 0.5 * Math.sin(x * 0.9 + Math.sin(z * 1.3) * 2);
-    c.copy(erba).lerp(secca, macchia * 0.6).lerp(verde, Math.max(0, Math.sin(x * 0.6 - z * 0.8)) * 0.35);
-    c.lerp(roccia, THREE.MathUtils.smoothstep(1 - ny, 0.25, 0.5) * 0.85);
-    // la luce del sole cotta nei colori, come le colline lontane: il colle sta controluce e verrebbe scuro
-    n.fromBufferAttribute(nor, i);
-    c.multiplyScalar(0.78 + 0.4 * Math.max(0, n.dot(SOLE))).lerp(CIELO, 0.12);
-    col.set([c.r, c.g, c.b], i * 3);
-  }
-  geo.setAttribute("color", new THREE.BufferAttribute(col, 3));
-  const g = new THREE.Group();
-  const terra = new THREE.MeshBasicMaterial({ vertexColors: true, fog: false });
-  g.add(new THREE.Mesh(geo, terra));
-  // cipressi sui fianchi e dietro, non davanti all'aula
-  const r = generatore(17);
-  const alberi: THREE.BufferGeometry[] = [];
-  for (let i = 0; i < 14; i++) {
-    const ang = r() * Math.PI * 2;
-    const t = 1.1 + r() * 0.9;
-    const x = Math.cos(ang) * A * t, z = COLLE.cz + Math.sin(ang) * B * t;
-    if (z < COLLE.cz + B * 0.3) continue;
-    const y = quotaColle(x, z) - 0.05;
-    const h = 1.0 + r() * 0.5;
-    const geoA = new THREE.ConeGeometry(0.15, h, 7).translate(x, y + h / 2, z);
-    geoA.deleteAttribute("uv");
-    alberi.push(geoA);
-  }
-  if (alberi.length) {
-    const ga = mergeGeometries(alberi.map((x) => x.toNonIndexed()));
-    alberi.forEach((x) => x.dispose());
-    g.add(new THREE.Mesh(ga, new THREE.MeshStandardMaterial({ color: "#2F3F25", roughness: 1, flatShading: true })));
-  }
-  return { g, terra };
-}
-const SOLE = new THREE.Vector3(0.3, 0.8, -0.5).normalize();
-const CIELO = new THREE.Color("#BFD6EA");
 
 /* ------------------------------------------------------------------ l'aula */
 
@@ -563,16 +514,18 @@ export class AulaEco {
   private passo = 0;
   private ultimoT = -1;
   private materiali: THREE.Material[] = [];
-  private terra: THREE.MeshBasicMaterial;
 
   constructor() {
     const a = AULA_A;
-    this.gruppo.position.set(Math.sin(a) * AULA_D, PAV + ALZO, -Math.cos(a) * AULA_D);
+    this.gruppo.position.set(Math.sin(a) * AULA_D, PAV, -Math.cos(a) * AULA_D);
     this.gruppo.rotation.y = Math.PI - a;
     this.gruppo.scale.setScalar(SCALA);
-    const c = colle();
-    this.terra = c.terra;
-    this.gruppo.add(this.aula, c.g);
+    // inclinata attorno al centro, verso chi guarda; sollevata quanto basta perché il bordo vicino tocchi terra
+    const inclinata = new THREE.Group();
+    inclinata.rotation.x = -INCLINA;
+    inclinata.position.y = (ESTERNO - CENTRO.z) * Math.sin(INCLINA) + 0.04;
+    inclinata.add(this.aula);
+    this.gruppo.add(inclinata);
 
     const mat = new THREE.ShaderMaterial({ vertexShader: VERT, fragmentShader: FRAG, uniforms: this.uni, transparent: true, depthWrite: false, fog: false });
     const maschera = new THREE.ShaderMaterial({
@@ -591,22 +544,23 @@ export class AulaEco {
     const linee = new THREE.ShaderMaterial({ vertexShader: LINEA_VERT, fragmentShader: LINEA_FRAG, uniforms: this.uniLinee, transparent: true, depthWrite: false, fog: false });
     this.materiali.push(mat, maschera, linee);
 
-    // il legno: pedana, gradinate coi banchi, cattedra, sedia, cornice e cavalletto della lavagna
+    // il legno: il pavimento, il muro di fondo, la pedana, la tribuna coi banchi, la cattedra, la cornice della lavagna
     const legno: THREE.BufferGeometry[] = [];
     const scatola = (l: number, h: number, p: number, x: number, y: number, z: number) => legno.push(new THREE.BoxGeometry(l, h, p).translate(x, y + h / 2, z));
+    legno.push(spicchio(0, ESTERNO, -Math.PI / 2, Math.PI / 2, -0.06, 0.06).translate(CENTRO.x, 0, CENTRO.z));
+    scatola(ESTERNO * 2, 0.06, MURO.z - CENTRO.z, 0, -0.06, (MURO.z + CENTRO.z) / 2);
+    scatola(ESTERNO * 2, MURO.h, 0.08, 0, 0, MURO.z);
     scatola(PEDANA.l, PEDANA.h, PEDANA.z1 - PEDANA.z0, 0, 0, (PEDANA.z0 + PEDANA.z1) / 2);
-    // le gradinate: ogni fila un gradino più alta, il banco davanti a chi siede
+    // la tribuna: ogni fila un gradino più alta, il banco davanti a chi siede; le scale fra gli spicchi
     FILE.forEach((r, i) => {
-      for (const s of [-1, 1]) {
-        const a0 = s < 0 ? -SPICCHIO[1] : SPICCHIO[0];
-        const a1 = s < 0 ? -SPICCHIO[0] : SPICCHIO[1];
-        const g = spicchio(r - 0.25, r + 0.25, a0, a1, 0, GRADINO * (i + 1));
+      for (const [a0, a1] of SPICCHI) {
+        const g = spicchio(r - 0.24, r + 0.24, a0, a1, 0, GRADINO * (i + 1));
         g.translate(CENTRO.x, 0, CENTRO.z);
         legno.push(g);
-        const banco = spicchio(r - 0.24, r - 0.18, a0, a1, GRADINO * (i + 1), 0.36);
+        const banco = spicchio(r - 0.23, r - 0.18, a0, a1, GRADINO * (i + 1), 0.36);
         banco.translate(CENTRO.x, 0, CENTRO.z);
         legno.push(banco);
-        const piano = spicchio(r - 0.36, r - 0.16, a0, a1, GRADINO * (i + 1) + 0.36, 0.03);
+        const piano = spicchio(r - 0.34, r - 0.16, a0, a1, GRADINO * (i + 1) + 0.36, 0.03);
         piano.translate(CENTRO.x, 0, CENTRO.z);
         legno.push(piano);
       }
@@ -625,9 +579,9 @@ export class AulaEco {
     this.aula.add(cappello);
     // la lavagna: la cornice e i due montanti fino alla pedana
     const L = LAVAGNA;
-    scatola(L.l + 0.1, 0.05, 0.06, 0, L.y - 0.05, L.z);
-    scatola(L.l + 0.1, 0.05, 0.06, 0, L.y + L.h, L.z);
-    for (const s of [-1, 1]) scatola(0.06, L.h + 0.1 + (L.y - PEDANA.h) - 0.05, 0.06, s * (L.l / 2 + 0.05), PEDANA.h, L.z);
+    scatola(L.l + 0.12, 0.06, 0.07, 0, L.y - 0.06, L.z);
+    scatola(L.l + 0.12, 0.06, 0.07, 0, L.y + L.h, L.z);
+    for (const s of [-1, 1]) scatola(0.07, L.h + 0.12 + (L.y - PEDANA.h) - 0.06, 0.07, s * (L.l / 2 + 0.05), PEDANA.h, L.z);
     // la mensola del gesso
     scatola(L.l * 0.6, 0.025, 0.1, 0, L.y - 0.08, L.z - 0.05);
     const geo = mergeGeometries(legno.map((g) => (g.index ? g.toNonIndexed() : g)).map((g) => {
@@ -655,16 +609,18 @@ export class AulaEco {
     this.materiali.push(matLavagna, mascheraPiano.material as THREE.Material);
 
     // gli studenti, seduti sulle file, girati verso la cattedra; non tutti i posti sono presi
-    const posti: [number, number, number][] = [
-      [0, -1, 0.74], [0, 1, 0.7], [0, -1, 0.98],
-      [1, 1, 0.92], [1, -1, 0.7], [1, 1, 0.68],
-      [2, -1, 0.86], [2, 1, 0.98],
-    ];
-    const mani = [-1, 22, -1, -1, 28.5, -1, -1, -1];
-    posti.forEach(([fila, lato, ang], j) => {
-      const st = new Studente(this.matStudenti, this.mascheraStudenti, j * 1.7, mani[j]);
+    const caso = generatore(38);
+    const posti: [number, number][] = [];
+    FILE.forEach((_, fila) =>
+      SPICCHI.forEach(([a0, a1]) => {
+        const n = (a1 - a0) * FILE[fila] > 2.5 ? 2 : 1;
+        for (let q = 0; q < n; q++) if (caso() < 0.72) posti.push([fila, a0 + 0.08 + ((a1 - a0 - 0.16) * (q + caso())) / n]);
+      })
+    );
+    const mani = new Map([[3, 22], [Math.floor(posti.length * 0.6), 28.5]]);
+    posti.forEach(([fila, a], j) => {
+      const st = new Studente(this.matStudenti, this.mascheraStudenti, j * 1.7, mani.get(j) ?? -1);
       const r = FILE[fila] + 0.02;
-      const a = lato * ang;
       st.gruppo.position.set(CENTRO.x + Math.sin(a) * r, GRADINO * (fila + 1) - 0.02, CENTRO.z - Math.cos(a) * r);
       // +z dello studente verso il centro
       st.gruppo.rotation.y = Math.atan2(CENTRO.x - st.gruppo.position.x, CENTRO.z - st.gruppo.position.z);
@@ -687,8 +643,6 @@ export class AulaEco {
 
   setNotte(notte: boolean) {
     const N = notte ? "notte" : "giorno";
-    // di notte il colle si spegne: i suoi colori hanno il sole dentro
-    this.terra.color.set(notte ? "#2A3040" : "#FFFFFF");
     this.uni.uColore.value.copy(LEGNO[N]);
     this.uniLinee.uColore.value.copy(LEGNO[N]).lerp(new THREE.Color("#FFFFFF"), notte ? 0.35 : 0.1);
     this.eco.mat.uniforms.uColore.value.copy(ECO[N]);
