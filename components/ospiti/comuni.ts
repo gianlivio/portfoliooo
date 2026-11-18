@@ -399,3 +399,49 @@ export class Deriva {
     return Math.abs(this.v) > 0.003 ? Math.sign(this.v) : segno();
   }
 }
+
+/* ------------------------------------------------------------------ figure */
+
+/**
+ * La luce dipinta: una sfera chiara in alto a sinistra, che scurisce verso il bordo. Con il materiale matcap
+ * le figure hanno volume anche se la scena ha solo la luce del cielo; il colore dell'oggetto la moltiplica.
+ */
+export function luceDipinta() {
+  return tela(256, 256, (x) => {
+    x.fillStyle = "#4A4A4E";
+    x.fillRect(0, 0, 256, 256);
+    const g = x.createRadialGradient(100, 86, 4, 128, 128, 130);
+    g.addColorStop(0, "#FFFFFF");
+    g.addColorStop(0.35, "#F0EEEA");
+    g.addColorStop(0.72, "#B4B1AC");
+    g.addColorStop(1, "#5E5D60");
+    x.fillStyle = g;
+    x.beginPath();
+    x.arc(128, 128, 127, 0, Math.PI * 2);
+    x.fill();
+  });
+}
+
+const ASSE_Y = new THREE.Vector3(0, 1, 0);
+
+/** Cinematica inversa a due ossa: dalla radice verso il bersaglio, il gomito (o il ginocchio) dalla parte del polo. */
+export function ik(radice: THREE.Vector3, bersaglio: THREE.Vector3, a: number, b: number, polo: THREE.Vector3, gomito: THREE.Vector3, punta: THREE.Vector3) {
+  const dir = bersaglio.clone().sub(radice);
+  let d = dir.length();
+  d = Math.min(Math.max(d, Math.abs(a - b) + 0.01), (a + b) * 0.995);
+  dir.normalize();
+  const cosA = (a * a + d * d - b * b) / (2 * a * d);
+  const sinA = Math.sqrt(Math.max(0, 1 - cosA * cosA));
+  const perp = polo.clone().sub(dir.clone().multiplyScalar(polo.dot(dir))).normalize();
+  gomito.copy(radice).addScaledVector(dir, a * cosA).addScaledVector(perp, a * sinA);
+  punta.copy(radice).addScaledVector(dir, d);
+}
+
+/** Un osso: cilindro dalla base (y = 0) alla punta (y = 1), messo fra due punti. */
+export function osso(o: THREE.Object3D, a: THREE.Vector3, b: THREE.Vector3) {
+  const t = b.clone().sub(a);
+  const l = t.length();
+  o.position.copy(a);
+  o.quaternion.setFromUnitVectors(ASSE_Y, t.multiplyScalar(1 / (l || 1)));
+  o.scale.set(1, l, 1);
+}

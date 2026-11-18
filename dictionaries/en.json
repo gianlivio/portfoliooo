@@ -354,5 +354,15 @@
       "The family",
       "The rule"
     ]
+  },
+  "eco": {
+    "vignette": [
+      "A text is a lazy mechanism that needs the reader's intervention to come alive.",
+      "Marco comes home. “Where have you been?” Marina exclaims darkly.",
+      "The text doesn't tell us that Marco and Marina are in the same room, nor that Marina is talking to Marco.",
+      "And it doesn't tell us that “darkly” means Marina is furious.",
+      "We readers add that information: that is how the text is completed.",
+      "On its own the text doesn't work: it works with the meaning the reader adds to it."
+    ]
   }
 }

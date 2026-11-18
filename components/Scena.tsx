@@ -59,6 +59,8 @@ type Props = {
   moduloAperto: boolean;
   /** la scritta sopra il tavolino delle macchine: [accendi, spegni] */
   testiMusica: [string, string];
+  /** le vignette di Umberto Eco, nella lingua della pagina */
+  testiEco: string[];
   /** la scritta sopra l'ulivo, e dove porta */
   testoUlivo: string;
   /** il clic sull'ingresso dell'uliveto, col punto dello schermo da cui parte il passaggio */
@@ -252,7 +254,7 @@ const APRI: Record<string, string> = { it: "Apri ↗", en: "Open ↗", es: "Abri
 
 function Carte({
   carte, selezionato, focale, onSeleziona, ridotto, onPronta, tema, conIngresso, moduloAperto, attiva, lingua,
-}: Omit<Props, "onInteragisci" | "stretto" | "testiMusica" | "testoUlivo" | "onOlio"> & { attiva: React.MutableRefObject<string | null> }) {
+}: Omit<Props, "onInteragisci" | "stretto" | "testiMusica" | "testiEco" | "testoUlivo" | "onOlio"> & { attiva: React.MutableRefObject<string | null> }) {
   const [grafica, setGrafica] = useState<Grafica | null>(null);
   const [sopra, setSopra] = useState<string | null>(null);
   const gruppi = useRef<(THREE.Group | null)[]>([]);
@@ -811,8 +813,8 @@ function FestaLibera({ notte, ridotto }: { notte: boolean; ridotto: boolean }) {
 }
 
 /** I luoghi di Livio: Sicilia, Argentina, le maschere. Ognuno si spegne in ATTIVI (ospiti/luoghi.ts). */
-function Posti({ notte, ridotto }: { notte: boolean; ridotto: boolean }) {
-  const [luoghi] = useState(() => new Luoghi(notte));
+function Posti({ notte, ridotto, testiEco }: { notte: boolean; ridotto: boolean; testiEco: string[] }) {
+  const [luoghi] = useState(() => new Luoghi(notte, testiEco));
   useEffect(() => () => luoghi.libera(), [luoghi]);
   useEffect(() => luoghi.setNotte(notte), [luoghi, notte]);
   useFrame(({ clock, camera }) => {
@@ -936,7 +938,7 @@ function Ambiente({ tema }: { tema: Tema }) {
 
 function Regia({
   carte, selezionato, focale, onSeleziona, onInteragisci, ridotto, stretto, conIngresso,
-}: Omit<Props, "onPronta" | "tema" | "testiMusica" | "testoUlivo" | "onOlio">) {
+}: Omit<Props, "onPronta" | "tema" | "testiMusica" | "testiEco" | "testoUlivo" | "onOlio">) {
   const { camera, gl } = useThree();
   const s = useRef({
     // si comincia guardando la zona dello sviluppatore, il centro del mondo
@@ -1109,7 +1111,7 @@ export default function Scena(props: Props) {
       <Orizzonte notte={tema === "scuro"} ridotto={props.ridotto} />
       <Riviera notte={tema === "scuro"} ridotto={props.ridotto} />
       <FestaLibera notte={tema === "scuro"} ridotto={props.ridotto} />
-      <Posti notte={tema === "scuro"} ridotto={props.ridotto} />
+      <Posti notte={tema === "scuro"} ridotto={props.ridotto} testiEco={props.testiEco} />
       <Transizione tema={tema} ridotto={props.ridotto} />
       {tema === "chiaro" && <CieloDiGiorno orizzonte={p.fondo} />}
       <Fauna

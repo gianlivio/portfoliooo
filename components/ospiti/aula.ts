@@ -2,7 +2,7 @@ import * as THREE from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import { PELO_ACQUA } from "../condivisi";
 import { ANGOLO_ZONA, PASSO } from "../zona";
-import { alone, fra, generatore, liberaTutto, loft, morbido, tela } from "./comuni";
+import { alone, fra, generatore, ik, liberaTutto, loft, luceDipinta, morbido, osso, tela } from "./comuni";
 
 /**
  * Umberto Eco alla lavagna, ai piedi di Bologna: nel varco fra Sanires e l'Osservatorio, davanti alla città
@@ -24,7 +24,7 @@ export const AULA_A = ANGOLO_ZONA + (10.11 - 12) * PASSO;
 export const AULA_D = 7.3;
 /** Tutto più piccolo del vero, di poco più di un terzo: sopra l'aula deve restare Bologna. */
 const SCALA = 0.62;
-const CICLO = 38;
+const CICLO = 52;
 
 /* ------------------------------------------------------------------ i colori */
 
@@ -44,26 +44,6 @@ const COL = {
   piano: "#86572F",
   lavagna: "#2C4A3E",
 };
-
-/**
- * La luce dipinta: una sfera chiara in alto a sinistra, che scurisce verso il bordo. Con il materiale matcap
- * le figure hanno volume anche se la scena ha solo la luce del cielo; il colore dell'oggetto la moltiplica.
- */
-function luceDipinta() {
-  return tela(256, 256, (x) => {
-    x.fillStyle = "#4A4A4E";
-    x.fillRect(0, 0, 256, 256);
-    const g = x.createRadialGradient(100, 86, 4, 128, 128, 130);
-    g.addColorStop(0, "#FFFFFF");
-    g.addColorStop(0.35, "#F0EEEA");
-    g.addColorStop(0.72, "#B4B1AC");
-    g.addColorStop(1, "#5E5D60");
-    x.fillStyle = g;
-    x.beginPath();
-    x.arc(128, 128, 127, 0, Math.PI * 2);
-    x.fill();
-  });
-}
 
 /* ------------------------------------------------------------------ la lavagna */
 
@@ -103,7 +83,9 @@ const INIZI: number[] = [];
   });
 }
 const FINE_SCRIVE = INIZI[INIZI.length - 1] + TRATTI[TRATTI.length - 1].dura;
-const CANCELLA = [32.5, 35.5];
+const CANCELLA = [46.6, 49.6];
+/** Le vignette: durante la lezione, una dopo l'altra, da quando si gira verso l'aula. */
+const VIGNETTE = { da: 1.0, ogni: 4.6 };
 
 const TL = 1024;
 const TA = Math.round((TL * LAVAGNA.h) / LAVAGNA.l);
@@ -175,18 +157,20 @@ class Lavagna {
     x.fillStyle = "rgba(246,244,236,0.95)";
     x.textAlign = "center";
     x.textBaseline = "middle";
-    x.font = `700 150px ${this.serif}`;
     x.save();
-    x.translate(TL / 2, TA * 0.45);
-    x.rotate(-0.06);
-    x.fillText("OCCUPATA", 0, 0);
-    x.restore();
+    x.translate(TL / 2, TA * 0.5);
+    x.rotate(-0.05);
+    x.font = `700 96px ${this.serif}`;
+    x.fillText("OCCUPAZIONE", 0, -TA * 0.15);
+    x.font = `700 126px ${this.serif}`;
+    x.fillText("ZAMBONI 38", 0, TA * 0.13);
     x.lineWidth = 8;
     x.strokeStyle = "rgba(246,244,236,0.9)";
     x.beginPath();
-    x.moveTo(TL * 0.2, TA * 0.62);
-    x.lineTo(TL * 0.8, TA * 0.58);
+    x.moveTo(-TL * 0.33, TA * 0.3);
+    x.lineTo(TL * 0.33, TA * 0.27);
     x.stroke();
+    x.restore();
     this.texture.needsUpdate = true;
   }
 
@@ -276,27 +260,6 @@ class Lavagna {
 const V = (x = 0, y = 0, z = 0) => new THREE.Vector3(x, y, z);
 const SU = V(0, 1, 0);
 
-function ik(radice: THREE.Vector3, bersaglio: THREE.Vector3, a: number, b: number, polo: THREE.Vector3, gomito: THREE.Vector3, punta: THREE.Vector3) {
-  const dir = bersaglio.clone().sub(radice);
-  let d = dir.length();
-  d = Math.min(Math.max(d, Math.abs(a - b) + 0.01), (a + b) * 0.995);
-  dir.normalize();
-  const cosA = (a * a + d * d - b * b) / (2 * a * d);
-  const sinA = Math.sqrt(Math.max(0, 1 - cosA * cosA));
-  const perp = polo.clone().sub(dir.clone().multiplyScalar(polo.dot(dir))).normalize();
-  gomito.copy(radice).addScaledVector(dir, a * cosA).addScaledVector(perp, a * sinA);
-  punta.copy(radice).addScaledVector(dir, d);
-}
-
-/** Un osso: cilindro dalla base (y = 0) alla punta (y = 1), messo fra due punti. */
-function osso(o: THREE.Object3D, a: THREE.Vector3, b: THREE.Vector3) {
-  const t = b.clone().sub(a);
-  const l = t.length();
-  o.position.copy(a);
-  o.quaternion.setFromUnitVectors(SU, t.multiplyScalar(1 / (l || 1)));
-  o.scale.set(1, l, 1);
-}
-
 /** Un poligono piatto e convesso dai vertici, visibile dalle due parti. */
 function faccia(...p: THREE.Vector3[]) {
   const pos: number[] = [];
@@ -324,7 +287,7 @@ type Tinta = (colore: string) => THREE.Material;
 
 /**
  * Umberto Eco: alto e robusto, la pancia sotto la giacca abbottonata; la camicia chiara e la cravatta nella
- * scollatura, i revers; la testa tonda e stempiata coi capelli grigi ai lati, la barba nera fitta, i baffi,
+ * scollatura, i revers; la testa tonda, la fronte alta e i capelli grigi pettinati all'indietro, la barba nera fitta, i baffi,
  * gli occhiali neri dalla montatura spessa, le sopracciglia folte. Figura +z avanti, piedi a y = 0.
  */
 class Eco {
@@ -388,8 +351,9 @@ class Eco {
     // le basette, che salgono fino alle orecchie
     for (const s of [-1, 1]) mesh(new THREE.SphereGeometry(1, 10, 8).scale(0.018, 0.05, 0.04).translate(s * 0.093, 0.095, 0.035), COL.barba, h);
     mesh(new THREE.TorusGeometry(0.03, 0.011, 8, 16, Math.PI).scale(1.25, 0.75, 1).translate(0, 0.066, 0.115), COL.barba, h);
-    // i capelli grigi: una corona dietro, dalle tempie alla nuca; la fronte e la cima scoperte
-    mesh(new THREE.SphereGeometry(1, 22, 12, Math.PI * 0.82, Math.PI * 1.36, Math.PI * 0.24, Math.PI * 0.38).scale(0.105, 0.127, 0.117).translate(0, 0.12, -0.004), COL.capelli, h);
+    // i capelli grigi, pettinati all'indietro: la fronte alta, sopra e ai lati folti fino alla nuca
+    mesh(new THREE.SphereGeometry(1, 22, 12, Math.PI * 0.82, Math.PI * 1.36, Math.PI * 0.2, Math.PI * 0.42).scale(0.108, 0.13, 0.12).translate(0, 0.12, -0.004), COL.capelli, h);
+    mesh(new THREE.SphereGeometry(1, 24, 10, 0, Math.PI * 2, 0, Math.PI * 0.36).rotateX(-0.42).scale(0.112, 0.14, 0.124).translate(0, 0.118, -0.012), COL.capelli, h);
     // gli occhiali: montatura nera spessa, due lenti un poco squadrate, il ponte, le aste fino alle orecchie
     for (const s of [-1, 1]) {
       mesh(new THREE.TorusGeometry(0.026, 0.0058, 8, 24).scale(1.3, 0.8, 1).translate(s * 0.042, 0.139, 0.116), COL.occhiali, h);
@@ -592,6 +556,61 @@ function striscione() {
   });
 }
 
+/**
+ * Una vignetta da fumetto: il riquadro bianco col filo nero, la punta in basso verso chi parla, il testo a capo.
+ * La punta è al centro del lato di sotto: lo sprite si aggancia lì (center 0,5, 0).
+ */
+function vignetta(testo: string, serif: string, corsivo: boolean) {
+  const L = 1024, M = 56, CORPO = 62, RIGA = 82, PUNTA = 64;
+  const misura = document.createElement("canvas").getContext("2d") as CanvasRenderingContext2D;
+  const font = `${corsivo ? "italic " : ""}400 ${CORPO}px ${serif}`;
+  misura.font = font;
+  const righe: string[] = [];
+  let r = "";
+  for (const p of testo.split(" ")) {
+    const prova = r ? `${r} ${p}` : p;
+    if (misura.measureText(prova).width > L - 2 * M && r) {
+      righe.push(r);
+      r = p;
+    } else r = prova;
+  }
+  if (r) righe.push(r);
+  const alto = righe.length * RIGA + 2 * 44;
+  const A = alto + PUNTA + 8;
+  const t = tela(L, A, (x) => {
+    const B = 6;
+    x.beginPath();
+    x.roundRect(B, B, L - 2 * B, alto - B, 46);
+    x.fillStyle = "#FFFFFF";
+    x.fill();
+    x.lineWidth = B;
+    x.strokeStyle = "#141414";
+    x.stroke();
+    // la punta: esce dal lato di sotto e scende fino al centro
+    x.beginPath();
+    x.moveTo(L / 2 - 52, alto - B);
+    x.lineTo(L / 2, A - 4);
+    x.lineTo(L / 2 + 6, alto - B);
+    x.closePath();
+    x.fillStyle = "#FFFFFF";
+    x.fill();
+    x.beginPath();
+    x.moveTo(L / 2 - 52, alto - B / 2);
+    x.lineTo(L / 2, A - 4);
+    x.lineTo(L / 2 + 6, alto - B / 2);
+    x.stroke();
+    x.fillStyle = "#16171A";
+    x.font = font;
+    x.textAlign = "center";
+    x.textBaseline = "middle";
+    righe.forEach((riga, i) => x.fillText(riga, L / 2, 44 + RIGA * (i + 0.5)));
+  });
+  return { texture: t, aspetto: A / L };
+}
+
+/** La larghezza delle vignette, in unità dello schermo: resta la stessa da vicino e da lontano. */
+const LARGHEZZA_VIGNETTA = 0.27;
+
 type Ballerino = { x: number; y: number; z: number; giro: number; fase: number; su: boolean; alto: number };
 
 export class AulaEco {
@@ -614,6 +633,9 @@ export class AulaEco {
   private bagliori: THREE.Sprite[] = [];
   private lucine: THREE.PointsMaterial;
   private eNotte = false;
+  // le vignette di Eco: una texture per frase, uno sprite che le cambia
+  private vignette: { texture: THREE.Texture; aspetto: number }[] = [];
+  private fumetto: THREE.Sprite;
   // dove sta Eco e dove guarda, inseguiti con un poco di ritardo
   private x = -0.42;
   private z = 0;
@@ -637,7 +659,8 @@ export class AulaEco {
     return m;
   };
 
-  constructor() {
+  /** testi: le frasi delle vignette, nella lingua della pagina (dizionari, eco.vignette). La seconda è l'esempio, in corsivo. */
+  constructor(testi: string[]) {
     const a = AULA_A;
     this.gruppo.position.set(Math.sin(a) * AULA_D, PAV, -Math.cos(a) * AULA_D);
     this.gruppo.rotation.y = Math.PI - a;
@@ -701,6 +724,15 @@ export class AulaEco {
     // Eco
     this.eco = new Eco(this.tinta);
     this.giorno.add(this.eco.gruppo);
+    // le vignette sopra la sua testa: sempre davanti a tutto, grandi uguali da ogni distanza
+    const serif = getComputedStyle(document.documentElement).getPropertyValue("--font-serif").trim() || "Georgia, serif";
+    this.vignette = testi.map((t, i) => vignetta(t, serif, i === 1));
+    this.vignette.forEach((v) => this.texture.push(v.texture));
+    this.fumetto = new THREE.Sprite(new THREE.SpriteMaterial({ transparent: true, depthTest: false, depthWrite: false, sizeAttenuation: false, toneMapped: false, fog: false }));
+    this.fumetto.center.set(0.5, 0);
+    this.fumetto.renderOrder = 30;
+    this.fumetto.visible = false;
+    this.giorno.add(this.fumetto);
 
     // gli studenti, seduti sulle file, girati verso la lavagna; non tutti i posti sono presi
     const caso = generatore(1088);
@@ -983,8 +1015,26 @@ export class AulaEco {
     const inF = (p: THREE.Vector3 | null, giaFigura: boolean) => (p === null ? null : giaFigura ? p : this.inFigura(p));
     this.eco.posa([inF(sinistra, true), inF(destra, destraInFigura)], this.passo, subito ? 0 : ampiezza, testaGiro, testaSu);
 
-    // gli studenti: alzano la mano quando il professore è girato verso l'aula
+    // la vignetta: una frase dopo l'altra mentre parla all'aula, sopra la sua testa
     const lezione = e >= FINE_SCRIVE + 0.6 && e < CANCELLA[0];
+    const qv = e - (FINE_SCRIVE + 0.6) - VIGNETTE.da;
+    const iv = lezione && qv >= 0 ? Math.floor(qv / VIGNETTE.ogni) : -1;
+    const v = this.vignette[iv];
+    if (v) {
+      const dentro = qv - iv * VIGNETTE.ogni;
+      const m = this.fumetto.material;
+      if (m.map !== v.texture) {
+        m.map = v.texture;
+        m.needsUpdate = true;
+      }
+      m.opacity = fra(dentro, 0, 0.25) * (1 - fra(dentro, VIGNETTE.ogni - 0.3, VIGNETTE.ogni));
+      // lo sprite è figlio del gruppo rimpicciolito: la scala si divide per SCALA
+      this.fumetto.scale.set(LARGHEZZA_VIGNETTA / SCALA, (LARGHEZZA_VIGNETTA * v.aspetto) / SCALA, 1);
+      this.fumetto.position.set(this.x, 2.08, this.z);
+      this.fumetto.visible = true;
+    } else this.fumetto.visible = false;
+
+    // gli studenti: alzano la mano quando il professore è girato verso l'aula
     this.studenti.forEach((s) => s.aggiorna(e, lezione));
   }
 

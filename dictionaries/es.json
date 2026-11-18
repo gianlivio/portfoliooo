@@ -354,5 +354,15 @@
       "La familia",
       "La regla"
     ]
+  },
+  "eco": {
+    "vignette": [
+      "El texto es un mecanismo perezoso que necesita la intervención del lector para activarse.",
+      "Marco vuelve a casa. «¿Dónde has estado?», exclama Marina, negra.",
+      "El texto no nos dice que Marco y Marina estén en la misma habitación, ni que Marina le esté hablando a Marco.",
+      "Y no nos dice que «negra» signifique que Marina está furiosa.",
+      "Esa información la añadimos los lectores: así se completa el texto.",
+      "El texto solo no funciona: funciona con el sentido que le añade el lector."
+    ]
   }
 }

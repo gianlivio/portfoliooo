@@ -91,6 +91,7 @@ export default function Esperienza({
     () => [d.audio.musica, d.audio.silenzio],
     [d],
   );
+  const testiEco = useMemo(() => d.eco.vignette, [d]);
   const palco = useRef<HTMLDivElement>(null);
   const titoloVignetta = useRef<HTMLHeadingElement>(null);
   const daTastiera = useRef(false);
@@ -428,6 +429,7 @@ export default function Esperienza({
             lingua={lingua}
             moduloAperto={modulo}
             testiMusica={testiMusica}
+            testiEco={testiEco}
             testoUlivo={d.ulivo.scritta}
             onOlio={versoUliveto}
           />

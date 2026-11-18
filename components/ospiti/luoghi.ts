@@ -5,6 +5,7 @@ import { alone, bruma, generatore, liberaTutto, tela } from "./comuni";
 import { colora, rilievo, sulRing, unisci } from "./meraviglie";
 import { TempioEtna } from "./tempio";
 import { AulaEco } from "./aula";
+import { RagazzinoSassi } from "./ragazzino";
 
 /*
  * I luoghi di Livio, da valutare uno per uno: ognuno si accende o si spegne in ATTIVI.
@@ -27,6 +28,7 @@ export const ATTIVI = {
   flamenco: true,
   tempio: true,
   aula: true,
+  ragazzino: true,
 };
 
 const Z = ANGOLO_ZONA;
@@ -1082,7 +1084,8 @@ export class Luoghi {
   private vivi: { aggiorna?: (t: number, camera: THREE.Camera) => void; libera?: () => void; setNotte?: (notte: boolean) => void }[] = [];
   private texture: THREE.Texture[] = [];
 
-  constructor(notte: boolean) {
+  /** testiEco: le vignette di Umberto Eco nella lingua della pagina (components/ospiti/aula.ts). */
+  constructor(notte: boolean, testiEco: string[]) {
     const A = ATTIVI;
     if (A.puntaSecca) this.giorno.add(puntaSecca());
     if (A.barocco) this.giorno.add(colleBarocco());
@@ -1114,9 +1117,14 @@ export class Luoghi {
       this.vivi.push({ aggiorna: (x) => t.aggiorna(x), libera: () => t.libera(), setNotte: (n) => t.setNotte(n) });
     }
     if (A.aula) {
-      const a = new AulaEco();
+      const a = new AulaEco(testiEco);
       this.sempre.add(a.gruppo);
       this.vivi.push({ aggiorna: (x) => a.aggiorna(x), libera: () => a.libera(), setNotte: (n) => a.setNotte(n) });
+    }
+    if (A.ragazzino) {
+      const r = new RagazzinoSassi();
+      this.sempre.add(r.gruppo);
+      this.vivi.push({ aggiorna: (x) => r.aggiorna(x), libera: () => r.libera(), setNotte: (n) => r.setNotte(n) });
     }
     this.gruppo.add(this.giorno, this.sempre, this.vicini);
     this.gruppo.traverse((o) => {
