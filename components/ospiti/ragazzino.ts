@@ -1,34 +1,24 @@
 import * as THREE from "three";
 import { PELO_ACQUA } from "../condivisi";
-import { ANGOLO_ZONA } from "../zona";
 import { generatore, ik, liberaTutto, loft, luceDipinta, morbido, osso } from "./comuni";
+import { FRAG, VERT } from "./livioRasta";
 
 /**
- * Livio da ragazzino: dietro lo stanzino dello sviluppatore, al centro, seduto a gambe incrociate sopra un masso
- * grande e piatto, i rasta legati in alto come un ananas. Concentrato, con calma, prende i sassi dal mucchio alla
- * sua destra e li mette uno sopra l'altro, davanti a sé: una torre in equilibrio, che oscilla appena quando ci posa un sasso.
- * Finita la torre la guarda un poco, poi la smonta, un sasso alla volta, e ricomincia.
- * Il masso è alto quanto basta perché lui e la torre si vedano sopra lo stanzino.
- * Coordinate del gruppo: −z verso chi guarda, y in alto, l'origine a terra sotto il masso.
- * Con "riduci movimento" non viene aggiornato e resta fermo: la torre finita.
+ * Livio da ragazzino, nello stanzino dello sviluppatore: a terra fra la cassettiera e il giradischi, seduto a
+ * gambe incrociate, di spalle a chi guarda, i rasta legati in alto come un ananas. Fatto di luce a colori
+ * d'arcobaleno come il musicista; i sassi invece sono veri. Concentrato, con calma, prende i sassi dal mucchio
+ * alla sua destra e li mette uno sopra l'altro davanti a sé: una torre in equilibrio, che oscilla appena quando
+ * ci posa un sasso. Finita la torre la guarda un poco, poi la smonta, un sasso alla volta, e ricomincia.
+ * Coordinate della figura: +z avanti (lontano da chi guarda), +x la sua sinistra, y da terra.
+ * Con "riduci movimento" resta fermo: la torre finita.
  */
 
-const PAV = PELO_ACQUA;
-export const RAGAZZINO_A = ANGOLO_ZONA;
-export const RAGAZZINO_D = 9.2;
-/** Un poco più grande del vero, perché da lontano si legga. */
-const SCALA = 1.3;
-/** La cima piatta del masso, da terra. */
-const CIMA = 1.6;
 const CICLO = 50;
 
-const COL = {
-  pelle: "#CF9670",
-  rasta: "#3A2618",
-  elastico: "#C8402E",
-  maglia: "#D07A3A",
-  pantaloni: "#D8CBB0",
-};
+/** Le parti della figura: nell'ologramma il colore non conta, servono solo a leggere il codice. */
+const COL = { pelle: "", rasta: "", elastico: "", maglia: "", pantaloni: "" };
+/** I colori del musicista (livioRasta.ts, modo "studio"): l'arcobaleno ci si mescola sopra. */
+const LUCE = { giorno: "#FF7A62", notte: "#C79BFF" };
 
 const V = (x = 0, y = 0, z = 0) => new THREE.Vector3(x, y, z);
 const SU = V(0, 1, 0);
@@ -37,12 +27,12 @@ const SU = V(0, 1, 0);
 
 /** Le misure dei sassi della torre, dal basso: semilarghezza e semialtezza, piatti come i ciottoli di fiume. */
 const SASSI = [
-  [0.15, 0.055],
-  [0.125, 0.05],
-  [0.105, 0.048],
-  [0.088, 0.042],
-  [0.072, 0.038],
-  [0.058, 0.034],
+  [0.17, 0.065],
+  [0.145, 0.06],
+  [0.122, 0.056],
+  [0.102, 0.05],
+  [0.085, 0.045],
+  [0.068, 0.04],
 ];
 const TINTE_SASSI = ["#8E8A82", "#A39E94", "#6F6C68", "#B3AA9A", "#7E7A72", "#9A948A"];
 
@@ -69,6 +59,8 @@ const AVAMBRACCIO = 0.2;
 const SPALLE = [V(0.13, 0.45, 0.03), V(-0.13, 0.45, 0.03)];
 
 type Tinta = (c: string) => THREE.Material;
+/** Un pezzo della figura: la mesh di luce con la sua maschera di profondità. */
+type Pezzo = (g: THREE.BufferGeometry) => THREE.Mesh;
 
 class Ragazzino {
   gruppo = new THREE.Group();
@@ -79,9 +71,9 @@ class Ragazzino {
   private gomito = V();
   private punta = V();
 
-  constructor(t: Tinta) {
-    const mesh = (g: THREE.BufferGeometry, c: string, padre: THREE.Object3D) => {
-      const m = new THREE.Mesh(g, t(c));
+  constructor(pezzo: Pezzo) {
+    const mesh = (g: THREE.BufferGeometry, _parte: string, padre: THREE.Object3D) => {
+      const m = pezzo(g);
       padre.add(m);
       return m;
     };
@@ -180,39 +172,9 @@ class Ragazzino {
 
 /* ------------------------------------------------------------------ la scena */
 
-/** Il masso: grande, tondo ai fianchi, piatto in cima; granito chiaro a chiazze. */
-function masso(t: Tinta) {
-  const g = new THREE.SphereGeometry(1, 40, 24);
-  const p = g.attributes.position as THREE.BufferAttribute;
-  const col = new Float32Array(p.count * 3);
-  const c = new THREE.Color();
-  const chiaro = new THREE.Color("#B9B2A6"), scuro = new THREE.Color("#8C857B"), muschio = new THREE.Color("#7F8259");
-  for (let i = 0; i < p.count; i++) {
-    let x = p.getX(i), y = p.getY(i), z = p.getZ(i);
-    const k = 1 + 0.06 * Math.sin(x * 4.1 + z * 2.3) + 0.04 * Math.sin(z * 6.3 - y * 3.1) + 0.025 * Math.sin(x * 11 + y * 9);
-    x *= 1.0 * k;
-    z *= 0.9 * k;
-    y = y * CIMA * 0.75 * k + CIMA * 0.4;
-    // la cima piatta, appena ondulata
-    if (y > CIMA) y = CIMA + 0.012 * Math.sin(x * 7) * Math.cos(z * 5);
-    p.setXYZ(i, x, y, z);
-    const m = 0.5 + 0.5 * Math.sin(x * 3.3 + Math.sin(z * 4.1) * 1.5 + y * 2);
-    c.copy(chiaro).lerp(scuro, m * 0.7).lerp(muschio, Math.max(0, -Math.sin(y * 3 + x)) * 0.25 * (y < CIMA * 0.6 ? 1 : 0));
-    col.set([c.r, c.g, c.b], i * 3);
-  }
-  g.computeVertexNormals();
-  g.setAttribute("color", new THREE.BufferAttribute(col, 3));
-  const m = t("#FFFFFF") as THREE.MeshMatcapMaterial;
-  const mat = m.clone();
-  mat.vertexColors = true;
-  return new THREE.Mesh(g, mat);
-}
-
-/** Dove sta ogni cosa sulla cima del masso, nelle coordinate del gruppo. */
-const SEDUTO = V(0.0, CIMA, 0.2);
-const GIRO_SEDUTO = Math.PI - 0.25; // guarda verso chi guarda, un poco girato verso la torre
-const TORRE = V(0.2, CIMA, -0.22);
-const MUCCHIO = [V(0.4, CIMA, 0.04), V(0.5, CIMA, 0.2), V(0.36, CIMA, 0.3), V(0.53, CIMA, 0.0), V(0.34, CIMA, 0.17), V(0.46, CIMA, -0.12)];
+/** La torre alla sua destra, un poco avanti (a destra anche per chi guarda: si vede accanto a lui); il mucchio dietro la torre, più vicino a chi guarda. */
+const TORRE = V(-0.4, 0, 0.2);
+const MUCCHIO = [V(-0.5, 0, -0.16), V(-0.64, 0, -0.04), V(-0.38, 0, -0.2), V(-0.62, 0, -0.22), V(-0.5, 0, -0.32), V(-0.72, 0, -0.14)];
 const POSA = 5;
 const INIZIO = 2;
 const FINE_TORRE = INIZIO + SASSI.length * POSA;
@@ -228,7 +190,9 @@ export class RagazzinoSassi {
   /** dove sta ogni sasso nella torre (il centro), già impilati */
   private inTorre: THREE.Vector3[] = [];
   private inclinati: number[] = [];
-  private masso: THREE.Mesh;
+  /** l'ologramma e la sua maschera di profondità: si vede solo la superficie davanti */
+  private mat: THREE.ShaderMaterial;
+  private maschera: THREE.ShaderMaterial;
 
   private tinta: Tinta = (c) => {
     let m = this.materiali.get(c);
@@ -241,18 +205,35 @@ export class RagazzinoSassi {
   };
 
   constructor() {
-    const a = RAGAZZINO_A;
-    this.gruppo.position.set(Math.sin(a) * RAGAZZINO_D, PAV, -Math.cos(a) * RAGAZZINO_D);
-    this.gruppo.rotation.y = Math.PI - a;
-    this.gruppo.scale.setScalar(SCALA);
-    this.masso = masso(this.tinta);
-    this.gruppo.add(this.masso);
-    this.bimbo = new Ragazzino(this.tinta);
-    this.bimbo.gruppo.position.copy(SEDUTO);
-    this.bimbo.gruppo.rotation.y = GIRO_SEDUTO;
+    this.mat = new THREE.ShaderMaterial({
+      vertexShader: VERT,
+      fragmentShader: FRAG,
+      uniforms: {
+        uT: { value: 0 }, uVis: { value: 0.95 }, uBase: { value: PELO_ACQUA }, uTaglio: { value: 2 },
+        uColore: { value: new THREE.Color(LUCE.giorno) }, uArco: { value: 1 },
+      },
+      transparent: true,
+      depthWrite: false,
+    });
+    this.maschera = new THREE.ShaderMaterial({
+      vertexShader: VERT,
+      fragmentShader: "void main(){ gl_FragColor = vec4(0.0); }",
+      colorWrite: false,
+      depthWrite: true,
+      transparent: true,
+    });
+    const pezzo: Pezzo = (g) => {
+      const m = new THREE.Mesh(g, this.mat);
+      m.renderOrder = 8;
+      const k = new THREE.Mesh(g, this.maschera);
+      k.renderOrder = 7;
+      m.add(k);
+      return m;
+    };
+    this.bimbo = new Ragazzino(pezzo);
     this.gruppo.add(this.bimbo.gruppo);
     // i sassi: la torre, dal più grande al più piccolo, un poco storta come sono le torri vere
-    let y = CIMA;
+    let y = 0;
     const r = generatore(5);
     SASSI.forEach(([l, h], i) => {
       const s = new THREE.Mesh(ciottolo(l, h, 11 + i * 7), this.tinta(TINTE_SASSI[i]));
@@ -272,19 +253,19 @@ export class RagazzinoSassi {
   }
 
   setNotte(notte: boolean) {
-    // di notte la luce dipinta del giorno si spegne: resta la sagoma, appena
-    this.materiali.forEach((m) => m.color.copy(m.userData.base as THREE.Color).multiplyScalar(notte ? 0.32 : 1));
-    (this.masso.material as THREE.MeshMatcapMaterial).color.setScalar(notte ? 0.32 : 1);
+    (this.mat.uniforms.uColore.value as THREE.Color).set(notte ? LUCE.notte : LUCE.giorno);
+    // i sassi: di notte la luce dipinta del giorno si abbassa
+    this.materiali.forEach((m) => m.color.copy(m.userData.base as THREE.Color).multiplyScalar(notte ? 0.42 : 1));
   }
 
   aggiorna(t: number) {
+    this.mat.uniforms.uT.value = t;
     this.posa(t % CICLO);
   }
 
-  /** Dal gruppo alle coordinate del ragazzino. */
+  /** Nelle coordinate della figura: il ragazzino sta nell'origine del gruppo. */
   private inBimbo(p: THREE.Vector3) {
-    const g = this.bimbo.gruppo;
-    return p.clone().sub(g.position).applyAxisAngle(SU, -g.rotation.y);
+    return p.clone();
   }
 
   private posa(e: number) {
@@ -302,7 +283,7 @@ export class RagazzinoSassi {
       return e < SMONTA + (n - 1 - i) * TOGLI + 0.5;
     };
     const tavola = (i: number) => this.inTorre[i];
-    const mucchio = (i: number) => V(MUCCHIO[i].x, CIMA + SASSI[i][1], MUCCHIO[i].z);
+    const mucchio = (i: number) => V(MUCCHIO[i].x, SASSI[i][1], MUCCHIO[i].z);
     // in costruzione
     if (e >= INIZIO && e < FINE_TORRE) {
       const i = Math.floor((e - INIZIO) / POSA);
@@ -379,6 +360,6 @@ export class RagazzinoSassi {
 
   libera() {
     this.materiali.forEach((m) => m.dispose());
-    liberaTutto(this.gruppo, [this.luce]);
+    liberaTutto(this.gruppo, [this.luce, this.mat, this.maschera]);
   }
 }

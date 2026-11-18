@@ -7,6 +7,7 @@ import { Scrivania } from "./scrivania";
 import { granaLegno } from "./polyhaven";
 import { CameraDiLivio } from "./cameraLivio";
 import { LivioRasta } from "./livioRasta";
+import { RagazzinoSassi } from "./ragazzino";
 
 /**
  * La zona dello sviluppatore, il centro del mondo: la scrivania e, intorno, tutto piccolo e in scala con lui:
@@ -799,6 +800,8 @@ export class Zona {
   private camera: CameraDiLivio;
   /** Livio coi rasta, leggerissimo, di spalle allo studietto: suona le macchine quando la musica è accesa */
   private musicista: LivioRasta;
+  /** Livio da ragazzino, a terra, di spalle, che impila i sassi */
+  private ragazzino = new RagazzinoSassi();
   private texture: THREE.Texture[] = [];
   private notte: boolean;
 
@@ -824,6 +827,11 @@ export class Zona {
     this.musicista.gruppo.position.set(0, 0, -0.5);
     this.studio.gruppo.add(this.musicista.gruppo);
     this.musicista.setNotte(notte);
+    // il ragazzino: a terra fra la cassettiera e il giradischi, davanti al pianoforte, di spalle a chi guarda
+    this.ragazzino.gruppo.position.set(1.98, 0, -0.42);
+    this.ragazzino.gruppo.rotation.y = 0.12;
+    this.gruppo.add(this.ragazzino.gruppo);
+    this.ragazzino.setNotte(notte);
     // solo libri e drum machine rispondono al puntatore
     this.gruppo.traverse((o) => {
       if (!o.userData.azione) o.raycast = () => undefined;
@@ -841,6 +849,7 @@ export class Zona {
     this.pannello.setNotte(notte);
     this.camera.setNotte(notte);
     this.musicista.setNotte(notte);
+    this.ragazzino.setNotte(notte);
   }
 
   /** Il titolo di un libro sopra il libro, al passaggio del puntatore. */
@@ -865,6 +874,7 @@ export class Zona {
     this.camera.aggiorna(dt, ridotto, t, camera);
     this.musicista.aggiorna(t, dt, ridotto, mondo.battito);
     if (ridotto) return;
+    this.ragazzino.aggiorna(t);
     this.scrivania.aggiorna(t, dt);
     this.schiacciasogni.aggiorna(t, this.notte);
     void camera;
@@ -872,6 +882,7 @@ export class Zona {
 
   libera() {
     this.musicista.libera();
+    this.ragazzino.libera();
     this.scrivania.libera();
     this.camera.libera();
     liberaTutto(this.gruppo, this.texture);
