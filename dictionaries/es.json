@@ -81,7 +81,7 @@
         "Pipeline en Python sobre 18.058 contratos de 2015 a 2025, de tres conjuntos de datos de ANAC unidos por el código CIG.",
         "Filtro por códigos CPV y texto para aislar la acogida, corregido con la indicación de una trabajadora del sector.",
         "Parser con pdfplumber para unos 90 informes ministeriales sobre menores extranjeros no acompañados.",
-        "Una tesis inicial desmentida por los datos: el salto de las adjudicaciones directas era un efecto del registro, y el sitio muestra ambas series.",
+        "Una tesis mía desmentida por los datos: en 2024 las adjudicaciones directas parecían dispararse, pero desde ese año ANAC registra también los contratos de menos de 40.000 euros, casi todos directos. El sitio muestra las dos series, con y sin esos contratos.",
         "Sitio estático Next.js de 116 páginas, LCP de 11 a 1 segundo; actualización mensual guiada por GitHub Actions."
       ],
       "strumenti": "Python · pdfplumber · Next.js 16 · React 19 · TypeScript · GitHub Actions · Vercel"

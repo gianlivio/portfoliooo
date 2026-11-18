@@ -81,7 +81,7 @@
         "Python pipeline over 18,058 contracts from 2015 to 2025, from three ANAC datasets joined on the CIG code.",
         "CPV-code and text filter to isolate reception services, refined after feedback from a social worker.",
         "pdfplumber parser for about 90 ministry reports on unaccompanied foreign minors.",
-        "An initial thesis disproved by the data: the jump in direct awards was a recording artifact, and the site shows both series.",
+        "A thesis of mine disproved by the data: in 2024 direct awards seemed to soar, but from that year ANAC also records contracts under €40,000, almost all of them direct. The site shows both series, with and without those contracts.",
         "Static Next.js site with 116 pages, LCP from 11 to 1 second; monthly update driven by GitHub Actions."
       ],
       "strumenti": "Python · pdfplumber · Next.js 16 · React 19 · TypeScript · GitHub Actions · Vercel"

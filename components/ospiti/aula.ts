@@ -22,6 +22,8 @@ const PAV = PELO_ACQUA;
 /** Dove sta: in passi (components/zona.ts) e la distanza dal centro. Il varco va da circa 9,82 a 10,4. */
 export const AULA_A = ANGOLO_ZONA + (10.11 - 12) * PASSO;
 export const AULA_D = 7.3;
+/** Tutto più piccolo del vero, di poco più di un terzo: sopra l'aula deve restare Bologna. */
+const SCALA = 0.62;
 const CICLO = 38;
 
 /* ------------------------------------------------------------------ i colori */
@@ -639,6 +641,7 @@ export class AulaEco {
     const a = AULA_A;
     this.gruppo.position.set(Math.sin(a) * AULA_D, PAV, -Math.cos(a) * AULA_D);
     this.gruppo.rotation.y = Math.PI - a;
+    this.gruppo.scale.setScalar(SCALA);
     this.gruppo.add(this.giorno, this.notte);
     this.texture.push(this.luce);
 
@@ -792,7 +795,7 @@ export class AulaEco {
     });
     const gp = new THREE.BufferGeometry();
     gp.setAttribute("position", new THREE.Float32BufferAttribute(punti, 3));
-    this.lucine = new THREE.PointsMaterial({ color: "#FFD27A", size: 0.06, transparent: true, opacity: 0.9, blending: THREE.AdditiveBlending, depthWrite: false, fog: false });
+    this.lucine = new THREE.PointsMaterial({ color: "#FFD27A", size: 0.04, transparent: true, opacity: 0.9, blending: THREE.AdditiveBlending, depthWrite: false, fog: false });
     N.add(new THREE.Points(gp, this.lucine));
 
     this.gruppo.traverse((o) => {
