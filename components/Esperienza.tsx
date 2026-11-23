@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Dizionario, Lingua } from "@/dictionaries";
 import { lingue } from "@/dictionaries";
-import { lavori, ID_CONTATTO, ID_ULIVETO } from "@/content/lavori";
+import { lavori, testiDi, ID_CONTATTO, ID_ULIVETO } from "@/content/lavori";
 import { ANGOLO_ULIVETO, ANGOLO_ZONA, PASSO, RAGGIO_ULIVETO, RAGGIO_ZONA } from "./zona";
 import { precaricaUliveto } from "./precaricaUliveto";
 import { frammenti } from "@/content/frammenti";
@@ -176,7 +176,7 @@ export default function Esperienza({
   const carte = useMemo<Carta[]>(() => {
     const totale = lavori.length;
     const elenco: Carta[] = lavori.map((l, i) => {
-      const t = d.lavori[l.id as keyof typeof d.lavori];
+      const t = testiDi(d.lavori, l);
       return {
         id: l.id,
         posto: {
@@ -195,7 +195,7 @@ export default function Esperienza({
           titolo: t.titolo,
           dominio: l.link
             ? `↗ ${l.link.etichetta}`
-            : `— ${d.vignetta.senzaLink}`,
+            : `— ${l.riservato ? d.vignetta.riservato : d.vignetta.senzaLink}`,
           anno: l.anno,
           tinta: l.tinta,
           motivo: l.motivo,
@@ -392,7 +392,7 @@ export default function Esperienza({
   }
 
   const lavoro = indice >= 0 ? lavori[indice] : null;
-  const testi = lavoro ? d.lavori[lavoro.id as keyof typeof d.lavori] : null;
+  const testi = lavoro ? testiDi(d.lavori, lavoro) : null;
   const cartaFocale = focale !== null ? carte[focale] : null;
 
   return (
@@ -592,7 +592,9 @@ export default function Esperienza({
                   {d.vignetta.cantiere}
                 </span>
               ) : (
-                <span className="senza-link">{d.vignetta.senzaLink}</span>
+                <span className="senza-link">
+                  {lavoro.riservato ? d.vignetta.riservato : d.vignetta.senzaLink}
+                </span>
               )}
               <span className="frecce">
                 <button

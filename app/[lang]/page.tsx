@@ -1,6 +1,6 @@
 import { getDizionario, type Lingua } from "@/dictionaries";
 import { recapiti, curriculum } from "@/content/collegamenti";
-import { lavori } from "@/content/lavori";
+import { lavori, testiDi } from "@/content/lavori";
 import { urlSito } from "@/content/sito";
 import { competenze } from "@/content/competenze";
 import Esperienza from "@/components/Esperienza";
@@ -83,7 +83,7 @@ export default async function Pagina({
               {lavori
                 .filter((l) => l.sezione === sezione)
                 .map((l) => {
-                  const t = d.lavori[l.id as keyof typeof d.lavori];
+                  const t = testiDi(d.lavori, l);
                   return (
                     <li key={l.id}>
                       <h3>{t.titolo}</h3>

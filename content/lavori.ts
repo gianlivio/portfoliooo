@@ -20,7 +20,7 @@ export type Supporto = "sedia" | "arnia" | "gommone";
  * Dove sta il lavoro nella scena.
  * piano: 1 vicino e grande, 2 a metà, 3 lontano e piccolo (dove sta il Liotru).
  * passo: la direzione, in passi da 0 a 14 (components/zona.ts): la zona dello sviluppatore è a 12 (occupa da 11,4 a 12,6),
- * il cancello dell'uliveto a 5 (da 4,65 a 5,35), il Liotru a 1,5 (lì davanti, un po' più vicino degli altri lavori
+ * il cancello dell'uliveto a 5 (da 4,65 a 5,35), e a destra il podere dell'ulivo, da lasciare scoperto, il Liotru a 1,5 (lì davanti, un po' più vicino degli altri lavori
  * di editoria, il blog di Punto Luce).
  * Un pannello occupa 0,3 passi per parte se vicino, 0,2 a metà, 0,15 se lontano: due lavori non devono sovrapporsi,
  * e accanto alla zona va lasciato libero chi suona i sintetizzatori; fra Sanires e l'Osservatorio (da 9,82 a 10,4)
@@ -37,9 +37,31 @@ export type Lavoro = {
   motivo: Motivo;
   tinta: string;
   link: { href: string; etichetta: string } | null;
+  /**
+   * Il cliente non ha ancora dato il permesso di pubblicare il nome: online va la versione senza nome
+   * (dizionari, lavori.<id>.anonimo), senza link e senza schermata. Col permesso si toglie e basta.
+   */
+  riservato?: boolean;
 };
 
-export const lavori: Lavoro[] = [
+/** I testi di un lavoro nei dizionari; anonimo sostituisce i campi che dicono chi è il cliente. */
+export type TestiLavoro = {
+  tipo: string;
+  titolo: string;
+  riga: string;
+  ruolo: string;
+  compiti: string[];
+  strumenti: string;
+  anonimo?: Partial<Omit<TestiLavoro, "anonimo">>;
+};
+
+/** I testi da mostrare: per un lavoro riservato, la versione senza nome. */
+export function testiDi(tutti: unknown, l: Lavoro): TestiLavoro {
+  const t = (tutti as Record<string, TestiLavoro>)[l.id];
+  return l.riservato && t.anonimo ? { ...t, ...t.anonimo } : t;
+}
+
+const elenco: Lavoro[] = [
   {
     id: "shop",
     sezione: "sviluppo",
@@ -57,6 +79,16 @@ export const lavori: Lavoro[] = [
     motivo: "negozio",
     tinta: "#CDCBD6",
     link: { href: "https://www.bellelliufficio.it", etichetta: "bellelliufficio.it" },
+  },
+  {
+    id: "8fly",
+    sezione: "sviluppo",
+    posto: { piano: 1, passo: 4.33 },
+    anno: "2026 →",
+    motivo: "negozio",
+    tinta: "#C7D2DA",
+    link: { href: "https://www.8fly.it", etichetta: "8fly.it" },
+    riservato: true,
   },
   {
     id: "sanires",
@@ -176,6 +208,9 @@ export const lavori: Lavoro[] = [
     link: { href: "https://hetaweb.it", etichetta: "hetaweb.it" },
   },
 ];
+
+/** I lavori come vanno online: a quelli riservati si toglie il link (il nome del sito è il nome del cliente). */
+export const lavori: Lavoro[] = elenco.map((l) => (l.riservato ? { ...l, link: null } : l));
 
 /** Identificativo della carta che apre il modulo di contatto, ultima sull'anello. */
 export const ID_CONTATTO = "contatto";

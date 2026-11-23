@@ -45,6 +45,24 @@
       ],
       "strumenti": "Open2B/Scriggo · HTML/CSS · JavaScript · JSON-LD · Google Merchant Center · Google Ads"
     },
+    "8fly": {
+      "tipo": "E-commerce · Open2B",
+      "titolo": "8FLY",
+      "riga": "Negozio di aeromodellismo di Corciano, distributore esclusivo T-ONE Models e in Italia delle turbine KingTech: circa 1.300 prodotti in oltre 200 reparti, su un Open2B del 2018. Prima i dati, poi la vetrina, poi la grafica: il template si tocca per ultimo.",
+      "ruolo": "Sviluppatore Open2B, SEO e GEO · freelance",
+      "compiti": [
+        "Prodotti disponibili in vista: 660 schede spostate con un'importazione Excel (prima un prodotto, poi il file intero, poi il controllo a campione) e 129 reparti passati dall'ordine alfabetico a quello per posizione. In cima i prodotti di punta, poi quelli spedibili subito.",
+        "SEO e GEO: titoli, descrizioni e testi di Home e 16 reparti, in italiano e inglese, scritti sui dati (suggerimenti di Google, Trends, concorrenti, marche del reparto) e dentro i 60 e 160 caratteri.",
+        "Dati strutturati JSON-LD: Product nella scheda prodotto, OnlineStore nella Home; test dei risultati avanzati di Google superato, controlli su sitemap, canonical, hreflang e robots.txt.",
+        "Rinnovo grafico, in corso: prima di toccare il template, l'anteprima del nuovo design sulle pagine vere, nel browser, e tavole prima/dopo da computer e da telefono. Il cliente ha scelto la proposta che cambiava la struttura; quella solo cosmetica è rimasta sulla carta.",
+        "Testata con ricerca grande e menu «Tutti i reparti» a più colonne, pagine a tutta larghezza, categorie a griglia 4/3/2 colonne, scheda prodotto con disponibilità letta dal magazzino e carrello fisso da telefono. Dopo la pubblicazione, collaudo su computer, tablet e telefono, checkout compreso, senza ordini veri."
+      ],
+      "strumenti": "Open2B (template 2018) · HTML · CSS · JavaScript · JSON-LD · importazione Excel · Google Search: suggerimenti, Trends, test dei risultati avanzati",
+      "anonimo": {
+        "titolo": "Negozio di aeromodellismo",
+        "riga": "Negozio online di aeromodellismo su Open2B, versione 2018: aerei radiocomandati elettrici, a scoppio e a turbina, circa 1.300 prodotti in oltre 200 reparti. Prima i dati, poi la vetrina, poi la grafica: il template si tocca per ultimo."
+      }
+    },
     "sanires": {
       "tipo": "E-commerce · Open2B",
       "titolo": "Sanires",
@@ -228,6 +246,7 @@
   "vignetta": {
     "visita": "Visita il sito",
     "senzaLink": "Non ancora pubblico",
+    "riservato": "Il nome arriva quando il cliente dice sì",
     "chiudi": "Chiudi",
     "precedente": "Lavoro precedente",
     "successivo": "Lavoro successivo",

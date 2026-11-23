@@ -45,6 +45,24 @@
       ],
       "strumenti": "Open2B/Scriggo · HTML/CSS · JavaScript · JSON-LD · Google Merchant Center · Google Ads"
     },
+    "8fly": {
+      "tipo": "E-commerce · Open2B",
+      "titolo": "8FLY",
+      "riga": "Tienda de aeromodelismo de Corciano, distribuidor exclusivo de T-ONE Models y en Italia de las turbinas KingTech: unos 1.300 productos en más de 200 secciones, en un Open2B de 2018. Primero los datos, luego el escaparate, luego el diseño: la plantilla se toca la última.",
+      "ruolo": "Desarrollador Open2B, SEO y GEO · freelance",
+      "compiti": [
+        "Productos disponibles a la vista: 660 fichas movidas con una importación de Excel (primero un producto, luego el archivo completo, luego un control por muestreo) y 129 secciones pasadas del orden alfabético al orden por posición. Arriba los productos estrella, luego los que se envían enseguida.",
+        "SEO y GEO: títulos, descripciones y textos de la home y de 16 secciones, en italiano e inglés, escritos a partir de datos (sugerencias de Google, Trends, competencia, marcas de la sección) y dentro de los 60 y 160 caracteres.",
+        "Datos estructurados JSON-LD: Product en la ficha de producto, OnlineStore en la home; prueba de resultados enriquecidos de Google superada; controles de sitemap, canonical, hreflang y robots.txt.",
+        "Rediseño, en curso: antes de tocar la plantilla, una vista previa del nuevo diseño sobre las páginas reales, en el navegador, y láminas antes/después de ordenador y de móvil. El cliente eligió la propuesta que cambiaba la estructura; la solo cosmética se quedó en el papel.",
+        "Cabecera con buscador grande y menú «Todas las secciones» en varias columnas, páginas a ancho completo, categorías en cuadrícula de 4/3/2 columnas, ficha de producto con disponibilidad leída del almacén y barra del carrito fija en el móvil. Tras la publicación, pruebas en ordenador, tableta y móvil, checkout incluido, sin pedidos reales."
+      ],
+      "strumenti": "Open2B (plantilla 2018) · HTML · CSS · JavaScript · JSON-LD · importación de Excel · Google Search: sugerencias, Trends, prueba de resultados enriquecidos",
+      "anonimo": {
+        "titolo": "Tienda de aeromodelismo",
+        "riga": "Tienda online de aeromodelismo en Open2B, versión 2018: aviones radiocontrolados eléctricos, de explosión y de turbina, unos 1.300 productos en más de 200 secciones. Primero los datos, luego el escaparate, luego el diseño: la plantilla se toca la última."
+      }
+    },
     "sanires": {
       "tipo": "E-commerce · Open2B",
       "titolo": "Sanires",
@@ -228,6 +246,7 @@
   "vignetta": {
     "visita": "Visitar el sitio",
     "senzaLink": "Aún no es público",
+    "riservato": "El nombre llega cuando el cliente diga que sí",
     "chiudi": "Cerrar",
     "precedente": "Proyecto anterior",
     "successivo": "Proyecto siguiente",

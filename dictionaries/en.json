@@ -45,6 +45,24 @@
       ],
       "strumenti": "Open2B/Scriggo · HTML/CSS · JavaScript · JSON-LD · Google Merchant Center · Google Ads"
     },
+    "8fly": {
+      "tipo": "E-commerce · Open2B",
+      "titolo": "8FLY",
+      "riga": "Radio-controlled model aircraft shop in Corciano, exclusive distributor of T-ONE Models and Italian distributor of KingTech turbines: about 1,300 products in over 200 departments, on a 2018 Open2B. Data first, then the shop window, then the design: the template gets touched last.",
+      "ruolo": "Open2B developer, SEO and GEO · freelance",
+      "compiti": [
+        "Products in stock up front: 660 product pages moved with an Excel import (one product first, then the full file, then spot checks) and 129 departments switched from alphabetical order to position order. Flagship products first, then those ready to ship.",
+        "SEO and GEO: titles, descriptions and on-page copy for the home page and 16 departments, in Italian and English, written on data (Google suggestions, Trends, competitors, brands in the department) and within 60 and 160 characters.",
+        "JSON-LD structured data: Product on the product page, OnlineStore on the home page; Google Rich Results Test passed; checks on sitemap, canonical, hreflang and robots.txt.",
+        "Redesign, in progress: before touching the template, a preview of the new design on the real pages, in the browser, and before/after boards for desktop and phone. The client chose the proposal that changed the structure; the merely cosmetic one stayed on paper.",
+        "Header with a large search bar and a multi-column “All departments” menu, full-width pages, category grids of 4/3/2 columns, product page with availability read from stock and a sticky cart bar on phones. After publishing, testing on desktop, tablet and phone, checkout included, with no real orders."
+      ],
+      "strumenti": "Open2B (2018 template) · HTML · CSS · JavaScript · JSON-LD · Excel import · Google Search: suggestions, Trends, Rich Results Test",
+      "anonimo": {
+        "titolo": "Model aircraft shop",
+        "riga": "Online model aircraft shop on Open2B, 2018 version: electric, glow and turbine radio-controlled aircraft, about 1,300 products in over 200 departments. Data first, then the shop window, then the design: the template gets touched last."
+      }
+    },
     "sanires": {
       "tipo": "E-commerce · Open2B",
       "titolo": "Sanires",
@@ -228,6 +246,7 @@
   "vignetta": {
     "visita": "Visit the site",
     "senzaLink": "Not public yet",
+    "riservato": "The name comes when the client says yes",
     "chiudi": "Close",
     "precedente": "Previous project",
     "successivo": "Next project",

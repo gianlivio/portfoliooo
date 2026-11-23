@@ -19,6 +19,11 @@ schede collegate, catalogo intatto
 JSON-LD · mobile
 Merchant Center: 392 prodotti × 3 lingue`,
 
+  "8fly": `660 disponibili → in cima
+Home + 16 reparti · IT/EN · 60/160
+JSON-LD: Product · OnlineStore
+anteprima → tavole → template`,
+
   sanires: `titoli · metadati · JSON-LD
 testi per Google
 velocità · accessibilità
@@ -94,6 +99,11 @@ linked pages, catalogue untouched
 JSON-LD · mobile
 Merchant Center: 392 products × 3 languages`,
 
+  "8fly": `660 in stock → first
+home + 16 departments · IT/EN · 60/160
+JSON-LD: Product · OnlineStore
+preview → boards → template`,
+
   sanires: `titles · metadata · JSON-LD
 texts for Google
 speed · accessibility
@@ -168,6 +178,11 @@ feed = productos.filter(p => p.stock > 0).map(paraKelkoo)`,
 fichas enlazadas, catálogo intacto
 JSON-LD · móvil
 Merchant Center: 392 productos × 3 idiomas`,
+
+  "8fly": `660 disponibles → arriba
+home + 16 secciones · IT/EN · 60/160
+JSON-LD: Product · OnlineStore
+vista previa → láminas → plantilla`,
 
   sanires: `títulos · metadatos · JSON-LD
 textos para Google
