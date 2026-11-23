@@ -88,7 +88,6 @@ const elenco: Lavoro[] = [
     motivo: "negozio",
     tinta: "#C7D2DA",
     link: { href: "https://www.8fly.it", etichetta: "8fly.it" },
-    riservato: true,
   },
   {
     id: "sanires",
