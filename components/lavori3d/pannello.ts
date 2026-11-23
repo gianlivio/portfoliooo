@@ -173,8 +173,16 @@ export function materialeSchermo(pagina: THREE.Texture) {
  * torna in cima. velocita in altezze di pagina al secondo; fase per sfasare i pannelli fra loro.
  * Torna il rettangolo da mostrare.
  */
-export function giroPagina(t: number, rapportoPagina: number, velocita: number, out: THREE.Vector4) {
+export function giroPagina(t: number, rapportoPagina: number, velocita: number, out: THREE.Vector4, fermo = false) {
   const aS = SCHERMO.largo / SCHERMO.alto; // larghezza / altezza dello schermo
+  if (rapportoPagina > aS) {
+    // ferma (riduci movimento), la pagina larga si mostra intera: una striscia ne taglierebbe le scritte
+    if (fermo) {
+      const dv = (1.04 * rapportoPagina) / aS;
+      return out.set(-0.02, 0.5 - dv / 2, 1.04, dv);
+    }
+    return giroLargo(t, rapportoPagina, velocita, aS, out);
+  }
   const q = Math.min(1, rapportoPagina / aS); // quanta altezza di pagina entra a piena larghezza
   const corsa = 1 - q;
   const FERMA = 1.2, ZOOM = 1.1, INTERA = 1.8;
@@ -205,5 +213,43 @@ export function giroPagina(t: number, rapportoPagina: number, velocita: number, 
   const du = (dv * aS) / rapportoPagina;
   // la texture ha v = 1 in cima alla pagina
   out.set(0.5 - du / 2, 1 - cy - dv / 2, du, dv);
+  return out;
+}
+
+/**
+ * Le pagine più larghe che alte (le app a schermo fisso, come Beauty Broker World): a piena altezza ne entra solo
+ * una striscia, e al centro si taglierebbero le scritte ai lati. Allora scorrono da sinistra a destra, poi si
+ * allontanano per mostrarsi intere, e tornano a sinistra.
+ */
+function giroLargo(t: number, rapportoPagina: number, velocita: number, aS: number, out: THREE.Vector4) {
+  const w = aS / rapportoPagina; // quanta larghezza di pagina entra a piena altezza
+  const corsa = 1 - w;
+  const FERMA = 1.2, ZOOM = 1.1, INTERA = 2.2;
+  const scorre = corsa / (velocita * 0.6);
+  const durata = FERMA + scorre + 0.4 + ZOOM + INTERA + ZOOM;
+  let k = t % durata;
+  const liscio = (v: number) => v * v * (3 - 2 * v);
+  // du: quanta larghezza si vede; cx: il centro, da sinistra
+  let du = w, cx = w / 2;
+  if (k < FERMA) {
+    cx = w / 2;
+  } else if ((k -= FERMA) < scorre) {
+    cx = w / 2 + corsa * liscio(k / scorre);
+  } else if ((k -= scorre) < 0.4) {
+    cx = 1 - w / 2;
+  } else if ((k -= 0.4) < ZOOM) {
+    const f = liscio(k / ZOOM);
+    du = THREE.MathUtils.lerp(w, 1.04, f);
+    cx = THREE.MathUtils.lerp(1 - w / 2, 0.5, f);
+  } else if ((k -= ZOOM) < INTERA) {
+    du = 1.04;
+    cx = 0.5;
+  } else {
+    const f = liscio(Math.min(1, (k - INTERA) / ZOOM));
+    du = THREE.MathUtils.lerp(1.04, w, f);
+    cx = THREE.MathUtils.lerp(0.5, w / 2, f);
+  }
+  const dv = (du * rapportoPagina) / aS;
+  out.set(cx - du / 2, 0.5 - dv / 2, du, dv);
   return out;
 }

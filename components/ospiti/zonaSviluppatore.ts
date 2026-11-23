@@ -828,7 +828,7 @@ export class Zona {
     this.studio.gruppo.add(this.musicista.gruppo);
     this.musicista.setNotte(notte);
     // il ragazzino: a terra fra la cassettiera e il giradischi, davanti al pianoforte, di spalle a chi guarda
-    this.ragazzino.gruppo.position.set(1.98, 0, -0.42);
+    this.ragazzino.gruppo.position.set(1.92, 0, -0.18);
     this.ragazzino.gruppo.rotation.y = 0.12;
     this.gruppo.add(this.ragazzino.gruppo);
     this.ragazzino.setNotte(notte);

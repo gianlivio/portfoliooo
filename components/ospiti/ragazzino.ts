@@ -5,7 +5,7 @@ import { FRAG, VERT } from "./livioRasta";
 
 /**
  * Livio da ragazzino, nello stanzino dello sviluppatore: a terra fra la cassettiera e il giradischi, seduto a
- * gambe incrociate, di spalle a chi guarda, i rasta legati in alto come un ananas. Fatto di luce a colori
+ * gambe incrociate, di spalle a chi guarda, i rasta raccolti in alto a spirale, come una conchiglia. Fatto di luce a colori
  * d'arcobaleno come il musicista; i sassi invece sono veri. Concentrato, con calma, prende i sassi dal mucchio
  * alla sua destra e li mette uno sopra l'altro davanti a sé: una torre in equilibrio, che oscilla appena quando
  * ci posa un sasso. Finita la torre la guarda un poco, poi la smonta, un sasso alla volta, e ricomincia.
@@ -46,6 +46,28 @@ function ciottolo(l: number, h: number, seme: number) {
     const x = p.getX(i), y = p.getY(i), z = p.getZ(i);
     const k = 1 + 0.08 * Math.sin(x * 3 + a[0]) * Math.cos(z * 2.6 + a[1]) + 0.05 * Math.sin(y * 4 + a[2]);
     p.setXYZ(i, x * l * k, y * h * k, z * l * 0.86 * k);
+  }
+  g.computeVertexNormals();
+  return g;
+}
+
+/** Un tubo che segue i punti, col raggio che cambia lungo il percorso (f da 0 a 1): le ciocche, la spirale. */
+function tubo(punti: THREE.Vector3[], raggio: (f: number) => number, radiali = 8) {
+  const curva = new THREE.CatmullRomCurve3(punti);
+  const segmenti = Math.max(8, punti.length * 2);
+  const g = new THREE.TubeGeometry(curva, segmenti, 1, radiali, false);
+  // la TubeGeometry ha raggio fisso: ogni anello si stringe o si allarga attorno al suo centro
+  const p = g.attributes.position as THREE.BufferAttribute;
+  const c = new THREE.Vector3(), v = new THREE.Vector3();
+  for (let i = 0; i <= segmenti; i++) {
+    const f = i / segmenti;
+    curva.getPointAt(f, c);
+    const r = raggio(f);
+    for (let j = 0; j <= radiali; j++) {
+      const k = i * (radiali + 1) + j;
+      v.fromBufferAttribute(p, k).sub(c).multiplyScalar(r).add(c);
+      p.setXYZ(k, v.x, v.y, v.z);
+    }
   }
   g.computeVertexNormals();
   return g;
@@ -107,7 +129,7 @@ class Ragazzino {
     mesh(new THREE.CylinderGeometry(0.038, 0.042, 0.08, 10).translate(0, 0.52, 0), COL.pelle, this.busto);
     this.busto.rotation.x = 0.16;
     G.add(this.busto);
-    // la testa, chinata sui sassi; i rasta raccolti in alto, legati con l'elastico, che si aprono come un ananas
+    // la testa, chinata sui sassi; i rasta raccolti in alto a spirale
     const h = this.testa;
     h.position.set(0, 0.55, 0.0);
     mesh(new THREE.SphereGeometry(1, 20, 16).scale(0.082, 0.096, 0.088).translate(0, 0.09, 0), COL.pelle, h);
@@ -117,18 +139,50 @@ class Ragazzino {
       mesh(new THREE.BoxGeometry(0.03, 0.007, 0.01).rotateZ(s * -0.15).translate(s * 0.031, 0.122, 0.082), COL.rasta, h);
     }
     mesh(new THREE.SphereGeometry(1, 8, 8).scale(0.014, 0.02, 0.018).translate(0, 0.08, 0.088), COL.pelle, h);
-    // i capelli tirati su: una calotta, poi il ciuffo legato in cima
-    mesh(new THREE.SphereGeometry(1, 20, 12, 0, Math.PI * 2, 0, Math.PI * 0.46).rotateX(-0.4).scale(0.088, 0.104, 0.094).translate(0, 0.095, -0.006), COL.rasta, h);
-    mesh(new THREE.CylinderGeometry(0.03, 0.036, 0.04, 12).translate(0, 0.205, -0.01), COL.elastico, h);
-    const r = generatore(77);
-    for (let i = 0; i < 13; i++) {
-      const ang = (i / 13) * Math.PI * 2 + r() * 0.3;
-      const apri = 0.25 + r() * 0.65;
-      const l = 0.13 + r() * 0.1;
-      const d = new THREE.CapsuleGeometry(0.014, l, 3, 6).translate(0, l / 2, 0).rotateZ(apri);
-      d.rotateY(ang).translate(0, 0.215, -0.01);
-      mesh(d, COL.rasta, h);
+    // i rasta raccolti in alto: la calotta, le ciocche che salgono dall'attaccatura verso la cima girando un poco,
+    // e in cima il raccolto avvolto a spirale che sale e si stringe, come una conchiglia
+    mesh(new THREE.SphereGeometry(1, 20, 12, 0, Math.PI * 2, 0, Math.PI * 0.5).rotateX(-0.35).scale(0.09, 0.106, 0.096).translate(0, 0.095, -0.006), COL.rasta, h);
+    const CIMA = V(0, 0.2, -0.02);
+    for (let i = 0; i < 14; i++) {
+      const az = (i / 14) * Math.PI * 2;
+      // l'attaccatura: alta sulla fronte, sopra le orecchie ai lati, bassa sulla nuca
+      const dietro = (1 - Math.cos(az)) / 2;
+      const polare = 0.5 + 0.55 * dietro;
+      const punti: THREE.Vector3[] = [];
+      for (let k = 0; k <= 8; k++) {
+        const f = k / 8;
+        const p = polare * (1 - f) + 0.12 * f;
+        const a = az + f * 0.9; // salendo girano, come se fossero già attorcigliate verso la spirale
+        const r = 1.06 + 0.04 * Math.sin(f * Math.PI);
+        punti.push(V(Math.sin(a) * Math.sin(p) * 0.09 * r, 0.095 + Math.cos(p) * 0.106 * r, -0.006 + Math.cos(a) * Math.sin(p) * 0.096 * r));
+      }
+      punti.push(CIMA.clone());
+      mesh(tubo(punti, (f) => 0.013 * (1 - 0.3 * f)), COL.rasta, h);
     }
+    // la conchiglia: un cono alto, inclinato appena all'indietro, con la ciocca avvolta attorno che sale e si stringe
+    const ALTO = 0.21, BASE = 0.072;
+    const sulCono = (f: number, a: number, fuori: number) => {
+      const r = BASE * Math.pow(1 - f, 0.85) + fuori * (1 - 0.6 * f);
+      return V(Math.sin(a) * r, 0.2 + f * ALTO, -0.02 + Math.cos(a) * r - f * 0.045);
+    };
+    const asse: THREE.Vector2[] = [];
+    for (let k = 0; k <= 12; k++) asse.push(new THREE.Vector2(BASE * Math.pow(1 - k / 12, 0.85) * 0.92, k / 12));
+    const cono = new THREE.LatheGeometry(asse, 16);
+    // il cono del tornio: si piega all'indietro come la spirale
+    const pos = cono.attributes.position;
+    for (let i = 0; i < pos.count; i++) {
+      const f = pos.getY(i);
+      pos.setXYZ(i, pos.getX(i), 0.2 + f * ALTO, pos.getZ(i) - 0.02 - f * 0.045);
+    }
+    cono.computeVertexNormals();
+    mesh(cono, COL.rasta, h);
+    const giro: THREE.Vector3[] = [];
+    const GIRI = 3.1, N = 120;
+    for (let k = 0; k <= N; k++) {
+      const f = (k / N) * 0.96;
+      giro.push(sulCono(f, f * GIRI * Math.PI * 2, 0.016));
+    }
+    mesh(tubo(giro, (f) => 0.027 * (1 - f) + 0.007 * f), COL.rasta, h);
     this.busto.add(h);
     // le braccia: maniche corte, poi la pelle; le mani
     for (const s of ["s", "d"]) {
@@ -209,7 +263,7 @@ export class RagazzinoSassi {
       vertexShader: VERT,
       fragmentShader: FRAG,
       uniforms: {
-        uT: { value: 0 }, uVis: { value: 0.95 }, uBase: { value: PELO_ACQUA }, uTaglio: { value: 2 },
+        uT: { value: 0 }, uVis: { value: 0.95 }, uBase: { value: PELO_ACQUA }, uTaglio: { value: 99 },
         uColore: { value: new THREE.Color(LUCE.giorno) }, uArco: { value: 1 },
       },
       transparent: true,

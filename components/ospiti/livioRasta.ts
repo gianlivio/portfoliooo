@@ -13,9 +13,11 @@ import { loft } from "./comuni";
  * I rasta coprono tutta la testa, dall'attaccatura sulla fronte alla nuca: ciocche vere, catene di punti che
  * partono dal cranio pettinate all'indietro, pendono fino alle gambe, inseguono la testa e i colpi e
  * scivolano su cranio, spalle, schiena e gambe senza attraversarli.
- * C'è sempre: si stampa dal basso in alto all'arrivo, poi si allena; ogni tanto si stacca dal manichino e fa
- * boxe come Tyson (guardia peek-a-boo, pendolo e schivate, ganci e montanti spinti dalle gambe) o colpi
- * nell'aria, poi torna al legno.
+ * C'è sempre: si stampa dal basso in alto all'arrivo, poi si allena; finita una sequenza al legno si stacca dal
+ * manichino, si gira di tre quarti verso chi guarda e fa, a turno, una ripresa di boxe (guardia peek-a-boo,
+ * diretti, ganci, montanti, pendolo e schivate, ogni colpo spinto dalle gambe) o di capoeira (la ginga, la meia
+ * lua de frente, l'armada, la meia lua de compasso con le mani a terra, l'au, la negativa: fluida, come Eddy
+ * Gordo); poi torna al legno. Il giro: legno, boxe, legno, capoeira, legno, boxe...
  * Di notte è azzurro, di giorno ambra (l'azzurro sul marmo chiaro sparisce).
  * La stessa figura fa anche il musicista (modo "studio"): di spalle allo studietto, a colori d'arcobaleno che
  * salgono lungo il corpo, compare quando si accende la musica e suona le macchine a tempo (i pad, le manopole,
@@ -26,6 +28,11 @@ import { loft } from "./comuni";
  */
 
 export const DISTANZA = 0.72;
+/**
+ * Da solo, quanto si gira rispetto al manichino: di tre quarti verso chi guarda. Il manichino è girato di 0,9
+ * nella stanza (cameraLivio.ts), e chi guarda sta, visto da lui, a circa 2,6 radianti.
+ */
+const FRONTE = 2.1;
 /**
  * Le misure del Mook Jong (in cameraLivio.ts): raggio del tronco, dove comincia e finisce, la quota dei due
  * bracci alti, del braccio di mezzo, della gamba. Il tronco è sospeso: non tocca terra.
@@ -110,8 +117,13 @@ type Posa = {
   av?: number;
   /** dove sta attorno al manichino: angolo (radianti) */
   giro?: number;
-  /** spostamento di lato del corpo (le schivate della boxe) */
+  /** spostamento di lato del corpo (le schivate della boxe, i passi della capoeira) */
   lato?: number;
+  /** il busto che rotola attorno all'asse avanti-dietro (la ruota dell'au), e che si piega in avanti fino a terra */
+  rol?: number;
+  bec?: number;
+  /** il corpo intero che gira su se stesso (l'armada, la meia lua de compasso) */
+  gira?: number;
   /** arrivo secco: un colpo (il lampo nasce sul bersaglio della mano o del piede indicato) */
   colpo?: "s" | "d" | "ps" | "pd";
 };
@@ -234,61 +246,63 @@ const TECNICHE: Tecnica[] = [
 ];
 
 /*
- * La boxe, lontano dal manichino, come Tyson: guardia peek-a-boo (i pugni alle guance, i gomiti stretti), le
- * ginocchia piegate, il busto avanti, la testa che non sta mai ferma. Ogni colpo parte dalle gambe: si piega,
- * si gira sul piede, si risale. Pugni nell'aria davanti a sé (z circa 0,6), senza lampi.
+ * La boxe, lontano dal manichino, di tre quarti verso chi guarda: guardia peek-a-boo (i pugni alle guance, i gomiti
+ * stretti), le ginocchia piegate, il busto avanti, la testa che non sta mai ferma. Ogni colpo parte dalle gambe: si
+ * piega, si gira sul piede, si risale; il braccio arriva disteso e torna subito in guardia. Pugni nell'aria davanti a
+ * sé (z circa 0,6), senza lampi. Un poco più lenti dei colpi al legno, perché da lontano si leggano.
  */
 const BS: P3 = [0.08, 1.38, 0.2];
 const BD: P3 = [-0.08, 1.36, 0.16];
 const BPS: P3 = [0.15, 0, 0.14];
 const BPD: P3 = [-0.17, 0, -0.12];
 const guardiaBoxe = (dt: number, extra: Partial<Chiave> = {}): Chiave => ({ dt, s: BS, d: BD, ms: "pugno", md: "pugno", ps: BPS, pd: BPD, yaw: -0.25, av: 0.07, h: 0.86, lato: 0, ...extra });
+// i colpi, già con la spinta delle gambe e del bacino
+const JAB: Chiave = { dt: 0.1, s: [0.04, 1.38, 0.62], yaw: -0.42, av: 0.1, h: 0.85, colpo: "s" };
+const DIRETTO: Chiave = { dt: 0.11, s: BS, d: [-0.02, 1.37, 0.64], yaw: 0.45, av: 0.12, h: 0.87, pd: [-0.15, 0.03, -0.07], colpo: "d" };
+const GANCIO_S: Chiave = { dt: 0.11, s: [-0.14, 1.38, 0.42], bs: true, yaw: 0.55, h: 0.87, ps: [0.15, 0.03, 0.14], colpo: "s" };
+const GANCIO_D: Chiave = { dt: 0.11, d: [0.14, 1.36, 0.42], bd: true, yaw: -0.6, h: 0.87, pd: [-0.15, 0.03, -0.08], colpo: "d" };
+const MONTANTE_D: Chiave = { dt: 0.12, d: [-0.02, 1.55, 0.4], h: 0.95, av: 0.02, yaw: 0.3, pd: [-0.16, 0.03, -0.08], colpo: "d" };
+const MONTANTE_S: Chiave = { dt: 0.12, s: [0.02, 1.55, 0.42], h: 0.95, av: 0.02, yaw: -0.3, colpo: "s" };
+const CARICA_BASSA = (lato: number, yaw: number): Chiave => ({ dt: 0.1, h: 0.78, lato, yaw, av: 0.12 });
 const BOXE: Tecnica[] = [
+  { nome: "jab doppio", peso: 2, chiavi: [JAB, guardiaBoxe(0.12), JAB, guardiaBoxe(0.16)] },
+  { nome: "uno-due", peso: 3, chiavi: [JAB, guardiaBoxe(0.08), DIRETTO, guardiaBoxe(0.18)] },
+  { nome: "uno-due-tre", peso: 3, chiavi: [JAB, guardiaBoxe(0.08), DIRETTO, guardiaBoxe(0.08), GANCIO_S, guardiaBoxe(0.18)] },
+  { nome: "gancio destro e sinistro", peso: 2, chiavi: [GANCIO_D, guardiaBoxe(0.1), GANCIO_S, guardiaBoxe(0.18)] },
   {
-    nome: "jab doppio", peso: 3, chiavi: [
-      { dt: 0.07, s: [0.04, 1.38, 0.6], yaw: -0.38, av: 0.09, h: 0.85, colpo: "s" },
-      guardiaBoxe(0.08),
-      { dt: 0.07, s: [0.04, 1.37, 0.6], yaw: -0.38, av: 0.09, h: 0.85, colpo: "s" },
-      guardiaBoxe(0.1),
-    ],
-  },
-  {
-    nome: "jab e diretto", peso: 3, chiavi: [
-      { dt: 0.07, s: [0.04, 1.38, 0.6], yaw: -0.38, av: 0.09, colpo: "s" },
-      { dt: 0.08, s: BS, d: [-0.02, 1.36, 0.62], yaw: 0.38, av: 0.11, h: 0.88, pd: [-0.15, 0.03, -0.07], colpo: "d" },
-      guardiaBoxe(0.12),
-    ],
-  },
-  {
-    nome: "gancio sinistro", peso: 2, chiavi: [
-      { dt: 0.06, h: 0.82, yaw: -0.1, lato: 0.04 },
-      { dt: 0.08, s: [-0.12, 1.38, 0.42], bs: true, yaw: 0.5, h: 0.87, ps: [0.15, 0.03, 0.14], colpo: "s" },
-      guardiaBoxe(0.12),
-    ],
-  },
-  {
-    // il colpo di Tyson: piega a destra, gancio destro al corpo, poi lo stesso pugno sale in montante
+    // piega a destra, gancio destro al corpo, poi lo stesso pugno sale in montante
     nome: "gancio al corpo e montante", peso: 3, chiavi: [
-      { dt: 0.08, h: 0.79, lato: -0.07, yaw: -0.1, av: 0.12 },
-      { dt: 0.07, d: [0.06, 1.05, 0.4], bd: true, yaw: -0.48, h: 0.8, colpo: "d" },
-      { dt: 0.06, d: [-0.06, 1.1, 0.24], h: 0.79, yaw: 0, lato: -0.03 },
-      { dt: 0.08, d: [-0.02, 1.52, 0.42], h: 0.96, av: 0.02, yaw: 0.28, lato: 0, colpo: "d" },
-      guardiaBoxe(0.14),
+      CARICA_BASSA(-0.07, -0.1),
+      { dt: 0.11, d: [0.06, 1.05, 0.42], bd: true, yaw: -0.5, h: 0.8, colpo: "d" },
+      { dt: 0.09, d: [-0.06, 1.1, 0.24], h: 0.79, yaw: 0, lato: -0.03 },
+      MONTANTE_D,
+      guardiaBoxe(0.18),
+    ],
+  },
+  { nome: "doppio montante", peso: 2, chiavi: [CARICA_BASSA(0.04, 0.1), MONTANTE_S, guardiaBoxe(0.1, { h: 0.8 }), MONTANTE_D, guardiaBoxe(0.18)] },
+  {
+    // si abbassa e tira il diretto al corpo, poi risale col gancio alla testa
+    nome: "diretto al corpo e gancio", peso: 2, chiavi: [
+      CARICA_BASSA(0.03, 0.05),
+      { dt: 0.11, d: [-0.02, 1.08, 0.62], yaw: 0.45, av: 0.16, h: 0.76, colpo: "d" },
+      guardiaBoxe(0.1, { h: 0.8 }),
+      GANCIO_S,
+      guardiaBoxe(0.18),
     ],
   },
   {
-    nome: "pendolo", peso: 3, chiavi: [
-      { dt: 0.13, h: 0.74, lato: 0.11, yaw: -0.3, av: 0.13 },
-      { dt: 0.15, h: 0.74, lato: -0.11, yaw: 0.12, av: 0.13 },
-      { dt: 0.11, h: 0.86, lato: 0 },
+    nome: "pendolo", peso: 2, chiavi: [
+      { dt: 0.18, h: 0.74, lato: 0.11, yaw: -0.3, av: 0.13 },
+      { dt: 0.2, h: 0.74, lato: -0.11, yaw: 0.12, av: 0.13 },
+      { dt: 0.16, h: 0.86, lato: 0 },
     ],
   },
   {
     nome: "schivata e due ganci", peso: 2, chiavi: [
-      { dt: 0.07, lato: 0.08, h: 0.83, yaw: -0.38 },
-      { dt: 0.07, s: [-0.06, 1.05, 0.42], bs: true, yaw: 0.3, h: 0.81, colpo: "s" },
-      { dt: 0.07, s: [-0.12, 1.4, 0.42], bs: true, yaw: 0.48, h: 0.88, lato: 0.02, colpo: "s" },
-      guardiaBoxe(0.12),
+      { dt: 0.1, lato: 0.08, h: 0.83, yaw: -0.38 },
+      { dt: 0.1, s: [-0.06, 1.05, 0.42], bs: true, yaw: 0.3, h: 0.81, colpo: "s" },
+      { dt: 0.1, s: [-0.12, 1.4, 0.42], bs: true, yaw: 0.5, h: 0.88, lato: 0.02, colpo: "s" },
+      guardiaBoxe(0.18),
     ],
   },
 ];
@@ -316,13 +330,119 @@ function componiBoxe(durata: number): Posa[] {
     for (const c of scelta.chiavi) metti(c);
     // la testa in movimento fra una combinazione e l'altra: un dondolo di lato, piegato
     const quanti = 1 + Math.floor(Math.random() * 2);
-    for (let k = 0; k < quanti; k++) metti(guardiaBoxe(0.16 + Math.random() * 0.1, { lato: (k % 2 ? -1 : 1) * 0.05, h: 0.84 }));
+    for (let k = 0; k < quanti; k++) metti(guardiaBoxe(0.2 + Math.random() * 0.12, { lato: (k % 2 ? -1 : 1) * 0.05, h: 0.84 }));
   }
   metti(guardiaBoxe(0.3));
   return P;
 }
 
-const specchia = (v: P3): P3 => [-v[0], v[1], v[2]];
+/*
+ * La capoeira, come Eddy Gordo: tutto passa per la ginga, il dondolo basso da un piede all'altro con un braccio
+ * davanti alla faccia; da lì partono i colpi e tornano lì. Movimenti larghi e fluidi (passaggi lenti, morbidi),
+ * le rotazioni intere del corpo (gira) e la ruota (rol) che si sommano lungo la sequenza.
+ * Le chiavi dicono gira, rol e lato rispetto all'inizio della mossa: il compositore li accumula.
+ */
+const CG_C: Chiave = { dt: 0.38, ps: [0.26, 0, 0.02], pd: [-0.26, 0, 0.02], h: 0.8, av: 0.08, yaw: 0, bec: 0, s: [0.3, 1.05, 0.12], d: [-0.3, 1.05, 0.12], ms: "palmo", md: "palmo" };
+const CG_S: Chiave = { dt: 0.48, ps: [0.24, 0, -0.44], pd: [-0.22, 0, 0.14], h: 0.72, av: 0.22, yaw: 0.38, bec: 0.08, s: [0.0, 1.32, 0.32], d: [-0.36, 0.9, -0.2], ms: "palmo", md: "palmo" };
+const CG_D: Chiave = aSpecchio(CG_S);
+const CAPOEIRA: Tecnica[] = [
+  { nome: "ginga", peso: 1, chiavi: [CG_S, CG_C, CG_D, CG_C] },
+  {
+    // la gamba destra sale da fuori, passa alta davanti al corpo e scende dall'altra parte
+    nome: "meia lua de frente", peso: 3, chiavi: [
+      { dt: 0.28, pd: [-0.35, 0.55, 0.3], h: 0.86, yaw: -0.15, av: 0, s: [0.25, 1.2, 0.2], d: [-0.25, 1.1, 0.0] },
+      { dt: 0.24, pd: [-0.15, 1.35, 0.5], h: 0.9, av: -0.08, yaw: 0 },
+      { dt: 0.24, pd: [0.3, 1.0, 0.4], h: 0.88, yaw: 0.15 },
+      { ...CG_C, dt: 0.34 },
+    ],
+  },
+  {
+    // il giro intero su se stesso, la gamba che si apre alta di fuori a metà giro
+    nome: "armada", peso: 2, chiavi: [
+      { dt: 0.26, pd: [-0.1, 0, -0.25], h: 0.8, gira: -0.6, yaw: 0.4, s: [0.2, 1.2, 0.15], d: [-0.2, 1.15, 0.1] },
+      { dt: 0.34, gira: -2.2, pd: [-0.25, 0.9, -0.3], h: 0.86, yaw: 0.2 },
+      { dt: 0.3, gira: -3.7, pd: [-0.58, 1.35, 0.2], h: 0.9, av: -0.12, s: [0.35, 1.25, 0.05], d: [-0.1, 1.2, 0.25] },
+      { ...CG_C, dt: 0.36, gira: -Math.PI * 2 },
+    ],
+  },
+  {
+    // le mani a terra, il busto giù, il giro intero con la gamba tesa che spazza alta dietro e attorno
+    nome: "meia lua de compasso", peso: 2, chiavi: [
+      { dt: 0.32, h: 0.7, bec: 0.9, av: 0.1, s: [0.25, 0.02, 0.45], d: [0.05, 0.02, 0.5], pd: [-0.3, 0, -0.1], ps: [0.25, 0, 0.15], gira: -0.5 },
+      { dt: 0.32, gira: -2.0, pd: [-0.6, 0.9, -0.25], h: 0.78, bec: 1.1 },
+      { dt: 0.3, gira: -3.6, pd: [-0.66, 1.25, 0.15], h: 0.82, bec: 1.0 },
+      { ...CG_C, dt: 0.4, gira: -Math.PI * 2 },
+    ],
+  },
+  {
+    // la negativa: giù, una mano a terra, la gamba tesa avanti; poi risale nella ginga
+    nome: "negativa", peso: 2, chiavi: [
+      { dt: 0.38, h: 0.5, av: 0.18, bec: 0.25, ps: [0.25, 0, 0.3], pd: [-0.42, 0, -0.3], s: [0.38, 0.04, 0.08], d: [-0.02, 1.0, 0.3] },
+      { dt: 0.5, h: 0.52, av: 0.15, bec: 0.2, yaw: -0.2 },
+      { ...CG_C, dt: 0.45 },
+    ],
+  },
+  {
+    // l'au: la ruota di lato, le mani a terra una dopo l'altra, le gambe aperte in alto; si atterra un metro più in là
+    nome: "au", peso: 2, chiavi: [
+      { dt: 0.32, rol: 0, lato: 0.04, h: 0.9, av: 0, yaw: 0, bec: 0, s: [0.35, 1.6, 0.05], d: [-0.15, 1.65, 0.05], ps: [0.3, 0, 0], pd: [-0.15, 0, 0] },
+      { dt: 0.3, rol: -Math.PI / 2, lato: 0.28, h: 0.72, s: [0.2, 0, 0.02], d: [0.15, 0.75, 0.02], ps: [-0.25, 0.08, 0], pd: [-0.45, 0.85, 0] },
+      { dt: 0.28, rol: -Math.PI, lato: 0.55, h: 0.95, s: [-0.2, 0, 0.02], d: [0.2, 0, 0.02], ps: [-0.32, 1.72, 0], pd: [0.32, 1.72, 0] },
+      { dt: 0.28, rol: (-Math.PI * 3) / 2, lato: 0.8, h: 0.72, s: [-0.5, 0.7, 0.02], d: [-0.22, 0, 0.02], ps: [-0.5, 0.85, 0], pd: [0.3, 0, 0] },
+      { ...CG_C, dt: 0.36, rol: -Math.PI * 2, lato: 1.05 },
+    ],
+  },
+];
+
+/**
+ * Una ripresa di capoeira: la ginga continua, e dentro le mosse a caso, a destra o a specchio. Gli au vanno e
+ * tornano, così la ruota non lo porta troppo lontano. gira, rol e lato si sommano da una mossa all'altra.
+ */
+function componiCapoeira(durata: number): Posa[] {
+  const P: Posa[] = [];
+  let t = 0;
+  let base = { gira: 0, rol: 0, lato: 0 };
+  let prima: Posa = { t: 0, s: [0.3, 1.05, 0.12], d: [-0.3, 1.05, 0.12], ms: "palmo", md: "palmo", ps: [0.24, 0, 0.02], pd: [-0.24, 0, 0.02], h: 0.82, yaw: 0, av: 0.06, giro: 0, lato: 0, rol: 0, bec: 0, gira: 0 };
+  const metti = (c: Chiave) => {
+    t += c.dt;
+    const { dt: _dt, ...resto } = c;
+    void _dt;
+    const p: Posa = {
+      ...prima, bs: false, bd: false, gs: false, gd: false, colpo: undefined, ...resto, t, giro: 0,
+      gira: base.gira + (c.gira ?? (prima.gira ?? 0) - base.gira),
+      rol: base.rol + (c.rol ?? (prima.rol ?? 0) - base.rol),
+      lato: base.lato + (c.lato ?? (prima.lato ?? 0) - base.lato),
+    } as Posa;
+    P.push(p);
+    prima = p;
+  };
+  // la mossa finisce: quello che ha accumulato diventa la base della successiva
+  const chiudi = () => (base = { gira: prima.gira ?? 0, rol: prima.rol ?? 0, lato: prima.lato ?? 0 });
+  metti({ ...CG_C, dt: 0.5 });
+  let ultima = "";
+  while (t < durata) {
+    const possibili = CAPOEIRA.filter((k) => k.nome !== ultima);
+    let tot = possibili.reduce((a, k) => a + k.peso, 0) * Math.random();
+    const scelta = possibili.find((k) => (tot -= k.peso) < 0) ?? possibili[0];
+    ultima = scelta.nome;
+    // l'au: la prima ruota va dritta (lato in su: verso destra per chi guarda, lontano dal manichino),
+    // la seconda, a specchio, torna indietro
+    const specchio = scelta.nome === "au" ? base.lato > 0.1 : Math.random() < 0.5;
+    for (const c of scelta.chiavi) metti(specchio ? aSpecchio(c) : c);
+    chiudi();
+    // fra una mossa e l'altra, mezzo giro di ginga, da una parte o dall'altra
+    for (const c of Math.random() < 0.5 ? [CG_S, CG_C] : [CG_D, CG_C]) metti(c);
+    chiudi();
+  }
+  // torna al centro, ginga e guardia
+  metti({ ...CG_C, dt: 0.6, lato: -base.lato });
+  chiudi();
+  return P;
+}
+
+function specchia(v: P3): P3 {
+  return [-v[0], v[1], v[2]];
+}
 function aSpecchio(c: Chiave): Chiave {
   const lato: Record<string, Chiave["colpo"]> = { s: "d", d: "s", ps: "pd", pd: "ps" };
   return {
@@ -339,6 +459,8 @@ function aSpecchio(c: Chiave): Chiave {
     pd: c.ps && specchia(c.ps),
     yaw: c.yaw === undefined ? undefined : -c.yaw,
     lato: c.lato === undefined ? undefined : -c.lato,
+    rol: c.rol === undefined ? undefined : -c.rol,
+    gira: c.gira === undefined ? undefined : -c.gira,
     colpo: c.colpo && lato[c.colpo],
   };
 }
@@ -402,6 +524,9 @@ function componi(durata: number): Posa[] {
 export type PosaLibera = {
   s: THREE.Vector3; d: THREE.Vector3; ps: THREE.Vector3; pd: THREE.Vector3;
   h: number; yaw: number; av: number; giro: number; lato: number; nod: number;
+  rol?: number; bec?: number; gira?: number;
+  /** quanto è girato rispetto al manichino, da solo: di tre quarti verso chi guarda */
+  fronte?: number;
   bs: boolean; bd: boolean; gs: boolean; gd: boolean; ms: Mano; md: Mano;
   colpo: { quale: "s" | "d" | "ps" | "pd"; chiave: number } | null;
 };
@@ -414,11 +539,13 @@ function mescola(a: PosaLibera, b: PosaLibera, u: number): PosaLibera {
   return {
     s: v(a.s, b.s), d: v(a.d, b.d), ps: v(a.ps, b.ps), pd: v(a.pd, b.pd),
     h: n(a.h, b.h), yaw: n(a.yaw, b.yaw), av: n(a.av, b.av), giro: n(a.giro, b.giro), lato: n(a.lato, b.lato), nod: n(a.nod, b.nod),
+    rol: n(a.rol ?? 0, b.rol ?? 0), bec: n(a.bec ?? 0, b.bec ?? 0), gira: n(a.gira ?? 0, b.gira ?? 0), fronte: n(a.fronte ?? 0, b.fronte ?? 0),
     bs: scegli.bs, bd: scegli.bd, gs: scegli.gs, gd: scegli.gd, ms: scegli.ms, md: scegli.md, colpo: null,
   };
 }
 
 const morbido = (x: number) => x * x * (3 - 2 * x);
+const angolo = (x: number) => Math.atan2(Math.sin(x), Math.cos(x));
 /** Per i colpi: parte svelto e si ferma secco. */
 const secco = (x: number) => 1 - Math.pow(1 - x, 3);
 
@@ -482,7 +609,9 @@ export class LivioRasta {
   private tempo = 0;
   private stato: "spento" | "stampa" | "allena" | "libero" = "spento";
   private finoA = 1.5;
-  private forma: "boxe" | "ombra" = "boxe";
+  private forma: "boxe" | "capoeira" = "boxe";
+  /** a turno: dopo il legno una volta la boxe, la volta dopo la capoeira */
+  private prossima: "boxe" | "capoeira" = "boxe";
   private durataLibera = 0;
   private iniziato = false;
   // appoggi, per non creare oggetti a ogni fotogramma
@@ -678,6 +807,10 @@ export class LivioRasta {
       av: n(a.av, b.av, 0),
       giro: n(a.giro, b.giro, 0),
       lato: n(a.lato, b.lato, 0),
+      // le rotazioni intere si accumulano nella sequenza: qui si riportano fra −π e π (l'aspetto è lo stesso)
+      rol: angolo(n(a.rol, b.rol, 0)),
+      bec: n(a.bec, b.bec, 0),
+      gira: angolo(n(a.gira, b.gira, 0)),
       bs: (u < 0.5 ? a.bs : b.bs) ?? false,
       bd: (u < 0.5 ? a.bd : b.bd) ?? false,
       gs: (u < 0.5 ? a.gs : b.gs) ?? false,
@@ -741,19 +874,20 @@ export class LivioRasta {
     const fine = this.sequenza[this.sequenza.length - 1].t;
     const tc = this.stato === "allena" ? Math.min(this.tempo, fine) : 0;
     if (this.stato === "allena" && this.tempo >= fine) {
-      // finita la sequenza: si stacca dal manichino, con una ripresa di boxe o coi colpi nell'aria
+      // finita la sequenza: si stacca dal manichino, a turno con una ripresa di boxe o di capoeira
       this.stato = "libero";
       this.tempo = 0;
-      this.forma = Math.random() < 0.65 ? "boxe" : "ombra";
-      this.durataLibera = this.forma === "boxe" ? 14 + Math.random() * 6 : 12 + Math.random() * 4;
-      this.sequenza = this.forma === "boxe" ? componiBoxe(this.durataLibera - 2.4) : componi(this.durataLibera - 2.4);
+      this.forma = this.prossima;
+      this.prossima = this.forma === "boxe" ? "capoeira" : "boxe";
+      this.durataLibera = this.forma === "boxe" ? 15 + Math.random() * 5 : 17 + Math.random() * 5;
+      this.sequenza = this.forma === "boxe" ? componiBoxe(this.durataLibera - 2.4) : componiCapoeira(this.durataLibera - 2.4);
     }
     this.metti(tc, dt, t);
   }
 
   /**
-   * Da solo, staccato dal manichino: un passo indietro (via), poi una ripresa di boxe (vedi BOXE) o i colpi
-   * nell'aria (la sequenza del Wing Chun, senza legno davanti); in fondo torna al manichino e riprende.
+   * Da solo, staccato dal manichino: un passo indietro (via) e si gira di tre quarti verso chi guarda (fronte), poi
+   * una ripresa di boxe (vedi BOXE) o di capoeira (vedi CAPOEIRA); in fondo torna al manichino e riprende.
    */
   private daSolo(dt: number, t: number) {
     const T0 = 1.2;
@@ -767,12 +901,12 @@ export class LivioRasta {
     const p = this.posa(tc);
     if (this.forma === "boxe") {
       const molla = Math.sin(t * 9.5) * 0.012;
-      P = { ...p, h: p.h + molla, lato: p.lato + Math.sin(t * 2.9) * 0.025, nod: 0.06, colpo: null };
+      P = { ...p, h: p.h + molla, lato: p.lato + Math.sin(t * 2.9) * 0.025, nod: 0.06, colpo: null, fronte: FRONTE };
     } else {
-      P = { ...p, nod: 0, lato: 0, colpo: null };
+      P = { ...p, nod: 0, colpo: null, fronte: FRONTE };
     }
     // in partenza e in arrivo il corpo passa per la guardia del legno
-    if (k < 1) P = mescola({ ...this.posaLegno(), nod: 0, lato: 0, colpo: null }, P, k);
+    if (k < 1) P = mescola({ ...this.posaLegno(), nod: 0, lato: 0, colpo: null, rol: 0, bec: 0, gira: 0, fronte: 0 }, P, k);
     if (resta <= 0) {
       this.stato = "allena";
       this.tempo = 0;
@@ -886,13 +1020,17 @@ export class LivioRasta {
       this.corpo.position.copy(P.dove);
       this.corpo.quaternion.copy(P.verso);
     } else {
-      this.corpo.position.set(Math.sin(P.giro) * -c + P.lato, 0, c - Math.cos(P.giro) * c - (P.via ?? 0));
-      this.corpo.rotation.set(0, P.giro, 0);
+      // da solo si gira verso chi guarda (fronte) e su se stesso (gira); lo spostamento di lato segue la fronte
+      const fronte = P.fronte ?? 0;
+      const g = P.giro + fronte + (P.gira ?? 0);
+      this.corpo.position.set(Math.sin(P.giro) * -c + P.lato * Math.cos(fronte), 0, c - Math.cos(P.giro) * c - (P.via ?? 0) - P.lato * Math.sin(fronte));
+      this.corpo.rotation.set(0, g, 0);
     }
     // il bacino: basso nella posizione, un respiro leggero, la rotazione verso il colpo
     const respiro = Math.sin(t * 1.7) * 0.006;
     const bacino = V(0, P.h + respiro, 0.02 + P.av);
-    const rot = new THREE.Quaternion().setFromEuler(new THREE.Euler(0.06 + P.av * 0.8, P.yaw, 0, "YXZ"));
+    const rol = P.rol ?? 0, bec = P.bec ?? 0;
+    const rot = new THREE.Quaternion().setFromEuler(new THREE.Euler(0.06 + P.av * 0.8 + bec, P.yaw, rol, "YXZ"));
     this.bacino.position.copy(bacino);
     this.bacino.quaternion.copy(rot);
     this.busto.position.copy(bacino).add(V(0, 0.02, 0));
@@ -903,7 +1041,7 @@ export class LivioRasta {
     const testaPos = nelBusto(0, BUSTO + 0.1, 0.01);
     osso(this.collo, collo, testaPos, this.q, this.t);
     this.testa.position.copy(testaPos);
-    this.testa.quaternion.setFromEuler(new THREE.Euler(0.08 - P.av * 0.5 + P.nod, P.yaw * 0.35, 0, "YXZ"));
+    this.testa.quaternion.setFromEuler(new THREE.Euler(0.08 - P.av * 0.5 + P.nod + bec * 0.7, P.yaw * 0.35, rol, "YXZ"));
     // braccia
     this.spalle[0].copy(nelBusto(SPALLA_X, BUSTO - 0.06, 0));
     this.spalle[1].copy(nelBusto(-SPALLA_X, BUSTO - 0.06, 0));

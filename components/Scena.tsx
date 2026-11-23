@@ -6,7 +6,7 @@ import * as THREE from "three";
 import Cielo from "./Cielo";
 import Portale from "./Portale";
 import Fauna from "./Fauna";
-import Suolo, { CieloDiGiorno } from "./Suolo";
+import Suolo, { CieloDiGiorno, CieloDiNotte } from "./Suolo";
 import { FLUO, type DatiCopertina, type Famiglie } from "./copertina";
 import { mondo } from "./condivisi";
 import { suono } from "./audio";
@@ -70,8 +70,8 @@ type Props = {
 /* Ogni tema cambia più dei colori: luce, densità, peso dei segni. */
 export const PALETTE = {
   scuro: {
-    fondo: "#0B0C10",
-    nebbia: 0.042,
+    fondo: "#141C31",
+    nebbia: 0.036,
     carta: "#F3F1EB",
     filigrana: "#E9E6DD",
     filigranaRiposo: 0.1,
@@ -478,7 +478,7 @@ function Carte({
         if (!ridotto) {
           const passo = 0.085 + ((i * 37) % 7) * 0.012;
           giroPagina(stato.clock.elapsedTime + i * 2.7, grafica.rapporti[i], accesa ? passo * 1.6 : passo, schermo.uniforms.uRett.value);
-        } else giroPagina(0, grafica.rapporti[i], 1, schermo.uniforms.uRett.value);
+        } else giroPagina(0, grafica.rapporti[i], 1, schermo.uniforms.uRett.value, true);
       }
 
       // cantiere: il nastro scorre, la lampada lampeggia
@@ -920,7 +920,7 @@ function Ritmo({ moduloAperto, ridotto }: { moduloAperto: boolean; ridotto: bool
 /**
  * Sfondo, nebbia e luce del cielo seguono il tema, sulla stessa scena.
  * La luce del cielo serve alle cose fatte di materia (la zona dello sviluppatore, gli ospiti);
- * le carte non ne usano. Di notte è una luna fioca.
+ * le carte non ne usano. Di notte è la luce della luna, fredda ma non avara.
  */
 function Ambiente({ tema }: { tema: Tema }) {
   const p = PALETTE[tema];
@@ -929,7 +929,7 @@ function Ambiente({ tema }: { tema: Tema }) {
     <>
       <color attach="background" args={[p.fondo]} />
       <fogExp2 attach="fog" args={[p.fondo, p.nebbia]} />
-      <hemisphereLight args={[notte ? "#4A5A82" : "#F6F2EA", notte ? "#0B0C10" : "#B8AFA0", notte ? 0.85 : 1.05]} />
+      <hemisphereLight args={[notte ? "#8497CC" : "#F6F2EA", notte ? "#2A2833" : "#B8AFA0", notte ? 1.2 : 1.05]} />
     </>
   );
 }
@@ -1113,7 +1113,7 @@ export default function Scena(props: Props) {
       <FestaLibera notte={tema === "scuro"} ridotto={props.ridotto} />
       <Posti notte={tema === "scuro"} ridotto={props.ridotto} testiEco={props.testiEco} />
       <Transizione tema={tema} ridotto={props.ridotto} />
-      {tema === "chiaro" && <CieloDiGiorno orizzonte={p.fondo} />}
+      {tema === "chiaro" ? <CieloDiGiorno orizzonte={p.fondo} /> : <CieloDiNotte orizzonte={p.fondo} />}
       <Fauna
         notte={tema === "scuro"}
         ridotto={props.ridotto}

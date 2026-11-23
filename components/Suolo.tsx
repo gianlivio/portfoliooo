@@ -448,6 +448,60 @@ export function CieloDiGiorno({ orizzonte }: { orizzonte: string }) {
   return <primitive object={cupola} />;
 }
 
+/* --------------------------------------------------------------- cielo di notte */
+
+/**
+ * La notte non è nera: un blu profondo che schiarisce verso l'orizzonte (lo stesso colore della nebbia, così
+ * le cose lontane ci si sciolgono dentro), qualche stella fioca e la luna dalla parte del sole, con l'alone.
+ */
+export function CieloDiNotte({ orizzonte }: { orizzonte: string }) {
+  const cupola = useMemo(() => {
+    const m = new THREE.ShaderMaterial({
+      vertexShader: `varying vec3 vDir; void main(){ vDir = normalize(position); gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+      fragmentShader: `uniform vec3 uAlto; uniform vec3 uBasso; uniform vec3 uLuna; varying vec3 vDir;
+        float caso(vec3 p){ return fract(sin(dot(p, vec3(12.9898, 78.233, 37.719))) * 43758.5453); }
+        void main(){
+          vec3 d = normalize(vDir);
+          float h = clamp(d.y, 0.0, 1.0);
+          vec3 c = mix(uBasso, uAlto, smoothstep(0.0, 0.7, h));
+          // le stelle: una ogni tanto in una griglia sulla cupola, piccole e appena accese, più rade in basso
+          vec3 q = d * 140.0;
+          vec3 cella = floor(q);
+          float r = caso(cella);
+          vec3 centro = cella + 0.5 + (vec3(caso(cella + 1.3), caso(cella + 2.7), caso(cella + 4.1)) - 0.5) * 0.6;
+          float stella = step(0.985, r) * smoothstep(0.32, 0.0, length(q - centro));
+          c += vec3(0.8, 0.85, 1.0) * stella * (0.35 + 0.65 * caso(cella + 9.0)) * smoothstep(0.08, 0.35, h);
+          // la luna: il disco, un alone stretto e uno largo che schiarisce il cielo attorno
+          float s = max(dot(d, uLuna), 0.0);
+          c += vec3(0.95, 0.95, 0.88) * smoothstep(0.99955, 0.9997, s);
+          c += vec3(0.55, 0.62, 0.8) * (pow(s, 400.0) * 0.35 + pow(s, 24.0) * 0.1);
+          gl_FragColor = vec4(c, 1.0);
+          #include <colorspace_fragment>
+        }`,
+      uniforms: {
+        uAlto: { value: new THREE.Color("#04060D") },
+        uBasso: { value: new THREE.Color(orizzonte) },
+        uLuna: { value: SOLE },
+      },
+      side: THREE.BackSide,
+      depthWrite: false,
+      fog: false,
+    });
+    const s = new THREE.Mesh(new THREE.SphereGeometry(50, 48, 24), m);
+    s.raycast = () => undefined;
+    s.renderOrder = -1;
+    return s;
+  }, [orizzonte]);
+  useEffect(
+    () => () => {
+      cupola.geometry.dispose();
+      (cupola.material as THREE.Material).dispose();
+    },
+    [cupola]
+  );
+  return <primitive object={cupola} />;
+}
+
 export default function Suolo({
   notte, fondo, stretto, ridotto, conIngresso,
 }: {
