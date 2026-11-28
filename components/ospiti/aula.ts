@@ -19,9 +19,12 @@ import { alone, fra, generatore, ik, liberaTutto, loft, luceDipinta, morbido, os
  */
 
 const PAV = PELO_ACQUA;
-/** Dove sta: in passi (components/zona.ts) e la distanza dal centro. Il varco va da circa 9,82 a 10,4. */
-export const AULA_A = ANGOLO_ZONA + (10.11 - 12) * PASSO;
-export const AULA_D = 7.3;
+/**
+ * Dove sta: in passi (components/zona.ts) e la distanza dal centro. Il varco fra Sanires e l'Osservatorio va da
+ * circa 9,8 a 10,55; l'aula sta un po' indietro, così la carta dell'Osservatorio, quando si apre, non copre Eco.
+ */
+export const AULA_A = ANGOLO_ZONA + (10.17 - 12) * PASSO;
+export const AULA_D = 8.3;
 /** Tutto più piccolo del vero, di poco più di un terzo: sopra l'aula deve restare Bologna. */
 const SCALA = 0.62;
 const CICLO = 52;

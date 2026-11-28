@@ -23,7 +23,7 @@ export type Supporto = "sedia" | "arnia" | "gommone";
  * il cancello dell'uliveto a 5 (da 4,65 a 5,35), e a destra il podere dell'ulivo, da lasciare scoperto, il Liotru a 1,5 (lì davanti, un po' più vicino degli altri lavori
  * di editoria, il blog di Punto Luce).
  * Un pannello occupa 0,3 passi per parte se vicino, 0,2 a metà, 0,15 se lontano: due lavori non devono sovrapporsi,
- * e accanto alla zona va lasciato libero chi suona i sintetizzatori; fra Sanires e l'Osservatorio (da 9,82 a 10,4)
+ * e accanto alla zona va lasciato libero chi suona i sintetizzatori; fra Sanires e l'Osservatorio (da 9,8 a 10,55)
  * c'è Umberto Eco alla lavagna, ai piedi di Bologna (components/ospiti/aula.ts).
  * supporto: l'oggetto che accompagna il lavoro (components/lavori3d/supporti.ts), solo per alcuni.
  */
@@ -110,7 +110,7 @@ const elenco: Lavoro[] = [
   {
     id: "osservatorio",
     sezione: "sviluppo",
-    posto: { piano: 1, passo: 10.65, supporto: "gommone" },
+    posto: { piano: 1, passo: 10.85, supporto: "gommone" },
     anno: "2026",
     motivo: "dati",
     tinta: "#D8D1C0",
