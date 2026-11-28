@@ -66,7 +66,9 @@ for (const [id, url] of Object.entries(lavori)) {
     fatte.push(id);
     console.log("ok", id);
   } catch (e) {
+    // se il sito non risponde resta la schermata precedente, se c'è
     console.log("non riuscita", id, e.message);
+    if (existsSync(`public/lavori/${id}.jpg`)) fatte.push(id);
   }
 }
 await browser.close();
