@@ -117,6 +117,16 @@ const elenco: Lavoro[] = [
     link: { href: "https://osservatorioaccoglienza.org", etichetta: "osservatorioaccoglienza.org" },
   },
   {
+    // lontano, fra Beauty Broker e NDN Luxury: un lavoro da trovare, non da mettere in vetrina
+    id: "violenza",
+    sezione: "sviluppo",
+    posto: { piano: 3, passo: 6.9 },
+    anno: "2026",
+    motivo: "dati",
+    tinta: "#D8D1C0",
+    link: { href: "https://violenzacontrogliuomini.org", etichetta: "violenzacontrogliuomini.org" },
+  },
+  {
     id: "livellozero",
     sezione: "sviluppo",
     posto: { piano: 1, passo: 8.0 },

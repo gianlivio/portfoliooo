@@ -104,6 +104,21 @@
       ],
       "strumenti": "Python · pdfplumber · Next.js 16 · React 19 · TypeScript · GitHub Actions · Vercel"
     },
+    "violenza": {
+      "tipo": "Public data · personal project",
+      "titolo": "Violence against men",
+      "riga": "An observatory on violence against men in Italy, which nobody measures systematically today: verified public data and its context, a guide for those who suffer it or are accused, and support services. Non-commercial.",
+      "ruolo": "Personal project · conceived, designed and built by me",
+      "compiti": [
+        "ISTAT SDI-SSD table 2014-2024, ISTAT regional boundaries and a hand-compiled CSV of services, versioned in the repository; three Python scripts using only the standard library turn them into JSON (the xlsx read with zipfile and XML, the shapefile simplified into SVG paths).",
+        "The services script runs before every build and stops it if a required field, an https source or a valid verification date is missing; it warns when a service has not been rechecked for over six months. Two GitHub Actions workflows open an issue every three months for the services and once a year for the new ISTAT table.",
+        "3D scenes on a 2D canvas with the isometric projection computed by hand, no libraries, always next to the exact value; on mobile and with prefers-reduced-motion they stay still.",
+        "Regional map and 2014-2024 time series in hand-written SVG, with a timeline; long content in tabs on mobile and sliders on desktop, always present in the HTML.",
+        "A help column fixed on every page (112, helplines, index), a bottom bar on mobile, a \"Leave now\" button. No cookies, no tracking; light and dark theme with no flash on load.",
+        "Every figure with source, year and method; where data is missing it says \"n/a\", never 0. Data downloadable as CSV, Dataset JSON-LD, Lighthouse accessibility 100."
+      ],
+      "strumenti": "Python · Next.js 16 · React 19 · TypeScript · Tailwind CSS 4 · GitHub Actions · Vercel"
+    },
     "livellozero": {
       "tipo": "Editorial site · custom CMS",
       "titolo": "Livello Zero",
@@ -161,18 +176,19 @@
       "strumenti": "WordPress · Google Search Console · DataForSEO"
     },
     "allstudios": {
-      "tipo": "Web platform · copy and development",
+      "tipo": "Web platform · development, copy and naming",
       "titolo": "ALLSTUDIA",
-      "riga": "A browser-based AI content production platform. I rewrote the website, defined the product vocabulary and built the project marketplace, from the database schema to the interface.",
-      "ruolo": "Copy, naming and full-stack development · with the company's CTO",
+      "riga": "A GOAT YOU S.R.L. platform for producing AI content in the browser: a shared drive and a node-based canvas. I rewrote the website, named things, built the project marketplace and brought OpenAI's models into the image node.",
+      "ruolo": "Full-stack development, copy and naming · with the company's CTO",
       "compiti": [
-        "Rewrote the site's nine pages in English, with a voice drawn from the vocabulary of film production.",
-        "Product vocabulary (Canvas, Node, Troupe, Dailies…), dropping names already taken in the industry after checking.",
-        "Marketplace database schema and two migrations on a shared database, each approved before running.",
-        "Publishing, moderation, purchase and delivery: a listing is a copy of the project; credits are held and refunded if delivery fails.",
-        "Removed the old marketplace, which delivered projects with unreadable files."
+        "Integrated OpenAI's GPT Image 2.6 models (Flare and Sunburst) into the image generation node: basic and advanced options, GIFs, image editing.",
+        "Measured per-token costs with real API calls to build the credit table; sale prices managed by the admin from a dedicated dashboard showing cost and margin per item, exact credit price for the user. No database migration, regression tests on Gemini.",
+        "Project marketplace: database schema and migrations, publishing, admin review, purchase with credits held and refunded if delivery fails, versioned policy, seven transactional emails, listing limit, end-to-end tests of the edge cases.",
+        "Media loaded from Cloudflare R2 in a single call with client-side caching; fixed a 403 on Drive thumbnails; new plan rules (top-ups, storage, team limits); Ambassador dashboard cleanup.",
+        "Business profile and site map defined with the CTO; rewrote the nine pages in English, new home page (\"The problem, and the answer\", \"Four steps, one canvas\") and a reskin in the brand theme.",
+        "A vocabulary drawn from film production studios in place of gaming terms (party, guild, drive), dropping names already taken (\"Crew\" for CrewAI, \"Backlot\"); \"Guild\" became \"Company\" in the interface without touching the database or routes."
       ],
-      "strumenti": "Next.js 16 · TypeScript · Prisma · PostgreSQL (Neon) · Inngest · Cloudflare R2 · Stripe"
+      "strumenti": "Next.js 16 · TypeScript · Prisma · PostgreSQL (Neon) · Inngest · Cloudflare R2 · Stripe · OpenAI API · Gemini API"
     },
     "jointoyou": {
       "tipo": "WordPress blog · content · data",

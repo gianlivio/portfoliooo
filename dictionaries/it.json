@@ -104,6 +104,21 @@
       ],
       "strumenti": "Python · pdfplumber · Next.js 16 · React 19 · TypeScript · GitHub Actions · Vercel"
     },
+    "violenza": {
+      "tipo": "Dati pubblici · progetto personale",
+      "titolo": "Violenza contro gli uomini",
+      "riga": "Osservatorio sulla violenza subita dagli uomini in Italia, che oggi nessuno misura in modo sistematico: dati pubblici verificati e il loro contesto, una guida per chi la subisce o è accusato, i servizi di aiuto. Non commerciale.",
+      "ruolo": "Progetto personale · ideato, progettato e sviluppato da me",
+      "compiti": [
+        "Tavola ISTAT SDI-SSD 2014-2024, confini ISTAT delle regioni e un CSV dei servizi compilato a mano, versionati nel repository; tre script Python con la sola libreria standard li trasformano in JSON (l'xlsx letto con zipfile e XML, lo shapefile semplificato in percorsi SVG).",
+        "Lo script dei servizi gira prima di ogni build e la ferma se manca un campo obbligatorio, una fonte https o una data di verifica valida; avvisa se un servizio non è stato riverificato da oltre sei mesi. Due workflow GitHub Actions aprono una issue ogni tre mesi per i servizi e una volta l'anno per la nuova tavola ISTAT.",
+        "Scene 3D su canvas 2D con la proiezione isometrica calcolata a mano, senza librerie, sempre accanto al valore esatto; su mobile e con prefers-reduced-motion restano ferme.",
+        "Mappa regionale e serie storica 2014-2024 in SVG scritto a mano, con linea temporale; contenuti lunghi a schede su mobile e a slider su desktop, sempre presenti nell'HTML.",
+        "Colonna d'aiuto fissa su ogni pagina (112, linee di ascolto, indice), barra in basso su mobile, pulsante «Esci subito». Nessun cookie, nessun tracciamento; tema chiaro e scuro senza lampo al caricamento.",
+        "Ogni cifra con fonte, anno e metodologia; dove il dato manca si scrive «n.d.», mai 0. Dati scaricabili in CSV, JSON-LD Dataset, accessibilità Lighthouse 100."
+      ],
+      "strumenti": "Python · Next.js 16 · React 19 · TypeScript · Tailwind CSS 4 · GitHub Actions · Vercel"
+    },
     "livellozero": {
       "tipo": "Sito editoriale · CMS su misura",
       "titolo": "Livello Zero",
@@ -161,18 +176,19 @@
       "strumenti": "WordPress · Google Search Console · DataForSEO"
     },
     "allstudios": {
-      "tipo": "Piattaforma web · copy e sviluppo",
+      "tipo": "Piattaforma web · sviluppo, copy e naming",
       "titolo": "ALLSTUDIA",
-      "riga": "Piattaforma di produzione di contenuti con l'AI che lavora nel browser. Ho riscritto il sito, definito il vocabolario del prodotto e realizzato il marketplace dei progetti, dallo schema del database all'interfaccia.",
-      "ruolo": "Copy, naming e sviluppo full-stack · con il CTO della società",
+      "riga": "Piattaforma di GOAT YOU S.R.L. per produrre contenuti con l'AI nel browser: un drive condiviso e un canvas a nodi. Ho riscritto il sito, dato un nome alle cose, costruito il marketplace dei progetti e portato nel nodo delle immagini i modelli di OpenAI.",
+      "ruolo": "Sviluppo full-stack, copy e naming · con il CTO della società",
       "compiti": [
-        "Riscrittura in inglese delle nove pagine del sito, con una voce presa dal lessico della produzione cinematografica.",
-        "Vocabolario di prodotto (Canvas, Node, Troupe, Dailies…), scartando dopo verifica i nomi già occupati nel settore.",
-        "Schema del database del marketplace e due migrazioni su un database condiviso, ognuna approvata prima dell'esecuzione.",
-        "Pubblicazione, moderazione, acquisto e consegna: l'annuncio è una copia del progetto, i crediti vengono prenotati e restituiti se la consegna fallisce.",
-        "Rimozione del vecchio marketplace, che consegnava progetti con i file illeggibili."
+        "Integrazione dei modelli OpenAI GPT Image 2.6 (Flare e Sunburst) nel nodo di generazione immagini: opzioni base e avanzate, GIF, modifica di immagini.",
+        "Costi misurati a token con prove reali sulle API, da cui la tabella dei crediti; prezzi di vendita gestiti dall'admin in una dashboard con costo e margine per voce, prezzo esatto in crediti per l'utente. Nessuna migrazione del database, test di non regressione su Gemini.",
+        "Marketplace dei progetti: schema del database e migrazioni, pubblicazione, revisione admin, acquisto con crediti prenotati e restituiti se la consegna fallisce, policy versionata, sette email transazionali, limite di annunci, test end-to-end dei casi limite.",
+        "Media caricati da Cloudflare R2 con un'unica chiamata e cache sul client; correzione di un 403 sulle miniature del Drive; nuove regole dei piani (ricarichi, storage, limiti dei team); pulizia della dashboard Ambassador.",
+        "Profilo di business e schema del sito decisi con il CTO; riscrittura in inglese delle nove pagine, nuova home («The problem, and the answer», «Four steps, one canvas») e reskin con il tema del brand.",
+        "Vocabolario preso dallo studio di produzione cinematografica al posto dei termini da gaming (party, guild, drive), scartati i nomi già occupati («Crew» per CrewAI, «Backlot»); «Guild» diventa «Company» nell'interfaccia senza toccare database e route."
       ],
-      "strumenti": "Next.js 16 · TypeScript · Prisma · PostgreSQL (Neon) · Inngest · Cloudflare R2 · Stripe"
+      "strumenti": "Next.js 16 · TypeScript · Prisma · PostgreSQL (Neon) · Inngest · Cloudflare R2 · Stripe · OpenAI API · Gemini API"
     },
     "jointoyou": {
       "tipo": "Blog WordPress · contenuti · dati",

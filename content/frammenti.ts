@@ -40,6 +40,11 @@ for pdf in report:
 archivio = unisci(anac_2015_2025)   # 18.058 contratti
 diretti = archivio[archivio.procedura == "diretto"]`,
 
+  violenza: `# tavola ISTAT SDI-SSD, 2014–2024
+righe = leggi_xlsx(zipfile.ZipFile(tavola))  # niente pandas
+quota = uomini / vittime if vittime else None  # n.d., mai 0
+assert servizio.fonte.startswith("https")`,
+
   livellozero: `// il committente scrive, il sito pubblica
 salvaArticolo({ titolo, sezione, corpo, immagini })
 pubblica("/articoli/" + slug)
@@ -70,10 +75,10 @@ SEO e GEO: Search Console, DataForSEO
 indice → sezione, scorrimento dolce
 articoli dentro lo shop`,
 
-  allstudios: `nove pagine riscritte
-vocabolario: Canvas, Node, Troupe
-annuncio = copia del progetto
-crediti prenotati, poi confermati`,
+  allstudios: `GPT Image nel nodo immagini
+costo a token → tabella dei crediti
+prezzo = costo + margine, deciso dall'admin
+Guild → Company, route intatte`,
 
   jointoyou: `WordPress, da zero
 articoli
@@ -120,6 +125,11 @@ for pdf in reports:
 archive = merge(anac_2015_2025)   # 18,058 contracts
 direct = archive[archive.procedure == "direct"]`,
 
+  violenza: `# ISTAT SDI-SSD table, 2014–2024
+rows = read_xlsx(zipfile.ZipFile(table))  # no pandas
+share = men / victims if victims else None  # n/a, never 0
+assert service.source.startswith("https")`,
+
   livellozero: `// the client writes, the site publishes
 saveArticle({ title, section, body, images })
 publish("/articles/" + slug)
@@ -150,10 +160,10 @@ SEO and GEO: Search Console, DataForSEO
 table of contents → section, smooth scroll
 articles inside the shop`,
 
-  allstudios: `nine pages rewritten
-vocabulary: Canvas, Node, Troupe
-listing = copy of the project
-credits held, then confirmed`,
+  allstudios: `GPT Image in the image node
+per-token cost → credit table
+price = cost + margin, set by the admin
+Guild → Company, routes untouched`,
 
   jointoyou: `WordPress, from scratch
 articles
@@ -200,6 +210,11 @@ for pdf in informes:
 archivo = unir(anac_2015_2025)   # 18.058 contratos
 directos = archivo[archivo.procedimiento == "directo"]`,
 
+  violenza: `# tabla ISTAT SDI-SSD, 2014–2024
+filas = leer_xlsx(zipfile.ZipFile(tabla))  # sin pandas
+cuota = hombres / victimas if victimas else None  # n.d., nunca 0
+assert servicio.fuente.startswith("https")`,
+
   livellozero: `// el cliente escribe, el sitio publica
 guardarArticulo({ titulo, seccion, cuerpo, imagenes })
 publicar("/articulos/" + slug)
@@ -230,10 +245,10 @@ SEO y GEO: Search Console, DataForSEO
 índice → sección, desplazamiento suave
 artículos dentro de la tienda`,
 
-  allstudios: `nueve páginas reescritas
-vocabulario: Canvas, Node, Troupe
-anuncio = copia del proyecto
-créditos reservados, luego confirmados`,
+  allstudios: `GPT Image en el nodo de imágenes
+coste por token → tabla de créditos
+precio = coste + margen, lo decide el admin
+Guild → Company, rutas intactas`,
 
   jointoyou: `WordPress, desde cero
 artículos

@@ -15,6 +15,7 @@ const lavori = {
   sanires: "https://www.sanires.com",
   ghigomiranda: "https://www.ghigomiranda.it",
   osservatorio: "https://osservatorioaccoglienza.org/paesi",
+  violenza: "https://violenzacontrogliuomini.org",
   livellozero: "https://livellozero.games",
   ndnluxury: "https://www.ndnluxury.com",
   esh: "https://www.eshousing.com",
