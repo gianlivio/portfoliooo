@@ -166,9 +166,9 @@ const elenco: Lavoro[] = [
     sezione: "sviluppo",
     posto: { piano: 2, passo: 3.15 },
     anno: "2026",
-    motivo: "cantiere",
+    motivo: "app",
     tinta: "#0E0E0E",
-    link: null,
+    link: { href: "https://www.allstudia.com", etichetta: "allstudia.com" },
   },
   {
     id: "jointoyou",

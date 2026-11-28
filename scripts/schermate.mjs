@@ -6,16 +6,20 @@ import { writeFileSync, mkdirSync, existsSync } from "node:fs";
 
 // shop.puntoluce.net e puntoluce.net/comefare sono dietro la verifica anti-bot di Cloudflare:
 // le loro schermate si aggiungono a mano in public/lavori/ (shop.jpg, blog.jpg).
+// Un lavoro può chiedere la vista da telefono, che mette in primo piano ciò che sta in alto nella pagina
+// (per l'Osservatorio, il mappamondo coi flussi della pagina «Da dove arrivano»).
+const TELEFONO = new Set(["osservatorio"]);
 const lavori = {
   bellelli: "https://www.bellelliufficio.it",
   "8fly": "https://www.8fly.it",
   sanires: "https://www.sanires.com",
   ghigomiranda: "https://www.ghigomiranda.it",
-  osservatorio: "https://osservatorioaccoglienza.org",
+  osservatorio: "https://osservatorioaccoglienza.org/paesi",
   livellozero: "https://livellozero.games",
   ndnluxury: "https://www.ndnluxury.com",
   esh: "https://www.eshousing.com",
   beautybroker: "https://www.beautybrokerworld.com",
+  allstudios: "https://www.allstudia.com",
   jointoyou: "https://jointoyou.it",
   copystudio: "https://www.copystudio.it",
   hetaweb: "https://hetaweb.it",
@@ -28,10 +32,16 @@ const NASCONDI = `#CybotCookiebotDialog,#CybotCookiebotDialogBodyUnderlay,.iuben
 {display:none!important}`;
 
 mkdirSync("public/lavori", { recursive: true });
-const browser = await chromium.launch();
-const pagina = await browser.newPage({ viewport: { width: 1280, height: 800 }, deviceScaleFactor: 0.75 });
+// WebGL anche senza scheda grafica: i mappamondi e le animazioni in canvas vengono disegnati
+const browser = await chromium.launch({ args: ["--use-angle=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"] });
+const desktop = await browser.newPage({ viewport: { width: 1280, height: 800 }, deviceScaleFactor: 0.75 });
+// telefono: 390 px di larghezza, a 2x (780 px di immagine); fino a 1400 px di pagina
+const telefono = await (await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true })).newPage();
 const fatte = [];
 for (const [id, url] of Object.entries(lavori)) {
+  const tel = TELEFONO.has(id);
+  const pagina = tel ? telefono : desktop;
+  const largo = tel ? 390 : 1280, basso = tel ? 844 : 800, tetto = tel ? 1400 : 2800;
   try {
     await pagina.goto(url, { waitUntil: "networkidle", timeout: 45000 });
     await pagina.addStyleTag({ content: NASCONDI });
@@ -46,12 +56,13 @@ for (const [id, url] of Object.entries(lavori)) {
       document.documentElement.style.overflow = "auto";
       document.body.style.overflow = "auto";
     });
-    await pagina.waitForTimeout(2500);
-    const alta = await pagina.evaluate(() => Math.min(document.documentElement.scrollHeight, 2800));
-    await pagina.setViewportSize({ width: 1280, height: Math.max(800, alta) });
-    await pagina.waitForTimeout(1200);
+    // le animazioni (il mappamondo) hanno bisogno di qualche secondo per disegnare i flussi
+    await pagina.waitForTimeout(tel ? 6000 : 2500);
+    const alta = await pagina.evaluate((t) => Math.min(document.documentElement.scrollHeight, t), tetto);
+    await pagina.setViewportSize({ width: largo, height: Math.max(basso, alta) });
+    await pagina.waitForTimeout(tel ? 3000 : 1200);
     await pagina.screenshot({ path: `public/lavori/${id}.jpg`, type: "jpeg", quality: 78 });
-    await pagina.setViewportSize({ width: 1280, height: 800 });
+    await pagina.setViewportSize({ width: largo, height: basso });
     fatte.push(id);
     console.log("ok", id);
   } catch (e) {
